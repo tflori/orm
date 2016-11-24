@@ -80,23 +80,6 @@ hand. This has two reasons:
 
 <p><strong>TL;DR</strong> Others suck, we can do it better.</p>
 
-<h2>
-<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Setup</h2>
-
-<p>Install it via composer, configure it, use it.</p>
-
-<div class="highlight highlight-source-shell"><pre>composer require tflori/orm</pre></div>
-
-<div class="highlight highlight-text-html-php"><pre><span class="pl-pse">&lt;?php</span><span class="pl-s1"></span>
-<span class="pl-s1"></span>
-<span class="pl-s1"><span class="pl-c1">DI</span><span class="pl-k">::</span>set(<span class="pl-s"><span class="pl-pds">'</span>entityManager<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> () {</span>
-<span class="pl-s1">    <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-c1">\ORM\</span><span class="pl-c1">EntityManager</span>([</span>
-<span class="pl-s1">      <span class="pl-c1">\ORM\</span><span class="pl-c1">EntityManager</span><span class="pl-k">::</span><span class="pl-c1">OPT_DEFAULT_CONNECTION</span> <span class="pl-k">=&gt;</span> [<span class="pl-s"><span class="pl-pds">'</span>pgsql<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>mydb<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>postgres<span class="pl-pds">'</span></span>]</span>
-<span class="pl-s1">    ]);</span>
-<span class="pl-s1">});</span></pre></div>
-
-<p>Read <a href="https://tflori.github.io/orm">the docs</a> for more information.</p>
-
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/tflori/orm">Orm</a> is maintained by <a href="https://github.com/tflori">tflori</a>.</span>
 
