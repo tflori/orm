@@ -10,8 +10,6 @@ permalink: /configuration.html
 A project without dependency injection, different databases, database cluster or anything else can just use configure
 with the parameters from `DBConfig`. Or create a `DBConfig` and pass it.
 
-Example `a`:
-
 ```php
 <?php
 
@@ -29,8 +27,6 @@ $entitymanager = new EntityManager([
 
 If you are using dependency injection you can pass a function that has to return a `PDO` instance.
 
-Example `b`:
-
 ```php
 <?php
 $diContainer = $GLOBALS['DI']; // what the heck? You don't know how to get your dependency injection container? we too!
@@ -45,8 +41,6 @@ $entityManager = new ORM\EntityManager([
 For people with multiple databases they have to setup named database connections. Remember that you need to tell every
 entity that should not use `default` the database name. Have a look at [Entity definitions](Entity/Definitions.md).
 
-Example `c`:
-
 ```php
 <?php
 
@@ -60,8 +54,6 @@ $entityManager = new ORM\EntityManager([
 
 You can also use the getter method here and use the `connection` attribute to provide `default`. Or directly pass a PDO
 instance.
-
-Example `d`:
 
 ```php
 <?php
