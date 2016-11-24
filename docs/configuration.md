@@ -11,6 +11,7 @@ A project without dependency injection, different databases, database cluster or
 with the parameters from `DBConfig`. Or create a `DBConfig` and pass it.
 
 Example `a`:
+
 ```php
 <?php
 
@@ -29,6 +30,7 @@ $entitymanager = new EntityManager([
 If you are using dependency injection you can pass a function that has to return a `PDO` instance.
 
 Example `b`:
+
 ```php
 <?php
 $diContainer = $GLOBALS['DI']; // what the heck? You don't know how to get your dependency injection container? we too!
@@ -44,6 +46,7 @@ For people with multiple databases they have to setup named database connections
 entity that should not use `default` the database name. Have a look at [Entity definitions](Entity/Definitions.md).
 
 Example `c`:
+
 ```php
 <?php
 
@@ -59,6 +62,7 @@ You can also use the getter method here and use the `connection` attribute to pr
 instance.
 
 Example `d`:
+
 ```php
 <?php
 $diContainer = $GLOBALS['DI'];
