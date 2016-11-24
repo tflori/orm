@@ -1,10 +1,9 @@
 ---
 layout: default
-title: tflori/orm
+title: Introduction
 permalink: /
 ---
-
-# tflori/orm
+## Introduction
 
 Why to create another ORM? There are not enough ORM implementations for PHP already?
 

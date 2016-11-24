@@ -1,3 +1,8 @@
+---
+layout: default
+title: Configuration
+permalink: /configuration.html
+---
 ## Configuration
 
 ### Database Configuration
