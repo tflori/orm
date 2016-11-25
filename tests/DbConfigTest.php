@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ORM\Test;
-
 
 use ORM\DbConfig;
 

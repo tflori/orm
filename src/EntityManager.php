@@ -86,5 +86,4 @@ class EntityManager
 
         return $this->connections[$name];
     }
-
 }
