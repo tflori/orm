@@ -1,5 +1,7 @@
 # tflori/orm
 
+**TL;DR** Others suck, we can do it better.
+
 Why to create another ORM? There are not enough ORM implementations for PHP already?
 
 Yes, there are a lot of implementations:
@@ -33,8 +35,6 @@ This library will only produce ANSI-SQL that every SQL database should understan
 hand. This has two reasons:
 1. You can write much faster and efficient queries
 2. We don't need to write a lot of abstraction (more code; more bugs)
-
-**TL;DR** Others suck, we can do it better.
 
 ## Setup
 
