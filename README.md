@@ -33,6 +33,7 @@ sources. It also requires some extra cycles to get these abstraction to work.
  
 This library will only produce ANSI-SQL that every SQL database should understand. Other queries have to be written by
 hand. This has two reasons:
+
 1. You can write much faster and efficient queries
 2. We don't need to write a lot of abstraction (more code; more bugs)
 
