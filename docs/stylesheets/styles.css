@@ -78,9 +78,8 @@ code.highlighter-rouge {
 
 pre {
   padding:8px 15px;
-  background: #f8f8f8;
-  border-radius:5px;
-  border:1px solid #e5e5e5;
+  background: #222222;
+  border-radius:3px;
   overflow-x: auto;
 }
 
@@ -212,6 +211,15 @@ menu {
 menu li {
   font-size: 16px;
   font-weight: 700;
+  margin-left: 20px;
+}
+
+menu li.selected:before {
+  content: "\227b";
+  display: inline-block;
+  width: 20px;
+  position: absolute;
+  left: 0;
 }
 
 @media print, screen and (max-width: 1124px) {
