@@ -67,7 +67,7 @@ class EntityManager
                 /** @var DbConfig $dbConfig */
                 $dbConfig = $this->connections[$name];
                 $this->connections[$name] = $pdo = new \PDO(
-                    $dbConfig->dsn,
+                    $dbConfig->getDsn(),
                     $dbConfig->user,
                     $dbConfig->pass
                 );

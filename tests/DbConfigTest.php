@@ -40,6 +40,6 @@ class DbConfigTest extends TestCase
         /** @var DbConfig $dbConfig */
         $dbConfig = $dbConfigReflection->newInstanceArgs($args);
 
-        self::assertSame($expectedDsn, $dbConfig->dsn);
+        self::assertSame($expectedDsn, $dbConfig->getDsn());
     }
 }

@@ -19,10 +19,6 @@ class DbConfig
     /** @var string */
     public $pass;
 
-    // TODO remove this variable and create a getter
-    /** @var string */
-    public $dsn;
-
     /** @var array */
     public $attributes = [];
 
@@ -63,26 +59,38 @@ class DbConfig
         switch ($type) {
             case 'mysql':
                 $this->port = $port ?: '3306';
-                $this->dsn = $type . ':';
-
-                if ($this->host[0] === '/') {
-                    $this->dsn .= 'unix_socket=' . $this->host;
-                } else {
-                    $this->dsn .= 'host=' . $this->host . ';port=' . $this->port;
-                }
-
-                $this->dsn .= ';dbname=' . $this->name;
                 break;
 
             case 'pgsql':
                 $this->port = $port ?: '5432';
-                $this->dsn = $type . ':host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->name;
+                break;
+        }
+    }
+
+    public function getDsn()
+    {
+        $dsn = $this->type . ':';
+
+        switch ($this->type) {
+            case 'mysql':
+                if ($this->host[0] === '/') {
+                    $dsn .= 'unix_socket=' . $this->host;
+                } else {
+                    $dsn .= 'host=' . $this->host . ';port=' . $this->port;
+                }
+
+                $dsn .= ';dbname=' . $this->name;
+                break;
+
+            case 'pgsql':
+                $dsn .= 'host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->name;
                 break;
 
             case 'sqlite':
-                $this->dsn = $type . ':' . $this->name;
+                $dsn .= $this->name;
                 break;
-
         }
+
+        return $dsn;
     }
 }
