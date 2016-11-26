@@ -18,6 +18,6 @@
     }
   },
   "scripts": {
-    "code-style": "phpcs --standard=PSR2 src && phpcs --standard=PSR2 tests"
+    "code-style": "phpcs --standard=PSR2 src && phpcs --standard=PSR2 --ignore=Examples tests"
   }
 }

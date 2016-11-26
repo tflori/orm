@@ -5,6 +5,12 @@ namespace ORM;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
 
+/**
+ * The EntityManager that manages the instances of Entities.
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
 class EntityManager
 {
     const OPT_DEFAULT_CONNECTION = 'connection';
@@ -14,7 +20,6 @@ class EntityManager
     protected $connections = [];
 
     /**
-     * EntityManager constructor.
      * @param array $options
      * @throws InvalidConfiguration
      */
@@ -37,6 +42,13 @@ class EntityManager
         }
     }
 
+    /**
+     * Set the connection $name to $connection.
+     *
+     * @param $name
+     * @param $connection
+     * @throws InvalidConfiguration
+     */
     public function setConnection($name, $connection)
     {
         if (is_callable($connection) || $connection instanceof DbConfig) {
@@ -52,6 +64,8 @@ class EntityManager
     }
 
     /**
+     * Get the pdo connection for $name.
+     *
      * @param string $name
      * @return \PDO
      * @throws NoConnection
