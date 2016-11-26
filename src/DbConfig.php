@@ -2,6 +2,12 @@
 
 namespace ORM;
 
+/**
+ * Describes as Database configuration
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
 class DbConfig
 {
     /** @var string */

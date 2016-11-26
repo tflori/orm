@@ -5,19 +5,29 @@ namespace ORM;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 
+/**
+ * Abstract class of entity.
+ *
+ * The instance of an entity represents a row of the table.
+ *
+ * The class and statics describe the table.
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
 abstract class Entity
 {
-    /** @var string */
-    protected static $tableName;
-
-    /** @var string[] */
-    protected static $tableNames = [];
-
     /** @var string */
     public static $tableNameTemplate = '%short%';
 
     /** @var string */
     public static $namingSchemeDb = 'snake_lower';
+
+    /** @var string */
+    protected static $tableName;
+
+    /** @var string[] */
+    protected static $tableNames = [];
 
     /** @var \ReflectionClass[] */
     protected static $reflections = [];
@@ -82,7 +92,7 @@ abstract class Entity
      * Enforces $namingScheme to $name.
      *
      * @param string $name
-     * @param $namingScheme
+     * @param string $namingScheme
      * @return string
      * @throws InvalidConfiguration
      */
