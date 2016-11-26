@@ -23,7 +23,7 @@ aliases.
 
 ### Table name
 
-The easiest way to define the table name is by adding this property.
+The easiest way to define the table name is by adding the property `$tableName`.
 
 ```php?start_inline=true
 use ORM\Entity;
@@ -61,21 +61,48 @@ echo Foo\Bar\CustomerAddress::getTableName(); // 'foo_bar_customer_address'
 Entity::$tableNameTemplate = '%namespace[2*]%';
 namespace App\Modules\Gangsters\Car { class Entity extends \ORM\Entity {} }
 echo App\Modules\Gangsters\Car\Entity::getTableName(); // 'gansters_car'
+
+// the last two of the name (useful for psr-0 autoloaded classes)
+Entity::$tableNameTemplate = '%name[0]%_%name[-1]%';
+class Module_Model_Entity_UserAddress extends \ORM\Entity {}
+echo Module_Model_Entity_UserAddress::getTableName(); // 'module_user_address'
 ```
 
-As you can see there are three placeholders `%name%`, `%short%` and `%namespace%`. Name is exploded by `_` and `\` but
-the namespace is exploded by `\` only (PSR-0). You can access specific parts of name and namespace by brackets and
+As you can see there are three placeholders `%name%`, `%short%` and `%namespace%`. Short name is exploded by `_` and `\`
+but the namespace is exploded by `\` only (PSR-0). You can access specific parts of name and namespace by brackets and
 the rest of the namespace with a `*` character. The placeholders are converted by your naming scheme. The default
-naming scheme is `lower_underscore` what means that your StudlyCaps class name `CustomerAddress` gets converted to
+naming scheme is `snake_lower` what means that your StudlyCaps class name `CustomerAddress` gets converted to
 `customer_address`.
 
-To make it configurable at initialisation of `EntityManager` there is a configuration for it too:
+To make it configurable at initialisation of `EntityManager` there is a configuration for it too.
 
 ```php?start_inline=true
 new ORM\EntityManager([
   ORM\EntityManager::OPT_TABLE_NAME_TEMPLATE => '%namespace[2*]%'
 ]);
 ```
+
+The table name template comes from static public variable and you can overwrite this variable in each entity if you
+need to.
+
+```php?start_inline=true
+
+namespace Foo\Bar;
+
+use ORM\Entity;
+
+Entity::$tableNameTemplate = '%namespace%_%short%';
+
+class Baz Extends Entity {
+  public static $tableNameTemplate = '%short%';
+}
+
+echo Baz::getTableName(); // 'baz'
+```
+
+> The tables names are stored in a protected static variable in Entity. It is not a good idea to change the template at
+> runtime because you will get unexpected behaviour when the template got changed before or after you get the name of 
+> the table the first time.
 
 #### Overwrite getter
 
