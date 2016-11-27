@@ -1,5 +1,8 @@
 # tflori/orm
 
+[![Build Status](https://travis-ci.org/tflori/orm.svg?branch=master)](https://travis-ci.org/tflori/orm)
+[![Coverage Status](https://coveralls.io/repos/github/tflori/orm/badge.svg?branch=master)](https://coveralls.io/github/tflori/orm?branch=master)
+
 **TL;DR** Others suck, we can do it better.
 
 Why to create another ORM? There are not enough ORM implementations for PHP already?
