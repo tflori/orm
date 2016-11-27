@@ -129,6 +129,7 @@ class TableNameTest extends TestCase
             [Psr0_StudlyCaps::class, '%name[-2]%', 'Psr0'],
             [Psr0_StudlyCaps::class, '%name[-2*]%', 'Psr0_Studly_Caps'],
             [Psr0_StudlyCaps::class, '%name[0]%_%name[-1]%', 'ORM_Studly_Caps'],
+            [Psr0_StudlyCaps::class, '"%name[0]%"."%name[-1]%"', '"ORM"."Studly_Caps"'],
         ];
     }
 

@@ -99,7 +99,7 @@ abstract class Entity
     protected static function forceNamingScheme($name, $namingScheme)
     {
         $words = explode('_', preg_replace(
-            '/([^A-Z_])([A-Z])/',
+            '/([a-z0-9])([A-Z])/',
             '$1_$2',
             preg_replace_callback('/([A-Z][A-Z]+)([A-Z][a-z])/', function ($d) {
                 return '_' . $d[1] . '_' . $d[2];
