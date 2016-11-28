@@ -10,5 +10,6 @@ class TestEntity extends Entity
     {
         self::$reflections = [];
         self::$tableNames = [];
+        self::$translatedColumns = [];
     }
 }

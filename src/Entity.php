@@ -26,9 +26,26 @@ abstract class Entity
     /** @var string */
     protected static $tableName;
 
+    /** @var string[]|string */
+    protected static $primaryKey = ['id'];
+
+    /** @var string[] */
+    protected static $columnAliases = [];
+
+    /** @var string */
+    protected static $columnPrefix;
+
+    /** @var bool */
+    protected static $autoIncrement = true;
+
+    /** @var string */
+    protected static $autoIncrementSequence;
+
+    // internal
     /** @var string[] */
     protected static $tableNames = [];
-
+    /** @var string[][] */
+    protected static $translatedColumns = [];
     /** @var \ReflectionClass[] */
     protected static $reflections = [];
 
@@ -89,6 +106,67 @@ abstract class Entity
     }
 
     /**
+     * Get the column name of the column $name.
+     *
+     * Important: getColumnName($name) === getColumnName(getColumnName($name))
+     *
+     * @param string $name
+     * @return string
+     */
+    public static function getColumnName($name)
+    {
+        if (isset(static::$columnAliases[$name])) {
+            return static::$columnAliases[$name];
+        }
+
+        if (!isset(self::$translatedColumns[static::class][$name])) {
+            $colName = $name;
+
+            if (static::$columnPrefix &&
+                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeDb)) !== 0) {
+                $colName = static::$columnPrefix . $colName;
+            }
+
+            self::$translatedColumns[static::class][$name] = self::forceNamingScheme($colName, static::$namingSchemeDb);
+        }
+
+        return self::$translatedColumns[static::class][$name];
+    }
+
+    /**
+     * Get the primary key for this Table
+     *
+     * @return array
+     */
+    public static function getPrimaryKey()
+    {
+        return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
+    }
+
+    /**
+     * Whether or not the table has an auto incremented primary key.
+     *
+     * @return bool
+     */
+    public static function isAutoIncremented()
+    {
+        return count(static::getPrimaryKey()) > 1 ? false : self::$autoIncrement;
+    }
+
+    /**
+     * Get the sequence of the auto increment column (pgsql only).
+     *
+     * @return string
+     */
+    public static function getAutoIncrementSequence()
+    {
+        if (static::$autoIncrementSequence) {
+            return static::$autoIncrementSequence;
+        }
+        return static::getTableName() . '_' . static::getColumnName(static::getPrimaryKey()[0]) . '_seq';
+    }
+
+    /**
      * Enforces $namingScheme to $name.
      *
      * @param string $name
@@ -101,8 +179,8 @@ abstract class Entity
         $words = explode('_', preg_replace(
             '/([a-z0-9])([A-Z])/',
             '$1_$2',
-            preg_replace_callback('/([A-Z][A-Z]+)([A-Z][a-z])/', function ($d) {
-                return '_' . $d[1] . '_' . $d[2];
+            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($d) {
+                return ($d[1] ? $d[1] . '_' : '') . $d[2] . '_' . $d[3];
             }, $name)
         ));
 

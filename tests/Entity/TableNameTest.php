@@ -11,16 +11,9 @@ use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\Entity\Examples\TestEntity;
-use ORM\Test\TestCase;
 
 class TableNameTest extends TestCase
 {
-    public function setUp()
-    {
-        parent::setUp();
-        TestEntity::reset();
-    }
-
     public function testUsesStaticTableName()
     {
         $tableName = StaticTableName::getTableName();
