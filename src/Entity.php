@@ -26,11 +26,14 @@ abstract class Entity
     /** @var string */
     protected static $tableName;
 
-    /** @var string */
-    protected static $columnPrefix;
+    /** @var string[]|string */
+    protected static $primaryKey = ['id'];
 
     /** @var string[] */
-    protected static $primaryKey = ['id'];
+    protected static $columnAliases = [];
+
+    /** @var string */
+    protected static $columnPrefix;
 
     /** @var bool */
     protected static $autoIncrement = true;
@@ -38,12 +41,9 @@ abstract class Entity
     /** @var string */
     protected static $autoIncrementSequence;
 
-    /** @var string[] */
-    protected static $columnAliases = [];
-
+    // internal
     /** @var string[] */
     protected static $tableNames = [];
-
     /** @var string[][] */
     protected static $translatedColumns = [];
     /** @var \ReflectionClass[] */

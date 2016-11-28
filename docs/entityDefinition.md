@@ -150,13 +150,12 @@ class User extends ORM\ENtity
 }
 ```
 
-**Never should `getColumnName($columnName)` give an alias or convert the column name naming scheme. So don't create an
-alias for the column name like it is in your database and have a correct naming scheme.**
-
 #### Overwrite getter
 
 The name of a column can be obtained by the public static method `getColumnName($name)`. You can overwrite this function
 if you need to or have a logic for your column prefixing.
+
+**IMPORTANT: `getColumnName(getColumnName($name))` should always return the same as `getColumnName($name)`.**
 
 ```php?start_inline=true
 namespace App\Model;
