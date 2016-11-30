@@ -20,7 +20,10 @@ $user = $entityManager->fetch(User::class, 1);
 $phoneNumber = $entityManager->fetch(AccountPhoneNumber::class, [42, 'business']);
 
 // Get user by login credentials
-$user = $entityManager->fetch(User::class)->where('username', $username)->where('password', $password)->one();
+$user = $entityManager->fetch(User::class)
+                      ->where('username', $username)
+                      ->where('password', $password)
+                      ->one();
 
 // Get all phone numbers by account (later we will see how this is done by relations)
 $phoneNumbers = $entityManager->fetch(AccountPhoneNumber::class)->where('accountId', $accountId)->all();
