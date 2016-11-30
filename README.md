@@ -50,11 +50,13 @@ composer require tflori/orm
 ```php
 <?php
 
-DI::set('entityManager', function () {
-    return new \ORM\EntityManager([
-      \ORM\EntityManager::OPT_DEFAULT_CONNECTION => ['pgsql', 'mydb', 'postgres']
-    ]);
-});
+$entityManager = new ORM\EntityManager([
+      ORM\EntityManager::OPT_DEFAULT_CONNECTION => ['pgsql', 'mydb', 'postgres']
+]);
+
+$user = $entityManager->fetch(User::class, 1);
+
+echo $user->username;
 ```
 
 Read [the docs](https://tflori.github.io/orm) for more information.
