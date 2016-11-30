@@ -26,7 +26,9 @@ $user = $entityManager->fetch(User::class)
                       ->one();
 
 // Get all phone numbers by account (later we will see how this is done by relations)
-$phoneNumbers = $entityManager->fetch(AccountPhoneNumber::class)->where('accountId', $accountId)->all();
+$phoneNumbers = $entityManager->fetch(AccountPhoneNumber::class)
+                              ->where('accountId', $accountId)
+                              ->all();
 ```
 
 These examples sounds fairly easy? Let's see in details what it means.
