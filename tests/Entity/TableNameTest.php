@@ -10,7 +10,6 @@ use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\Entity\Examples\TestEntity;
 
 class TableNameTest extends TestCase
 {
@@ -26,7 +25,7 @@ class TableNameTest extends TestCase
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Naming scheme foobar unknown');
 
-        Entity::$namingSchemeDb = 'foobar';
+        Entity::$namingSchemeTable = 'foobar';
 
         StudlyCaps::getTableName();
     }
@@ -82,7 +81,7 @@ class TableNameTest extends TestCase
     public function testTableNamingByNamingScheme($class, $namingScheme, $expected)
     {
         Entity::$tableNameTemplate = '%short%';
-        Entity::$namingSchemeDb    = $namingScheme;
+        Entity::$namingSchemeTable    = $namingScheme;
 
         /** @var Entity $class */
         $tableName = $class::getTableName();
@@ -132,7 +131,7 @@ class TableNameTest extends TestCase
     public function testTableNamingByTemplate($class, $template, $expected)
     {
         Entity::$tableNameTemplate = $template;
-        Entity::$namingSchemeDb    = 'snake_case';
+        Entity::$namingSchemeTable    = 'snake_case';
 
         if ($expected === '') {
             self::expectException(InvalidName::class);

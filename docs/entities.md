@@ -104,6 +104,9 @@ class User extends ORM\Entity
 }
 ```
 
+The methods have to follow `Entity::$namingSchemeMethods`. So if you use `set_some_var` you should set the naming
+scheme to `snake_lower`.
+
 ### Events
 
 This library aims not to have magic. So it is very strictly about events. Events are called at specific point and there

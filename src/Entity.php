@@ -21,7 +21,13 @@ abstract class Entity
     public static $tableNameTemplate = '%short%';
 
     /** @var string */
-    public static $namingSchemeDb = 'snake_lower';
+    public static $namingSchemeTable = 'snake_lower';
+
+    /** @var string */
+    public static $namingSchemeColumn = 'snake_lower';
+
+    /** @var string */
+    public static $namingSchemeMethods = 'camelCase';
 
     /** @var string */
     protected static $tableName;
@@ -41,6 +47,9 @@ abstract class Entity
     /** @var string */
     protected static $autoIncrementSequence;
 
+    /** @var array */
+    protected $data = [];
+
     // internal
     /** @var string[] */
     protected static $tableNames = [];
@@ -48,6 +57,8 @@ abstract class Entity
     protected static $translatedColumns = [];
     /** @var \ReflectionClass[] */
     protected static $reflections = [];
+    /** @var bool */
+    protected $lifeCycleEnabled = false;
 
     /**
      * Get the table name.
@@ -99,7 +110,7 @@ abstract class Entity
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeDb);
+            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeTable);
         }
 
         return self::$tableNames[static::class];
@@ -123,11 +134,12 @@ abstract class Entity
             $colName = $name;
 
             if (static::$columnPrefix &&
-                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeDb)) !== 0) {
+                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$translatedColumns[static::class][$name] = self::forceNamingScheme($colName, static::$namingSchemeDb);
+            self::$translatedColumns[static::class][$name] =
+                self::forceNamingScheme($colName, static::$namingSchemeColumn);
         }
 
         return self::$translatedColumns[static::class][$name];
@@ -235,5 +247,58 @@ abstract class Entity
             self::$reflections[static::class] = new \ReflectionClass(static::class);
         }
         return self::$reflections[static::class];
+    }
+
+    /**
+     * Enables the life cycle.
+     *
+     * @param bool $enable
+     * @internal
+     */
+    public function enableLifeCycle($enable = true)
+    {
+        $this->lifeCycleEnabled = $enable;
+    }
+
+    public function __set($var, $value)
+    {
+        $col = $this->getColumnName($var);
+
+        $setter = self::forceNamingScheme('set' . ucfirst($var), static::$namingSchemeMethods);
+        if (method_exists($this, $setter) && is_callable([$this, $setter])) {
+            $oldValue = $this->__get($var);
+            $md5OldData = md5(serialize($this->data));
+            $this->$setter($value);
+            $changed = $md5OldData !== md5(serialize($this->data));
+        } else {
+            $oldValue = $this->__get($var);
+            $changed = @$this->data[$col] !== $value;
+            $this->data[$col] = $value;
+        }
+
+        if ($this->lifeCycleEnabled && $changed) {
+            $this->onChange($var, $oldValue, $this->__get($var));
+        }
+    }
+
+    public function __get($var)
+    {
+        $getter = self::forceNamingScheme('get' . ucfirst($var), static::$namingSchemeMethods);
+        if (method_exists($this, $getter) && is_callable([$this, $getter])) {
+            return $this->$getter();
+        } else {
+            $col = static::getColumnName($var);
+            return isset($this->data[$col]) ? $this->data[$col] : null;
+        }
+    }
+
+    public function getRawData()
+    {
+        return $this->data;
+    }
+
+
+    public function onChange($var, $oldValue, $value)
+    {
     }
 }
