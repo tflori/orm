@@ -81,7 +81,7 @@ class TableNameTest extends TestCase
     public function testTableNamingByNamingScheme($class, $namingScheme, $expected)
     {
         Entity::$tableNameTemplate = '%short%';
-        Entity::$namingSchemeTable    = $namingScheme;
+        Entity::$namingSchemeTable = $namingScheme;
 
         /** @var Entity $class */
         $tableName = $class::getTableName();
@@ -131,7 +131,7 @@ class TableNameTest extends TestCase
     public function testTableNamingByTemplate($class, $template, $expected)
     {
         Entity::$tableNameTemplate = $template;
-        Entity::$namingSchemeTable    = 'snake_case';
+        Entity::$namingSchemeTable = 'snake_case';
 
         if ($expected === '') {
             self::expectException(InvalidName::class);

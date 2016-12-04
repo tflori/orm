@@ -120,18 +120,49 @@ are executed immediately.
 
 | Method        | Get called ...                           |
 |---------------|------------------------------------------|
+| `onInit`      | after the entity got created.            |
 | `onChange`    | after something got changed in data.     |
 | `preUpdate`   | before the update statement get created. |
 | `postUpdate`  | after the update statement got executed. |
 | `prePersist`  | before the insert statement get created. |
 | `postPersist` | after the insert statement got executed. |
 
+#### On Init Event
+
+The init event get a boolean that says whether the entity is new or not. A new entity is an entity that get created
+by you without data or even with data. If you got the data from database add the second parameter to the constructor.
+
 ```php?start_inline=true
 class User extends ORM\Entity
 {
-    public function prePersist()
-    {
-        $this->data[self::getColumnName('created')] = date('Y-m-d H:i:s');
-    }
+   public function onInit($new) {}
+}
+```
+
+#### On Change Event
+
+The change event get three parameters: the `$var` (string) that got changed, the `$oldValue` (mixed) and the current 
+`$value` (mixed).
+
+```php?start_inline=true
+class User extends ORM\Entity
+{
+   public function onChange($var, $oldValue, $value) {}
+}
+```
+
+#### Pre/Post Update/Persist Events
+
+These events don't get any parameters. Because the pre update/persist events get called before the statement gets
+created you can modify the data here. The post update/persist get called very late, the id is now available and the own
+data is resynchronized. You can persist other entities that are related - there is no magic that is doing it for you.
+
+```php?start_inline=true
+class User extends ORM\Entity
+{
+    public function prePersist() {}
+    public function postPersist() {}
+    public function preUpdate() {}
+    public function postUpdate() {}
 }
 ```

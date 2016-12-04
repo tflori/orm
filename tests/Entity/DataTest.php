@@ -6,6 +6,7 @@ use Mockery\Mock;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
+use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 
 class DataTest extends TestCase
@@ -52,6 +53,18 @@ class DataTest extends TestCase
         $studlyCaps->save($emMock);
     }
 
+    public function testStoresOnlyDirtyEntities()
+    {
+        $studlyCaps = new StudlyCaps([
+            'id' => 42,
+            'some_var' => 'foobar'
+        ]);
+        $emMock = \Mockery::mock(EntityManager::class);
+        $emMock->shouldNotReceive('save');
+
+        $studlyCaps->save($emMock);
+    }
+
     public function testDelegatesToSetter()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
@@ -89,7 +102,6 @@ class DataTest extends TestCase
 
     public function testGetsInitialDataOverConstructor()
     {
-        StudlyCaps::$namingSchemeColumn = 'snake_lower';
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
@@ -97,6 +109,13 @@ class DataTest extends TestCase
 
         self::assertSame(42, $studlyCaps->id);
         self::assertSame('foobar', $studlyCaps->someVar);
+    }
+
+    public function testDoesNotOverwriteDefaultData()
+    {
+        $staticTableName = new StaticTableName();
+
+        self::assertSame('default', $staticTableName->foo);
     }
 
     public function testItIsNotDirtyAfterCreate()
@@ -194,5 +213,24 @@ class DataTest extends TestCase
         self::assertTrue($studlyCaps->isDirty());
         self::assertFalse($studlyCaps->isDirty('id'));
         self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    public function testOnInitGetCalled()
+    {
+        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock->shouldReceive('onInit')->once()->with(true);
+
+        $mock->__construct();
+    }
+
+    public function testOnInitFromDatabase()
+    {
+        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock->shouldReceive('onInit')->once()->with(false);
+
+        $mock->__construct([
+            'id' => 42,
+            'some_var' => 'foobar'
+        ], true);
     }
 }

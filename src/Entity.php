@@ -47,9 +47,9 @@ abstract class Entity
     /** @var string */
     protected static $autoIncrementSequence;
 
-    /** @var array */
+    /** @var mixed[] */
     protected $data = [];
-    /** @var array */
+    /** @var mixed[] */
     protected $originalData = [];
 
     // internal
@@ -253,10 +253,12 @@ abstract class Entity
      * Entity constructor.
      *
      * @param array $data
+     * @param bool $fromDatabase
      */
-    final public function __construct(array $data = [])
+    final public function __construct(array $data = [], $fromDatabase = false)
     {
-        $this->data = $this->originalData = $data;
+        $this->data = $this->originalData = array_merge($this->data, $data);
+        $this->onInit(!$fromDatabase);
     }
 
     /**
@@ -349,7 +351,9 @@ abstract class Entity
      */
     public function save(EntityManager $entityManager)
     {
-        $entityManager->save($this, $this->data);
+        if ($this->isDirty()) {
+            $entityManager->save($this, $this->data);
+        }
     }
 
     /**
@@ -364,13 +368,26 @@ abstract class Entity
     }
 
     /**
-     * Empty event handler. Get called when something is changed with magic setter.
+     * Empty event handler.
+     *
+     * Get called when something is changed with magic setter.
      *
      * @param string $var
      * @param mixed  $oldValue
      * @param mixed  $value
      */
     public function onChange($var, $oldValue, $value)
+    {
+    }
+
+    /**
+     * Empty event handler.
+     *
+     * Get called when the entity get initialized.
+     *
+     * @param bool $new
+     */
+    public function onInit($new)
     {
     }
 }
