@@ -33,7 +33,7 @@ class ColumnNameTest extends TestCase
      */
     public function testUsesNamingScheme($namingScheme, $name, $expected)
     {
-        TestEntity::$namingSchemeDb = $namingScheme;
+        TestEntity::$namingSchemeColumn = $namingScheme;
 
         $colName = StudlyCaps::getColumnName($name);
 
@@ -42,9 +42,9 @@ class ColumnNameTest extends TestCase
 
     public function testStoresTheNames()
     {
-        TestEntity::$namingSchemeDb = 'snake_lower';
-        $colNameBefore = StudlyCaps::getColumnName('StudlyCaps');
-        TestEntity::$namingSchemeDb = 'StudlyCaps';
+        TestEntity::$namingSchemeColumn = 'snake_lower';
+        $colNameBefore                  = StudlyCaps::getColumnName('StudlyCaps');
+        TestEntity::$namingSchemeColumn = 'StudlyCaps';
 
         $colName = StudlyCaps::getColumnName('StudlyCaps');
 
@@ -53,7 +53,7 @@ class ColumnNameTest extends TestCase
 
     public function testPrependsPrefix()
     {
-        TestEntity::$namingSchemeDb = 'snake_lower';
+        TestEntity::$namingSchemeColumn = 'snake_lower';
 
         $colName = StaticTableName::getColumnName('someCol');
 
@@ -62,7 +62,7 @@ class ColumnNameTest extends TestCase
 
     public function testDoesNotDoublePrefix()
     {
-        TestEntity::$namingSchemeDb = 'snake_lower';
+        TestEntity::$namingSchemeColumn = 'snake_lower';
 
         $colName = StaticTableName::getColumnName('stn_SomeCol');
 
@@ -72,10 +72,10 @@ class ColumnNameTest extends TestCase
     /**
      * @dataProvider provideColumnNames
      */
-    public function testDoesNotTouchColumnNames($namingScheme, $name, $expected)
+    public function testDoesNotTouchColumnNames($namingScheme, $name)
     {
-        TestEntity::$namingSchemeDb = $namingScheme;
-        $colName = StaticTableName::getColumnName($name);
+        TestEntity::$namingSchemeColumn = $namingScheme;
+        $colName                        = StaticTableName::getColumnName($name);
 
         $second = StaticTableName::getColumnName($colName);
 

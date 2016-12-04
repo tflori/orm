@@ -21,7 +21,13 @@ abstract class Entity
     public static $tableNameTemplate = '%short%';
 
     /** @var string */
-    public static $namingSchemeDb = 'snake_lower';
+    public static $namingSchemeTable = 'snake_lower';
+
+    /** @var string */
+    public static $namingSchemeColumn = 'snake_lower';
+
+    /** @var string */
+    public static $namingSchemeMethods = 'camelCase';
 
     /** @var string */
     protected static $tableName;
@@ -40,6 +46,11 @@ abstract class Entity
 
     /** @var string */
     protected static $autoIncrementSequence;
+
+    /** @var array */
+    protected $data = [];
+    /** @var array */
+    protected $originalData = [];
 
     // internal
     /** @var string[] */
@@ -99,7 +110,7 @@ abstract class Entity
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeDb);
+            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeTable);
         }
 
         return self::$tableNames[static::class];
@@ -123,11 +134,12 @@ abstract class Entity
             $colName = $name;
 
             if (static::$columnPrefix &&
-                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeDb)) !== 0) {
+                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$translatedColumns[static::class][$name] = self::forceNamingScheme($colName, static::$namingSchemeDb);
+            self::$translatedColumns[static::class][$name] =
+                self::forceNamingScheme($colName, static::$namingSchemeColumn);
         }
 
         return self::$translatedColumns[static::class][$name];
@@ -235,5 +247,130 @@ abstract class Entity
             self::$reflections[static::class] = new \ReflectionClass(static::class);
         }
         return self::$reflections[static::class];
+    }
+
+    /**
+     * Entity constructor.
+     *
+     * @param array $data
+     */
+    final public function __construct(array $data = [])
+    {
+        $this->data = $this->originalData = $data;
+    }
+
+    /**
+     * Magic setter.
+     *
+     * You can overwrite this for custom functionality but we recommend not to use the properties or setter (set*)
+     * directly when they have to update the data stored in table.
+     *
+     * @param $var
+     * @param $value
+     */
+    public function __set($var, $value)
+    {
+        $col = $this->getColumnName($var);
+
+        $setter = self::forceNamingScheme('set' . ucfirst($var), static::$namingSchemeMethods);
+        if (method_exists($this, $setter) && is_callable([$this, $setter])) {
+            $oldValue = $this->__get($var);
+            $md5OldData = md5(serialize($this->data));
+            $this->$setter($value);
+            $changed = $md5OldData !== md5(serialize($this->data));
+        } else {
+            $oldValue = $this->__get($var);
+            $changed = @$this->data[$col] !== $value;
+            $this->data[$col] = $value;
+        }
+
+        if ($changed) {
+            $this->onChange($var, $oldValue, $this->__get($var));
+        }
+    }
+
+    /**
+     * Magic getter.
+     *
+     * @param $var
+     * @return mixed|null
+     */
+    public function __get($var)
+    {
+        $getter = self::forceNamingScheme('get' . ucfirst($var), static::$namingSchemeMethods);
+        if (method_exists($this, $getter) && is_callable([$this, $getter])) {
+            return $this->$getter();
+        } else {
+            $col = static::getColumnName($var);
+            return isset($this->data[$col]) ? $this->data[$col] : null;
+        }
+    }
+
+    /**
+     * Checks if entity or $var got changed.
+     *
+     * @param string $var
+     * @return bool
+     */
+    public function isDirty($var = null)
+    {
+        if ($var) {
+            $col = static::getColumnName($var);
+            return @$this->data[$col] !== @$this->originalData[$col];
+        }
+
+        return md5(serialize($this->data)) !== md5(serialize($this->originalData));
+    }
+
+    /**
+     * Resets the entity or $var to original data.
+     *
+     * @param string $var
+     */
+    public function reset($var = null)
+    {
+        if ($var) {
+            $col = static::getColumnName($var);
+            if (isset($this->originalData[$col])) {
+                $this->data[$col] = $this->originalData[$col];
+            } else {
+                unset($this->data[$col]);
+            }
+            return;
+        }
+
+        $this->data = $this->originalData;
+    }
+
+    /**
+     * Save the entity to $entityManager.
+     *
+     * @param EntityManager $entityManager
+     */
+    public function save(EntityManager $entityManager)
+    {
+        $entityManager->save($this, $this->data);
+    }
+
+    /**
+     * Set new original data.
+     *
+     * @param array $data
+     * @internal
+     */
+    final public function setOriginalData(array $data)
+    {
+        $this->originalData = $data;
+    }
+
+    /**
+     * Empty event handler. Get called when something is changed with magic setter.
+     *
+     * @param string $var
+     * @param mixed  $oldValue
+     * @param mixed  $value
+     */
+    public function onChange($var, $oldValue, $value)
+    {
     }
 }
