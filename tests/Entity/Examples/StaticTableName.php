@@ -11,4 +11,8 @@ class StaticTableName extends TestEntity
     protected static $columnAliases = [
         'foo' => 'bar'
     ];
+
+    protected $data = [
+        'bar' => 'default'
+    ];
 }

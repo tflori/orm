@@ -100,4 +100,17 @@ class EntityManager
 
         return $this->connections[$name];
     }
+
+    /**
+     * Save $entity with $data.
+     *
+     * Should not be called directly. Instead you should use $entity->save($entityManager);
+     *
+     * @param Entity $entity
+     * @param array $data
+     * @internal
+     */
+    public function save(Entity $entity, array $data)
+    {
+    }
 }

@@ -9,6 +9,6 @@ class TestCase extends \ORM\Test\TestCase
     public function setUp()
     {
         parent::setUp();
-        TestEntity::reset();
+        TestEntity::resetStaticsForTest();
     }
 }

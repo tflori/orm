@@ -65,3 +65,21 @@ $entityManager = new ORM\EntityManager([
 
 > We are just checking if the function `is_callable()`. When the function is not returning an instance of `PDO` we
 > throw an `ORM\ExceptionsTest\NoConnection` exception.
+
+### Naming schemes
+
+There are three settings:
+
+| Setting                | Option                      | Description                          | Default         |
+|------------------------|-----------------------------|--------------------------------------|-----------------|
+| `$namingSchemeTable`   | `OPT_NAMING_SCHEME_TABLE`   | The naming scheme for table names.   | `'snake_lower'` |
+| `$namingSchemeColumn`  | `OPT_NAMING_SCHEME_COLUMN`  | The naming scheme for column names.  | `'snake_lower'` |
+| `$namingSchemeMethods` | `OPT_NAMING_SCHEME_METHODS` | The naming scheme for class methods. | `'camelCase'`   |
+
+All these settings are stored as public static property in `Entity` class. This also means that you can overwrite this
+variable in any subclass. And you can change this at runtime. We do not prevent you from making errors. But we insist
+that you not change these values at runtime. Instead we suggest you to set these settings when creating the
+`EntityManager` as option.
+
+The available naming schemes are: `snake_lower`, `SNAKE_UPPER`, `camelCase`, `StudlyCaps`, `Snake_Ucfirst`,
+`snake_case`, `lower` and `UPPER`.
