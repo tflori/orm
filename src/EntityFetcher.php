@@ -19,6 +19,9 @@ class EntityFetcher
     /** @var \PDOStatement */
     private $result;
 
+    /** @var string */
+    private $query;
+
     /**
      * EntityFetcher constructor.
      *
@@ -33,12 +36,17 @@ class EntityFetcher
 
     public function one()
     {
-        $result = $this->getResult();
+        $result = $this->getStatement();
         if (!$result) {
             return null;
         }
 
         $data      = $result->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            return null;
+        }
+
         $c         = $this->class;
         $newEntity = new $c($data, true);
         $entity    = $this->entityManager->map($newEntity);
@@ -54,21 +62,50 @@ class EntityFetcher
         return $entity;
     }
 
+    public function all($limit = 0)
+    {
+        $result = [];
+
+        while ($entity = $this->one()) {
+            $result[] = $entity;
+            if ($limit && count($result) >= $limit) {
+                break;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * @return \PDOStatement
      */
-    private function getResult()
+    private function getStatement()
     {
         if ($this->result === null) {
             $c            = $this->class;
-            $this->result = $this->entityManager->getConnection($c::$connection)->query($this->getStatement());
+            $this->result = $this->entityManager->getConnection($c::$connection)->query($this->getQuery());
         }
         return $this->result;
     }
 
-    private function getStatement()
+    private function getQuery()
     {
         $c = $this->class;
-        return 'SELECT t0.* FROM ' . $c::getTableName() . ' AS t0';
+        $base = 'SELECT t0.* FROM ' . $c::getTableName() . ' AS t0';
+
+        if ($this->query) {
+            return preg_replace(
+                '/.*SELECT .* FROM .* ((INNER|LEFT|JOIN|WHERE|RIGHT|OUTER).*)/ism',
+                $base . ' $1',
+                $this->query
+            );
+        }
+
+        return $base;
+    }
+
+    public function setQuery($query)
+    {
+        $this->query = $query;
     }
 }

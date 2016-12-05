@@ -2,6 +2,8 @@
 
 namespace ORM\Test\EntityManager;
 
+use Mockery\Mock;
+use ORM\EntityFetcher;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\TestCase;
 
@@ -26,13 +28,51 @@ class EntityFetcherTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testExecutesStatementOnce()
+    public function testReturnsNullWhenResultIsEmpty()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $statement = \Mockery::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('fetch')->andReturn(false);
+
+        $result = $fetcher->one();
+
+        self::assertNull($result);
+    }
+
+    public function testExecutesQueryOnce()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
-        $this->pdo->shouldReceive('query')->once()->with('SELECT t0.* FROM contact_phone AS t0')->andReturn(false);
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT t0.* FROM contact_phone AS t0')
+            ->andReturn(false);
 
         $fetcher->one();
+        $fetcher->one();
+    }
+
+    public function testUsesSpecifiedQuery()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $fetcher->setQuery('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'');
+
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'')
+            ->andReturn(false);
+
+        $fetcher->one();
+    }
+
+    public function testReplacesMainTableAndColsFromSpecifiedQuery()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $fetcher->setQuery('SELECT * FROM contact_phone cp WHERE id = 42 AND name = \'mobile\'');
+
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'')
+            ->andReturn(false);
+
         $fetcher->one();
     }
 
@@ -147,5 +187,100 @@ class EntityFetcherTest extends TestCase
         $contactPhone->reset('number');
 
         self::assertSame('+49 151 00000000', $contactPhone->number);
+    }
+
+    public function testAllReturnsEmptyArray()
+    {
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $fetcher->shouldReceive('one')->once()->andReturn(null);
+
+        $contactPhones = $fetcher->all();
+
+        self::assertSame([], $contactPhones);
+    }
+
+    public function testAllReturnsArrayWithAllEntities()
+    {
+        $e1 = new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile'
+        ], true);
+        $e2 = new ContactPhone([
+            'id' => 43,
+            'name' => 'mobile'
+        ], true);
+        $e3 = new ContactPhone([
+            'id' => 44,
+            'name' => 'mobile'
+        ], true);
+
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $fetcher->shouldReceive('one')->times(4)->andReturn($e1, $e2, $e3, null);
+
+        $contactPhones = $fetcher->all();
+
+        self::assertSame([
+            $e1,
+            $e2,
+            $e3
+        ], $contactPhones);
+    }
+
+    public function testAllReturnsRemainingEntities()
+    {
+        $e1 = new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile'
+        ], true);
+        $e2 = new ContactPhone([
+            'id' => 43,
+            'name' => 'mobile'
+        ], true);
+        $e3 = new ContactPhone([
+            'id' => 44,
+            'name' => 'mobile'
+        ], true);
+
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $fetcher->shouldReceive('one')->times(4)->andReturn($e1, $e2, $e3, null);
+
+        $first = $fetcher->one();
+
+        $contactPhones = $fetcher->all();
+
+        self::assertSame([
+            $e2,
+            $e3
+        ], $contactPhones);
+    }
+
+    public function testAllReturnsLimitedAmount()
+    {
+        $e1 = new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile'
+        ], true);
+        $e2 = new ContactPhone([
+            'id' => 43,
+            'name' => 'mobile'
+        ], true);
+        $e3 = new ContactPhone([
+            'id' => 44,
+            'name' => 'mobile'
+        ], true);
+
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $fetcher->shouldReceive('one')->twice()->andReturn($e1, $e2, $e3, null);
+
+        $contactPhones = $fetcher->all(2);
+
+        self::assertSame([
+            $e1,
+            $e2
+        ], $contactPhones);
     }
 }
