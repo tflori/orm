@@ -22,7 +22,7 @@
           <ul>
             {% for link in site.data.menu %}
             <li {% if page.url == link[1] %}class="selected"{% endif %}>
-              <a href="{{ site.baseurl }}{{ link[1] }}">{{ link[0] }}</a>
+              <a href=".{{ link[1] }}">{{ link[0] }}</a>
             </li>
             {% endfor %}
           </ul>

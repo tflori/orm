@@ -2,8 +2,11 @@
 
 namespace ORM;
 
+use ORM\Exceptions\Base;
+use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
+use ORM\Exceptions\NoEntity;
 
 /**
  * The EntityManager that manages the instances of Entities.
@@ -18,6 +21,9 @@ class EntityManager
 
     /**@var \PDO[]|callable[]|DbConfig[] */
     protected $connections = [];
+
+    /** @var Entity[][] */
+    protected $map = [];
 
     /**
      * @param array $options
@@ -45,20 +51,20 @@ class EntityManager
     /**
      * Set the connection $name to $connection.
      *
-     * @param $name
-     * @param $connection
+     * @param string $name
+     * @param \PDO|callable|DbConfig $connection
      * @throws InvalidConfiguration
      */
     public function setConnection($name, $connection)
     {
-        if (is_callable($connection) || $connection instanceof DbConfig) {
+        if (is_callable($connection) || $connection instanceof DbConfig || $connection instanceof \PDO) {
             $this->connections[$name] = $connection;
         } elseif (is_array($connection)) {
             $dbConfigReflection = new \ReflectionClass(DbConfig::class);
             $this->connections[$name] = $dbConfigReflection->newInstanceArgs($connection);
         } else {
             throw new InvalidConfiguration(
-                'Connection must be callable, DbConfig or an array of parameters for DbConfig::__constructor'
+                'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
             );
         }
     }
@@ -112,5 +118,63 @@ class EntityManager
      */
     public function save(Entity $entity, array $data)
     {
+    }
+
+    /**
+     * @param Entity $entity
+     * @return Entity
+     * @throws IncompletePrimaryKey
+     */
+    public function map(Entity $entity)
+    {
+        $key = [];
+        foreach ($entity::getPrimaryKey() as $var) {
+            $value = $entity->$var;
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Entity can not be mapped: ' . $var . ' is null');
+            }
+            $key[] = $entity->$var;
+        }
+
+        $class = get_class($entity);
+        $key = md5(serialize($key));
+
+        if (!isset($this->map[$class][$key])) {
+            $this->map[$class][$key] = $entity;
+        }
+
+        return $this->map[$class][$key];
+    }
+
+    /**
+     * @param string|Entity $class
+     * @param mixed $primaryKey
+     * @return Entity|EntityFetcher
+     * @throws IncompletePrimaryKey
+     * @throws NoEntity
+     */
+    public function fetch($class, $primaryKey = null)
+    {
+        $reflection = new \ReflectionClass($class);
+        if (!$reflection->isSubclassOf(Entity::class)) {
+            throw new NoEntity($class . ' is not a subclass of Entity');
+        }
+
+        if ($primaryKey === null) {
+            return new EntityFetcher($this, $class);
+        }
+
+        if (!is_array($primaryKey)) {
+            $primaryKey = [$primaryKey];
+        }
+
+        $primaryKeyVars = $class::getPrimaryKey();
+        if (count($primaryKeyVars) !== count($primaryKey)) {
+            throw new IncompletePrimaryKey(
+                'Primary key consist of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
+            );
+        }
+
+        return $this->map[$class][md5(serialize($primaryKey))];
     }
 }

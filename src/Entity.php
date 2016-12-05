@@ -17,36 +17,31 @@ use ORM\Exceptions\InvalidName;
  */
 abstract class Entity
 {
+    // definition
     /** @var string */
     public static $tableNameTemplate = '%short%';
-
     /** @var string */
     public static $namingSchemeTable = 'snake_lower';
-
     /** @var string */
     public static $namingSchemeColumn = 'snake_lower';
-
     /** @var string */
     public static $namingSchemeMethods = 'camelCase';
-
+    /** @var string */
+    public static $connection = 'default';
     /** @var string */
     protected static $tableName;
-
     /** @var string[]|string */
     protected static $primaryKey = ['id'];
-
     /** @var string[] */
     protected static $columnAliases = [];
-
     /** @var string */
     protected static $columnPrefix;
-
     /** @var bool */
     protected static $autoIncrement = true;
-
     /** @var string */
     protected static $autoIncrementSequence;
 
+    // data
     /** @var mixed[] */
     protected $data = [];
     /** @var mixed[] */
