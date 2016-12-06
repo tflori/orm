@@ -90,22 +90,27 @@ class EntityFetcher
 
     private function getQuery()
     {
-        $c = $this->class;
-        $base = 'SELECT t0.* FROM ' . $c::getTableName() . ' AS t0';
-
         if ($this->query) {
-            return preg_replace(
-                '/.*SELECT .* FROM .* ((INNER|LEFT|JOIN|WHERE|RIGHT|OUTER).*)/ism',
-                $base . ' $1',
-                $this->query
-            );
+            return $this->query;
         }
-
-        return $base;
+        $c = $this->class;
+        return 'SELECT t0.* FROM ' . $c::getTableName() . ' AS t0';
     }
 
-    public function setQuery($query)
+    public function setQuery($query, array $args = null)
     {
+        if (is_array($args) && count($args) === substr_count($query, '?')) {
+            $queryParts = explode('?', $query);
+            $query = '';
+            foreach ($queryParts as $part) {
+                $query .= $part;
+                if (count($args)) {
+                    $query .= $this->entityManager->getConnection()->quote(array_shift($args));
+                }
+            }
+        }
+
         $this->query = $query;
+        return $this;
     }
 }

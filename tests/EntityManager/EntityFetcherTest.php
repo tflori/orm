@@ -55,24 +55,24 @@ class EntityFetcherTest extends TestCase
     public function testUsesSpecifiedQuery()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
-        $fetcher->setQuery('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'');
-
         $this->pdo->shouldReceive('query')->once()
-            ->with('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'')
+            ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
             ->andReturn(false);
 
+        $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'');
         $fetcher->one();
     }
 
-    public function testReplacesMainTableAndColsFromSpecifiedQuery()
+    public function testReplacesQuestionmarksWithQuotedValue()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
-        $fetcher->setQuery('SELECT * FROM contact_phone cp WHERE id = 42 AND name = \'mobile\'');
-
         $this->pdo->shouldReceive('query')->once()
-            ->with('SELECT t0.* FROM contact_phone AS t0 WHERE id = 42 AND name = \'mobile\'')
-            ->andReturn(false);
+                  ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
+                  ->andReturn(false);
+        $this->pdo->shouldReceive('quote')->once()->with(42)->andReturn('42');
+        $this->pdo->shouldReceive('quote')->once()->with('mobile')->andReturn('\'mobile\'');
 
+        $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();
     }
 
