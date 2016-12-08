@@ -50,3 +50,6 @@ var_dump($user);
 //    ->orderBy('CASE WHEN username = ? THEN 1 WHEN username = ? THEN 2 ELSE 3 END', 'user_a', 'user_b')
 //    ->limit(1)
 //    ->one();
+
+//$query = new \ORM\QueryBuilder('ab');
+//$query->where()
