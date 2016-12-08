@@ -39,14 +39,14 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string $column
      * @return self|ParenthesisInterface
      */
-    public function join($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function innerJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function leftJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function leftOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function rightJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function rightOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function fullJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
-    public function fullOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column = '');
+    public function join($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function innerJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function leftJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function leftOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function rightJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function rightOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function fullJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
+    public function fullOuterJoin($tableName, $alias = '', $column = '', $operator = '', $column2 = '');
 
     /**
      * @param string $column
