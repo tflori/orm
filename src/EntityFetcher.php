@@ -102,10 +102,11 @@ class EntityFetcher
         if (is_array($args) && count($args) === substr_count($query, '?')) {
             $queryParts = explode('?', $query);
             $query = '';
+            $c = $this->class;
             foreach ($queryParts as $part) {
                 $query .= $part;
                 if (count($args)) {
-                    $query .= $this->entityManager->getConnection()->quote(array_shift($args));
+                    $query .= $this->entityManager->queryValue(array_shift($args), $c::$connection);
                 }
             }
         }

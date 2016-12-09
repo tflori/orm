@@ -65,12 +65,12 @@ class EntityFetcherTest extends TestCase
 
     public function testReplacesQuestionmarksWithQuotedValue()
     {
-        $fetcher = $this->em->fetch(ContactPhone::class);
+        $fetcher = new EntityFetcher($this->em, ContactPhone::class);
         $this->pdo->shouldReceive('query')->once()
                   ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
                   ->andReturn(false);
-        $this->pdo->shouldReceive('quote')->once()->with(42)->andReturn('42');
-        $this->pdo->shouldReceive('quote')->once()->with('mobile')->andReturn('\'mobile\'');
+        $this->em->shouldReceive('queryValue')->once()->with(42, 'default')->andReturn('42');
+        $this->em->shouldReceive('queryValue')->once()->with('mobile', 'default')->andReturn('\'mobile\'');
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();

@@ -20,9 +20,12 @@ class TestCase extends MockeryTestCase
         parent::setUp();
         TestEntity::resetStaticsForTest();
         $this->pdo = \Mockery::mock(\PDO::class);
-        $this->em = \Mockery::mock(new EntityManager([
-            EntityManager::OPT_DEFAULT_CONNECTION => $this->pdo
-        ]));
+        $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
+            return '\'' . addslashes($var) . '\'';
+        })->byDefault();
+
+        $this->em = \Mockery::mock(EntityManager::class)->makePartial();
+        $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
     }
 
     public function tearDown()

@@ -7,6 +7,7 @@ use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
 use ORM\Exceptions\NoEntity;
+use ORM\Exceptions\NotScalar;
 
 /**
  * The EntityManager that manages the instances of Entities.
@@ -176,5 +177,51 @@ class EntityManager
         }
 
         return $this->map[$class][md5(serialize($primaryKey))];
+    }
+
+    /**
+     * Returns the given $value formatted to use in a sql statement.
+     *
+     * Examples:
+     * <code>
+     * String(4) "test" => String(6) "'test'"
+     * Int(-123)        => String(4) "-123"
+     * Double(1.4E-5)   => String(6) "1.4E-5"
+     * NULL             => String(4) "NULL"
+     * Boolean(FALSE)   => String(1) "true"
+     * Boolean(TRUE)    => String(1) "false"
+     * </code>
+     *
+     * @param  mixed $value The variable that should be returned in SQL syntax
+     * @param  string $connection The connection to use for quoting
+     * @return string
+     * @throws NotScalar
+     */
+    public function queryValue($value, $connection = 'default')
+    {
+        switch (strtolower(gettype($value))) {
+            case 'string':
+                return $this->getConnection($connection)->quote($value);
+                break;
+
+            case 'integer':
+                return (string)$value;
+                break;
+
+            case 'double':
+                return (string)$value;
+                break;
+
+            case 'boolean':
+                return ($value) ? '1' : '0'; // TODO: get this from options
+                break;
+
+            case 'null':
+                return 'NULL';
+                break;
+
+            default:
+                throw new NotScalar('$var has to be scalar datatype. ' . gettype($value) . ' given');
+        }
     }
 }
