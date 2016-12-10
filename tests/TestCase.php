@@ -5,6 +5,7 @@ namespace ORM\Test;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use ORM\EntityManager;
+use ORM\QueryBuilder;
 use ORM\Test\Entity\Examples\TestEntity;
 
 class TestCase extends MockeryTestCase
@@ -26,6 +27,8 @@ class TestCase extends MockeryTestCase
 
         $this->em = \Mockery::mock(EntityManager::class)->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
+
+        QueryBuilder::$defaultEntityManager = $this->em;
     }
 
     public function tearDown()

@@ -106,7 +106,7 @@ class EntityFetcher
             foreach ($queryParts as $part) {
                 $query .= $part;
                 if (count($args)) {
-                    $query .= $this->entityManager->queryValue(array_shift($args), $c::$connection);
+                    $query .= $this->entityManager->convertValue(array_shift($args), $c::$connection);
                 }
             }
         }

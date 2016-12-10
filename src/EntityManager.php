@@ -2,7 +2,6 @@
 
 namespace ORM;
 
-use ORM\Exceptions\Base;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
@@ -19,12 +18,27 @@ class EntityManager
 {
     const OPT_DEFAULT_CONNECTION = 'connection';
     const OPT_CONNECTIONS        = 'connections';
+    const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
+    const OPT_MYSQL_BOOLEAN_FALSE = 'mysqlFalse';
+    const OPT_SQLITE_BOOLEAN_TRUE = 'sqliteTrue';
+    const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
+    const OPT_PGSQL_BOOLEAN_TRUE = 'pgsqlTrue';
+    const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
     /**@var \PDO[]|callable[]|DbConfig[] */
     protected $connections = [];
 
     /** @var Entity[][] */
     protected $map = [];
+
+    protected $options = [
+        self::OPT_MYSQL_BOOLEAN_TRUE => '1',
+        self::OPT_MYSQL_BOOLEAN_FALSE => '0',
+        self::OPT_SQLITE_BOOLEAN_TRUE => '1',
+        self::OPT_SQLITE_BOOLEAN_FASLE => '0',
+        self::OPT_PGSQL_BOOLEAN_TRUE => 'true',
+        self::OPT_PGSQL_BOOLEAN_FALSE => 'false'
+    ];
 
     /**
      * @param array $options
@@ -182,22 +196,12 @@ class EntityManager
     /**
      * Returns the given $value formatted to use in a sql statement.
      *
-     * Examples:
-     * <code>
-     * String(4) "test" => String(6) "'test'"
-     * Int(-123)        => String(4) "-123"
-     * Double(1.4E-5)   => String(6) "1.4E-5"
-     * NULL             => String(4) "NULL"
-     * Boolean(FALSE)   => String(1) "true"
-     * Boolean(TRUE)    => String(1) "false"
-     * </code>
-     *
      * @param  mixed $value The variable that should be returned in SQL syntax
      * @param  string $connection The connection to use for quoting
      * @return string
      * @throws NotScalar
      */
-    public function queryValue($value, $connection = 'default')
+    public function convertValue($value, $connection = 'default')
     {
         switch (strtolower(gettype($value))) {
             case 'string':
@@ -213,7 +217,8 @@ class EntityManager
                 break;
 
             case 'boolean':
-                return ($value) ? '1' : '0'; // TODO: get this from options
+                $connectionType = $this->getConnection($connection)->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                return ($value) ? $this->options[$connectionType . 'True'] : $this->options[$connectionType . 'False'];
                 break;
 
             case 'null':
@@ -221,7 +226,7 @@ class EntityManager
                 break;
 
             default:
-                throw new NotScalar('$var has to be scalar datatype. ' . gettype($value) . ' given');
+                throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
         }
     }
 }

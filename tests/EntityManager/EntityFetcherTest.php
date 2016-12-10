@@ -69,8 +69,8 @@ class EntityFetcherTest extends TestCase
         $this->pdo->shouldReceive('query')->once()
                   ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
                   ->andReturn(false);
-        $this->em->shouldReceive('queryValue')->once()->with(42, 'default')->andReturn('42');
-        $this->em->shouldReceive('queryValue')->once()->with('mobile', 'default')->andReturn('\'mobile\'');
+        $this->em->shouldReceive('convertValue')->once()->with(42, 'default')->andReturn('42');
+        $this->em->shouldReceive('convertValue')->once()->with('mobile', 'default')->andReturn('\'mobile\'');
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();

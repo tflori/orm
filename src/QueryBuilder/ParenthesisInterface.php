@@ -23,9 +23,11 @@ interface ParenthesisInterface
      * the second parameter.
      *
      * Equal calls:
+     * <code>
      * where('name', '=' , 'John Doe')
      * where('name = ?', 'John Doe')
      * where('name', 'John Doe')
+     * </code>
      *
      * @see ParenthesisInterface::andWhere()
      * @param string $column Column or expression with placeholders
@@ -46,9 +48,11 @@ interface ParenthesisInterface
      * the second parameter.
      *
      * Equal calls:
+     * <code>
      * andWhere('name', '=' , 'John Doe')
      * andWhere('name = ?', 'John Doe')
      * andWhere('name', 'John Doe')
+     * </code>
      *
      * @param string $column Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
@@ -68,9 +72,11 @@ interface ParenthesisInterface
      * the second parameter.
      *
      * Equal calls:
+     * <code>
      * orWhere('name', '=' , 'John Doe')
      * orWhere('name = ?', 'John Doe')
      * orWhere('name', 'John Doe')
+     * </code>
      *
      * @param string $column Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
@@ -102,7 +108,7 @@ interface ParenthesisInterface
     public function orParenthesis();
 
     /**
-     * @return QueryBuilderInterface
+     * @return QueryBuilderInterface|ParenthesisInterface
      */
     public function close();
 }
