@@ -57,6 +57,10 @@ class ConnectionsTest extends TestCase
 
     public function provideValidConnectionSettings()
     {
+        if (!extension_loaded('pdo_sqlite')) {
+            return [['array', ['sqlite', '/tmp/test.sqlite']]];
+        }
+
         return [
             ['array', ['sqlite', '/tmp/test.sqlite']],
             ['dbconfig', new DbConfig('sqlite', '/tmp/test.sqlite')],
@@ -72,6 +76,9 @@ class ConnectionsTest extends TestCase
      */
     public function testSetConnectionAccepts($name, $value)
     {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
         $em = new EntityManager();
 
         $em->setConnection($name, $value);
@@ -108,6 +115,10 @@ class ConnectionsTest extends TestCase
 
     public function testGetConnectionCallsGetterAndReturnsTheResult()
     {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
         $pdo = new \PDO('sqlite:///tmp/test.sqlite');
         $em = new EntityManager([
             EntityManager::OPT_DEFAULT_CONNECTION => function () use ($pdo) {
@@ -131,6 +142,10 @@ class ConnectionsTest extends TestCase
 
     public function testGetConnectionUsesConfiguredDbConfig()
     {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
         $dbConfig = new DbConfig('sqlite', '/tmp/test.sqlite');
         $em = new EntityManager([
             EntityManager::OPT_DEFAULT_CONNECTION => $dbConfig
@@ -147,6 +162,10 @@ class ConnectionsTest extends TestCase
 
     public function testConfigurationArray()
     {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
         $em = new EntityManager([
             EntityManager::OPT_DEFAULT_CONNECTION => ['sqlite', '/tmp/test.sqlite', null, null, null, null, [
                 \PDO::ATTR_CASE => \PDO::CASE_LOWER
