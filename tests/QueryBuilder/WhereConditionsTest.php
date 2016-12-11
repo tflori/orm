@@ -129,4 +129,19 @@ class WhereConditionsTest extends TestCase
         self::assertSame($parenthesis, $pResult);
         self::assertSame($result, $query);
     }
+
+    public function testAllTogether()
+    {
+        self::assertSame(
+            'SELECT * FROM foobar WHERE name = \'John Doe\' AND age > 42 AND (age NOT IN (42) OR name = \'Jane Doe\')',
+            (new QueryBuilder('foobar'))
+                ->where('name = ?', 'John Doe')
+                ->andWhere('age', '>', 42)
+                ->andParenthesis()
+                    ->where('age', 'NOT IN', [42])
+                    ->orWhere('name', 'Jane Doe')
+                    ->close()
+                ->getQuery()
+        );
+    }
 }
