@@ -3,7 +3,6 @@
 namespace ORM;
 
 use ORM\QueryBuilder\Parenthesis;
-use ORM\QueryBuilder\ParenthesisInterface;
 
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {

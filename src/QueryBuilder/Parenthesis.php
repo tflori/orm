@@ -134,6 +134,7 @@ class Parenthesis implements ParenthesisInterface
     {
         $parenthesis = new Parenthesis(function (ParenthesisInterface $parenthesis) {
             $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getParenthesis();
+
             return $this;
         }, $this->entityManager, $this->connection);
 
@@ -145,6 +146,7 @@ class Parenthesis implements ParenthesisInterface
     {
         $parenthesis = new Parenthesis(function (ParenthesisInterface $parenthesis) {
             $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getParenthesis();
+
             return $this;
         }, $this->entityManager, $this->connection);
 

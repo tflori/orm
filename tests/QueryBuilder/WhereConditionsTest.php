@@ -130,6 +130,23 @@ class WhereConditionsTest extends TestCase
         self::assertSame($result, $query);
     }
 
+    public function testParenthesisInParenthesis()
+    {
+        $query = (new QueryBuilder('foobar'))
+            ->parenthesis()
+                ->parenthesis()
+                    ->where('a', 1)
+                    ->orWhere('b', 2)
+                    ->close()
+                ->parenthesis()
+                    ->where('c', 3)
+                    ->orWhere('d', 4)
+                    ->close()
+                ->close();
+
+        self::assertSame('SELECT * FROM foobar WHERE ((a = 1 OR b = 2) AND (c = 3 OR d = 4))', $query->getQuery());
+    }
+
     public function testAllTogether()
     {
         self::assertSame(
