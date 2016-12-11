@@ -111,4 +111,9 @@ interface ParenthesisInterface
      * @return QueryBuilderInterface|ParenthesisInterface
      */
     public function close();
+
+    /**
+     * @return string
+     */
+    public function getParenthesis();
 }

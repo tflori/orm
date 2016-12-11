@@ -144,6 +144,14 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar GROUP BY col,col2', $query->getQuery());
     }
 
+    public function testGroupByHaving()
+    {
+        $query = (new QueryBuilder('foobar'))
+            ->groupBy('col HAVING MAX(col) > 0');
+
+        self::assertSame('SELECT * FROM foobar GROUP BY col HAVING MAX(col) > 0', $query->getQuery());
+    }
+
     public function testOrderByColumn()
     {
         $query = new QueryBuilder('foobar');
@@ -176,5 +184,14 @@ class BasicTest extends TestCase
             ->orderBy('IF(col > ?, 0, 1)', QueryBuilder::DIRECTION_ASCENDING, 42);
 
         self::assertSame('SELECT * FROM foobar ORDER BY IF(col > 42, 0, 1) ASC', $query->getQuery());
+    }
+
+    public function testCloseDoesNothing()
+    {
+        $query = new QueryBuilder('foobar');
+        $result = $query->close();
+
+        self::assertSame('SELECT * FROM foobar', $query->getQuery());
+        self::assertSame($query, $result);
     }
 }

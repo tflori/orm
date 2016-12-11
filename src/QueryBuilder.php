@@ -2,9 +2,10 @@
 
 namespace ORM;
 
+use ORM\QueryBuilder\Parenthesis;
 use ORM\QueryBuilder\ParenthesisInterface;
 
-class QueryBuilder implements QueryBuilderInterface
+class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
     /** @var string */
     protected $tableName = '';
@@ -14,6 +15,9 @@ class QueryBuilder implements QueryBuilderInterface
 
     /** @var array */
     protected $columns = null;
+
+    /** @var string[] */
+    protected $where = [];
 
     /** @var int */
     protected $limit;
@@ -27,18 +31,7 @@ class QueryBuilder implements QueryBuilderInterface
     /** @var string[] */
     protected $orderBy = [];
 
-    /** @var EntityManager */
-    protected $entityManager;
-
-    /** @var string */
-    protected $connection;
-
-    /** @var EntityManager */
-    public static $defaultEntityManager;
-
-    /** @var string */
-    public static $defaultConnection = 'default';
-
+    /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * QueryBuilder constructor
      *
@@ -53,34 +46,6 @@ class QueryBuilder implements QueryBuilderInterface
         $this->alias = $alias;
         $this->entityManager = $entityManager;
         $this->connection = $connection;
-    }
-
-    protected static function convertPlaceholders(
-        $expression,
-        array $args,
-        EntityManager $entityManager = null,
-        $connection = null
-    ) {
-        if (!$entityManager) {
-            $entityManager = static::$defaultEntityManager;
-        }
-
-        if (!$connection) {
-            $connection = static::$defaultConnection;
-        }
-
-        $parts = explode('?', $expression);
-        $expression = '';
-        while ($part = array_shift($parts)) {
-            $expression .= $part;
-            if (count($args)) {
-                $expression .= $entityManager->convertValue(array_shift($args), $connection);
-            } elseif (count($parts)) {
-                $expression .= '?';
-            }
-        }
-
-        return $expression;
     }
 
     /**
@@ -126,45 +91,16 @@ class QueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
-    /** {@inheritdoc} */
-    public function where($column, $operator = '', $value = '')
-    {
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function andWhere($column, $operator = '', $value = '')
-    {
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function orWhere($column, $operator = '', $value = '')
-    {
-    }
-
-    /** {@inheritdoc} */
-    public function parenthesis()
-    {
-        // TODO: Implement parenthesis() method.
-    }
-
-    /** {@inheritdoc} */
-    public function andParenthesis()
-    {
-        // TODO: Implement andParenthesis() method.
-    }
-
-    /** {@inheritdoc} */
-    public function orParenthesis()
-    {
-        // TODO: Implement orParenthesis() method.
-    }
-
-    /** {@inheritdoc} */
+    /**
+     * Empty
+     *
+     * This function does nothing. We just overwrite the functionality from parenthesis.
+     *
+     * @return self
+     */
     public function close()
     {
-        // TODO: Implement close() method.
+        return $this;
     }
 
     /** {@inheritdoc} */
@@ -246,6 +182,7 @@ class QueryBuilder implements QueryBuilderInterface
     {
         return 'SELECT ' . ($this->columns ? implode(',', $this->columns) : '*')
                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
+               . (!empty($this->where) ? ' WHERE ' . join(' ', $this->where) : '')
                . (!empty($this->groupBy) ? ' GROUP BY ' . join(',', $this->groupBy) : '')
                . (!empty($this->orderBy) ? ' ORDER BY ' . join(',', $this->orderBy) : '')
                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
