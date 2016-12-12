@@ -34,19 +34,20 @@ class Parenthesis implements ParenthesisInterface
         $this->connection    = $connection;
     }
 
-    protected static function convertPlaceholders(
+    protected function convertPlaceholders(
         $expression,
-        array $args,
-        EntityManager $entityManager = null,
-        $connection = null
+        $args
     ) {
-        if (!$entityManager) {
-            $entityManager = static::$defaultEntityManager;
+        if (strpos($expression, '?') === false) {
+            return $expression;
         }
 
-        if (!$connection) {
-            $connection = static::$defaultConnection;
+        if (!is_array($args)) {
+            $args = [$args];
         }
+
+        $entityManager = $this->entityManager ?: static::$defaultEntityManager;
+        $connection = $this->connection ?: static::$defaultConnection;
 
         $parts = explode('?', $expression);
         $expression = '';
@@ -88,15 +89,7 @@ class Parenthesis implements ParenthesisInterface
             }
         }
 
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-
-        if (strpos($expression, '?') !== false) {
-            $whereCondition = static::convertPlaceholders($expression, $value, $this->entityManager, $this->connection);
-        } else {
-            $whereCondition = $expression;
-        }
+        $whereCondition = $this->convertPlaceholders($expression, $value);
 
         return $whereCondition;
     }

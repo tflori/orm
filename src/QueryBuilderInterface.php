@@ -15,66 +15,66 @@ interface QueryBuilderInterface extends ParenthesisInterface
     const DIRECTION_ASCENDING = 'ASC';
     const DIRECTION_DESCENDING = 'DESC';
 
-    const JOINOPT_ALIAS        = 'alias';
-    const JOINOPT_USING        = 'using';
-    const JOINOPT_EXPRESSION   = 'expression';
-    const JOINOPT_LEFT_COLUMN  = 'leftCol';
-    const JOINOPT_RIGHT_COLUMN = 'rightCol';
-    const JOINOPT_OPERATOR     = 'operator';
-    const JOINOPT_EMPTY        = 'empty';
-
     /**
      * (Inner) join $tableName with $options
      *
-     * When no expression, left column or using got provided a ParenthesisInterface get returned. If this parenthesis
-     * not get filled you will most likely get an error from your database. If you don't want to get a parenthesis
-     * the parameter empty can be set to true.
+     * When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+     * will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+     * can be set to true.
      *
      * @param string $tableName
-     * @param array $options
+     * @param string|boolean $expression|$empty
+     * @param string $alias
+     * @param array $args
      * @return self|ParenthesisInterface
      */
-    public function join($tableName, array $options = []);
+    public function join($tableName, $expression = '', $alias = '', $args = []);
 
     /**
      * Left (outer) join $tableName with $options
      *
-     * When no expression, left column or using got provided a ParenthesisInterface get returned. If this parenthesis
-     * not get filled you will most likely get an error from your database. If you don't want to get a parenthesis
-     * the parameter empty can be set to true.
+     * When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+     * will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+     * can be set to true.
      *
      * @param string $tableName
-     * @param array $options
+     * @param string|boolean $expression|$empty
+     * @param string $alias
+     * @param array $args
      * @return self|ParenthesisInterface
      */
-    public function leftJoin($tableName, array $options = []);
+    public function leftJoin($tableName, $expression = '', $alias = '', $args = []);
 
     /**
      * Right (outer) join $tableName with $options
      *
-     * When no expression, left column or using got provided a ParenthesisInterface get returned. If this parenthesis
-     * not get filled you will most likely get an error from your database. If you don't want to get a parenthesis
-     * the parameter empty can be set to true.
+     * When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+     * will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+     * can be set to true.
      *
      * @param string $tableName
-     * @param array $options
+     * @param string|boolean $expression|$empty
+     * @param string $alias
+     * @param array $args
      * @return self|ParenthesisInterface
      */
-    public function rightJoin($tableName, array $options = []);
+    public function rightJoin($tableName, $expression = '', $alias = '', $args = []);
 
     /**
      * Right (outer) join $tableName with $options
      *
-     * When no expression, left column or using got provided self get returned. If you want to get a parenthesis
-     * the parameter empty can be set to false.
+     * When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
+     * can be set to false.
      *
      * ATTENTION: here the default value of empty got changed - defaults to yes
      *
      * @param string $tableName
-     * @param array $options
+     * @param string|boolean $expression|$empty
+     * @param string $alias
+     * @param array $args
      * @return self|ParenthesisInterface
      */
-    public function fullJoin($tableName, array $options = []);
+    public function fullJoin($tableName, $expression = '', $alias = '', $args = []);
 
     /**
      * Group By $column

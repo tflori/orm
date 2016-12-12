@@ -3,6 +3,7 @@
 namespace ORM;
 
 use ORM\QueryBuilder\Parenthesis;
+use ORM\QueryBuilder\ParenthesisInterface;
 
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
@@ -14,6 +15,9 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 
     /** @var array */
     protected $columns = null;
+
+    /** @var array */
+    protected $joins = [];
 
     /** @var string[] */
     protected $where = [];
@@ -75,15 +79,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $this->columns = [];
         }
 
-        if (!is_array($args)) {
-            $args = [$args];
-        }
-
-        if (strpos($column, '?') !== false) {
-            $expression = static::convertPlaceholders($column, $args, $this->entityManager, $this->connection);
-        } else {
-            $expression = $column;
-        }
+        $expression = $this->convertPlaceholders($column, $args);
 
         $this->columns[] = $expression . ($alias ? ' AS ' . $alias : '');
 
@@ -102,42 +98,88 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
-    /** {@inheritdoc} */
-    public function join($tableName, array $options = [])
+    protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)
     {
-        // TODO: Implement join() method.
+        $join = $join . ' ' . $tableName
+              . ($alias ? ' AS ' . $alias : '');
+
+        if (preg_match('/^[A-Za-z_]+$/', $expression)) {
+            $join .= ' USING (' . $expression . ')';
+            $this->joins[] = $join;
+        } elseif ($expression) {
+            $expression = $this->convertPlaceholders($expression, $args);
+
+            $join .= ' ON ' . $expression;
+            $this->joins[] = $join;
+        } elseif ($empty) {
+            $this->joins[] = $join;
+        } else {
+            return new Parenthesis(function (ParenthesisInterface $parenthesis) use ($join) {
+                $join .= ' ON ' . $parenthesis->getParenthesis();
+                $this->joins[] = $join;
+                return $this;
+            }, $this->entityManager, $this->connection);
+        }
+
+        return $this;
     }
 
     /** {@inheritdoc} */
-    public function leftJoin($tableName, array $options = [])
+    public function join($tableName, $expression = '', $alias = '', $args = [])
     {
-        // TODO: Implement leftJoin() method.
+        return $this->createJoin(
+            'JOIN',
+            $tableName,
+            is_string($expression) ? $expression : '',
+            $alias,
+            $args,
+            is_bool($expression) ? $expression : false
+        );
     }
 
     /** {@inheritdoc} */
-    public function rightJoin($tableName, array $options = [])
+    public function leftJoin($tableName, $expression = '', $alias = '', $args = [])
     {
-        // TODO: Implement rightJoin() method.
+        return $this->createJoin(
+            'LEFT JOIN',
+            $tableName,
+            is_string($expression) ? $expression : '',
+            $alias,
+            $args,
+            is_bool($expression) ? $expression : false
+        );
     }
 
     /** {@inheritdoc} */
-    public function fullJoin($tableName, array $options = [])
+    public function rightJoin($tableName, $expression = '', $alias = '', $args = [])
     {
-        // TODO: Implement fullJoin() method.
+        return $this->createJoin(
+            'RIGHT JOIN',
+            $tableName,
+            is_string($expression) ? $expression : '',
+            $alias,
+            $args,
+            is_bool($expression) ? $expression : false
+        );
+    }
+
+    /** {@inheritdoc} */
+    public function fullJoin($tableName, $expression = '', $alias = '', $args = [])
+    {
+        return $this->createJoin(
+            'FULL JOIN',
+            $tableName,
+            is_string($expression) ? $expression : '',
+            $alias,
+            $args,
+            is_bool($expression) ? $expression : true
+        );
     }
 
     /** {@inheritdoc} */
     public function groupBy($column, $args = [])
     {
-        if (!is_array($args)) {
-            $args = [$args];
-        }
-
-        if (strpos($column, '?') !== false) {
-            $this->groupBy[] = static::convertPlaceholders($column, $args, $this->entityManager, $this->connection);
-        } else {
-            $this->groupBy[] = $column;
-        }
+        $this->groupBy[] = $this->convertPlaceholders($column, $args);
 
         return $this;
     }
@@ -145,15 +187,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function orderBy($column, $direction = self::DIRECTION_ASCENDING, $args = [])
     {
-        if (!is_array($args)) {
-            $args = [$args];
-        }
-
-        if (strpos($column, '?') !== false) {
-            $expression = static::convertPlaceholders($column, $args, $this->entityManager, $this->connection);
-        } else {
-            $expression = $column;
-        }
+        $expression = $this->convertPlaceholders($column, $args);
 
         $this->orderBy[] = $expression . ' ' . $direction;
 
@@ -181,9 +215,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     {
         return 'SELECT ' . ($this->columns ? implode(',', $this->columns) : '*')
                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
-               . (!empty($this->where) ? ' WHERE ' . join(' ', $this->where) : '')
-               . (!empty($this->groupBy) ? ' GROUP BY ' . join(',', $this->groupBy) : '')
-               . (!empty($this->orderBy) ? ' ORDER BY ' . join(',', $this->orderBy) : '')
+               . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
+               . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
+               . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
+               . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
     }
 }
