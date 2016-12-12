@@ -1,6 +1,7 @@
 <?php
 
 namespace ORM;
+
 use ORM\Exceptions\NotJoined;
 
 /**
