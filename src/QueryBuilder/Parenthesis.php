@@ -18,6 +18,9 @@ class Parenthesis implements ParenthesisInterface
     /** @var string */
     protected $connection;
 
+    /** @var ParenthesisInterface */
+    protected $parent;
+
     /** @var EntityManager */
     public static $defaultEntityManager;
 
@@ -26,18 +29,24 @@ class Parenthesis implements ParenthesisInterface
 
     public function __construct(
         callable $onClose,
+        ParenthesisInterface $parent,
         EntityManager $entityManager = null,
         $connection = null
     ) {
         $this->onClose       = $onClose;
+        $this->parent        = $parent;
         $this->entityManager = $entityManager;
         $this->connection    = $connection;
     }
 
-    protected function convertPlaceholders(
+    public function convertPlaceholders(
         $expression,
         $args
     ) {
+        if ($this->parent) {
+            return $this->parent->convertPlaceholders($expression, $args);
+        }
+
         if (strpos($expression, '?') === false) {
             return $expression;
         }
@@ -63,8 +72,12 @@ class Parenthesis implements ParenthesisInterface
         return $expression;
     }
 
-    protected function getWhereCondition($column, $operator = '', $value = '')
+    public function getWhereCondition($column, $operator = '', $value = '')
     {
+        if ($this->parent) {
+            return $this->parent->getWhereCondition($column, $operator, $value);
+        }
+
         if (strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
@@ -129,7 +142,7 @@ class Parenthesis implements ParenthesisInterface
             $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getParenthesis();
 
             return $this;
-        }, $this->entityManager, $this->connection);
+        }, $this, $this->entityManager, $this->connection);
 
         return $parenthesis;
     }
@@ -141,7 +154,7 @@ class Parenthesis implements ParenthesisInterface
             $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getParenthesis();
 
             return $this;
-        }, $this->entityManager, $this->connection);
+        }, $this, $this->entityManager, $this->connection);
 
         return $parenthesis;
     }

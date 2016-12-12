@@ -118,7 +118,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $join .= ' ON ' . $parenthesis->getParenthesis();
                 $this->joins[] = $join;
                 return $this;
-            }, $this->entityManager, $this->connection);
+            }, $this, $this->entityManager, $this->connection);
         }
 
         return $this;

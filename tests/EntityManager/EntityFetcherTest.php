@@ -4,7 +4,10 @@ namespace ORM\Test\EntityManager;
 
 use Mockery\Mock;
 use ORM\EntityFetcher;
+use ORM\Exceptions\NotJoined;
 use ORM\Test\Entity\Examples\ContactPhone;
+use ORM\Test\Entity\Examples\StaticTableName;
+use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
 
 class EntityFetcherTest extends TestCase
@@ -282,5 +285,86 @@ class EntityFetcherTest extends TestCase
             $e1,
             $e2
         ], $contactPhones);
+    }
+
+    public function testColumnsCantBeChanged()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $fetcher->columns(['a', 'b']);
+        $fetcher->column('c');
+
+        self::assertSame('SELECT t0.* FROM contact_phone AS t0', $fetcher->getQuery());
+    }
+
+    public function provideJoins()
+    {
+        return [
+            ['join', 'JOIN'],
+            ['leftJoin', 'LEFT JOIN'],
+            ['rightJoin', 'RIGHT JOIN'],
+            ['fullJoin', 'FULL JOIN']
+        ];
+    }
+
+    /**
+     * @dataProvider provideJoins
+     */
+    public function testJoinsGetAliasAutomatically($method, $sql)
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+
+        call_user_func([$fetcher, $method], StudlyCaps::class, 't0.a = t1.b');
+
+        self::assertSame(
+            'SELECT t0.* FROM contact_phone AS t0 ' . $sql . ' studly_caps AS t1 ON t0.a = t1.b',
+            $fetcher->getQuery()
+        );
+    }
+
+    public function testTranslatesColumnNames()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        $fetcher->where('id', 23);
+
+        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
+    }
+
+    public function testTranslatesClassNames()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        $fetcher->where(StaticTableName::class . '::id', 23);
+
+        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
+    }
+
+    public function testThrowsWhenClassIsNotJoined()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        self::expectException(NotJoined::class);
+        self::expectExceptionMessage("Class " . ContactPhone::class . " not joined");
+
+        $fetcher->where(ContactPhone::class . '::id', 23);
+    }
+
+    public function testThrowsWhenAliasUnknown()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        self::expectException(NotJoined::class);
+        self::expectExceptionMessage("Alias foobar unknown");
+
+        $fetcher->where('foobar.id', 23);
+    }
+
+    public function testKnowsAliasesInParenthesis()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        $fetcher->parenthesis()->where('id = 23')->close();
+
+        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE (t0.stn_id = 23)', $fetcher->getQuery());
     }
 }

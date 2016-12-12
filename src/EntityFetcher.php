@@ -1,6 +1,7 @@
 <?php
 
 namespace ORM;
+use ORM\Exceptions\NotJoined;
 
 /**
  * Class EntityFetcher
@@ -8,20 +9,27 @@ namespace ORM;
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class EntityFetcher
+class EntityFetcher extends QueryBuilder
 {
     /** @var EntityManager */
-    private $entityManager;
+    protected $entityManager;
 
     /** @var string|Entity */
-    private $class;
+    protected $class;
 
     /** @var \PDOStatement */
-    private $result;
+    protected $result;
 
     /** @var string */
-    private $query;
+    protected $query;
 
+    /** @var array */
+    protected $classMapping = [
+        'byClass' => [],
+        'byAlias' => [],
+    ];
+
+    /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * EntityFetcher constructor.
      *
@@ -32,7 +40,93 @@ class EntityFetcher
     {
         $this->entityManager = $entityManager;
         $this->class         = $class;
+
+        $this->tableName = $class::getTableName();
+        $this->alias = 't0';
+        $this->columns = ['t0.*'];
+
+        $this->classMapping['byClass'][$class] = 't0';
+        $this->classMapping['byAlias']['t0'] = $class;
     }
+
+    /**
+     * Columns can't be changed
+     *
+     * @param array|null $columns
+     * @return $this
+     */
+    public function columns(array $columns = null)
+    {
+        return $this;
+    }
+
+    /**
+     * Columns can't be changed
+     *
+     * @param string $column
+     * @param array $args
+     * @param string $alias
+     * @return $this
+     */
+    public function column($column, $args = [], $alias = '')
+    {
+        return $this;
+    }
+
+    public function convertPlaceholders($expression, $args)
+    {
+        $expression = preg_replace_callback(
+            '/(?<b>^| |\()' .
+            '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
+            '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
+            '(?<a>$| |,|\))/',
+            function ($match) {
+                if ($match['class']) {
+                    if (!isset($this->classMapping['byClass'][$match['class']])) {
+                        throw new NotJoined("Class " . $match['class'] . " not joined");
+                    }
+                    $class = $match['class'];
+                    $alias = $this->classMapping['byClass'][$match['class']];
+                } elseif ($match['alias']) {
+                    if (!isset($this->classMapping['byAlias'][$match['alias']])) {
+                        throw new NotJoined("Alias " . $match['alias'] . " unknown");
+                    }
+                    $alias = $match['alias'];
+                    $class = $this->classMapping['byAlias'][$match['alias']];
+                } else {
+                    $class = $this->class;
+                    $alias = $this->alias;
+                }
+
+                /** @var Entity|string $class */
+                return $match['b'] . $alias . '.' . $class::getColumnName($match['column']) . $match['a'];
+            },
+            $expression
+        );
+
+        return parent::convertPlaceholders($expression, $args);
+    }
+
+
+    protected function createJoin($join, $class, $expression, $alias, $args, $empty)
+    {
+        /** @var Entity|string $class */
+        $tableName = $class::getTableName();
+        $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
+
+        $this->classMapping['byClass'][$class] = $alias;
+        $this->classMapping['byAlias'][$alias] = $class;
+
+        return parent::createJoin(
+            $join,
+            $tableName,
+            $expression,
+            $alias,
+            $args,
+            $empty
+        );
+    }
+
 
     public function one()
     {
@@ -88,13 +182,12 @@ class EntityFetcher
         return $this->result;
     }
 
-    private function getQuery()
+    public function getQuery()
     {
         if ($this->query) {
             return $this->query;
         }
-        $c = $this->class;
-        return 'SELECT t0.* FROM ' . $c::getTableName() . ' AS t0';
+        return parent::getQuery();
     }
 
     public function setQuery($query, array $args = null)
