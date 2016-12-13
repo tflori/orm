@@ -39,72 +39,9 @@ class Parenthesis implements ParenthesisInterface
         $this->connection    = $connection;
     }
 
-    public function convertPlaceholders(
-        $expression,
-        $args
-    ) {
-        if ($this->parent) {
-            return $this->parent->convertPlaceholders($expression, $args);
-        }
-
-        if (strpos($expression, '?') === false) {
-            return $expression;
-        }
-
-        if (!is_array($args)) {
-            $args = [$args];
-        }
-
-        $entityManager = $this->entityManager ?: static::$defaultEntityManager;
-        $connection = $this->connection ?: static::$defaultConnection;
-
-        $parts = explode('?', $expression);
-        $expression = '';
-        while ($part = array_shift($parts)) {
-            $expression .= $part;
-            if (count($args)) {
-                $expression .= $entityManager->convertValue(array_shift($args), $connection);
-            } elseif (count($parts)) {
-                $expression .= '?';
-            }
-        }
-
-        return $expression;
-    }
-
     public function getWhereCondition($column, $operator = '', $value = '')
     {
-        if ($this->parent) {
-            return $this->parent->getWhereCondition($column, $operator, $value);
-        }
-
-        if (strpos($column, '?') !== false) {
-            $expression = $column;
-            $value      = $operator;
-        } elseif (!$operator && !$value) {
-            $expression = $column;
-        } else {
-            if (!$value) {
-                $value = $operator;
-                if (is_array($value)) {
-                    $operator = 'IN';
-                } else {
-                    $operator = '=';
-                }
-            }
-
-            $expression = $expression = $column . ' ' . $operator;
-
-            if (in_array(strtoupper($operator), ['IN', 'NOT IN'], true) && is_array($value)) {
-                $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
-            } else {
-                $expression .= ' ?';
-            }
-        }
-
-        $whereCondition = $this->convertPlaceholders($expression, $value);
-
-        return $whereCondition;
+        return $this->parent->getWhereCondition($column, $operator, $value);
     }
 
     /** {@inheritdoc} */

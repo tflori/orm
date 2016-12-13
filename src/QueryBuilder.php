@@ -55,11 +55,74 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * Set $columns
+     * Replaces questionmarks in $expression with $args
      *
-     * @param $columns
-     * @return self
+     * @param string      $expression
+     * @param array|mixed $args
+     * @return string
      */
+    protected function convertPlaceholders(
+        $expression,
+        $args
+    ) {
+        if (strpos($expression, '?') === false) {
+            return $expression;
+        }
+
+        if (!is_array($args)) {
+            $args = [$args];
+        }
+
+        $entityManager = $this->entityManager ?: static::$defaultEntityManager;
+        $connection = $this->connection ?: static::$defaultConnection;
+
+        $parts = explode('?', $expression);
+        $expression = '';
+        while ($part = array_shift($parts)) {
+            $expression .= $part;
+            if (count($args)) {
+                $expression .= $entityManager->convertValue(array_shift($args), $connection);
+            } elseif (count($parts)) {
+                $expression .= '?';
+            }
+        }
+
+        return $expression;
+    }
+
+    /** {@inheritdoc} */
+    public function getWhereCondition($column, $operator = '', $value = '')
+    {
+        if (strpos($column, '?') !== false) {
+            $expression = $column;
+            $value      = $operator;
+        } elseif (!$operator && !$value) {
+            $expression = $column;
+        } else {
+            if (!$value) {
+                $value = $operator;
+                if (is_array($value)) {
+                    $operator = 'IN';
+                } else {
+                    $operator = '=';
+                }
+            }
+
+            $expression = $expression = $column . ' ' . $operator;
+
+            if (in_array(strtoupper($operator), ['IN', 'NOT IN'], true) && is_array($value)) {
+                $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+            } else {
+                $expression .= ' ?';
+            }
+        }
+
+        $whereCondition = $this->convertPlaceholders($expression, $value);
+
+        return $whereCondition;
+    }
+
+    /** {@inheritdoc} */
     public function columns(array $columns = null)
     {
         $this->columns = $columns;
@@ -67,15 +130,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
-    /**
-     * Add $column
-     *
-     * Optionally you can provide an expression with question marks as placeholders filled with $args.
-     *
-     * @param string $column
-     * @param array $args
-     * @return QueryBuilder
-     */
+    /** {@inheritdoc} */
     public function column($column, $args = [], $alias = '')
     {
         if ($this->columns === null) {
@@ -90,8 +145,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * Empty
-     *
      * This function does nothing. We just overwrite the functionality from parenthesis.
      *
      * @return self
@@ -101,6 +154,17 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
+    /**
+     * Creates the $join statement.
+     *
+     * @param string $join
+     * @param string $tableName
+     * @param string $expression
+     * @param string $alias
+     * @param array|mixed $args
+     * @param bool $empty
+     * @return self|ParenthesisInterface
+     */
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)
     {
         $join = $join . ' ' . $tableName
@@ -227,12 +291,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
     }
 
-    /**
-     * Add $modifier
-     *
-     * @param string $modifier
-     * @return self
-     */
+    /** {@inheritdoc} */
     public function modifier($modifier)
     {
         $this->modifier[] = $modifier;

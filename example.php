@@ -91,9 +91,10 @@ try {
 /******************************
  * Get previously cached User *
  ******************************/
-//$user = unserialize(file_get_contents('/tmp/user'));
-//$user = $em->fetch(User::class, $user->id);
-//var_dump($user, $user->isDirty(), $user->isDirty('password'));
+/** @var User $user */
+$user = $em->map(unserialize("O:4:\"User\":2:{s:7:\"\x00*\x00data\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:4:\"jdoe\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}s:15:\"\x00*\x00originalData\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:6:\"user_c\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}}"));
+$user = $em->fetch(User::class, 3);
+var_dump($user, $user->isDirty(), $user->isDirty('password'));
 
 //$query = new \ORM\QueryBuilder('ab');
 //$query->where()

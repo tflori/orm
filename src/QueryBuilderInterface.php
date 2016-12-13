@@ -16,6 +16,26 @@ interface QueryBuilderInterface extends ParenthesisInterface
     const DIRECTION_DESCENDING = 'DESC';
 
     /**
+     * Set $columns
+     *
+     * @param $columns
+     * @return self
+     */
+    public function columns(array $columns = null);
+
+    /**
+     * Add $column
+     *
+     * Optionally you can provide an expression with question marks as placeholders filled with $args.
+     *
+     * @param string $column
+     * @param array $args
+     * @param string $alias
+     * @return QueryBuilder
+     */
+    public function column($column, $args = [], $alias = '');
+
+    /**
      * (Inner) join $tableName with $options
      *
      * When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you

@@ -118,14 +118,6 @@ interface ParenthesisInterface
     public function getParenthesis();
 
     /**
-     * @param $expression
-     * @param $args
-     * @internal
-     * @return string
-     */
-    public function convertPlaceholders($expression, $args);
-
-    /**
      * @param $column
      * @param string $operator
      * @param string $value

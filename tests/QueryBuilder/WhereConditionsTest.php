@@ -161,4 +161,13 @@ class WhereConditionsTest extends TestCase
                 ->getQuery()
         );
     }
+
+    public function testStaysQuestionmarksUntouched()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a IN (?, ?)', ['foo']);
+
+        self::assertSame('SELECT * FROM foobar WHERE a IN (\'foo\', ?)', $query->getQuery());
+    }
 }
