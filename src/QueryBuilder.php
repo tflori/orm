@@ -34,6 +34,9 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** @var string[] */
     protected $orderBy = [];
 
+    /** @var string[] */
+    protected $modifier = [];
+
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * QueryBuilder constructor
@@ -213,12 +216,27 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function getQuery()
     {
-        return 'SELECT ' . ($this->columns ? implode(',', $this->columns) : '*')
+        return 'SELECT '
+               . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
+               . ($this->columns ? implode(',', $this->columns) : '*')
                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
                . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
                . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
                . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
                . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
+    }
+
+    /**
+     * Add $modifier
+     *
+     * @param string $modifier
+     * @return self
+     */
+    public function modifier($modifier)
+    {
+        $this->modifier[] = $modifier;
+
+        return $this;
     }
 }

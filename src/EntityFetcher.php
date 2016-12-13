@@ -45,6 +45,7 @@ class EntityFetcher extends QueryBuilder
         $this->tableName = $class::getTableName();
         $this->alias = 't0';
         $this->columns = ['t0.*'];
+        $this->modifier = ['DISTINCT'];
 
         $this->classMapping['byClass'][$class] = 't0';
         $this->classMapping['byAlias']['t0'] = $class;
@@ -95,6 +96,9 @@ class EntityFetcher extends QueryBuilder
                     $alias = $match['alias'];
                     $class = $this->classMapping['byAlias'][$match['alias']];
                 } else {
+                    if ($match['column'] === strtoupper($match['column'])) {
+                        return $match['b'] . $match['column'] . $match['a'];
+                    }
                     $class = $this->class;
                     $alias = $this->alias;
                 }

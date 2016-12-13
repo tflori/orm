@@ -194,4 +194,15 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar', $query->getQuery());
         self::assertSame($query, $result);
     }
+
+    public function testModifier()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->modifier("DISTINCT");
+        $result = $query->modifier("SQL_NO_CACHE");
+
+        self::assertSame('SELECT DISTINCT SQL_NO_CACHE * FROM foobar', $query->getQuery());
+        self::assertSame($query, $result);
+    }
 }

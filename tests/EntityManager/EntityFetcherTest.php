@@ -16,7 +16,7 @@ class EntityFetcherTest extends TestCase
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
-        $this->pdo->shouldReceive('query')->once()->with('SELECT t0.* FROM contact_phone AS t0');
+        $this->pdo->shouldReceive('query')->once()->with('SELECT DISTINCT t0.* FROM contact_phone AS t0');
 
         $fetcher->one();
     }
@@ -48,7 +48,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
 
         $this->pdo->shouldReceive('query')->once()
-            ->with('SELECT t0.* FROM contact_phone AS t0')
+            ->with('SELECT DISTINCT t0.* FROM contact_phone AS t0')
             ->andReturn(false);
 
         $fetcher->one();
@@ -293,7 +293,7 @@ class EntityFetcherTest extends TestCase
         $fetcher->columns(['a', 'b']);
         $fetcher->column('c');
 
-        self::assertSame('SELECT t0.* FROM contact_phone AS t0', $fetcher->getQuery());
+        self::assertSame('SELECT DISTINCT t0.* FROM contact_phone AS t0', $fetcher->getQuery());
     }
 
     public function provideJoins()
@@ -316,7 +316,7 @@ class EntityFetcherTest extends TestCase
         call_user_func([$fetcher, $method], StudlyCaps::class, 't0.a = t1.b');
 
         self::assertSame(
-            'SELECT t0.* FROM contact_phone AS t0 ' . $sql . ' studly_caps AS t1 ON t0.a = t1.b',
+            'SELECT DISTINCT t0.* FROM contact_phone AS t0 ' . $sql . ' studly_caps AS t1 ON t0.a = t1.b',
             $fetcher->getQuery()
         );
     }
@@ -327,7 +327,7 @@ class EntityFetcherTest extends TestCase
 
         $fetcher->where('id', 23);
 
-        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
+        self::assertSame('SELECT DISTINCT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
     }
 
     public function testTranslatesClassNames()
@@ -336,7 +336,7 @@ class EntityFetcherTest extends TestCase
 
         $fetcher->where(StaticTableName::class . '::id', 23);
 
-        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
+        self::assertSame('SELECT DISTINCT t0.* FROM my_table AS t0 WHERE t0.stn_id = 23', $fetcher->getQuery());
     }
 
     public function testThrowsWhenClassIsNotJoined()
@@ -365,6 +365,19 @@ class EntityFetcherTest extends TestCase
 
         $fetcher->parenthesis()->where('id = 23')->close();
 
-        self::assertSame('SELECT t0.* FROM my_table AS t0 WHERE (t0.stn_id = 23)', $fetcher->getQuery());
+        self::assertSame('SELECT DISTINCT t0.* FROM my_table AS t0 WHERE (t0.stn_id = 23)', $fetcher->getQuery());
+    }
+
+    public function testDoesNotReplaceUpperCaseWords()
+    {
+        $fetcher = $this->em->fetch(StaticTableName::class);
+
+        $fetcher->orderBy('CASE WHEN username = email THEN 0 ELSE 1 END');
+
+        self::assertSame(
+            'SELECT DISTINCT t0.* FROM my_table AS t0 '
+            . 'ORDER BY CASE WHEN t0.stn_username = t0.stn_email THEN 0 ELSE 1 END ASC',
+            $fetcher->getQuery()
+        );
     }
 }

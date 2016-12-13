@@ -116,6 +116,14 @@ interface QueryBuilderInterface extends ParenthesisInterface
     public function offset($offset);
 
     /**
+     * Add $modifier
+     *
+     * @param string $modifier
+     * @return self
+     */
+    public function modifier($modifier);
+
+    /**
      * @return string
      */
     public function getQuery();

@@ -117,6 +117,7 @@ class EntityManager
                 }
                 $this->connections[$name] = $pdo;
             }
+            $this->connections[$name]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
 
         return $this->connections[$name];
@@ -190,7 +191,16 @@ class EntityManager
             );
         }
 
-        return $this->map[$class][md5(serialize($primaryKey))];
+        if (isset($this->map[$class][md5(serialize($primaryKey))])) {
+            return $this->map[$class][md5(serialize($primaryKey))];
+        }
+
+        $fetcher = new EntityFetcher($this, $class);
+        foreach ($primaryKeyVars as $i => $col) {
+            $fetcher->where($col, $primaryKey[$i]);
+        }
+
+        return $fetcher->one();
     }
 
     /**
