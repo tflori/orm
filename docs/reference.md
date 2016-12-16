@@ -70,7 +70,7 @@ permalink: /reference.html
 
 #### ORM\DbConfig::__construct
 
-```php?start_inline=true
+```php
 public function __construct(
     string $type, string $name, string $user = null, string $pass = null, 
     string $host = null, string $port = null, array $attributes = array()
@@ -108,7 +108,7 @@ $dbConfig = new DbConfig('mysql', 'my_db', 'my_user', 'my_secret', null, null, [
 
 #### ORM\DbConfig::getDsn
 
-```php?start_inline=true
+```php
 public function getDsn(): string
 ```
 
@@ -178,7 +178,7 @@ table.
 
 #### ORM\Entity::__construct
 
-```php?start_inline=true
+```php
 final public function __construct(
     array $data = array(), boolean $fromDatabase = false
 ): Entity
@@ -202,7 +202,7 @@ final public function __construct(
 
 #### ORM\Entity::__get
 
-```php?start_inline=true
+```php
 public function __get( $var ): mixed|null
 ```
 
@@ -223,7 +223,7 @@ public function __get( $var ): mixed|null
 
 #### ORM\Entity::__set
 
-```php?start_inline=true
+```php
 public function __set( $var, $value )
 ```
 
@@ -246,7 +246,7 @@ directly when they have to update the data stored in table.
 
 #### ORM\Entity::forceNamingScheme
 
-```php?start_inline=true
+```php
 protected static function forceNamingScheme(
     string $name, string $namingScheme
 ): string
@@ -271,7 +271,7 @@ protected static function forceNamingScheme(
 
 #### ORM\Entity::getAutoIncrementSequence
 
-```php?start_inline=true
+```php
 public static function getAutoIncrementSequence(): string
 ```
 
@@ -287,7 +287,7 @@ public static function getAutoIncrementSequence(): string
 
 #### ORM\Entity::getColumnName
 
-```php?start_inline=true
+```php
 public static function getColumnName( string $var ): string
 ```
 
@@ -317,7 +317,7 @@ the same as getColumnName($name).
 
 #### ORM\Entity::getPrimaryKey
 
-```php?start_inline=true
+```php
 public static function getPrimaryKey(): array
 ```
 
@@ -333,7 +333,7 @@ public static function getPrimaryKey(): array
 
 #### ORM\Entity::getReflection
 
-```php?start_inline=true
+```php
 protected static function getReflection(): \ReflectionClass
 ```
 
@@ -349,7 +349,7 @@ protected static function getReflection(): \ReflectionClass
 
 #### ORM\Entity::getTableName
 
-```php?start_inline=true
+```php
 public static function getTableName(): string
 ```
 
@@ -366,7 +366,7 @@ $tableName.
 
 #### ORM\Entity::isAutoIncremented
 
-```php?start_inline=true
+```php
 public static function isAutoIncremented(): boolean
 ```
 
@@ -382,7 +382,7 @@ public static function isAutoIncremented(): boolean
 
 #### ORM\Entity::isDirty
 
-```php?start_inline=true
+```php
 public function isDirty( string $var = null ): boolean
 ```
 
@@ -403,7 +403,7 @@ public function isDirty( string $var = null ): boolean
 
 #### ORM\Entity::onChange
 
-```php?start_inline=true
+```php
 public function onChange( string $var, $oldValue, $value )
 ```
 
@@ -426,7 +426,7 @@ Get called when something is changed with magic setter.
 
 #### ORM\Entity::onInit
 
-```php?start_inline=true
+```php
 public function onInit( boolean $new )
 ```
 
@@ -447,7 +447,7 @@ Get called when the entity get initialized.
 
 #### ORM\Entity::reset
 
-```php?start_inline=true
+```php
 public function reset( string $var = null )
 ```
 
@@ -468,7 +468,7 @@ public function reset( string $var = null )
 
 #### ORM\Entity::save
 
-```php?start_inline=true
+```php
 public function save( \ORM\EntityManager $entityManager )
 ```
 
@@ -549,7 +549,7 @@ public function save( \ORM\EntityManager $entityManager )
 
 #### ORM\EntityFetcher::__construct
 
-```php?start_inline=true
+```php
 public function __construct(
     callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
 ): Parenthesis
@@ -573,7 +573,7 @@ public function __construct(
 
 #### ORM\EntityFetcher::all
 
-```php?start_inline=true
+```php
 public function all( integer $limit ): array<\ORM\Entity>
 ```
 
@@ -594,7 +594,7 @@ When no $limit is set it fetches all entities in current cursor.
 
 #### ORM\EntityFetcher::andParenthesis
 
-```php?start_inline=true
+```php
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -609,7 +609,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\EntityFetcher::andWhere
 
-```php?start_inline=true
+```php
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -646,7 +646,7 @@ andWhere('name', 'John Doe')
 
 #### ORM\EntityFetcher::close
 
-```php?start_inline=true
+```php
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -661,7 +661,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 
 #### ORM\EntityFetcher::column
 
-```php?start_inline=true
+```php
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -686,7 +686,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 #### ORM\EntityFetcher::columns
 
-```php?start_inline=true
+```php
 public function columns( array $columns = null ): QueryBuilder
 ```
 
@@ -707,7 +707,7 @@ public function columns( array $columns = null ): QueryBuilder
 
 #### ORM\EntityFetcher::convertPlaceholders
 
-```php?start_inline=true
+```php
 protected function convertPlaceholders(
     string $expression, array $args
 ): string
@@ -731,7 +731,7 @@ protected function convertPlaceholders(
 
 #### ORM\EntityFetcher::createJoin
 
-```php?start_inline=true
+```php
 protected function createJoin(
     string $join, string $tableName, string $expression, string $alias, 
     array $args, boolean $empty
@@ -760,7 +760,7 @@ protected function createJoin(
 
 #### ORM\EntityFetcher::fullJoin
 
-```php?start_inline=true
+```php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -790,7 +790,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 #### ORM\EntityFetcher::getParenthesis
 
-```php?start_inline=true
+```php
 public function getParenthesis(): string
 ```
 
@@ -805,7 +805,7 @@ public function getParenthesis(): string
 
 #### ORM\EntityFetcher::getQuery
 
-```php?start_inline=true
+```php
 public function getQuery(): string
 ```
 
@@ -820,7 +820,7 @@ public function getQuery(): string
 
 #### ORM\EntityFetcher::getStatement
 
-```php?start_inline=true
+```php
 private function getStatement(): \PDOStatement
 ```
 
@@ -835,7 +835,7 @@ private function getStatement(): \PDOStatement
 
 #### ORM\EntityFetcher::getWhereCondition
 
-```php?start_inline=true
+```php
 public function getWhereCondition( $column, $operator = '', $value = '' )
 ```
 
@@ -858,7 +858,7 @@ public function getWhereCondition( $column, $operator = '', $value = '' )
 
 #### ORM\EntityFetcher::groupBy
 
-```php?start_inline=true
+```php
 public function groupBy( string $column, array $args = array() ): QueryBuilder
 ```
 
@@ -880,7 +880,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\EntityFetcher::join
 
-```php?start_inline=true
+```php
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -909,7 +909,7 @@ can be set to true.
 
 #### ORM\EntityFetcher::leftJoin
 
-```php?start_inline=true
+```php
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -938,7 +938,7 @@ can be set to true.
 
 #### ORM\EntityFetcher::limit
 
-```php?start_inline=true
+```php
 public function limit( integer $limit ): QueryBuilder
 ```
 
@@ -959,7 +959,7 @@ public function limit( integer $limit ): QueryBuilder
 
 #### ORM\EntityFetcher::modifier
 
-```php?start_inline=true
+```php
 public function modifier( string $modifier ): QueryBuilder
 ```
 
@@ -980,7 +980,7 @@ public function modifier( string $modifier ): QueryBuilder
 
 #### ORM\EntityFetcher::offset
 
-```php?start_inline=true
+```php
 public function offset( integer $offset ): QueryBuilder
 ```
 
@@ -1001,7 +1001,7 @@ public function offset( integer $offset ): QueryBuilder
 
 #### ORM\EntityFetcher::one
 
-```php?start_inline=true
+```php
 public function one(): \ORM\Entity
 ```
 
@@ -1016,7 +1016,7 @@ public function one(): \ORM\Entity
 
 #### ORM\EntityFetcher::orderBy
 
-```php?start_inline=true
+```php
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -1042,7 +1042,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\EntityFetcher::orParenthesis
 
-```php?start_inline=true
+```php
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1057,7 +1057,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\EntityFetcher::orWhere
 
-```php?start_inline=true
+```php
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1094,7 +1094,7 @@ orWhere('name', 'John Doe')
 
 #### ORM\EntityFetcher::parenthesis
 
-```php?start_inline=true
+```php
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1109,7 +1109,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\EntityFetcher::rightJoin
 
-```php?start_inline=true
+```php
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -1138,7 +1138,7 @@ can be set to true.
 
 #### ORM\EntityFetcher::setQuery
 
-```php?start_inline=true
+```php
 public function setQuery( $query, array $args = null )
 ```
 
@@ -1160,7 +1160,7 @@ public function setQuery( $query, array $args = null )
 
 #### ORM\EntityFetcher::where
 
-```php?start_inline=true
+```php
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1245,7 +1245,7 @@ where('name', 'John Doe')
 
 #### ORM\EntityManager::__construct
 
-```php?start_inline=true
+```php
 public function __construct( array $options = array() ): EntityManager
 ```
 
@@ -1266,7 +1266,7 @@ public function __construct( array $options = array() ): EntityManager
 
 #### ORM\EntityManager::convertValue
 
-```php?start_inline=true
+```php
 public function convertValue( $value, string $connection = 'default' ): string
 ```
 
@@ -1288,7 +1288,7 @@ public function convertValue( $value, string $connection = 'default' ): string
 
 #### ORM\EntityManager::fetch
 
-```php?start_inline=true
+```php
 public function fetch(
     string $class, $primaryKey = null
 ): \ORM\Entity|\ORM\EntityFetcher
@@ -1312,7 +1312,7 @@ public function fetch(
 
 #### ORM\EntityManager::getConnection
 
-```php?start_inline=true
+```php
 public function getConnection( string $name = 'default' ): \PDO
 ```
 
@@ -1333,7 +1333,7 @@ public function getConnection( string $name = 'default' ): \PDO
 
 #### ORM\EntityManager::map
 
-```php?start_inline=true
+```php
 public function map( \ORM\Entity $entity ): \ORM\Entity
 ```
 
@@ -1354,7 +1354,7 @@ public function map( \ORM\Entity $entity ): \ORM\Entity
 
 #### ORM\EntityManager::setConnection
 
-```php?start_inline=true
+```php
 public function setConnection( string $name, \PDO $connection )
 ```
 
@@ -1562,7 +1562,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 #### ORM\QueryBuilder\Parenthesis::__construct
 
-```php?start_inline=true
+```php
 public function __construct(
     callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
 ): Parenthesis
@@ -1586,7 +1586,7 @@ public function __construct(
 
 #### ORM\QueryBuilder\Parenthesis::andParenthesis
 
-```php?start_inline=true
+```php
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1601,7 +1601,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\Parenthesis::andWhere
 
-```php?start_inline=true
+```php
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1638,7 +1638,7 @@ andWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\Parenthesis::close
 
-```php?start_inline=true
+```php
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1653,7 +1653,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 
 #### ORM\QueryBuilder\Parenthesis::getParenthesis
 
-```php?start_inline=true
+```php
 public function getParenthesis(): string
 ```
 
@@ -1668,7 +1668,7 @@ public function getParenthesis(): string
 
 #### ORM\QueryBuilder\Parenthesis::getWhereCondition
 
-```php?start_inline=true
+```php
 public function getWhereCondition( $column, $operator = '', $value = '' )
 ```
 
@@ -1691,7 +1691,7 @@ public function getWhereCondition( $column, $operator = '', $value = '' )
 
 #### ORM\QueryBuilder\Parenthesis::orParenthesis
 
-```php?start_inline=true
+```php
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1706,7 +1706,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\Parenthesis::orWhere
 
-```php?start_inline=true
+```php
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1743,7 +1743,7 @@ orWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\Parenthesis::parenthesis
 
-```php?start_inline=true
+```php
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1758,7 +1758,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\Parenthesis::where
 
-```php?start_inline=true
+```php
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1824,7 +1824,7 @@ where('name', 'John Doe')
 
 #### ORM\QueryBuilder\ParenthesisInterface::andParenthesis
 
-```php?start_inline=true
+```php
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1839,7 +1839,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\ParenthesisInterface::andWhere
 
-```php?start_inline=true
+```php
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -1876,7 +1876,7 @@ andWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\ParenthesisInterface::close
 
-```php?start_inline=true
+```php
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1891,7 +1891,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 
 #### ORM\QueryBuilder\ParenthesisInterface::getParenthesis
 
-```php?start_inline=true
+```php
 public function getParenthesis(): string
 ```
 
@@ -1906,7 +1906,7 @@ public function getParenthesis(): string
 
 #### ORM\QueryBuilder\ParenthesisInterface::orParenthesis
 
-```php?start_inline=true
+```php
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1921,7 +1921,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\ParenthesisInterface::orWhere
 
-```php?start_inline=true
+```php
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -1958,7 +1958,7 @@ orWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\ParenthesisInterface::parenthesis
 
-```php?start_inline=true
+```php
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -1976,7 +1976,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
 #### ORM\QueryBuilder\ParenthesisInterface::where
 
-```php?start_inline=true
+```php
 public function where(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -2080,7 +2080,7 @@ where('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilder::__construct
 
-```php?start_inline=true
+```php
 public function __construct(
     callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
 ): Parenthesis
@@ -2104,7 +2104,7 @@ public function __construct(
 
 #### ORM\QueryBuilder\QueryBuilder::andParenthesis
 
-```php?start_inline=true
+```php
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2119,7 +2119,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\QueryBuilder::andWhere
 
-```php?start_inline=true
+```php
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -2156,7 +2156,7 @@ andWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilder::close
 
-```php?start_inline=true
+```php
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2171,7 +2171,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 
 #### ORM\QueryBuilder\QueryBuilder::column
 
-```php?start_inline=true
+```php
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -2196,7 +2196,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 #### ORM\QueryBuilder\QueryBuilder::columns
 
-```php?start_inline=true
+```php
 public function columns( array $columns = null ): QueryBuilder
 ```
 
@@ -2217,7 +2217,7 @@ public function columns( array $columns = null ): QueryBuilder
 
 #### ORM\QueryBuilder\QueryBuilder::convertPlaceholders
 
-```php?start_inline=true
+```php
 protected function convertPlaceholders(
     string $expression, array $args
 ): string
@@ -2241,7 +2241,7 @@ protected function convertPlaceholders(
 
 #### ORM\QueryBuilder\QueryBuilder::createJoin
 
-```php?start_inline=true
+```php
 protected function createJoin(
     string $join, string $tableName, string $expression, string $alias, 
     array $args, boolean $empty
@@ -2270,7 +2270,7 @@ protected function createJoin(
 
 #### ORM\QueryBuilder\QueryBuilder::fullJoin
 
-```php?start_inline=true
+```php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2300,7 +2300,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 #### ORM\QueryBuilder\QueryBuilder::getParenthesis
 
-```php?start_inline=true
+```php
 public function getParenthesis(): string
 ```
 
@@ -2315,7 +2315,7 @@ public function getParenthesis(): string
 
 #### ORM\QueryBuilder\QueryBuilder::getQuery
 
-```php?start_inline=true
+```php
 public function getQuery(): string
 ```
 
@@ -2330,7 +2330,7 @@ public function getQuery(): string
 
 #### ORM\QueryBuilder\QueryBuilder::getWhereCondition
 
-```php?start_inline=true
+```php
 public function getWhereCondition( $column, $operator = '', $value = '' )
 ```
 
@@ -2353,7 +2353,7 @@ public function getWhereCondition( $column, $operator = '', $value = '' )
 
 #### ORM\QueryBuilder\QueryBuilder::groupBy
 
-```php?start_inline=true
+```php
 public function groupBy( string $column, array $args = array() ): QueryBuilder
 ```
 
@@ -2375,7 +2375,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\QueryBuilder\QueryBuilder::join
 
-```php?start_inline=true
+```php
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2404,7 +2404,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilder::leftJoin
 
-```php?start_inline=true
+```php
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2433,7 +2433,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilder::limit
 
-```php?start_inline=true
+```php
 public function limit( integer $limit ): QueryBuilder
 ```
 
@@ -2454,7 +2454,7 @@ public function limit( integer $limit ): QueryBuilder
 
 #### ORM\QueryBuilder\QueryBuilder::modifier
 
-```php?start_inline=true
+```php
 public function modifier( string $modifier ): QueryBuilder
 ```
 
@@ -2475,7 +2475,7 @@ public function modifier( string $modifier ): QueryBuilder
 
 #### ORM\QueryBuilder\QueryBuilder::offset
 
-```php?start_inline=true
+```php
 public function offset( integer $offset ): QueryBuilder
 ```
 
@@ -2496,7 +2496,7 @@ public function offset( integer $offset ): QueryBuilder
 
 #### ORM\QueryBuilder\QueryBuilder::orderBy
 
-```php?start_inline=true
+```php
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -2522,7 +2522,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\QueryBuilder\QueryBuilder::orParenthesis
 
-```php?start_inline=true
+```php
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2537,7 +2537,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\QueryBuilder::orWhere
 
-```php?start_inline=true
+```php
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -2574,7 +2574,7 @@ orWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilder::parenthesis
 
-```php?start_inline=true
+```php
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2589,7 +2589,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\QueryBuilder::rightJoin
 
-```php?start_inline=true
+```php
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2618,7 +2618,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilder::where
 
-```php?start_inline=true
+```php
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -2704,7 +2704,7 @@ where('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilderInterface::andParenthesis
 
-```php?start_inline=true
+```php
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2719,7 +2719,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::andWhere
 
-```php?start_inline=true
+```php
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -2756,7 +2756,7 @@ andWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilderInterface::close
 
-```php?start_inline=true
+```php
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -2771,7 +2771,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 
 #### ORM\QueryBuilder\QueryBuilderInterface::column
 
-```php?start_inline=true
+```php
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -2796,7 +2796,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 #### ORM\QueryBuilder\QueryBuilderInterface::columns
 
-```php?start_inline=true
+```php
 public function columns( $columns = null ): QueryBuilderInterface
 ```
 
@@ -2817,7 +2817,7 @@ public function columns( $columns = null ): QueryBuilderInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::fullJoin
 
-```php?start_inline=true
+```php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2847,7 +2847,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 #### ORM\QueryBuilder\QueryBuilderInterface::getParenthesis
 
-```php?start_inline=true
+```php
 public function getParenthesis(): string
 ```
 
@@ -2862,7 +2862,7 @@ public function getParenthesis(): string
 
 #### ORM\QueryBuilder\QueryBuilderInterface::getQuery
 
-```php?start_inline=true
+```php
 public function getQuery(): string
 ```
 
@@ -2877,7 +2877,7 @@ public function getQuery(): string
 
 #### ORM\QueryBuilder\QueryBuilderInterface::groupBy
 
-```php?start_inline=true
+```php
 public function groupBy(
     string $column, array $args = array()
 ): QueryBuilderInterface
@@ -2901,7 +2901,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\QueryBuilder\QueryBuilderInterface::join
 
-```php?start_inline=true
+```php
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2930,7 +2930,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilderInterface::leftJoin
 
-```php?start_inline=true
+```php
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -2959,7 +2959,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilderInterface::limit
 
-```php?start_inline=true
+```php
 public function limit( integer $limit ): QueryBuilderInterface
 ```
 
@@ -2980,7 +2980,7 @@ public function limit( integer $limit ): QueryBuilderInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::modifier
 
-```php?start_inline=true
+```php
 public function modifier( string $modifier ): QueryBuilderInterface
 ```
 
@@ -3001,7 +3001,7 @@ public function modifier( string $modifier ): QueryBuilderInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::offset
 
-```php?start_inline=true
+```php
 public function offset( integer $offset ): QueryBuilderInterface
 ```
 
@@ -3022,7 +3022,7 @@ public function offset( integer $offset ): QueryBuilderInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orderBy
 
-```php?start_inline=true
+```php
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -3048,7 +3048,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orParenthesis
 
-```php?start_inline=true
+```php
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -3063,7 +3063,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhere
 
-```php?start_inline=true
+```php
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -3100,7 +3100,7 @@ orWhere('name', 'John Doe')
 
 #### ORM\QueryBuilder\QueryBuilderInterface::parenthesis
 
-```php?start_inline=true
+```php
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
@@ -3118,7 +3118,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
 #### ORM\QueryBuilder\QueryBuilderInterface::rightJoin
 
-```php?start_inline=true
+```php
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
@@ -3147,7 +3147,7 @@ can be set to true.
 
 #### ORM\QueryBuilder\QueryBuilderInterface::where
 
-```php?start_inline=true
+```php
 public function where(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
