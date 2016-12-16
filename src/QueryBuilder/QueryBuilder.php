@@ -1,10 +1,15 @@
 <?php
 
-namespace ORM;
+namespace ORM\QueryBuilder;
 
-use ORM\QueryBuilder\Parenthesis;
-use ORM\QueryBuilder\ParenthesisInterface;
+use ORM\EntityManager;
 
+/**
+ * Class QueryBuilder
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
     /** @var string */
@@ -36,6 +41,20 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 
     /** @var string[] */
     protected $modifier = [];
+
+    /**
+     * The default EntityManager to use to for quoting
+     *
+     * @var EntityManager
+     */
+    public static $defaultEntityManager;
+
+    /**
+     * The default connection to use for quoting
+     *
+     * @var string
+     */
+    public static $defaultConnection = 'default';
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**

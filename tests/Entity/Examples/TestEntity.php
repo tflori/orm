@@ -13,7 +13,7 @@ class TestEntity extends Entity
         self::$namingSchemeMethods = 'camelCase';
         self::$tableNameTemplate = '%short%';
         self::$reflections = [];
-        self::$tableNames = [];
-        self::$translatedColumns = [];
+        self::$calculatedTableNames = [];
+        self::$calculatedColumnNames = [];
     }
 }

@@ -4,6 +4,12 @@ namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
 
+/**
+ * Class Parenthesis
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
 class Parenthesis implements ParenthesisInterface
 {
     /** @var string[] */
@@ -21,22 +27,12 @@ class Parenthesis implements ParenthesisInterface
     /** @var ParenthesisInterface */
     protected $parent;
 
-    /** @var EntityManager */
-    public static $defaultEntityManager;
-
-    /** @var string */
-    public static $defaultConnection = 'default';
-
     public function __construct(
         callable $onClose,
-        ParenthesisInterface $parent,
-        EntityManager $entityManager = null,
-        $connection = null
+        ParenthesisInterface $parent
     ) {
         $this->onClose       = $onClose;
         $this->parent        = $parent;
-        $this->entityManager = $entityManager;
-        $this->connection    = $connection;
     }
 
     public function getWhereCondition($column, $operator = '', $value = '')
@@ -79,7 +75,7 @@ class Parenthesis implements ParenthesisInterface
             $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getParenthesis();
 
             return $this;
-        }, $this, $this->entityManager, $this->connection);
+        }, $this);
 
         return $parenthesis;
     }
@@ -91,7 +87,7 @@ class Parenthesis implements ParenthesisInterface
             $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getParenthesis();
 
             return $this;
-        }, $this, $this->entityManager, $this->connection);
+        }, $this);
 
         return $parenthesis;
     }

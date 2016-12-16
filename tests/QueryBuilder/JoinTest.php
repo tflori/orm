@@ -2,7 +2,7 @@
 
 namespace ORM\Test\QueryBuilder;
 
-use ORM\QueryBuilder;
+use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\Parenthesis;
 use ORM\Test\TestCase;
 

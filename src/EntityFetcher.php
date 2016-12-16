@@ -3,6 +3,7 @@
 namespace ORM;
 
 use ORM\Exceptions\NotJoined;
+use ORM\QueryBuilder\QueryBuilder;
 
 /**
  * Class EntityFetcher
@@ -75,7 +76,7 @@ class EntityFetcher extends QueryBuilder
         return $this;
     }
 
-    public function convertPlaceholders($expression, $args)
+    protected function convertPlaceholders($expression, $args)
     {
         $expression = preg_replace_callback(
             '/(?<b>^| |\()' .
@@ -133,6 +134,11 @@ class EntityFetcher extends QueryBuilder
     }
 
 
+    /**
+     * Fetch one entity
+     *
+     * @return Entity
+     */
     public function one()
     {
         $result = $this->getStatement();
@@ -161,6 +167,14 @@ class EntityFetcher extends QueryBuilder
         return $entity;
     }
 
+    /**
+     * Fetch an array of entities
+     *
+     * When no $limit is set it fetches all entities in current cursor.
+     *
+     * @param int $limit Maximum number of entities to fetch
+     * @return Entity[]
+     */
     public function all($limit = 0)
     {
         $result = [];

@@ -2,12 +2,12 @@
 
 namespace ORM\QueryBuilder;
 
-use ORM\QueryBuilderInterface;
+use ORM\QueryBuilder\QueryBuilderInterface;
 
 /**
  * Interface ParenthesisInterface
  *
- * @package ORM\QueryBuilder
+ * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
 interface ParenthesisInterface
@@ -22,12 +22,12 @@ interface ParenthesisInterface
      * If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
      * the second parameter.
      *
-     * Equal calls:
-     * <code>
+     * These calls are equal:
+     * ```php?start_inline=true
      * where('name', '=' , 'John Doe')
      * where('name = ?', 'John Doe')
      * where('name', 'John Doe')
-     * </code>
+     * ```
      *
      * @see ParenthesisInterface::andWhere()
      * @param string $column Column or expression with placeholders
@@ -47,12 +47,12 @@ interface ParenthesisInterface
      * If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
      * the second parameter.
      *
-     * Equal calls:
-     * <code>
+     * These calls are equal:
+     * ```php?start_inline=true
      * andWhere('name', '=' , 'John Doe')
      * andWhere('name = ?', 'John Doe')
      * andWhere('name', 'John Doe')
-     * </code>
+     * ```
      *
      * @param string $column Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
@@ -71,12 +71,12 @@ interface ParenthesisInterface
      * If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
      * the second parameter.
      *
-     * Equal calls:
-     * <code>
+     * These calls are equal:
+     * ```php?start_inline=true
      * orWhere('name', '=' , 'John Doe')
      * orWhere('name = ?', 'John Doe')
      * orWhere('name', 'John Doe')
-     * </code>
+     * ```
      *
      * @param string $column Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values

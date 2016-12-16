@@ -5,7 +5,7 @@ namespace ORM\Test;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
 use ORM\EntityManager;
-use ORM\QueryBuilder;
+use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\TestEntity;
 
 class TestCase extends MockeryTestCase

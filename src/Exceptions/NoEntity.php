@@ -2,7 +2,15 @@
 
 namespace ORM\Exceptions;
 
-class NoEntity extends Base
+use ORM\Exception;
+
+/**
+ * Class NoEntity
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
+class NoEntity extends Exception
 {
 
 }

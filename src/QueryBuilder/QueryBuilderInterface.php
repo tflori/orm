@@ -1,8 +1,9 @@
 <?php
 
-namespace ORM;
+namespace ORM\QueryBuilder;
 
 use ORM\QueryBuilder\ParenthesisInterface;
+use ORM\QueryBuilder\QueryBuilder;
 
 /**
  * Interface QueryBuilderInterface

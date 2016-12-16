@@ -2,6 +2,14 @@
 
 namespace ORM\Exceptions;
 
-class NoConnection extends Base
+use ORM\Exception;
+
+/**
+ * Class NoConnection
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
+class NoConnection extends Exception
 {
 }

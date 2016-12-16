@@ -2,6 +2,14 @@
 
 namespace ORM\Exceptions;
 
-class NotScalar extends Base
+use ORM\Exception;
+
+/**
+ * Class NotScalar
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
+class NotScalar extends Exception
 {
 }

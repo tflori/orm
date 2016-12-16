@@ -2,7 +2,8 @@
 
 namespace ORM\Test\QueryBuilder;
 
-use ORM\QueryBuilder;
+use ORM\QueryBuilder\QueryBuilder;
+use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\Test\TestCase;
 
 class WhereConditionsTest extends TestCase
@@ -74,7 +75,7 @@ class WhereConditionsTest extends TestCase
         $result = $parenthesis->close();
 
         self::assertSame('SELECT * FROM foobar WHERE (' . $expected . ')', $query->getQuery());
-        self::assertInstanceOf(QueryBuilder\ParenthesisInterface::class, $parenthesis);
+        self::assertInstanceOf(ParenthesisInterface::class, $parenthesis);
         self::assertSame($parenthesis, $pResult);
         self::assertSame($result, $query);
     }
@@ -91,7 +92,7 @@ class WhereConditionsTest extends TestCase
         $result = $parenthesis->close();
 
         self::assertSame('SELECT * FROM foobar WHERE a = b AND (' . $expected . ')', $query->getQuery());
-        self::assertInstanceOf(QueryBuilder\ParenthesisInterface::class, $parenthesis);
+        self::assertInstanceOf(ParenthesisInterface::class, $parenthesis);
         self::assertSame($parenthesis, $pResult);
         self::assertSame($result, $query);
     }
@@ -108,7 +109,7 @@ class WhereConditionsTest extends TestCase
         $result = $parenthesis->close();
 
         self::assertSame('SELECT * FROM foobar WHERE (a = b AND ' . $expected . ')', $query->getQuery());
-        self::assertInstanceOf(QueryBuilder\ParenthesisInterface::class, $parenthesis);
+        self::assertInstanceOf(ParenthesisInterface::class, $parenthesis);
         self::assertSame($parenthesis, $pResult);
         self::assertSame($result, $query);
     }
@@ -125,7 +126,7 @@ class WhereConditionsTest extends TestCase
         $result = $parenthesis->close();
 
         self::assertSame('SELECT * FROM foobar WHERE a = b OR (' . $expected . ')', $query->getQuery());
-        self::assertInstanceOf(QueryBuilder\ParenthesisInterface::class, $parenthesis);
+        self::assertInstanceOf(ParenthesisInterface::class, $parenthesis);
         self::assertSame($parenthesis, $pResult);
         self::assertSame($result, $query);
     }

@@ -6,57 +6,90 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 
 /**
- * Abstract class of entity.
+ * Definition of an entity
  *
- * The instance of an entity represents a row of the table.
- *
- * The class and statics describe the table.
+ * The instance of an entity represents a row of the table and the statics variables and methods describe the database
+ * table.
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
 abstract class Entity
 {
-    // definition
-    /** @var string */
+    /** The template to use to calculate the table name.
+     * @var string */
     public static $tableNameTemplate = '%short%';
-    /** @var string */
+
+    /** The naming scheme to use for table names.
+     * @var string */
     public static $namingSchemeTable = 'snake_lower';
-    /** @var string */
+
+    /** The naming scheme to use for column names.
+     * @var string */
     public static $namingSchemeColumn = 'snake_lower';
-    /** @var string */
+
+    /** The naming scheme to use for method names.
+     * @var string */
     public static $namingSchemeMethods = 'camelCase';
-    /** @var string */
+
+    /** The database connection to use.
+     * @var string */
     public static $connection = 'default';
-    /** @var string */
+
+    /** Fixed table name (ignore other settings)
+     * @var string */
     protected static $tableName;
-    /** @var string[]|string */
+
+    /** The variable(s) used for primary key.
+     * @var string[]|string */
     protected static $primaryKey = ['id'];
-    /** @var string[] */
+
+    /** Fixed column names (ignore other settings)
+     * @var string[] */
     protected static $columnAliases = [];
-    /** @var string */
+
+    /** A prefix for column names.
+     * @var string */
     protected static $columnPrefix;
-    /** @var bool */
+
+    /** Whether or not the primary key is auto incremented.
+     * @var bool */
     protected static $autoIncrement = true;
-    /** @var string */
+
+    /** Auto increment sequence to use for pgsql.
+     * @var string */
     protected static $autoIncrementSequence;
 
     // data
-    /** @var mixed[] */
+    /** The current data of a row.
+     * @var mixed[] */
     protected $data = [];
-    /** @var mixed[] */
+
+    /** The original data of the row.
+     * @var mixed[] */
     protected $originalData = [];
 
     // internal
-    /** @var string[] */
-    protected static $tableNames = [];
-    /** @var string[][] */
-    protected static $translatedColumns = [];
-    /** @var \ReflectionClass[] */
+    /** Calculated table names.
+     * @internal
+     * @var string[] */
+    protected static $calculatedTableNames = [];
+
+    /** Calculated column names.
+     * @internal
+     * @var string[][] */
+    protected static $calculatedColumnNames = [];
+
+    /** The reflections of the classes.
+     * @internal
+     * @var \ReflectionClass[] */
     protected static $reflections = [];
 
     /**
-     * Get the table name.
+     * Get the table name
+     *
+     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
+     * $tableName.
      *
      * @return string
      * @throws InvalidName|InvalidConfiguration
@@ -67,7 +100,7 @@ abstract class Entity
             return static::$tableName;
         }
 
-        if (!isset(self::$tableNames[static::class])) {
+        if (!isset(self::$calculatedTableNames[static::class])) {
             $reflection = self::getReflection();
 
             $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
@@ -105,39 +138,45 @@ abstract class Entity
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeTable);
+            self::$calculatedTableNames[static::class] =
+                self::forceNamingScheme($tableName, static::$namingSchemeTable);
         }
 
-        return self::$tableNames[static::class];
+        return self::$calculatedTableNames[static::class];
     }
 
     /**
-     * Get the column name of the column $name.
+     * Get the column name of $name
      *
-     * Important: getColumnName($name) === getColumnName(getColumnName($name))
+     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
+     * to $namingSchemeColumn.
      *
-     * @param string $name
+     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
+     * the same as getColumnName($name).
+     *
+     * @link https://tflori.github.io/orm/entityDefinition.html
+     * @param string $var
      * @return string
      */
-    public static function getColumnName($name)
+    public static function getColumnName($var)
     {
-        if (isset(static::$columnAliases[$name])) {
-            return static::$columnAliases[$name];
+        if (isset(static::$columnAliases[$var])) {
+            return static::$columnAliases[$var];
         }
 
-        if (!isset(self::$translatedColumns[static::class][$name])) {
-            $colName = $name;
+        if (!isset(self::$calculatedColumnNames[static::class][$var])) {
+            $colName = $var;
 
             if (static::$columnPrefix &&
                 strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$translatedColumns[static::class][$name] =
+            self::$calculatedColumnNames[static::class][$var] =
                 self::forceNamingScheme($colName, static::$namingSchemeColumn);
         }
 
-        return self::$translatedColumns[static::class][$name];
+        return self::$calculatedColumnNames[static::class][$var];
     }
 
     /**
