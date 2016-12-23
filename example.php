@@ -75,7 +75,7 @@ try {
                       ->where(User::class . '::username = ' . $em->getConnection()->quote('user_b'))
                       ->andWhere('t0.password = \'' . md5('password_b') . '\'')
                       ->close()
-                  ->groupBy('rowid')
+                  ->groupBy('id')
                   ->orderBy(
                       'CASE WHEN username = ? THEN 1 WHEN username = ? THEN 2 ELSE 3 END',
                       'ASC',
@@ -95,6 +95,16 @@ try {
 $user = $em->map(unserialize("O:4:\"User\":2:{s:7:\"\x00*\x00data\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:4:\"jdoe\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}s:15:\"\x00*\x00originalData\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:6:\"user_c\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}}"));
 $user = $em->fetch(User::class, 3);
 var_dump($user, $user->isDirty(), $user->isDirty('password'));
+
+/*********************************
+ * Get a previously fetched user *
+ *********************************/
+// sqlite returns strings and currently we do not convert to int
+$user1 = $em->fetch(User::class, 1); // queries the database again
+$user2 = $em->map(new User(['id' => 1]));
+$user3 = $em->fetch(User::class, 1); // returns $user2
+$user4 = $em->map(new User(['id' => '1']));
+var_dump($user1->username, $user2->username, $user3 === $user2, $user1 === $user4);
 
 //$query = new \ORM\QueryBuilder('ab');
 //$query->where()

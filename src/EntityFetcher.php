@@ -3,29 +3,49 @@
 namespace ORM;
 
 use ORM\Exceptions\NotJoined;
+use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\QueryBuilder\QueryBuilder;
+use ORM\QueryBuilder\QueryBuilderInterface;
 
 /**
- * Class EntityFetcher
+ * Fetch entities from database
+ *
+ * If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+ * them to the *where() methods.
+ *
+ * Supported:
+ *  - joins with on clause (and alias)
+ *  - joins with using (and alias)
+ *  - where conditions
+ *  - parenthesis
+ *  - order by one or more columns / expressions
+ *  - group by one or more columns / expressions
+ *  - limit and offset
+ *  - modifiers
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
 class EntityFetcher extends QueryBuilder
 {
-    /** @var EntityManager */
+    /** The entity manager where entities get stored
+     * @var EntityManager */
     protected $entityManager;
 
-    /** @var string|Entity */
+    /** The entity class that we want to fetch
+     * @var string|Entity */
     protected $class;
 
-    /** @var \PDOStatement */
+    /** The result object from PDO
+     * @var \PDOStatement */
     protected $result;
 
-    /** @var string */
+    /** The query to execute (overwrites other settings)
+     * @var string|QueryBuilderInterface */
     protected $query;
 
-    /** @var array */
+    /** The class to alias mapping and vise versa
+     * @var string[][] */
     protected $classMapping = [
         'byClass' => [],
         'byAlias' => [],
@@ -33,10 +53,12 @@ class EntityFetcher extends QueryBuilder
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
-     * EntityFetcher constructor.
+     * Constructor
      *
-     * @param EntityManager $entityManager
-     * @param Entity|string $class
+     * @param EntityManager $entityManager EntityManager where to store the fetched entities
+     * @param Entity|string $class         Class to fetch
+     * @throws Exceptions\InvalidConfiguration
+     * @throws Exceptions\InvalidName
      */
     public function __construct(EntityManager $entityManager, $class)
     {
@@ -52,68 +74,88 @@ class EntityFetcher extends QueryBuilder
         $this->classMapping['byAlias']['t0'] = $class;
     }
 
-    /**
-     * Columns can't be changed
-     *
-     * @param array|null $columns
-     * @return $this
+    /** @return self
+     * @internal
      */
     public function columns(array $columns = null)
     {
         return $this;
     }
 
-    /**
-     * Columns can't be changed
-     *
-     * @param string $column
-     * @param array $args
-     * @param string $alias
-     * @return $this
+    /** @return self
+     * @internal
      */
     public function column($column, $args = [], $alias = '')
     {
         return $this;
     }
 
-    protected function convertPlaceholders($expression, $args)
+    /**
+     * Replaces questionmarks in $expression with $args
+     *
+     * Additionally this method replaces "ClassName::var" with "alias.col" and "alias.var" with "alias.col" if
+     * $translateCols is true (default).
+     *
+     * @param string      $expression    Expression with placeholders
+     * @param array|mixed $args          Argument(s) to insert
+     * @param bool        $translateCols Whether or not column names should be translated
+     * @return string
+     */
+    protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
-        $expression = preg_replace_callback(
-            '/(?<b>^| |\()' .
-            '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
-            '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
-            '(?<a>$| |,|\))/',
-            function ($match) {
-                if ($match['class']) {
-                    if (!isset($this->classMapping['byClass'][$match['class']])) {
-                        throw new NotJoined("Class " . $match['class'] . " not joined");
+        if ($translateCols) {
+            $expression = preg_replace_callback(
+                '/(?<b>^| |\()' .
+                '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
+                '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
+                '(?<a>$| |,|\))/',
+                function ($match) {
+                    if ($match['class']) {
+                        if (!isset($this->classMapping['byClass'][$match['class']])) {
+                            throw new NotJoined("Class " . $match['class'] . " not joined");
+                        }
+                        $class = $match['class'];
+                        $alias = $this->classMapping['byClass'][$match['class']];
+                    } elseif ($match['alias']) {
+                        if (!isset($this->classMapping['byAlias'][$match['alias']])) {
+                            throw new NotJoined("Alias " . $match['alias'] . " unknown");
+                        }
+                        $alias = $match['alias'];
+                        $class = $this->classMapping['byAlias'][$match['alias']];
+                    } else {
+                        if ($match['column'] === strtoupper($match['column'])) {
+                            return $match['b'] . $match['column'] . $match['a'];
+                        }
+                        $class = $this->class;
+                        $alias = $this->alias;
                     }
-                    $class = $match['class'];
-                    $alias = $this->classMapping['byClass'][$match['class']];
-                } elseif ($match['alias']) {
-                    if (!isset($this->classMapping['byAlias'][$match['alias']])) {
-                        throw new NotJoined("Alias " . $match['alias'] . " unknown");
-                    }
-                    $alias = $match['alias'];
-                    $class = $this->classMapping['byAlias'][$match['alias']];
-                } else {
-                    if ($match['column'] === strtoupper($match['column'])) {
-                        return $match['b'] . $match['column'] . $match['a'];
-                    }
-                    $class = $this->class;
-                    $alias = $this->alias;
-                }
 
-                /** @var Entity|string $class */
-                return $match['b'] . $alias . '.' . $class::getColumnName($match['column']) . $match['a'];
-            },
-            $expression
-        );
+                    /** @var Entity|string $class */
+                    return $match['b'] . $alias . '.' . $class::getColumnName($match['column']) . $match['a'];
+                },
+                $expression
+            );
+        }
 
         return parent::convertPlaceholders($expression, $args);
     }
 
-
+    /**
+     * Common implementation for *Join methods
+     *
+     * Additionally this method replaces class name with table name and forces an alias.
+     *
+     * @param string      $join       The join type (e. g. `LEFT JOIN`)
+     * @param string      $class      Class to join
+     * @param string      $expression Expression to use in on clause or single column for USING
+     * @param string      $alias      Alias for the table
+     * @param array|mixed $args       Arguments to use in $expression
+     * @param bool        $empty      Create an empty join (without USING and ON)
+     * @return EntityFetcher|ParenthesisInterface
+     * @throws Exceptions\InvalidConfiguration
+     * @throws Exceptions\InvalidName
+     * @internal
+     */
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
     {
         /** @var Entity|string $class */
@@ -137,7 +179,12 @@ class EntityFetcher extends QueryBuilder
     /**
      * Fetch one entity
      *
+     * If there is no more entity in the result set it returns null.
+     *
      * @return Entity
+     * @throws Exceptions\IncompletePrimaryKey
+     * @throws Exceptions\InvalidConfiguration
+     * @throws Exceptions\NoConnection
      */
     public function one()
     {
@@ -170,10 +217,13 @@ class EntityFetcher extends QueryBuilder
     /**
      * Fetch an array of entities
      *
-     * When no $limit is set it fetches all entities in current cursor.
+     * When no $limit is set it fetches all entities in result set.
      *
      * @param int $limit Maximum number of entities to fetch
      * @return Entity[]
+     * @throws Exceptions\IncompletePrimaryKey
+     * @throws Exceptions\InvalidConfiguration
+     * @throws Exceptions\NoConnection
      */
     public function all($limit = 0)
     {
@@ -190,7 +240,15 @@ class EntityFetcher extends QueryBuilder
     }
 
     /**
+     * Query database and return result
+     *
+     * Queries the database with current query and returns the resulted PDOStatement.
+     *
+     * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+     * change the result.
+     *
      * @return \PDOStatement
+     * @throws Exceptions\NoConnection
      */
     private function getStatement()
     {
@@ -201,26 +259,28 @@ class EntityFetcher extends QueryBuilder
         return $this->result;
     }
 
+    /** {@inheritdoc} */
     public function getQuery()
     {
         if ($this->query) {
-            return $this->query;
+            return $this->query instanceof  QueryBuilderInterface ? $this->query->getQuery() : $this->query;
         }
         return parent::getQuery();
     }
 
+    /**
+     * Set a raw query or use different QueryBuilder
+     *
+     * For easier use and against sql injection it allows question mark placeholders.
+     *
+     * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
+     * @param array|null                   $args  The arguments for placeholders
+     * @return $this
+     */
     public function setQuery($query, array $args = null)
     {
-        if (is_array($args) && count($args) === substr_count($query, '?')) {
-            $queryParts = explode('?', $query);
-            $query = '';
-            $c = $this->class;
-            foreach ($queryParts as $part) {
-                $query .= $part;
-                if (count($args)) {
-                    $query .= $this->entityManager->convertValue(array_shift($args), $c::$connection);
-                }
-            }
+        if (!$query instanceof QueryBuilderInterface) {
+            $query = $this->convertPlaceholders($query, $args, false);
         }
 
         $this->query = $query;

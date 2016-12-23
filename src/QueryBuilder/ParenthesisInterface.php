@@ -2,8 +2,6 @@
 
 namespace ORM\QueryBuilder;
 
-use ORM\QueryBuilder\QueryBuilderInterface;
-
 /**
  * Interface ParenthesisInterface
  *
@@ -13,9 +11,9 @@ use ORM\QueryBuilder\QueryBuilderInterface;
 interface ParenthesisInterface
 {
     /**
-     * Add a where condition with AND. Alias for andWhere.
+     * Alias for andWhere
      *
-     * QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+     * QueryBuilderInterface where($column[, $operator[, $value]]);
      *
      * If $column has the same amount of question marks as $value - $value is the second parameter.
      *
@@ -27,12 +25,13 @@ interface ParenthesisInterface
      * where('name', '=' , 'John Doe')
      * where('name = ?', 'John Doe')
      * where('name', 'John Doe')
+     * where('name = ?', ['John Doe'])
      * ```
      *
      * @see ParenthesisInterface::andWhere()
-     * @param string $column Column or expression with placeholders
+     * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
-     * @param string $value Value (required if used with operator)
+     * @param string       $value    Value (required when used with operator)
      * @return self
      */
     public function where($column, $operator = '', $value = '');
@@ -40,7 +39,7 @@ interface ParenthesisInterface
     /**
      * Add a where condition with AND.
      *
-     * QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+     * QueryBuilderInterface andWhere($column[, $operator[, $value]]);
      *
      * If $column has the same amount of question marks as $value - $value is the second parameter.
      *
@@ -52,11 +51,12 @@ interface ParenthesisInterface
      * andWhere('name', '=' , 'John Doe')
      * andWhere('name = ?', 'John Doe')
      * andWhere('name', 'John Doe')
+     * andWhere('name = ?', ['John Doe'])
      * ```
      *
-     * @param string $column Column or expression with placeholders
+     * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
-     * @param string $value Value (required if used with operator)
+     * @param string       $value    Value (required when used with operator)
      * @return self
      */
     public function andWhere($column, $operator = '', $value = '');
@@ -64,7 +64,7 @@ interface ParenthesisInterface
     /**
      * Add a where condition with OR.
      *
-     * QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+     * QueryBuilderInterface orWhere($column[, $operator[, $value]]);
      *
      * If $column has the same amount of question marks as $value - $value is the second parameter.
      *
@@ -76,17 +76,18 @@ interface ParenthesisInterface
      * orWhere('name', '=' , 'John Doe')
      * orWhere('name = ?', 'John Doe')
      * orWhere('name', 'John Doe')
+     * orWhere('name = ?', ['John Doe'])
      * ```
      *
-     * @param string $column Column or expression with placeholders
+     * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
-     * @param string $value Value (required if used with operator)
+     * @param string       $value    Value (required when used with operator)
      * @return self
      */
     public function orWhere($column, $operator = '', $value = '');
 
     /**
-     * Add a parenthesis with AND. Alias for andParenthesis.
+     * Alias for andParenthesis
      *
      * @see ParenthesisInterface::andWhere()
      * @return ParenthesisInterface
@@ -94,35 +95,45 @@ interface ParenthesisInterface
     public function parenthesis();
 
     /**
-     * Add a parenthesis with AND.
+     * Add a parenthesis with AND
      *
      * @return ParenthesisInterface
      */
     public function andParenthesis();
 
     /**
-     * Add a parenthesis with OR.
+     * Add a parenthesis with OR
      *
      * @return ParenthesisInterface
      */
     public function orParenthesis();
 
     /**
+     * Close parenthesis
+     *
      * @return QueryBuilderInterface|ParenthesisInterface
      */
     public function close();
 
     /**
+     * Get the expression
+     *
+     * Returns the complete expression inside this parenthesis.
+     *
      * @return string
      */
-    public function getParenthesis();
+    public function getExpression();
 
     /**
-     * @param $column
-     * @param string $operator
-     * @param string $value
-     * @internal
+     * Create the where condition
+     *
+     * Calls createWhereCondition() from parent if there is a parent.
+     *
+     * @param string $column   Column or expression with placeholders
+     * @param string $operator Operator, value or array of values
+     * @param string $value    Value (required when used with operator)
      * @return string
+     * @internal
      */
-    public function getWhereCondition($column, $operator = '', $value = '');
+    public function createWhereCondition($column, $operator = '', $value = '');
 }

@@ -11,7 +11,11 @@ use ORM\Exceptions\InvalidName;
  * The instance of an entity represents a row of the table and the statics variables and methods describe the database
  * table.
  *
+ * This is the main part where your configuration efforts go. The following properties and methods are well documented
+ * in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity Definition).
+ *
  * @package ORM
+ * @link https://tflori.github.io/orm/entityDefinition.html Entity Definition
  * @author Thomas Flori <thflori@gmail.com>
  */
 abstract class Entity
@@ -154,9 +158,9 @@ abstract class Entity
      * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
      * the same as getColumnName($name).
      *
-     * @link https://tflori.github.io/orm/entityDefinition.html
      * @param string $var
      * @return string
+     * @throws InvalidConfiguration
      */
     public static function getColumnName($var)
     {
@@ -180,7 +184,10 @@ abstract class Entity
     }
 
     /**
-     * Get the primary key for this Table
+     * Get the primary key vars
+     *
+     * The primary key can consist of multiple columns. You should configure the vars that are translated to these
+     * columns.
      *
      * @return array
      */
@@ -190,7 +197,7 @@ abstract class Entity
     }
 
     /**
-     * Whether or not the table has an auto incremented primary key.
+     * Check if the table has a auto increment column.
      *
      * @return bool
      */
@@ -203,6 +210,8 @@ abstract class Entity
      * Get the sequence of the auto increment column (pgsql only).
      *
      * @return string
+     * @throws InvalidConfiguration
+     * @throws InvalidName
      */
     public static function getAutoIncrementSequence()
     {
@@ -213,10 +222,13 @@ abstract class Entity
     }
 
     /**
-     * Enforces $namingScheme to $name.
+     * Enforce $namingScheme to $name
      *
-     * @param string $name
-     * @param string $namingScheme
+     * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
+     * and UPPER.
+     *
+     * @param string $name         The name of the var / column
+     * @param string $namingScheme The naming scheme to use
      * @return string
      * @throws InvalidConfiguration
      */
@@ -271,7 +283,7 @@ abstract class Entity
     }
 
     /**
-     * Get reflection of the entity class.
+     * Get reflection of the entity
      *
      * @return \ReflectionClass
      */
@@ -284,25 +296,35 @@ abstract class Entity
     }
 
     /**
-     * Entity constructor.
+     * Constructor
      *
-     * @param array $data
-     * @param bool $fromDatabase
+     * It calls ::onInit() after initializing $data and $originalData.
+     *
+     * @param array $data         The current data
+     * @param bool  $fromDatabase Whether or not the data comes from database
      */
     final public function __construct(array $data = [], $fromDatabase = false)
     {
-        $this->data = $this->originalData = array_merge($this->data, $data);
+        if ($fromDatabase) {
+            $this->originalData = $data;
+        }
+        $this->data = array_merge($this->data, $data);
         $this->onInit(!$fromDatabase);
     }
 
     /**
-     * Magic setter.
+     * Set $var to $value
      *
-     * You can overwrite this for custom functionality but we recommend not to use the properties or setter (set*)
-     * directly when they have to update the data stored in table.
+     * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
+     * data that should be updated in the database to $data. Do not store data in $originalData as it will not be
+     * written and give wrong results for dirty checking.
      *
-     * @param $var
-     * @param $value
+     * The onChange event is called after something got changed.
+     *
+     * @param string $var   The variable to change
+     * @param mixed  $value The value to store
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($var, $value)
     {
@@ -326,10 +348,14 @@ abstract class Entity
     }
 
     /**
-     * Magic getter.
+     * Get the value from $var
      *
-     * @param $var
+     * If there is a custom getter this method get called instead.
+     *
+     * @param string $var The variable to get
      * @return mixed|null
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __get($var)
     {
@@ -343,10 +369,11 @@ abstract class Entity
     }
 
     /**
-     * Checks if entity or $var got changed.
+     * Checks if entity or $var got changed
      *
-     * @param string $var
+     * @param string $var Check only this variable or all variables
      * @return bool
+     * @throws InvalidConfiguration
      */
     public function isDirty($var = null)
     {
@@ -355,13 +382,17 @@ abstract class Entity
             return @$this->data[$col] !== @$this->originalData[$col];
         }
 
-        return md5(serialize($this->data)) !== md5(serialize($this->originalData));
+        ksort($this->data);
+        ksort($this->originalData);
+
+        return serialize($this->data) !== serialize($this->originalData);
     }
 
     /**
-     * Resets the entity or $var to original data.
+     * Resets the entity or $var to original data
      *
-     * @param string $var
+     * @param string $var Reset only this variable or all variables
+     * @throws InvalidConfiguration
      */
     public function reset($var = null)
     {
@@ -379,9 +410,10 @@ abstract class Entity
     }
 
     /**
-     * Save the entity to $entityManager.
+     * Save the entity to $entityManager
      *
      * @param EntityManager $entityManager
+     * @throws InvalidConfiguration
      */
     public function save(EntityManager $entityManager)
     {
@@ -391,7 +423,7 @@ abstract class Entity
     }
 
     /**
-     * Set new original data.
+     * Set new original data
      *
      * @param array $data
      * @internal
@@ -402,24 +434,24 @@ abstract class Entity
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when something is changed with magic setter.
      *
-     * @param string $var
-     * @param mixed  $oldValue
-     * @param mixed  $value
+     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param mixed  $oldValue The old value of the variable
+     * @param mixed  $value The new value of the variable
      */
     public function onChange($var, $oldValue, $value)
     {
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when the entity get initialized.
      *
-     * @param bool $new
+     * @param bool $new Whether or not the entity is new or from database
      */
     public function onInit($new)
     {

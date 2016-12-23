@@ -10,22 +10,32 @@ namespace ORM;
  */
 class DbConfig
 {
-    /** @var string */
+    /** Dabase Type (mysql, pgsql or sqlite)
+     * @var string */
     public $type;
-    /** @var string */
+
+    /** Database name or path for sqlite
+     * @var string */
     public $name;
 
-    /** @var string */
+    /** Hostname or ip address
+     * @var string */
     public $host = 'localhost';
-    /** @var string  */
+
+    /** Port for DBMS (defaults to 3306 for mysql and 5432 for pgsql)
+     * @var string  */
     public $port;
 
-    /** @var string */
+    /** Database user
+     * @var string */
     public $user = 'root';
-    /** @var string */
+
+    /** Database password
+     * @var string */
     public $pass;
 
-    /** @var array */
+    /** PDO attributes
+     * @var array */
     public $attributes = [];
 
     /**
@@ -41,12 +51,12 @@ class DbConfig
      * ]);
      * ```
      *
-     * @param string $type Type of database (currently supported: `mysql`, `pgsql` and `sqlite`)
-     * @param string $name The name of the database or the path for sqlite
-     * @param string $user Username to use for connection
-     * @param string $pass Password
-     * @param string $host Hostname or IP address - defaults to `localhost`
-     * @param string $port Port - default ports (mysql: 3306, pgsql: 5432)
+     * @param string $type       Type of database (currently supported: `mysql`, `pgsql` and `sqlite`)
+     * @param string $name       The name of the database or the path for sqlite
+     * @param string $user       Username to use for connection
+     * @param string $pass       Password
+     * @param string $host       Hostname or IP address - defaults to `localhost`
+     * @param string $port       Port - default ports (mysql: 3306, pgsql: 5432)
      * @param array  $attributes Array of PDO attributes
      */
     public function __construct(

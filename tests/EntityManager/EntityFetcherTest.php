@@ -5,6 +5,7 @@ namespace ORM\Test\EntityManager;
 use Mockery\Mock;
 use ORM\EntityFetcher;
 use ORM\Exceptions\NotJoined;
+use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -63,6 +64,29 @@ class EntityFetcherTest extends TestCase
             ->andReturn(false);
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'');
+        $fetcher->one();
+    }
+
+    public function testAcceptsQueryBuilderInterface()
+    {
+        $query = \Mockery::mock(QueryBuilder::class);
+        $query->shouldReceive('getQuery')->once()->andReturn('SELECT * FROM foobar');
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT * FROM foobar')->andReturn(false);
+        $fetcher = $this->em->fetch(ContactPhone::class);
+
+        $fetcher->setQuery($query);
+        $fetcher->one();
+    }
+
+    public function testDoesNotReplaceColumnsAndClasses()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $this->pdo->shouldReceive('query')->once()
+                  ->with('SELECT * FROM contact_phone cp WHERE cp.id = 42 AND name = \'mobile\'')
+                  ->andReturn(false);
+
+        $fetcher->setQuery('SELECT * FROM contact_phone cp WHERE cp.id = 42 AND name = \'mobile\'');
         $fetcher->one();
     }
 

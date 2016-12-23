@@ -16,32 +16,38 @@ use ORM\Exceptions\NotScalar;
  */
 class EntityManager
 {
-    const OPT_DEFAULT_CONNECTION = 'connection';
-    const OPT_CONNECTIONS        = 'connections';
-    const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
-    const OPT_MYSQL_BOOLEAN_FALSE = 'mysqlFalse';
-    const OPT_SQLITE_BOOLEAN_TRUE = 'sqliteTrue';
+    const OPT_DEFAULT_CONNECTION   = 'connection';
+    const OPT_CONNECTIONS          = 'connections';
+    const OPT_MYSQL_BOOLEAN_TRUE   = 'mysqlTrue';
+    const OPT_MYSQL_BOOLEAN_FALSE  = 'mysqlFalse';
+    const OPT_SQLITE_BOOLEAN_TRUE  = 'sqliteTrue';
     const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
-    const OPT_PGSQL_BOOLEAN_TRUE = 'pgsqlTrue';
-    const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
+    const OPT_PGSQL_BOOLEAN_TRUE   = 'pgsqlTrue';
+    const OPT_PGSQL_BOOLEAN_FALSE  = 'pgsqlFalse';
 
-    /**@var \PDO[]|callable[]|DbConfig[] */
+    /** Named connections to database
+     * @var \PDO[]|callable[]|DbConfig[] */
     protected $connections = [];
 
-    /** @var Entity[][] */
+    /** The Entity map
+     * @var Entity[][] */
     protected $map = [];
 
+    /** The options set for this instance
+     * @var array */
     protected $options = [
-        self::OPT_MYSQL_BOOLEAN_TRUE => '1',
-        self::OPT_MYSQL_BOOLEAN_FALSE => '0',
-        self::OPT_SQLITE_BOOLEAN_TRUE => '1',
+        self::OPT_MYSQL_BOOLEAN_TRUE   => '1',
+        self::OPT_MYSQL_BOOLEAN_FALSE  => '0',
+        self::OPT_SQLITE_BOOLEAN_TRUE  => '1',
         self::OPT_SQLITE_BOOLEAN_FASLE => '0',
-        self::OPT_PGSQL_BOOLEAN_TRUE => 'true',
-        self::OPT_PGSQL_BOOLEAN_FALSE => 'false'
+        self::OPT_PGSQL_BOOLEAN_TRUE   => 'true',
+        self::OPT_PGSQL_BOOLEAN_FALSE  => 'false'
     ];
 
     /**
-     * @param array $options
+     * Constructor
+     *
+     * @param array $options Options for the new EntityManager
      * @throws InvalidConfiguration
      */
     public function __construct($options = [])
@@ -64,10 +70,15 @@ class EntityManager
     }
 
     /**
-     * Set the connection $name to $connection.
+     * Add connection after instantiation
      *
-     * @param string $name
-     * @param \PDO|callable|DbConfig $connection
+     * The connection can be an array of parameters for DbConfig::__construct(), a callable function that returns a PDO
+     * instance, an instance of DbConfig or a PDO instance itself.
+     *
+     * When it is not a PDO instance the connection get established on first use.
+     *
+     * @param string                       $name       Name of the connection
+     * @param \PDO|callable|DbConfig|array $connection A configuration for (or a) PDO instance
      * @throws InvalidConfiguration
      */
     public function setConnection($name, $connection)
@@ -87,7 +98,7 @@ class EntityManager
     /**
      * Get the pdo connection for $name.
      *
-     * @param string $name
+     * @param string $name Name of the connection
      * @return \PDO
      * @throws NoConnection
      */
@@ -128,8 +139,8 @@ class EntityManager
      *
      * Should not be called directly. Instead you should use $entity->save($entityManager);
      *
-     * @param Entity $entity
-     * @param array $data
+     * @param Entity $entity Entity to save
+     * @param array  $data   Data to store
      * @internal
      */
     public function save(Entity $entity, array $data)
@@ -137,6 +148,15 @@ class EntityManager
     }
 
     /**
+     * Map $entity in the entity map
+     *
+     * Returns the given entity or an entity that previously got mapped. This is useful to work in every function with
+     * the same object.
+     *
+     * ```php?start_inline=true
+     * $user = $enitityManager->map(new User(['id' => 42]));
+     * ```
+     *
      * @param Entity $entity
      * @return Entity
      * @throws IncompletePrimaryKey
@@ -149,7 +169,7 @@ class EntityManager
             if ($value === null) {
                 throw new IncompletePrimaryKey('Entity can not be mapped: ' . $var . ' is null');
             }
-            $key[] = $entity->$var;
+            $key[] = $value;
         }
 
         $class = get_class($entity);
@@ -163,10 +183,20 @@ class EntityManager
     }
 
     /**
-     * @param string|Entity $class
-     * @param mixed $primaryKey
+     * Fetch one or more entities
+     *
+     * With $primaryKey it tries to find this primary key in the entity map (carefully: mostly the database returns a
+     * string and we do not convert them). If there is no entity in the entity map it tries to fetch the entity from
+     * the database. The return value is then null (not found) or the entity.
+     *
+     * Without $primaryKey it creates an entityFetcher and returns this.
+     *
+     * @param string|Entity $class      The entity class you want to fetch
+     * @param mixed         $primaryKey The primary key of the entity you want to fetch
      * @return Entity|EntityFetcher
      * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
      * @throws NoEntity
      */
     public function fetch($class, $primaryKey = null)
@@ -206,9 +236,10 @@ class EntityManager
     /**
      * Returns the given $value formatted to use in a sql statement.
      *
-     * @param  mixed $value The variable that should be returned in SQL syntax
+     * @param  mixed  $value      The variable that should be returned in SQL syntax
      * @param  string $connection The connection to use for quoting
      * @return string
+     * @throws NoConnection
      * @throws NotScalar
      */
     public function convertValue($value, $connection = 'default')

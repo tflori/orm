@@ -13,9 +13,9 @@
 {% endfor %}
 {% endif %}
 
-
-**{{ node.summary|raw }}**
-
+{% if node.summary is not empty and node.summary != 'Class '~node.name %}
+#### {{ node.summary|raw }}
+{% endif %}
 
 {{ node.description|raw }}
 
@@ -29,7 +29,7 @@
 * {{ see.reference }} {% if see.description %}- {{ see.description|raw }}{% endif %}
 {% endfor %}
 {% for link in node.tags.link %}
-* {{ link.link }} {% if link.description and link.description != link.link %}- {{ link.description|raw }}{% endif %}
+* [{{ link.description ?: link.link }}]({{ link.link }})
 {% endfor %}
 
 {% endif %}{# node.tags.see || node.tags.link #}
@@ -45,13 +45,13 @@
 
 {% endif %}
 
-{% if node.properties is not empty %}
+{% if (node.inheritedProperties.merge(node.properties)) is not empty %}
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-{% for property in node.properties %}
-| **{{ property.visibility }}** | {{ property.isStatic ? '__*__' }}`${{ property.name }}` | **{{ property.types ? property.types|join('&#124;')|replace({'<mixed,': '&lt;'})|raw }}** | {{ property.summary }} |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+{% for property in node.inheritedProperties.merge(node.properties) %}
+| **{{ property.visibility }}{{ property.isStatic ? ' static' }}** | `${{ property.name }}` | {% if property.types is not empty %}**{{ property.types ? property.types|join(' &#124; ')|replace({'<mixed,': '&lt;', (node.namespace.FullyQualifiedStructuralElementName~'\\'): ''})|raw }}**{% endif %} | {{ property.summary }} |
 {% endfor %}
 
 {% endif %}
@@ -60,11 +60,11 @@
 {% if node.methods is not empty %}
 #### Methods
 
-{% for method in node.methods.merge(node.inheritedMethods)|sort_asc %}
+{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}
 * [{{ method.name }}](#{{ node.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }}{{ method.name|lower }}) {{ method.summary }}
 {% endfor %}
 
-{% for method in node.methods.merge(node.inheritedMethods)|sort_asc %}
+{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}
 {% include 'method.md.twig' %}
 {% endfor %}
 

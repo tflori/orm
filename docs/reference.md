@@ -40,9 +40,7 @@ permalink: /reference.html
 
 
 
-
-**Describes a database configuration**
-
+#### Describes a database configuration
 
 
 
@@ -51,15 +49,15 @@ permalink: /reference.html
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **public** | `$type` | **string** |  |
-| **public** | `$name` | **string** |  |
-| **public** | `$host` | **string** |  |
-| **public** | `$port` | **string** |  |
-| **public** | `$user` | **string** |  |
-| **public** | `$pass` | **string** |  |
-| **public** | `$attributes` | **array** |  |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **public** | `$type` | **string** | Dabase Type (mysql, pgsql or sqlite) |
+| **public** | `$name` | **string** | Database name or path for sqlite |
+| **public** | `$host` | **string** | Hostname or ip address |
+| **public** | `$port` | **string** | Port for DBMS (defaults to 3306 for mysql and 5432 for pgsql) |
+| **public** | `$user` | **string** | Database user |
+| **public** | `$pass` | **string** | Database password |
+| **public** | `$attributes` | **array** | PDO attributes |
 
 
 
@@ -70,7 +68,7 @@ permalink: /reference.html
 
 #### ORM\DbConfig::__construct
 
-```php
+```php?start_inline=true
 public function __construct(
     string $type, string $name, string $user = null, string $pass = null, 
     string $host = null, string $port = null, array $attributes = array()
@@ -90,25 +88,26 @@ $dbConfig = new DbConfig('mysql', 'my_db', 'my_user', 'my_secret', null, null, [
 ```
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$type` | **string** | Type of database (currently supported: `mysql`, `pgsql` and `sqlite`) |
-| `$name` | **string** | The name of the database or the path for sqlite |
-| `$user` | **string** | Username to use for connection |
-| `$pass` | **string** | Password |
-| `$host` | **string** | Hostname or IP address - defaults to `localhost` |
-| `$port` | **string** | Port - default ports (mysql: 3306, pgsql: 5432) |
-| `$attributes` | **array** | Array of PDO attributes |
+| `$type` | **string**  | Type of database (currently supported: `mysql`, `pgsql` and `sqlite`) |
+| `$name` | **string**  | The name of the database or the path for sqlite |
+| `$user` | **string**  | Username to use for connection |
+| `$pass` | **string**  | Password |
+| `$host` | **string**  | Hostname or IP address - defaults to `localhost` |
+| `$port` | **string**  | Port - default ports (mysql: 3306, pgsql: 5432) |
+| `$attributes` | **array**  | Array of PDO attributes |
 
 
 
 #### ORM\DbConfig::getDsn
 
-```php
+```php?start_inline=true
 public function getDsn(): string
 ```
 
@@ -117,7 +116,9 @@ public function getDsn(): string
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
@@ -128,31 +129,36 @@ public function getDsn(): string
 
 
 
-
-**Definition of an entity**
-
+#### Definition of an entity
 
 The instance of an entity represents a row of the table and the statics variables and methods describe the database
 table.
 
+This is the main part where your configuration efforts go. The following properties and methods are well documented
+in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity Definition).
+
+
+**See Also:**
+
+* [Entity Definition](https://tflori.github.io/orm/entityDefinition.html)
 
 
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **public** | __*__`$tableNameTemplate` | **string** | The template to use to calculate the table name. |
-| **public** | __*__`$namingSchemeTable` | **string** | The naming scheme to use for table names. |
-| **public** | __*__`$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
-| **public** | __*__`$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
-| **public** | __*__`$connection` | **string** | The database connection to use. |
-| **protected** | __*__`$tableName` | **string** | Fixed table name (ignore other settings) |
-| **protected** | __*__`$primaryKey` | **array&lt;string>&#124;string** | The variable(s) used for primary key. |
-| **protected** | __*__`$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
-| **protected** | __*__`$columnPrefix` | **string** | A prefix for column names. |
-| **protected** | __*__`$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
-| **protected** | __*__`$autoIncrementSequence` | **string** | Auto increment sequence to use for pgsql. |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **public static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
+| **public static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
+| **public static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
+| **public static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
+| **public static** | `$connection` | **string** | The database connection to use. |
+| **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
+| **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
+| **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
+| **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
+| **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$autoIncrementSequence` | **string** | Auto increment sequence to use for pgsql. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
 
@@ -160,118 +166,136 @@ table.
 
 #### Methods
 
-* [__construct](#ormentity__construct) Entity constructor.
-* [__get](#ormentity__get) Magic getter.
-* [__set](#ormentity__set) Magic setter.
-* [forceNamingScheme](#ormentityforcenamingscheme) Enforces $namingScheme to $name.
+* [__construct](#ormentity__construct) Constructor
+* [__get](#ormentity__get) Get the value from $var
+* [__set](#ormentity__set) Set $var to $value
+* [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getAutoIncrementSequence](#ormentitygetautoincrementsequence) Get the sequence of the auto increment column (pgsql only).
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
-* [getPrimaryKey](#ormentitygetprimarykey) Get the primary key for this Table
-* [getReflection](#ormentitygetreflection) Get reflection of the entity class.
+* [getPrimaryKey](#ormentitygetprimarykey) Get the primary key vars
+* [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getTableName](#ormentitygettablename) Get the table name
-* [isAutoIncremented](#ormentityisautoincremented) Whether or not the table has an auto incremented primary key.
-* [isDirty](#ormentityisdirty) Checks if entity or $var got changed.
-* [onChange](#ormentityonchange) Empty event handler.
-* [onInit](#ormentityoninit) Empty event handler.
-* [reset](#ormentityreset) Resets the entity or $var to original data.
-* [save](#ormentitysave) Save the entity to $entityManager.
+* [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
+* [isDirty](#ormentityisdirty) Checks if entity or $var got changed
+* [onChange](#ormentityonchange) Empty event handler
+* [onInit](#ormentityoninit) Empty event handler
+* [reset](#ormentityreset) Resets the entity or $var to original data
+* [save](#ormentitysave) Save the entity to $entityManager
 
 #### ORM\Entity::__construct
 
-```php
+```php?start_inline=true
 final public function __construct(
     array $data = array(), boolean $fromDatabase = false
 ): Entity
 ```
 
-##### Entity constructor.
+##### Constructor
 
-
+It calls ::onInit() after initializing $data and $originalData.
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$data` | **array** |  |
-| `$fromDatabase` | **boolean** |  |
+| `$data` | **array**  | The current data |
+| `$fromDatabase` | **boolean**  | Whether or not the data comes from database |
 
 
 
 #### ORM\Entity::__get
 
-```php
-public function __get( $var ): mixed|null
+```php?start_inline=true
+public function __get( string $var ): mixed|null
 ```
 
-##### Magic getter.
+##### Get the value from $var
 
-
+If there is a custom getter this method get called instead.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **** |  |
+| `$var` | **string**  | The variable to get |
 
 
+
+**See Also:**
+
+* [Working with entities](https://tflori.github.io/orm/entities.html)
 
 #### ORM\Entity::__set
 
-```php
-public function __set( $var, $value )
+```php?start_inline=true
+public function __set( string $var, $value )
 ```
 
-##### Magic setter.
+##### Set $var to $value
 
-You can overwrite this for custom functionality but we recommend not to use the properties or setter (set*)
-directly when they have to update the data stored in table.
+Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
+data that should be updated in the database to $data. Do not store data in $originalData as it will not be
+written and give wrong results for dirty checking.
+
+The onChange event is called after something got changed.
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **** |  |
-| `$value` | **** |  |
+| `$var` | **string**  | The variable to change |
+| `$value` | **mixed**  | The value to store |
 
 
+
+**See Also:**
+
+* [Working with entities](https://tflori.github.io/orm/entities.html)
 
 #### ORM\Entity::forceNamingScheme
 
-```php
+```php?start_inline=true
 protected static function forceNamingScheme(
     string $name, string $namingScheme
 ): string
 ```
 
-##### Enforces $namingScheme to $name.
+##### Enforce $namingScheme to $name
 
-
+Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
+and UPPER.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string** |  |
-| `$namingScheme` | **string** |  |
+| `$name` | **string**  | The name of the var / column |
+| `$namingScheme` | **string**  | The naming scheme to use |
 
 
 
 #### ORM\Entity::getAutoIncrementSequence
 
-```php
+```php?start_inline=true
 public static function getAutoIncrementSequence(): string
 ```
 
@@ -281,13 +305,15 @@ public static function getAutoIncrementSequence(): string
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
 
 
 
 #### ORM\Entity::getColumnName
 
-```php
+```php?start_inline=true
 public static function getColumnName( string $var ): string
 ```
 
@@ -301,55 +327,58 @@ the same as getColumnName($name).
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string** |  |
+| `$var` | **string**  |  |
 
 
-
-**See Also:**
-
-* [](https://tflori.github.io/orm/entityDefinition.html)
 
 #### ORM\Entity::getPrimaryKey
 
-```php
+```php?start_inline=true
 public static function getPrimaryKey(): array
 ```
 
-##### Get the primary key for this Table
+##### Get the primary key vars
 
-
+The primary key can consist of multiple columns. You should configure the vars that are translated to these
+columns.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **array**
+<br />
 
 
 
 #### ORM\Entity::getReflection
 
-```php
+```php?start_inline=true
 protected static function getReflection(): \ReflectionClass
 ```
 
-##### Get reflection of the entity class.
+##### Get reflection of the entity
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
-
+<br />
+ **Returns**: this method returns **\ReflectionClass**
+<br />
 
 
 
 #### ORM\Entity::getTableName
 
-```php
+```php?start_inline=true
 public static function getTableName(): string
 ```
 
@@ -360,130 +389,140 @@ $tableName.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\InvalidConfiguration**<br />
 
 
 
 #### ORM\Entity::isAutoIncremented
 
-```php
+```php?start_inline=true
 public static function isAutoIncremented(): boolean
 ```
 
-##### Whether or not the table has an auto incremented primary key.
+##### Check if the table has a auto increment column.
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
 #### ORM\Entity::isDirty
 
-```php
+```php?start_inline=true
 public function isDirty( string $var = null ): boolean
 ```
 
-##### Checks if entity or $var got changed.
+##### Checks if entity or $var got changed
 
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string** |  |
+| `$var` | **string**  | Check only this variable or all variables |
 
 
 
 #### ORM\Entity::onChange
 
-```php
+```php?start_inline=true
 public function onChange( string $var, $oldValue, $value )
 ```
 
-##### Empty event handler.
+##### Empty event handler
 
 Get called when something is changed with magic setter.
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string** |  |
-| `$oldValue` | **mixed** |  |
-| `$value` | **mixed** |  |
+| `$var` | **string**  | The variable that got changed.merge(node.inheritedProperties) |
+| `$oldValue` | **mixed**  | The old value of the variable |
+| `$value` | **mixed**  | The new value of the variable |
 
 
 
 #### ORM\Entity::onInit
 
-```php
+```php?start_inline=true
 public function onInit( boolean $new )
 ```
 
-##### Empty event handler.
+##### Empty event handler
 
 Get called when the entity get initialized.
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$new` | **boolean** |  |
+| `$new` | **boolean**  | Whether or not the entity is new or from database |
 
 
 
 #### ORM\Entity::reset
 
-```php
+```php?start_inline=true
 public function reset( string $var = null )
 ```
 
-##### Resets the entity or $var to original data.
+##### Resets the entity or $var to original data
 
 
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string** |  |
+| `$var` | **string**  | Reset only this variable or all variables |
 
 
 
 #### ORM\Entity::save
 
-```php
+```php?start_inline=true
 public function save( \ORM\EntityManager $entityManager )
 ```
 
-##### Save the entity to $entityManager.
+##### Save the entity to $entityManager
 
 
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entityManager` | **\ORM\EntityManager** |  |
+| `$entityManager` | **EntityManager**  |  |
 
 
 
@@ -495,43 +534,65 @@ public function save( \ORM\EntityManager $entityManager )
 **Extends:** [ORM\QueryBuilder\QueryBuilder](#ormquerybuilderquerybuilder)
 
 
+#### Fetch entities from database
 
-**Class EntityFetcher**
+If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+them to the *where() methods.
 
-
-
+Supported:
+ - joins with on clause (and alias)
+ - joins with using (and alias)
+ - where conditions
+ - parenthesis
+ - order by one or more columns / expressions
+ - group by one or more columns / expressions
+ - limit and offset
+ - modifiers
 
 
 
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **protected** | `$entityManager` | **\ORM\EntityManager** |  |
-| **protected** | `$class` | **string&#124;\ORM\Entity** |  |
-| **protected** | `$result` | **\PDOStatement** |  |
-| **protected** | `$query` | **string** |  |
-| **protected** | `$classMapping` | **array** |  |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$columns` | **array** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
+| **protected** | `$limit` | **integer** | Limit amount of rows |
+| **protected** | `$offset` | **integer** | Offset to start from |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
+| **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
+| **protected** | `$entityManager` | **EntityManager** | The entity manager where entities get stored |
+| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
+| **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
+| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$parent` | **QueryBuilder\ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$class` | **string &#124; Entity** | The entity class that we want to fetch |
+| **protected** | `$result` | **\PDOStatement** | The result object from PDO |
+| **protected** | `$query` | **string &#124; QueryBuilder\QueryBuilderInterface** | The query to execute (overwrites other settings) |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 
 
 
 #### Methods
 
-* [__construct](#ormentityfetcher__construct) 
+* [__construct](#ormentityfetcher__construct) Constructor
 * [all](#ormentityfetcherall) Fetch an array of entities
-* [andParenthesis](#ormentityfetcherandparenthesis) Add a parenthesis with AND.
+* [andParenthesis](#ormentityfetcherandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormentityfetcherandwhere) Add a where condition with AND.
-* [close](#ormentityfetcherclose) 
+* [close](#ormentityfetcherclose) Close parenthesis
 * [column](#ormentityfetchercolumn) Add $column
 * [columns](#ormentityfetchercolumns) Set $columns
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
-* [createJoin](#ormentityfetchercreatejoin) Creates the $join statement.
-* [fullJoin](#ormentityfetcherfulljoin) Right (outer) join $tableName with $options
-* [getParenthesis](#ormentityfetchergetparenthesis) 
-* [getQuery](#ormentityfetchergetquery) 
-* [getStatement](#ormentityfetchergetstatement) 
-* [getWhereCondition](#ormentityfetchergetwherecondition) 
+* [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
+* [getExpression](#ormentityfetchergetexpression) Get the expression
+* [getQuery](#ormentityfetchergetquery) Get the query / select statement
+* [getStatement](#ormentityfetchergetstatement) Query database and return result
 * [groupBy](#ormentityfetchergroupby) Group By $column
 * [join](#ormentityfetcherjoin) (Inner) join $tableName with $options
 * [leftJoin](#ormentityfetcherleftjoin) Left (outer) join $tableName with $options
@@ -540,76 +601,84 @@ public function save( \ORM\EntityManager $entityManager )
 * [offset](#ormentityfetcheroffset) Set $offset
 * [one](#ormentityfetcherone) Fetch one entity
 * [orderBy](#ormentityfetcherorderby) Order By $column in $direction
-* [orParenthesis](#ormentityfetcherorparenthesis) Add a parenthesis with OR.
+* [orParenthesis](#ormentityfetcherorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormentityfetcherorwhere) Add a where condition with OR.
-* [parenthesis](#ormentityfetcherparenthesis) Add a parenthesis with AND. Alias for andParenthesis.
+* [parenthesis](#ormentityfetcherparenthesis) Alias for andParenthesis
 * [rightJoin](#ormentityfetcherrightjoin) Right (outer) join $tableName with $options
-* [setQuery](#ormentityfetchersetquery) 
-* [where](#ormentityfetcherwhere) Add a where condition with AND. Alias for andWhere.
+* [setQuery](#ormentityfetchersetquery) Set a raw query or use different QueryBuilder
+* [where](#ormentityfetcherwhere) Alias for andWhere
 
 #### ORM\EntityFetcher::__construct
 
-```php
+```php?start_inline=true
 public function __construct(
-    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
-): Parenthesis
+    \ORM\EntityManager $entityManager, \ORM\Entity $class
+): EntityFetcher
 ```
 
-##### 
+##### Constructor
 
+Create a select statement for $tableName with an object oriented interface.
 
+When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
+used.
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$onClose` | **callable** |  |
-| `$parent` | **\ORM\QueryBuilder\ParenthesisInterface** |  |
+| `$entityManager` | **EntityManager**  | EntityManager where to store the fetched entities |
+| `$class` | **Entity &#124; string**  | Class to fetch |
 
 
 
 #### ORM\EntityFetcher::all
 
-```php
+```php?start_inline=true
 public function all( integer $limit ): array<\ORM\Entity>
 ```
 
 ##### Fetch an array of entities
 
-When no $limit is set it fetches all entities in current cursor.
+When no $limit is set it fetches all entities in result set.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$limit` | **integer** | Maximum number of entities to fetch |
+| `$limit` | **integer**  | Maximum number of entities to fetch |
 
 
 
 #### ORM\EntityFetcher::andParenthesis
 
-```php
+```php?start_inline=true
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND.
+##### Add a parenthesis with AND
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\EntityFetcher::andWhere
 
-```php
+```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -617,7 +686,7 @@ public function andWhere(
 
 ##### Add a where condition with AND.
 
-QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -629,39 +698,44 @@ These calls are equal:
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
 andWhere('name', 'John Doe')
+andWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\EntityFetcher::close
 
-```php
+```php?start_inline=true
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### 
+##### Close parenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\EntityFetcher::column
 
-```php
+```php?start_inline=true
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -672,21 +746,23 @@ public function column(
 Optionally you can provide an expression with question marks as placeholders filled with $args.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
-| `$alias` | **string** |  |
+| `$column` | **string**  | Column or expression to fetch |
+| `$args` | **array**  | Arguments for expression |
+| `$alias` | **string**  | Alias for the column |
 
 
 
 #### ORM\EntityFetcher::columns
 
-```php
+```php?start_inline=true
 public function columns( array $columns = null ): QueryBuilder
 ```
 
@@ -695,79 +771,56 @@ public function columns( array $columns = null ): QueryBuilder
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columns` | **array** |  |
+| `$columns` | **array**  |  |
 
 
 
 #### ORM\EntityFetcher::convertPlaceholders
 
-```php
+```php?start_inline=true
 protected function convertPlaceholders(
-    string $expression, array $args
+    string $expression, array $args, boolean $translateCols = true
 ): string
 ```
 
 ##### Replaces questionmarks in $expression with $args
 
-
+Additionally this method replaces "ClassName::var" with "alias.col" and "alias.var" with "alias.col" if
+$translateCols is true (default).
 
 **Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$expression` | **string** |  |
-| `$args` | **array&#124;mixed** |  |
-
-
-
-#### ORM\EntityFetcher::createJoin
-
-```php
-protected function createJoin(
-    string $join, string $tableName, string $expression, string $alias, 
-    array $args, boolean $empty
-): QueryBuilder
-```
-
-##### Creates the $join statement.
-
-
-
-**Visibility:** this method is **protected**.
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$join` | **string** |  |
-| `$tableName` | **string** |  |
-| `$expression` | **string** |  |
-| `$alias` | **string** |  |
-| `$args` | **array&#124;mixed** |  |
-| `$empty` | **boolean** |  |
+| `$expression` | **string**  | Expression with placeholders |
+| `$args` | **array &#124; mixed**  | Argument(s) to insert |
+| `$translateCols` | **boolean**  | Whether or not column names should be translated |
 
 
 
 #### ORM\EntityFetcher::fullJoin
 
-```php
+```php?start_inline=true
 public function fullJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
 
-##### Right (outer) join $tableName with $options
+##### Full (outer) join $tableName with $options
 
 When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
 can be set to false.
@@ -775,90 +828,78 @@ can be set to false.
 ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
-#### ORM\EntityFetcher::getParenthesis
+#### ORM\EntityFetcher::getExpression
 
-```php
-public function getParenthesis(): string
+```php?start_inline=true
+public function getExpression(): string
 ```
 
-##### 
+##### Get the expression
 
-
+Returns the complete expression inside this parenthesis.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\EntityFetcher::getQuery
 
-```php
+```php?start_inline=true
 public function getQuery(): string
 ```
 
-##### 
+##### Get the query / select statement
 
-
+Builds the statement from current where conditions, joins, columns and so on.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\EntityFetcher::getStatement
 
-```php
+```php?start_inline=true
 private function getStatement(): \PDOStatement
 ```
 
-##### 
+##### Query database and return result
 
+Queries the database with current query and returns the resulted PDOStatement.
 
+If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+change the result.
 
 **Visibility:** this method is **private**.
-
-
-
-
-#### ORM\EntityFetcher::getWhereCondition
-
-```php
-public function getWhereCondition( $column, $operator = '', $value = '' )
-```
-
-##### 
-
-
-
-**Visibility:** this method is **public**.
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` | **** |  |
-| `$operator` | **** |  |
-| `$value` | **** |  |
+<br />
+ **Returns**: this method returns **\PDOStatement**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
 
 
 
 #### ORM\EntityFetcher::groupBy
 
-```php
+```php?start_inline=true
 public function groupBy( string $column, array $args = array() ): QueryBuilder
 ```
 
@@ -867,22 +908,24 @@ public function groupBy( string $column, array $args = array() ): QueryBuilder
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for groups |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\EntityFetcher::join
 
-```php
+```php?start_inline=true
 public function join(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -894,24 +937,26 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\EntityFetcher::leftJoin
 
-```php
+```php?start_inline=true
 public function leftJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -923,100 +968,110 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\EntityFetcher::limit
 
-```php
+```php?start_inline=true
 public function limit( integer $limit ): QueryBuilder
 ```
 
 ##### Set $limit
 
-
+Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$limit` | **integer** |  |
+| `$limit` | **integer**  | The limit to set |
 
 
 
 #### ORM\EntityFetcher::modifier
 
-```php
+```php?start_inline=true
 public function modifier( string $modifier ): QueryBuilder
 ```
 
 ##### Add $modifier
 
-
+Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$modifier` | **string** |  |
+| `$modifier` | **string**  |  |
 
 
 
 #### ORM\EntityFetcher::offset
 
-```php
+```php?start_inline=true
 public function offset( integer $offset ): QueryBuilder
 ```
 
 ##### Set $offset
 
-
+Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$offset` | **integer** |  |
+| `$offset` | **integer**  | The offset to set |
 
 
 
 #### ORM\EntityFetcher::one
 
-```php
+```php?start_inline=true
 public function one(): \ORM\Entity
 ```
 
 ##### Fetch one entity
 
-
+If there is no more entity in the result set it returns null.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection**<br />
 
 
 
 #### ORM\EntityFetcher::orderBy
 
-```php
+```php?start_inline=true
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -1028,36 +1083,40 @@ public function orderBy(
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$direction` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for order |
+| `$direction` | **string**  | Direction (default: `ASC`) |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\EntityFetcher::orParenthesis
 
-```php
+```php?start_inline=true
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with OR.
+##### Add a parenthesis with OR
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\EntityFetcher::orWhere
 
-```php
+```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1065,7 +1124,7 @@ public function orWhere(
 
 ##### Add a where condition with OR.
 
-QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1077,41 +1136,46 @@ These calls are equal:
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
 orWhere('name', 'John Doe')
+orWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\EntityFetcher::parenthesis
 
-```php
+```php?start_inline=true
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND. Alias for andParenthesis.
+##### Alias for andParenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\EntityFetcher::rightJoin
 
-```php
+```php?start_inline=true
 public function rightJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -1123,52 +1187,56 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\EntityFetcher::setQuery
 
-```php
-public function setQuery( $query, array $args = null )
+```php?start_inline=true
+public function setQuery( string $query, array $args = null ): $this
 ```
 
-##### 
+##### Set a raw query or use different QueryBuilder
 
-
+For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$query` | **** |  |
-| `$args` | **array** |  |
+| `$query` | **string &#124; QueryBuilder\QueryBuilderInterface**  | Raw query string or a QueryBuilderInterface |
+| `$args` | **array &#124; null**  | The arguments for placeholders |
 
 
 
 #### ORM\EntityFetcher::where
 
-```php
+```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
 ```
 
-##### Add a where condition with AND. Alias for andWhere.
+##### Alias for andWhere
 
-QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface where($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1180,18 +1248,21 @@ These calls are equal:
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
 where('name', 'John Doe')
+where('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityFetcher**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
@@ -1202,9 +1273,7 @@ where('name', 'John Doe')
 
 
 
-
-**The EntityManager that manages the instances of Entities.**
-
+#### The EntityManager that manages the instances of Entities.
 
 
 
@@ -1226,47 +1295,48 @@ where('name', 'John Doe')
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **protected** | `$connections` | **** |  |
-| **protected** | `$map` | **array&lt;\ORM\Entity[]>** |  |
-| **protected** | `$options` | **** |  |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$connections` | **array&lt;\PDO> &#124; array&lt;callable> &#124; array&lt;DbConfig>** | Named connections to database |
+| **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
+| **protected** | `$options` | **array** | The options set for this instance |
 
 
 
 #### Methods
 
-* [__construct](#ormentitymanager__construct) 
+* [__construct](#ormentitymanager__construct) Constructor
 * [convertValue](#ormentitymanagerconvertvalue) Returns the given $value formatted to use in a sql statement.
-* [fetch](#ormentitymanagerfetch) 
+* [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
-* [map](#ormentitymanagermap) 
-* [setConnection](#ormentitymanagersetconnection) Set the connection $name to $connection.
+* [map](#ormentitymanagermap) Map $entity in the entity map
+* [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 
 #### ORM\EntityManager::__construct
 
-```php
+```php?start_inline=true
 public function __construct( array $options = array() ): EntityManager
 ```
 
-##### 
+##### Constructor
 
 
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$options` | **array** |  |
+| `$options` | **array**  | Options for the new EntityManager |
 
 
 
 #### ORM\EntityManager::convertValue
 
-```php
+```php?start_inline=true
 public function convertValue( $value, string $connection = 'default' ): string
 ```
 
@@ -1275,44 +1345,52 @@ public function convertValue( $value, string $connection = 'default' ): string
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` | **mixed** | The variable that should be returned in SQL syntax |
-| `$connection` | **string** | The connection to use for quoting |
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
+| `$connection` | **string**  | The connection to use for quoting |
 
 
 
 #### ORM\EntityManager::fetch
 
-```php
+```php?start_inline=true
 public function fetch(
     string $class, $primaryKey = null
 ): \ORM\Entity|\ORM\EntityFetcher
 ```
 
-##### 
+##### Fetch one or more entities
 
+With $primaryKey it tries to find this primary key in the entity map (carefully: mostly the database returns a
+string and we do not convert them). If there is no entity in the entity map it tries to fetch the entity from
+the database. The return value is then null (not found) or the entity.
 
+Without $primaryKey it creates an entityFetcher and returns this.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$class` | **string&#124;\ORM\Entity** |  |
-| `$primaryKey` | **mixed** |  |
+| `$class` | **string &#124; Entity**  | The entity class you want to fetch |
+| `$primaryKey` | **mixed**  | The primary key of the entity you want to fetch |
 
 
 
 #### ORM\EntityManager::getConnection
 
-```php
+```php?start_inline=true
 public function getConnection( string $name = 'default' ): \PDO
 ```
 
@@ -1321,56 +1399,69 @@ public function getConnection( string $name = 'default' ): \PDO
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\PDO**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string** |  |
+| `$name` | **string**  | Name of the connection |
 
 
 
 #### ORM\EntityManager::map
 
-```php
+```php?start_inline=true
 public function map( \ORM\Entity $entity ): \ORM\Entity
 ```
 
-##### 
+##### Map $entity in the entity map
 
+Returns the given entity or an entity that previously got mapped. This is useful to work in every function with
+the same object.
 
+```php?start_inline=true
+$user = $enitityManager->map(new User(['id' => 42]));
+```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity** |  |
+| `$entity` | **Entity**  |  |
 
 
 
 #### ORM\EntityManager::setConnection
 
-```php
+```php?start_inline=true
 public function setConnection( string $name, \PDO $connection )
 ```
 
-##### Set the connection $name to $connection.
+##### Add connection after instantiation
 
+The connection can be an array of parameters for DbConfig::__construct(), a callable function that returns a PDO
+instance, an instance of DbConfig or a PDO instance itself.
 
+When it is not a PDO instance the connection get established on first use.
 
 **Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string** |  |
-| `$connection` | **\PDO&#124;callable&#124;\ORM\DbConfig** |  |
+| `$name` | **string**  | Name of the connection |
+| `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
 
 
 
@@ -1382,9 +1473,7 @@ public function setConnection( string $name, \PDO $connection )
 **Extends:** [](#)
 
 
-
-**Base exception for ORM**
-
+#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -1399,9 +1488,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 **Extends:** [ORM\Exception](#ormexception)
 
-
-
-**Class IncompletePrimaryKey**
 
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
@@ -1419,9 +1505,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
-**Class InvalidConfiguration**
-
-
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
@@ -1435,9 +1518,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 **Extends:** [ORM\Exception](#ormexception)
 
-
-
-**Class InvalidName**
 
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
@@ -1455,9 +1535,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
-**Class NoConnection**
-
-
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
@@ -1471,9 +1548,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 **Extends:** [ORM\Exception](#ormexception)
 
-
-
-**Class NoEntity**
 
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
@@ -1491,9 +1565,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
-**Class NotJoined**
-
-
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
@@ -1507,9 +1578,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 **Extends:** [ORM\Exception](#ormexception)
 
-
-
-**Class NotScalar**
 
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
@@ -1527,9 +1595,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Implements:** [ORM\QueryBuilder\ParenthesisInterface](#ormquerybuilderparenthesisinterface)
 
 
-**Class Parenthesis**
-
-
 
 
 
@@ -1537,71 +1602,71 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **protected** | `$where` | **array&lt;string>** |  |
-| **protected** | `$onClose` | **callable** |  |
-| **protected** | `$entityManager` | **\ORM\EntityManager** |  |
-| **protected** | `$connection` | **string** |  |
-| **protected** | `$parent` | **\ORM\QueryBuilder\ParenthesisInterface** |  |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
 
 
 
 #### Methods
 
-* [__construct](#ormquerybuilderparenthesis__construct) 
-* [andParenthesis](#ormquerybuilderparenthesisandparenthesis) Add a parenthesis with AND.
+* [__construct](#ormquerybuilderparenthesis__construct) Constructor
+* [andParenthesis](#ormquerybuilderparenthesisandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderparenthesisandwhere) Add a where condition with AND.
-* [close](#ormquerybuilderparenthesisclose) 
-* [getParenthesis](#ormquerybuilderparenthesisgetparenthesis) 
-* [getWhereCondition](#ormquerybuilderparenthesisgetwherecondition) 
-* [orParenthesis](#ormquerybuilderparenthesisorparenthesis) Add a parenthesis with OR.
+* [close](#ormquerybuilderparenthesisclose) Close parenthesis
+* [getExpression](#ormquerybuilderparenthesisgetexpression) Get the expression
+* [orParenthesis](#ormquerybuilderparenthesisorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderparenthesisorwhere) Add a where condition with OR.
-* [parenthesis](#ormquerybuilderparenthesisparenthesis) Add a parenthesis with AND. Alias for andParenthesis.
-* [where](#ormquerybuilderparenthesiswhere) Add a where condition with AND. Alias for andWhere.
+* [parenthesis](#ormquerybuilderparenthesisparenthesis) Alias for andParenthesis
+* [where](#ormquerybuilderparenthesiswhere) Alias for andWhere
 
 #### ORM\QueryBuilder\Parenthesis::__construct
 
-```php
+```php?start_inline=true
 public function __construct(
     callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
 ): Parenthesis
 ```
 
-##### 
+##### Constructor
 
-
+Create a parenthesis inside another parenthesis or a query.
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$onClose` | **callable** |  |
-| `$parent` | **\ORM\QueryBuilder\ParenthesisInterface** |  |
+| `$onClose` | **callable**  | Callable that gets executed when the parenthesis get closed |
+| `$parent` | **ParenthesisInterface**  | Parent where createWhereCondition get executed |
 
 
 
 #### ORM\QueryBuilder\Parenthesis::andParenthesis
 
-```php
+```php?start_inline=true
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND.
+##### Add a parenthesis with AND
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\Parenthesis::andWhere
 
-```php
+```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1609,7 +1674,7 @@ public function andWhere(
 
 ##### Add a where condition with AND.
 
-QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1621,92 +1686,78 @@ These calls are equal:
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
 andWhere('name', 'John Doe')
+andWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Parenthesis**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\Parenthesis::close
 
-```php
+```php?start_inline=true
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### 
+##### Close parenthesis
 
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
+#### ORM\QueryBuilder\Parenthesis::getExpression
 
-#### ORM\QueryBuilder\Parenthesis::getParenthesis
-
-```php
-public function getParenthesis(): string
+```php?start_inline=true
+public function getExpression(): string
 ```
 
-##### 
+##### Get the expression
 
-
-
-**Visibility:** this method is **public**.
-
-
-
-
-#### ORM\QueryBuilder\Parenthesis::getWhereCondition
-
-```php
-public function getWhereCondition( $column, $operator = '', $value = '' )
-```
-
-##### 
-
-
+Returns the complete expression inside this parenthesis.
 
 **Visibility:** this method is **public**.
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` | **** |  |
-| `$operator` | **** |  |
-| `$value` | **** |  |
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\Parenthesis::orParenthesis
 
-```php
+```php?start_inline=true
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with OR.
+##### Add a parenthesis with OR
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\Parenthesis::orWhere
 
-```php
+```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -1714,7 +1765,7 @@ public function orWhere(
 
 ##### Add a where condition with OR.
 
-QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1726,47 +1777,52 @@ These calls are equal:
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
 orWhere('name', 'John Doe')
+orWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Parenthesis**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\Parenthesis::parenthesis
 
-```php
+```php?start_inline=true
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND. Alias for andParenthesis.
+##### Alias for andParenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\Parenthesis::where
 
-```php
+```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
 ```
 
-##### Add a where condition with AND. Alias for andWhere.
+##### Alias for andWhere
 
-QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface where($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1778,18 +1834,21 @@ These calls are equal:
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
 where('name', 'John Doe')
+where('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Parenthesis**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
@@ -1800,9 +1859,7 @@ where('name', 'John Doe')
 
 
 
-
-**Interface ParenthesisInterface**
-
+#### Interface ParenthesisInterface
 
 
 
@@ -1813,33 +1870,35 @@ where('name', 'John Doe')
 
 #### Methods
 
-* [andParenthesis](#ormquerybuilderparenthesisinterfaceandparenthesis) Add a parenthesis with AND.
+* [andParenthesis](#ormquerybuilderparenthesisinterfaceandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderparenthesisinterfaceandwhere) Add a where condition with AND.
-* [close](#ormquerybuilderparenthesisinterfaceclose) 
-* [getParenthesis](#ormquerybuilderparenthesisinterfacegetparenthesis) 
-* [orParenthesis](#ormquerybuilderparenthesisinterfaceorparenthesis) Add a parenthesis with OR.
+* [close](#ormquerybuilderparenthesisinterfaceclose) Close parenthesis
+* [getExpression](#ormquerybuilderparenthesisinterfacegetexpression) Get the expression
+* [orParenthesis](#ormquerybuilderparenthesisinterfaceorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderparenthesisinterfaceorwhere) Add a where condition with OR.
-* [parenthesis](#ormquerybuilderparenthesisinterfaceparenthesis) Add a parenthesis with AND. Alias for andParenthesis.
-* [where](#ormquerybuilderparenthesisinterfacewhere) Add a where condition with AND. Alias for andWhere.
+* [parenthesis](#ormquerybuilderparenthesisinterfaceparenthesis) Alias for andParenthesis
+* [where](#ormquerybuilderparenthesisinterfacewhere) Alias for andWhere
 
 #### ORM\QueryBuilder\ParenthesisInterface::andParenthesis
 
-```php
+```php?start_inline=true
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND.
+##### Add a parenthesis with AND
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\ParenthesisInterface::andWhere
 
-```php
+```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -1847,7 +1906,7 @@ public function andWhere(
 
 ##### Add a where condition with AND.
 
-QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1859,69 +1918,78 @@ These calls are equal:
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
 andWhere('name', 'John Doe')
+andWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **ParenthesisInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\ParenthesisInterface::close
 
-```php
+```php?start_inline=true
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### 
+##### Close parenthesis
 
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
+#### ORM\QueryBuilder\ParenthesisInterface::getExpression
 
-#### ORM\QueryBuilder\ParenthesisInterface::getParenthesis
-
-```php
-public function getParenthesis(): string
+```php?start_inline=true
+public function getExpression(): string
 ```
 
-##### 
+##### Get the expression
 
-
+Returns the complete expression inside this parenthesis.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\ParenthesisInterface::orParenthesis
 
-```php
+```php?start_inline=true
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with OR.
+##### Add a parenthesis with OR
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\ParenthesisInterface::orWhere
 
-```php
+```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -1929,7 +1997,7 @@ public function orWhere(
 
 ##### Add a where condition with OR.
 
-QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1941,33 +2009,38 @@ These calls are equal:
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
 orWhere('name', 'John Doe')
+orWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **ParenthesisInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\ParenthesisInterface::parenthesis
 
-```php
+```php?start_inline=true
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND. Alias for andParenthesis.
+##### Alias for andParenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
@@ -1976,15 +2049,15 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
 #### ORM\QueryBuilder\ParenthesisInterface::where
 
-```php
+```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
 ```
 
-##### Add a where condition with AND. Alias for andWhere.
+##### Alias for andWhere
 
-QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface where($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -1996,18 +2069,21 @@ These calls are equal:
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
 where('name', 'John Doe')
+where('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **ParenthesisInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
@@ -2023,48 +2099,58 @@ where('name', 'John Doe')
 
 **Implements:** [ORM\QueryBuilder\QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
 
+#### Build a ansi sql query / select statement
 
-**Class QueryBuilder**
+If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+them to the *where() methods.
 
-
-
+Supported:
+ - joins with on clause (and alias)
+ - joins with using (and alias)
+ - where conditions
+ - parenthesis
+ - order by one or more columns / expressions
+ - group by one or more columns / expressions
+ - limit and offset
 
 
 
 
 #### Properties
 
-| Visibility | Name | Type | Description |
-|------------|------|------|-------------|
-| **protected** | `$tableName` | **string** |  |
-| **protected** | `$alias` | **string** |  |
-| **protected** | `$columns` | **array** |  |
-| **protected** | `$joins` | **array** |  |
-| **protected** | `$where` | **array&lt;string>** |  |
-| **protected** | `$limit` | **integer** |  |
-| **protected** | `$offset` | **integer** |  |
-| **protected** | `$groupBy` | **array&lt;string>** |  |
-| **protected** | `$orderBy` | **array&lt;string>** |  |
-| **protected** | `$modifier` | **array&lt;string>** |  |
-| **public** | __*__`$defaultEntityManager` | **\ORM\EntityManager** | The default EntityManager to use to for quoting |
-| **public** | __*__`$defaultConnection` | **string** | The default connection to use for quoting |
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$columns` | **array** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
+| **protected** | `$limit` | **integer** | Limit amount of rows |
+| **protected** | `$offset` | **integer** | Offset to start from |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
+| **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
+| **protected** | `$entityManager` | **\ORM\EntityManager** | EntityManager to use for quoting |
+| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
+| **public static** | `$defaultEntityManager` | **\ORM\EntityManager** | The default EntityManager to use to for quoting |
+| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 
 
 
 #### Methods
 
-* [__construct](#ormquerybuilderquerybuilder__construct) 
-* [andParenthesis](#ormquerybuilderquerybuilderandparenthesis) Add a parenthesis with AND.
+* [__construct](#ormquerybuilderquerybuilder__construct) Constructor
+* [andParenthesis](#ormquerybuilderquerybuilderandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderquerybuilderandwhere) Add a where condition with AND.
-* [close](#ormquerybuilderquerybuilderclose) 
+* [close](#ormquerybuilderquerybuilderclose) Close parenthesis
 * [column](#ormquerybuilderquerybuildercolumn) Add $column
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
-* [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces questionmarks in $expression with $args
-* [createJoin](#ormquerybuilderquerybuildercreatejoin) Creates the $join statement.
-* [fullJoin](#ormquerybuilderquerybuilderfulljoin) Right (outer) join $tableName with $options
-* [getParenthesis](#ormquerybuilderquerybuildergetparenthesis) 
-* [getQuery](#ormquerybuilderquerybuildergetquery) 
-* [getWhereCondition](#ormquerybuilderquerybuildergetwherecondition) 
+* [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
+* [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
+* [getExpression](#ormquerybuilderquerybuildergetexpression) Get the expression
+* [getQuery](#ormquerybuilderquerybuildergetquery) Get the query / select statement
 * [groupBy](#ormquerybuilderquerybuildergroupby) Group By $column
 * [join](#ormquerybuilderquerybuilderjoin) (Inner) join $tableName with $options
 * [leftJoin](#ormquerybuilderquerybuilderleftjoin) Left (outer) join $tableName with $options
@@ -2072,54 +2158,63 @@ where('name', 'John Doe')
 * [modifier](#ormquerybuilderquerybuildermodifier) Add $modifier
 * [offset](#ormquerybuilderquerybuilderoffset) Set $offset
 * [orderBy](#ormquerybuilderquerybuilderorderby) Order By $column in $direction
-* [orParenthesis](#ormquerybuilderquerybuilderorparenthesis) Add a parenthesis with OR.
+* [orParenthesis](#ormquerybuilderquerybuilderorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderquerybuilderorwhere) Add a where condition with OR.
-* [parenthesis](#ormquerybuilderquerybuilderparenthesis) Add a parenthesis with AND. Alias for andParenthesis.
+* [parenthesis](#ormquerybuilderquerybuilderparenthesis) Alias for andParenthesis
 * [rightJoin](#ormquerybuilderquerybuilderrightjoin) Right (outer) join $tableName with $options
-* [where](#ormquerybuilderquerybuilderwhere) Add a where condition with AND. Alias for andWhere.
+* [where](#ormquerybuilderquerybuilderwhere) Alias for andWhere
 
 #### ORM\QueryBuilder\QueryBuilder::__construct
 
-```php
+```php?start_inline=true
 public function __construct(
-    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
-): Parenthesis
+    string $tableName, string $alias = '', 
+    \ORM\EntityManager $entityManager = null, string $connection = null
+): QueryBuilder
 ```
 
-##### 
+##### Constructor
 
+Create a select statement for $tableName with an object oriented interface.
 
+When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
+used.
 
 **Visibility:** this method is **public**.
+<br />
 
 
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$onClose` | **callable** |  |
-| `$parent` | **\ORM\QueryBuilder\ParenthesisInterface** |  |
+| `$tableName` | **string**  | The main table to use in FROM clause |
+| `$alias` | **string**  | An alias for the table |
+| `$entityManager` | **\ORM\EntityManager**  | EntityManager for quoting |
+| `$connection` | **string**  | Connection from EntityManager for quoting |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::andParenthesis
 
-```php
+```php?start_inline=true
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND.
+##### Add a parenthesis with AND
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::andWhere
 
-```php
+```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -2127,7 +2222,7 @@ public function andWhere(
 
 ##### Add a where condition with AND.
 
-QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -2139,39 +2234,44 @@ These calls are equal:
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
 andWhere('name', 'John Doe')
+andWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::close
 
-```php
+```php?start_inline=true
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### 
+##### Close parenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::column
 
-```php
+```php?start_inline=true
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -2182,21 +2282,23 @@ public function column(
 Optionally you can provide an expression with question marks as placeholders filled with $args.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
-| `$alias` | **string** |  |
+| `$column` | **string**  | Column or expression to fetch |
+| `$args` | **array**  | Arguments for expression |
+| `$alias` | **string**  | Alias for the column |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::columns
 
-```php
+```php?start_inline=true
 public function columns( array $columns = null ): QueryBuilder
 ```
 
@@ -2205,79 +2307,54 @@ public function columns( array $columns = null ): QueryBuilder
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columns` | **array** |  |
+| `$columns` | **array**  |  |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::convertPlaceholders
 
-```php
+```php?start_inline=true
 protected function convertPlaceholders(
     string $expression, array $args
 ): string
 ```
 
-##### Replaces questionmarks in $expression with $args
+##### Replaces question marks in $expression with $args
 
 
 
 **Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
 
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$expression` | **string** |  |
-| `$args` | **array&#124;mixed** |  |
-
-
-
-#### ORM\QueryBuilder\QueryBuilder::createJoin
-
-```php
-protected function createJoin(
-    string $join, string $tableName, string $expression, string $alias, 
-    array $args, boolean $empty
-): QueryBuilder
-```
-
-##### Creates the $join statement.
-
-
-
-**Visibility:** this method is **protected**.
-
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$join` | **string** |  |
-| `$tableName` | **string** |  |
-| `$expression` | **string** |  |
-| `$alias` | **string** |  |
-| `$args` | **array&#124;mixed** |  |
-| `$empty` | **boolean** |  |
+| `$expression` | **string**  | Expression with placeholders |
+| `$args` | **array &#124; mixed**  | Arguments for placeholders |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::fullJoin
 
-```php
+```php?start_inline=true
 public function fullJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
 
-##### Right (outer) join $tableName with $options
+##### Full (outer) join $tableName with $options
 
 When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
 can be set to false.
@@ -2285,75 +2362,58 @@ can be set to false.
 ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
-#### ORM\QueryBuilder\QueryBuilder::getParenthesis
+#### ORM\QueryBuilder\QueryBuilder::getExpression
 
-```php
-public function getParenthesis(): string
+```php?start_inline=true
+public function getExpression(): string
 ```
 
-##### 
+##### Get the expression
 
-
+Returns the complete expression inside this parenthesis.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::getQuery
 
-```php
+```php?start_inline=true
 public function getQuery(): string
 ```
 
-##### 
+##### Get the query / select statement
 
-
-
-**Visibility:** this method is **public**.
-
-
-
-
-#### ORM\QueryBuilder\QueryBuilder::getWhereCondition
-
-```php
-public function getWhereCondition( $column, $operator = '', $value = '' )
-```
-
-##### 
-
-
+Builds the statement from current where conditions, joins, columns and so on.
 
 **Visibility:** this method is **public**.
-
-
-**Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` | **** |  |
-| `$operator` | **** |  |
-| `$value` | **** |  |
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::groupBy
 
-```php
+```php?start_inline=true
 public function groupBy( string $column, array $args = array() ): QueryBuilder
 ```
 
@@ -2362,22 +2422,24 @@ public function groupBy( string $column, array $args = array() ): QueryBuilder
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for groups |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::join
 
-```php
+```php?start_inline=true
 public function join(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -2389,24 +2451,26 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::leftJoin
 
-```php
+```php?start_inline=true
 public function leftJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -2418,85 +2482,93 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::limit
 
-```php
+```php?start_inline=true
 public function limit( integer $limit ): QueryBuilder
 ```
 
 ##### Set $limit
 
-
+Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$limit` | **integer** |  |
+| `$limit` | **integer**  | The limit to set |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::modifier
 
-```php
+```php?start_inline=true
 public function modifier( string $modifier ): QueryBuilder
 ```
 
 ##### Add $modifier
 
-
+Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$modifier` | **string** |  |
+| `$modifier` | **string**  |  |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::offset
 
-```php
+```php?start_inline=true
 public function offset( integer $offset ): QueryBuilder
 ```
 
 ##### Set $offset
 
-
+Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$offset` | **integer** |  |
+| `$offset` | **integer**  | The offset to set |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::orderBy
 
-```php
+```php?start_inline=true
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -2508,36 +2580,40 @@ public function orderBy(
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$direction` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for order |
+| `$direction` | **string**  | Direction (default: `ASC`) |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::orParenthesis
 
-```php
+```php?start_inline=true
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with OR.
+##### Add a parenthesis with OR
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::orWhere
 
-```php
+```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
@@ -2545,7 +2621,7 @@ public function orWhere(
 
 ##### Add a where condition with OR.
 
-QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -2557,41 +2633,46 @@ These calls are equal:
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
 orWhere('name', 'John Doe')
+orWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::parenthesis
 
-```php
+```php?start_inline=true
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND. Alias for andParenthesis.
+##### Alias for andParenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::rightJoin
 
-```php
+```php?start_inline=true
 public function rightJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilder
 ```
@@ -2603,30 +2684,32 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilder::where
 
-```php
+```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
 ): Parenthesis
 ```
 
-##### Add a where condition with AND. Alias for andWhere.
+##### Alias for andWhere
 
-QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface where($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -2638,18 +2721,21 @@ These calls are equal:
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
 where('name', 'John Doe')
+where('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
@@ -2661,9 +2747,7 @@ where('name', 'John Doe')
 **Extends:** [ORM\QueryBuilder\ParenthesisInterface](#ormquerybuilderparenthesisinterface)
 
 
-
-**Interface QueryBuilderInterface**
-
+#### Interface QueryBuilderInterface
 
 
 
@@ -2681,14 +2765,14 @@ where('name', 'John Doe')
 
 #### Methods
 
-* [andParenthesis](#ormquerybuilderquerybuilderinterfaceandparenthesis) Add a parenthesis with AND.
+* [andParenthesis](#ormquerybuilderquerybuilderinterfaceandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderquerybuilderinterfaceandwhere) Add a where condition with AND.
-* [close](#ormquerybuilderquerybuilderinterfaceclose) 
+* [close](#ormquerybuilderquerybuilderinterfaceclose) Close parenthesis
 * [column](#ormquerybuilderquerybuilderinterfacecolumn) Add $column
 * [columns](#ormquerybuilderquerybuilderinterfacecolumns) Set $columns
-* [fullJoin](#ormquerybuilderquerybuilderinterfacefulljoin) Right (outer) join $tableName with $options
-* [getParenthesis](#ormquerybuilderquerybuilderinterfacegetparenthesis) 
-* [getQuery](#ormquerybuilderquerybuilderinterfacegetquery) 
+* [fullJoin](#ormquerybuilderquerybuilderinterfacefulljoin) Full (outer) join $tableName with $options
+* [getExpression](#ormquerybuilderquerybuilderinterfacegetexpression) Get the expression
+* [getQuery](#ormquerybuilderquerybuilderinterfacegetquery) Get the query / select statement
 * [groupBy](#ormquerybuilderquerybuilderinterfacegroupby) Group By $column
 * [join](#ormquerybuilderquerybuilderinterfacejoin) (Inner) join $tableName with $options
 * [leftJoin](#ormquerybuilderquerybuilderinterfaceleftjoin) Left (outer) join $tableName with $options
@@ -2696,30 +2780,32 @@ where('name', 'John Doe')
 * [modifier](#ormquerybuilderquerybuilderinterfacemodifier) Add $modifier
 * [offset](#ormquerybuilderquerybuilderinterfaceoffset) Set $offset
 * [orderBy](#ormquerybuilderquerybuilderinterfaceorderby) Order By $column in $direction
-* [orParenthesis](#ormquerybuilderquerybuilderinterfaceorparenthesis) Add a parenthesis with OR.
+* [orParenthesis](#ormquerybuilderquerybuilderinterfaceorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderquerybuilderinterfaceorwhere) Add a where condition with OR.
-* [parenthesis](#ormquerybuilderquerybuilderinterfaceparenthesis) Add a parenthesis with AND. Alias for andParenthesis.
+* [parenthesis](#ormquerybuilderquerybuilderinterfaceparenthesis) Alias for andParenthesis
 * [rightJoin](#ormquerybuilderquerybuilderinterfacerightjoin) Right (outer) join $tableName with $options
-* [where](#ormquerybuilderquerybuilderinterfacewhere) Add a where condition with AND. Alias for andWhere.
+* [where](#ormquerybuilderquerybuilderinterfacewhere) Alias for andWhere
 
 #### ORM\QueryBuilder\QueryBuilderInterface::andParenthesis
 
-```php
+```php?start_inline=true
 public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND.
+##### Add a parenthesis with AND
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::andWhere
 
-```php
+```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -2727,7 +2813,7 @@ public function andWhere(
 
 ##### Add a where condition with AND.
 
-QueryBuilderInterface andWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -2739,39 +2825,44 @@ These calls are equal:
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
 andWhere('name', 'John Doe')
+andWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::close
 
-```php
+```php?start_inline=true
 public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### 
+##### Close parenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::column
 
-```php
+```php?start_inline=true
 public function column(
     string $column, array $args = array(), string $alias = ''
 ): \ORM\QueryBuilder\QueryBuilder
@@ -2782,21 +2873,23 @@ public function column(
 Optionally you can provide an expression with question marks as placeholders filled with $args.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
-| `$alias` | **string** |  |
+| `$column` | **string**  | Column or expression to fetch |
+| `$args` | **array**  | Arguments for expression |
+| `$alias` | **string**  | Alias for the column |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::columns
 
-```php
+```php?start_inline=true
 public function columns( $columns = null ): QueryBuilderInterface
 ```
 
@@ -2805,26 +2898,28 @@ public function columns( $columns = null ): QueryBuilderInterface
 
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columns` | **** |  |
+| `$columns` |   |  |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::fullJoin
 
-```php
+```php?start_inline=true
 public function fullJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilderInterface
 ```
 
-##### Right (outer) join $tableName with $options
+##### Full (outer) join $tableName with $options
 
 When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
 can be set to false.
@@ -2832,52 +2927,58 @@ can be set to false.
 ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
-#### ORM\QueryBuilder\QueryBuilderInterface::getParenthesis
+#### ORM\QueryBuilder\QueryBuilderInterface::getExpression
 
-```php
-public function getParenthesis(): string
+```php?start_inline=true
+public function getExpression(): string
 ```
 
-##### 
+##### Get the expression
 
-
+Returns the complete expression inside this parenthesis.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::getQuery
 
-```php
+```php?start_inline=true
 public function getQuery(): string
 ```
 
-##### 
+##### Get the query / select statement
 
-
+Builds the statement from current where conditions, joins, columns and so on.
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::groupBy
 
-```php
+```php?start_inline=true
 public function groupBy(
     string $column, array $args = array()
 ): QueryBuilderInterface
@@ -2888,22 +2989,24 @@ public function groupBy(
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for groups |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::join
 
-```php
+```php?start_inline=true
 public function join(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilderInterface
 ```
@@ -2915,24 +3018,26 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::leftJoin
 
-```php
+```php?start_inline=true
 public function leftJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilderInterface
 ```
@@ -2944,85 +3049,93 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::limit
 
-```php
+```php?start_inline=true
 public function limit( integer $limit ): QueryBuilderInterface
 ```
 
 ##### Set $limit
 
-
+Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$limit` | **integer** |  |
+| `$limit` | **integer**  | The limit to set |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::modifier
 
-```php
+```php?start_inline=true
 public function modifier( string $modifier ): QueryBuilderInterface
 ```
 
 ##### Add $modifier
 
-
+Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$modifier` | **string** |  |
+| `$modifier` | **string**  |  |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::offset
 
-```php
+```php?start_inline=true
 public function offset( integer $offset ): QueryBuilderInterface
 ```
 
 ##### Set $offset
 
-
+Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$offset` | **integer** |  |
+| `$offset` | **integer**  | The offset to set |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orderBy
 
-```php
+```php?start_inline=true
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
@@ -3034,36 +3147,40 @@ public function orderBy(
 Optionally you can provide an expression in $column with question marks as placeholders.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** |  |
-| `$direction` | **string** |  |
-| `$args` | **array** |  |
+| `$column` | **string**  | Column or expression for order |
+| `$direction` | **string**  | Direction (default: `ASC`) |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orParenthesis
 
-```php
+```php?start_inline=true
 public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with OR.
+##### Add a parenthesis with OR
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhere
 
-```php
+```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
@@ -3071,7 +3188,7 @@ public function orWhere(
 
 ##### Add a where condition with OR.
 
-QueryBuilderInterface orWhere($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -3083,33 +3200,38 @@ These calls are equal:
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
 orWhere('name', 'John Doe')
+orWhere('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::parenthesis
 
-```php
+```php?start_inline=true
 public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```
 
-##### Add a parenthesis with AND. Alias for andParenthesis.
+##### Alias for andParenthesis
 
 
 
 **Visibility:** this method is **public**.
-
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+<br />
 
 
 
@@ -3118,9 +3240,9 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
 #### ORM\QueryBuilder\QueryBuilderInterface::rightJoin
 
-```php
+```php?start_inline=true
 public function rightJoin(
-    string $tableName, $expression = '', string $alias = '', 
+    string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
 ): QueryBuilderInterface
 ```
@@ -3132,30 +3254,32 @@ will most likely get an error from your database. If you don't want to get a par
 can be set to true.
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$tableName` | **string** |  |
-| `$expression` | **** |  |
-| `$alias` | **string** |  |
-| `$args` | **array** |  |
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
 
 
 
 #### ORM\QueryBuilder\QueryBuilderInterface::where
 
-```php
+```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
 ): ParenthesisInterface
 ```
 
-##### Add a where condition with AND. Alias for andWhere.
+##### Alias for andWhere
 
-QueryBuilderInterface where($column|$expression[, $operator|$value[, $value]]);
+QueryBuilderInterface where($column[, $operator[, $value]]);
 
 If $column has the same amount of question marks as $value - $value is the second parameter.
 
@@ -3167,18 +3291,21 @@ These calls are equal:
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
 where('name', 'John Doe')
+where('name = ?', ['John Doe'])
 ```
 
 **Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **QueryBuilderInterface**
+<br />
 
-
-**Parameters:**
+##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$column` | **string** | Column or expression with placeholders |
-| `$operator` | **string&#124;array** | Operator, value or array of values |
-| `$value` | **string** | Value (required if used with operator) |
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
 
 
 

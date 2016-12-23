@@ -5,65 +5,90 @@ namespace ORM\QueryBuilder;
 use ORM\EntityManager;
 
 /**
- * Class QueryBuilder
+ * Build a ansi sql query / select statement
+ *
+ * If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+ * them to the *where() methods.
+ *
+ * Supported:
+ *  - joins with on clause (and alias)
+ *  - joins with using (and alias)
+ *  - where conditions
+ *  - parenthesis
+ *  - order by one or more columns / expressions
+ *  - group by one or more columns / expressions
+ *  - limit and offset
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
-    /** @var string */
+    /** The table to query
+     * @var string */
     protected $tableName = '';
 
-    /** @var string */
+    /** The alias of the main table
+     * @var string */
     protected $alias = '';
 
-    /** @var array */
+    /** Columns to fetch (null is equal to ['*'])
+     * @var array */
     protected $columns = null;
 
-    /** @var array */
+    /** Joins get concatenated with space
+     * @var string[] */
     protected $joins = [];
 
-    /** @var string[] */
-    protected $where = [];
-
-    /** @var int */
+    /** Limit amount of rows
+     * @var int */
     protected $limit;
 
-    /** @var int */
+    /** Offset to start from
+     * @var int */
     protected $offset;
 
-    /** @var string[] */
+    /** Group by conditions get concatenated with comma
+     * @var string[] */
     protected $groupBy = [];
 
-    /** @var string[] */
+    /** Order by conditions get concatenated with comma
+     * @var string[] */
     protected $orderBy = [];
 
-    /** @var string[] */
+    /** Modifiers get concatenated with space
+     * @var string[] */
     protected $modifier = [];
 
-    /**
-     * The default EntityManager to use to for quoting
-     *
-     * @var EntityManager
-     */
+    /** EntityManager to use for quoting
+     * @var EntityManager */
+    protected $entityManager;
+
+    /** Connection from EntityManager to use for quoting
+     * @var string */
+    protected $connection;
+
+    /** The default EntityManager to use to for quoting
+     * @var EntityManager */
     public static $defaultEntityManager;
 
-    /**
-     * The default connection to use for quoting
-     *
-     * @var string
-     */
+    /** The default connection to use for quoting
+     * @var string */
     public static $defaultConnection = 'default';
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
-     * QueryBuilder constructor
+     * Constructor
      *
-     * @param string $tableName
-     * @param string $alias
-     * @param EntityManager $entityManager
-     * @param string $connection
+     * Create a select statement for $tableName with an object oriented interface.
+     *
+     * When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
+     * used.
+     *
+     * @param string        $tableName     The main table to use in FROM clause
+     * @param string        $alias         An alias for the table
+     * @param EntityManager $entityManager EntityManager for quoting
+     * @param string        $connection    Connection from EntityManager for quoting
      */
     public function __construct($tableName, $alias = '', EntityManager $entityManager = null, $connection = null)
     {
@@ -74,11 +99,13 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * Replaces questionmarks in $expression with $args
+     * Replaces question marks in $expression with $args
      *
-     * @param string      $expression
-     * @param array|mixed $args
+     * @param string      $expression Expression with placeholders
+     * @param array|mixed $args       Arguments for placeholders
      * @return string
+     * @throws \ORM\Exceptions\NoConnection
+     * @throws \ORM\Exceptions\NotScalar
      */
     protected function convertPlaceholders(
         $expression,
@@ -109,8 +136,18 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $expression;
     }
 
-    /** {@inheritdoc} */
-    public function getWhereCondition($column, $operator = '', $value = '')
+    /**
+     * Common implementation for creating a where condition
+     *
+     * @param string $column   Column or expression with placeholders
+     * @param string $operator Operator or value if operator is omited
+     * @param string $value    Value or array of values
+     * @return string
+     * @throws \ORM\Exceptions\NoConnection
+     * @throws \ORM\Exceptions\NotScalar
+     * @internal
+     */
+    public function createWhereCondition($column, $operator = '', $value = '')
     {
         if (strpos($column, '?') !== false) {
             $expression = $column;
@@ -163,26 +200,26 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
-    /**
-     * This function does nothing. We just overwrite the functionality from parenthesis.
-     *
-     * @return self
-     */
+    /** @internal
+     * @return self */
     public function close()
     {
         return $this;
     }
 
     /**
-     * Creates the $join statement.
+     * Common implementation for *Join methods
      *
-     * @param string $join
-     * @param string $tableName
-     * @param string $expression
-     * @param string $alias
-     * @param array|mixed $args
-     * @param bool $empty
-     * @return self|ParenthesisInterface
+     * @param string      $join       The join type (e. g. `LEFT JOIN`)
+     * @param string      $tableName  Table name to join
+     * @param string      $expression Expression to use in on clause or single column for USING
+     * @param string      $alias      Alias for the table
+     * @param array|mixed $args       Arguments to use in $expression
+     * @param bool        $empty      Create an empty join (without USING and ON)
+     * @return ParenthesisInterface|QueryBuilder
+     * @throws \ORM\Exceptions\NoConnection
+     * @throws \ORM\Exceptions\NotScalar
+     * @internal
      */
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)
     {
@@ -201,7 +238,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $this->joins[] = $join;
         } else {
             return new Parenthesis(function (ParenthesisInterface $parenthesis) use ($join) {
-                $join .= ' ON ' . $parenthesis->getParenthesis();
+                $join .= ' ON ' . $parenthesis->getExpression();
                 $this->joins[] = $join;
                 return $this;
             }, $this, $this->entityManager, $this->connection);
