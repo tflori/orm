@@ -10,6 +10,7 @@ use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
+use ORM\Test\TestCase;
 
 class TableNameTest extends TestCase
 {

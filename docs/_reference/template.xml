@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+  <transformations>
+    <transformation writer="twig" source="templates/_reference/index.md.twig" artifact="reference.md" />
+  </transformations>
+</template>

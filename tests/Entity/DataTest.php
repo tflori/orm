@@ -8,6 +8,7 @@ use ORM\EntityManager;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
+use ORM\Test\TestCase;
 
 class DataTest extends TestCase
 {
@@ -58,7 +59,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ]);
+        ], true);
         $emMock = \Mockery::mock(EntityManager::class);
         $emMock->shouldNotReceive('save');
 
@@ -118,12 +119,12 @@ class DataTest extends TestCase
         self::assertSame('default', $staticTableName->foo);
     }
 
-    public function testItIsNotDirtyAfterCreate()
+    public function testItIsNotDirtyAfterCreateFromDatabase()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ]);
+        ], true);
 
         self::assertFalse($studlyCaps->isDirty());
     }
@@ -142,7 +143,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ]);
+        ], true);
 
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
@@ -158,7 +159,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ]);
+        ], true);
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
 
@@ -173,7 +174,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ]);
+        ], true);
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
 
@@ -213,6 +214,21 @@ class DataTest extends TestCase
         self::assertTrue($studlyCaps->isDirty());
         self::assertFalse($studlyCaps->isDirty('id'));
         self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    public function testIsNotDirtyWithDifferentOrder()
+    {
+        $studlyCaps = new StudlyCaps([
+            'id' => 42,
+            'some_var' => 'foobar'
+        ]);
+
+        $studlyCaps->setOriginalData([
+            'some_var' => 'foobar',
+            'id' => 42
+        ]);
+
+        self::assertFalse($studlyCaps->isDirty());
     }
 
     public function testOnInitGetCalled()

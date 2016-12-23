@@ -36,7 +36,8 @@ $entityManager = new ORM\EntityManager([
 ```
 
 For people with multiple databases they have to setup named database connections. Remember that you need to tell every
-entity that should not use `default` the database name. Have a look at [Entity definitions](Entity/Definitions.md).
+entity that does not use the `default` database the connection name. Have a look at 
+[Entity definitions](entityDefinition.html) for information how to do this.
 
 ```php?start_inline=true
 $entityManager = new ORM\EntityManager([

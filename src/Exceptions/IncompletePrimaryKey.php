@@ -5,11 +5,11 @@ namespace ORM\Exceptions;
 use ORM\Exception;
 
 /**
- * Class InvalidConfiguration
+ * Class IncompletePrimaryKey
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class InvalidConfiguration extends Exception
+class IncompletePrimaryKey extends Exception
 {
 }

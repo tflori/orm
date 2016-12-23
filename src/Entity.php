@@ -6,62 +6,94 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 
 /**
- * Abstract class of entity.
+ * Definition of an entity
  *
- * The instance of an entity represents a row of the table.
+ * The instance of an entity represents a row of the table and the statics variables and methods describe the database
+ * table.
  *
- * The class and statics describe the table.
+ * This is the main part where your configuration efforts go. The following properties and methods are well documented
+ * in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity Definition).
  *
  * @package ORM
+ * @link https://tflori.github.io/orm/entityDefinition.html Entity Definition
  * @author Thomas Flori <thflori@gmail.com>
  */
 abstract class Entity
 {
-    /** @var string */
+    /** The template to use to calculate the table name.
+     * @var string */
     public static $tableNameTemplate = '%short%';
 
-    /** @var string */
+    /** The naming scheme to use for table names.
+     * @var string */
     public static $namingSchemeTable = 'snake_lower';
 
-    /** @var string */
+    /** The naming scheme to use for column names.
+     * @var string */
     public static $namingSchemeColumn = 'snake_lower';
 
-    /** @var string */
+    /** The naming scheme to use for method names.
+     * @var string */
     public static $namingSchemeMethods = 'camelCase';
 
-    /** @var string */
+    /** The database connection to use.
+     * @var string */
+    public static $connection = 'default';
+
+    /** Fixed table name (ignore other settings)
+     * @var string */
     protected static $tableName;
 
-    /** @var string[]|string */
+    /** The variable(s) used for primary key.
+     * @var string[]|string */
     protected static $primaryKey = ['id'];
 
-    /** @var string[] */
+    /** Fixed column names (ignore other settings)
+     * @var string[] */
     protected static $columnAliases = [];
 
-    /** @var string */
+    /** A prefix for column names.
+     * @var string */
     protected static $columnPrefix;
 
-    /** @var bool */
+    /** Whether or not the primary key is auto incremented.
+     * @var bool */
     protected static $autoIncrement = true;
 
-    /** @var string */
+    /** Auto increment sequence to use for pgsql.
+     * @var string */
     protected static $autoIncrementSequence;
 
-    /** @var mixed[] */
+    // data
+    /** The current data of a row.
+     * @var mixed[] */
     protected $data = [];
-    /** @var mixed[] */
+
+    /** The original data of the row.
+     * @var mixed[] */
     protected $originalData = [];
 
     // internal
-    /** @var string[] */
-    protected static $tableNames = [];
-    /** @var string[][] */
-    protected static $translatedColumns = [];
-    /** @var \ReflectionClass[] */
+    /** Calculated table names.
+     * @internal
+     * @var string[] */
+    protected static $calculatedTableNames = [];
+
+    /** Calculated column names.
+     * @internal
+     * @var string[][] */
+    protected static $calculatedColumnNames = [];
+
+    /** The reflections of the classes.
+     * @internal
+     * @var \ReflectionClass[] */
     protected static $reflections = [];
 
     /**
-     * Get the table name.
+     * Get the table name
+     *
+     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
+     * $tableName.
      *
      * @return string
      * @throws InvalidName|InvalidConfiguration
@@ -72,7 +104,7 @@ abstract class Entity
             return static::$tableName;
         }
 
-        if (!isset(self::$tableNames[static::class])) {
+        if (!isset(self::$calculatedTableNames[static::class])) {
             $reflection = self::getReflection();
 
             $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
@@ -110,43 +142,52 @@ abstract class Entity
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeTable);
+            self::$calculatedTableNames[static::class] =
+                self::forceNamingScheme($tableName, static::$namingSchemeTable);
         }
 
-        return self::$tableNames[static::class];
+        return self::$calculatedTableNames[static::class];
     }
 
     /**
-     * Get the column name of the column $name.
+     * Get the column name of $name
      *
-     * Important: getColumnName($name) === getColumnName(getColumnName($name))
+     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
+     * to $namingSchemeColumn.
      *
-     * @param string $name
+     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
+     * the same as getColumnName($name).
+     *
+     * @param string $var
      * @return string
+     * @throws InvalidConfiguration
      */
-    public static function getColumnName($name)
+    public static function getColumnName($var)
     {
-        if (isset(static::$columnAliases[$name])) {
-            return static::$columnAliases[$name];
+        if (isset(static::$columnAliases[$var])) {
+            return static::$columnAliases[$var];
         }
 
-        if (!isset(self::$translatedColumns[static::class][$name])) {
-            $colName = $name;
+        if (!isset(self::$calculatedColumnNames[static::class][$var])) {
+            $colName = $var;
 
             if (static::$columnPrefix &&
                 strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$translatedColumns[static::class][$name] =
+            self::$calculatedColumnNames[static::class][$var] =
                 self::forceNamingScheme($colName, static::$namingSchemeColumn);
         }
 
-        return self::$translatedColumns[static::class][$name];
+        return self::$calculatedColumnNames[static::class][$var];
     }
 
     /**
-     * Get the primary key for this Table
+     * Get the primary key vars
+     *
+     * The primary key can consist of multiple columns. You should configure the vars that are translated to these
+     * columns.
      *
      * @return array
      */
@@ -156,7 +197,7 @@ abstract class Entity
     }
 
     /**
-     * Whether or not the table has an auto incremented primary key.
+     * Check if the table has a auto increment column.
      *
      * @return bool
      */
@@ -169,6 +210,8 @@ abstract class Entity
      * Get the sequence of the auto increment column (pgsql only).
      *
      * @return string
+     * @throws InvalidConfiguration
+     * @throws InvalidName
      */
     public static function getAutoIncrementSequence()
     {
@@ -179,10 +222,13 @@ abstract class Entity
     }
 
     /**
-     * Enforces $namingScheme to $name.
+     * Enforce $namingScheme to $name
      *
-     * @param string $name
-     * @param string $namingScheme
+     * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
+     * and UPPER.
+     *
+     * @param string $name         The name of the var / column
+     * @param string $namingScheme The naming scheme to use
      * @return string
      * @throws InvalidConfiguration
      */
@@ -237,7 +283,7 @@ abstract class Entity
     }
 
     /**
-     * Get reflection of the entity class.
+     * Get reflection of the entity
      *
      * @return \ReflectionClass
      */
@@ -250,25 +296,35 @@ abstract class Entity
     }
 
     /**
-     * Entity constructor.
+     * Constructor
      *
-     * @param array $data
-     * @param bool $fromDatabase
+     * It calls ::onInit() after initializing $data and $originalData.
+     *
+     * @param array $data         The current data
+     * @param bool  $fromDatabase Whether or not the data comes from database
      */
     final public function __construct(array $data = [], $fromDatabase = false)
     {
-        $this->data = $this->originalData = array_merge($this->data, $data);
+        if ($fromDatabase) {
+            $this->originalData = $data;
+        }
+        $this->data = array_merge($this->data, $data);
         $this->onInit(!$fromDatabase);
     }
 
     /**
-     * Magic setter.
+     * Set $var to $value
      *
-     * You can overwrite this for custom functionality but we recommend not to use the properties or setter (set*)
-     * directly when they have to update the data stored in table.
+     * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
+     * data that should be updated in the database to $data. Do not store data in $originalData as it will not be
+     * written and give wrong results for dirty checking.
      *
-     * @param $var
-     * @param $value
+     * The onChange event is called after something got changed.
+     *
+     * @param string $var   The variable to change
+     * @param mixed  $value The value to store
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($var, $value)
     {
@@ -292,10 +348,14 @@ abstract class Entity
     }
 
     /**
-     * Magic getter.
+     * Get the value from $var
      *
-     * @param $var
+     * If there is a custom getter this method get called instead.
+     *
+     * @param string $var The variable to get
      * @return mixed|null
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __get($var)
     {
@@ -309,10 +369,11 @@ abstract class Entity
     }
 
     /**
-     * Checks if entity or $var got changed.
+     * Checks if entity or $var got changed
      *
-     * @param string $var
+     * @param string $var Check only this variable or all variables
      * @return bool
+     * @throws InvalidConfiguration
      */
     public function isDirty($var = null)
     {
@@ -321,13 +382,17 @@ abstract class Entity
             return @$this->data[$col] !== @$this->originalData[$col];
         }
 
-        return md5(serialize($this->data)) !== md5(serialize($this->originalData));
+        ksort($this->data);
+        ksort($this->originalData);
+
+        return serialize($this->data) !== serialize($this->originalData);
     }
 
     /**
-     * Resets the entity or $var to original data.
+     * Resets the entity or $var to original data
      *
-     * @param string $var
+     * @param string $var Reset only this variable or all variables
+     * @throws InvalidConfiguration
      */
     public function reset($var = null)
     {
@@ -345,9 +410,10 @@ abstract class Entity
     }
 
     /**
-     * Save the entity to $entityManager.
+     * Save the entity to $entityManager
      *
      * @param EntityManager $entityManager
+     * @throws InvalidConfiguration
      */
     public function save(EntityManager $entityManager)
     {
@@ -357,7 +423,7 @@ abstract class Entity
     }
 
     /**
-     * Set new original data.
+     * Set new original data
      *
      * @param array $data
      * @internal
@@ -368,24 +434,24 @@ abstract class Entity
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when something is changed with magic setter.
      *
-     * @param string $var
-     * @param mixed  $oldValue
-     * @param mixed  $value
+     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param mixed  $oldValue The old value of the variable
+     * @param mixed  $value The new value of the variable
      */
     public function onChange($var, $oldValue, $value)
     {
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when the entity get initialized.
      *
-     * @param bool $new
+     * @param bool $new Whether or not the entity is new or from database
      */
     public function onInit($new)
     {
