@@ -694,6 +694,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
@@ -1132,6 +1133,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
@@ -1244,6 +1246,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
@@ -1682,6 +1685,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
@@ -1773,6 +1777,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
@@ -1830,6 +1835,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
@@ -1914,6 +1920,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
@@ -2005,6 +2012,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
@@ -2065,6 +2073,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
@@ -2230,6 +2239,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
@@ -2629,6 +2639,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
@@ -2717,6 +2728,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
@@ -2821,6 +2833,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 andWhere('name', '=' , 'John Doe')
 andWhere('name = ?', 'John Doe')
@@ -3196,6 +3209,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 orWhere('name', '=' , 'John Doe')
 orWhere('name = ?', 'John Doe')
@@ -3287,6 +3301,7 @@ If there is no third parameter and no question mark in $column then the default 
 the second parameter.
 
 These calls are equal:
+
 ```php?start_inline=true
 where('name', '=' , 'John Doe')
 where('name = ?', 'John Doe')
