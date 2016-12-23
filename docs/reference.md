@@ -125,6 +125,7 @@ public function getDsn(): string
 
 
 ---
+
 ### ORM\Entity
 
 
@@ -529,6 +530,7 @@ public function save( \ORM\EntityManager $entityManager )
 
 
 ---
+
 ### ORM\EntityFetcher
 
 **Extends:** [ORM\QueryBuilder\QueryBuilder](#ormquerybuilderquerybuilder)
@@ -1272,6 +1274,7 @@ where('name = ?', ['John Doe'])
 
 
 ---
+
 ### ORM\EntityManager
 
 
@@ -1471,6 +1474,7 @@ When it is not a PDO instance the connection get established on first use.
 
 
 ---
+
 ### ORM\Exception
 
 **Extends:** [](#)
@@ -1487,6 +1491,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\IncompletePrimaryKey
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1502,6 +1507,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\InvalidConfiguration
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1517,6 +1523,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\InvalidName
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1532,6 +1539,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\NoConnection
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1547,6 +1555,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\NoEntity
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1562,6 +1571,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\NotJoined
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1577,6 +1587,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\Exceptions\NotScalar
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -1592,6 +1603,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 ---
+
 ### ORM\QueryBuilder\Parenthesis
 
 
@@ -1861,6 +1873,7 @@ where('name = ?', ['John Doe'])
 
 
 ---
+
 ### ORM\QueryBuilder\ParenthesisInterface
 
 
@@ -2102,6 +2115,7 @@ where('name = ?', ['John Doe'])
 
 
 ---
+
 ### ORM\QueryBuilder\QueryBuilder
 
 **Extends:** [ORM\QueryBuilder\Parenthesis](#ormquerybuilderparenthesis)
@@ -2754,6 +2768,7 @@ where('name = ?', ['John Doe'])
 
 
 ---
+
 ### ORM\QueryBuilder\QueryBuilderInterface
 
 **Extends:** [ORM\QueryBuilder\ParenthesisInterface](#ormquerybuilderparenthesisinterface)
@@ -3330,3 +3345,4 @@ where('name = ?', ['John Doe'])
 
 
 ---
+
