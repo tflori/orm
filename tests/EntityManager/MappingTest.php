@@ -111,7 +111,7 @@ class MappingTest extends TestCase
         ]);
 
         self::expectException(IncompletePrimaryKey::class);
-        self::expectExceptionMessage('Entity can not be mapped: name is null');
+        self::expectExceptionMessage('Incomplete primary key - missing name');
 
         $this->em->map($e1);
     }

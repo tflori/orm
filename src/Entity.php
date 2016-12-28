@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 
@@ -59,10 +60,6 @@ abstract class Entity
     /** Whether or not the primary key is auto incremented.
      * @var bool */
     protected static $autoIncrement = true;
-
-    /** Auto increment sequence to use for pgsql.
-     * @var string */
-    protected static $autoIncrementSequence;
 
     // data
     /** The current data of a row.
@@ -191,7 +188,7 @@ abstract class Entity
      *
      * @return array
      */
-    public static function getPrimaryKey()
+    public static function getPrimaryKeyVars()
     {
         return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
     }
@@ -203,22 +200,7 @@ abstract class Entity
      */
     public static function isAutoIncremented()
     {
-        return count(static::getPrimaryKey()) > 1 ? false : self::$autoIncrement;
-    }
-
-    /**
-     * Get the sequence of the auto increment column (pgsql only).
-     *
-     * @return string
-     * @throws InvalidConfiguration
-     * @throws InvalidName
-     */
-    public static function getAutoIncrementSequence()
-    {
-        if (static::$autoIncrementSequence) {
-            return static::$autoIncrementSequence;
-        }
-        return static::getTableName() . '_' . static::getColumnName(static::getPrimaryKey()[0]) . '_seq';
+        return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
     }
 
     /**
@@ -413,13 +395,93 @@ abstract class Entity
      * Save the entity to $entityManager
      *
      * @param EntityManager $entityManager
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws Exceptions\NotScalar
+     * @throws Exceptions\UnsupportedDriver
+     * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
+     * @throws InvalidName
      */
     public function save(EntityManager $entityManager)
     {
-        if ($this->isDirty()) {
-            $entityManager->save($this, $this->data);
+        if (!$this->isDirty()) {
+            return;
         }
+
+        $keyComplete = true;
+        $primaryKey = [];
+        $primaryKeyVars = static::getPrimaryKeyVars();
+        foreach ($primaryKeyVars as $var) {
+            $col = static::getColumnName($var);
+            if (isset($this->data[$col])) {
+                $primaryKey[$col] = $this->data[$col];
+                continue;
+            }
+            $keyComplete = false;
+        }
+
+        if (!$keyComplete) {
+            if (!static::isAutoIncremented()) {
+                $msg = 'Primary key consist of [' . implode(',', $primaryKeyVars) . '] ';
+                if (!empty($primaryKey)) {
+                    $msg .= 'only ' . implode(',', array_keys($primaryKey)) .  ' given';
+                } else {
+                    $msg .= 'nothing given';
+                }
+                throw new IncompletePrimaryKey($msg);
+            }
+            $col = static::getColumnName(reset($primaryKeyVars));
+            $id = $entityManager->insert(
+                static::getTableName(),
+                $this->data,
+                static::$connection,
+                $col
+            );
+            if ($id) {
+                $this->data[$col] = $id;
+                $entityManager->sync($this, true);
+            }
+        } else {
+            if (!$entityManager->sync($this)) {
+                $entityManager->insert(static::getTableName(), $this->data, static::$connection);
+                $entityManager->sync($this, true);
+            } elseif ($this->isDirty()) {
+                $data = $this->data;
+                $primaryKeyCols = array_keys($primaryKey);
+                $i = count($primaryKeyCols);
+                foreach ($data as $col => $value) {
+                    if (in_array($col, $primaryKeyCols)) {
+                        unset($data[$col]);
+                        $i--;
+                        if ($i === 0) {
+                            break;
+                        }
+                    }
+                }
+                $entityManager->update(static::getTableName(), $primaryKey, $data, static::$connection);
+                $entityManager->sync($this, true);
+            }
+        }
+    }
+
+    /**
+     * Get the primary key
+     *
+     * @return array
+     * @throws IncompletePrimaryKey
+     */
+    public function getPrimaryKey()
+    {
+        $primaryKey = [];
+        foreach (static::getPrimaryKeyVars() as $var) {
+            $value = $this->$var;
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Incomplete primary key - missing ' . $var);
+            }
+            $primaryKey[$var] = $value;
+        }
+        return $primaryKey;
     }
 
     /**
@@ -428,7 +490,7 @@ abstract class Entity
      * @param array $data
      * @internal
      */
-    final public function setOriginalData(array $data)
+    public function setOriginalData(array $data)
     {
         $this->originalData = $data;
     }

@@ -105,6 +105,3 @@ $user2 = $em->map(new User(['id' => 1]));
 $user3 = $em->fetch(User::class, 1); // returns $user2
 $user4 = $em->map(new User(['id' => '1']));
 var_dump($user1->username, $user2->username, $user3 === $user2, $user1 === $user4);
-
-//$query = new \ORM\QueryBuilder('ab');
-//$query->where()
