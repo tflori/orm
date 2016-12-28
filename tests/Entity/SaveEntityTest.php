@@ -16,7 +16,6 @@ class SaveEntityTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-
     }
 
     public function testSavesNewEntity()
