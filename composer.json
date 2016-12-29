@@ -1,5 +1,7 @@
 {
   "name": "tflori/orm",
+  "description": "lightweight object relational mapper",
+  "license": "MIT",
   "require": {
     "php": "^5.6 || ^7.0"
   },
