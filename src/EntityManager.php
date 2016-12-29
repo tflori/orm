@@ -272,6 +272,35 @@ class EntityManager
     }
 
     /**
+     * Delete $entity from database
+     *
+     * This method does not delete from the map - you can still receive the entity via fetch.
+     *
+     * @param Entity $entity
+     * @return bool
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
+     * @throws NotScalar
+     */
+    public function delete(Entity $entity)
+    {
+        $primaryKey = $entity->getPrimaryKey();
+        $where = [];
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+        }
+
+        $statement = 'DELETE FROM ' . $entity::getTableName() . ' WHERE ' . implode(' AND ', $where);
+        $this->getConnection($entity::$connection)->query($statement);
+
+        $entity->setOriginalData([]);
+        return true;
+    }
+
+    /**
      * Map $entity in the entity map
      *
      * Returns the given entity or an entity that previously got mapped. This is useful to work in every function with

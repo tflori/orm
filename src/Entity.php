@@ -452,6 +452,7 @@ abstract class Entity
      * Get current data
      *
      * @return array
+     * @internal
      */
     public function getData()
     {

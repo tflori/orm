@@ -172,7 +172,6 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__set](#ormentity__set) Set $var to $value
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
-* [getData](#ormentitygetdata) Get current data
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
@@ -320,23 +319,6 @@ the same as getColumnName($name).
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$var` | **string**  |  |
-
-
-
-#### ORM\Entity::getData
-
-```php?start_inline=true
-public function getData(): array
-```
-
-##### Get current data
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
 
 
 
@@ -1331,6 +1313,7 @@ where('name = ?', ['John Doe'])
 
 * [__construct](#ormentitymanager__construct) Constructor
 * [convertValue](#ormentitymanagerconvertvalue) Returns the given $value formatted to use in a sql statement.
+* [delete](#ormentitymanagerdelete) Delete $entity from database
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
 * [map](#ormentitymanagermap) Map $entity in the entity map
@@ -1380,6 +1363,29 @@ public function convertValue( $value, string $connection = 'default' ): string
 |-----------|------|-------------|
 | `$value` | **mixed**  | The variable that should be returned in SQL syntax |
 | `$connection` | **string**  | The connection to use for quoting |
+
+
+
+#### ORM\EntityManager::delete
+
+```php?start_inline=true
+public function delete( \ORM\Entity $entity ): boolean
+```
+
+##### Delete $entity from database
+
+This method does not delete from the map - you can still receive the entity via fetch.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **Entity**  |  |
 
 
 

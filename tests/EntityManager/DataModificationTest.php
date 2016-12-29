@@ -313,4 +313,51 @@ class DataModificationTest extends TestCase
 
         self::assertTrue($result);
     }
+
+    public function provideDeleteStatements()
+    {
+        return [
+            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'DELETE FROM studly_caps WHERE id = 42'],
+            [new StudlyCaps(['id' => '42']), 'DELETE FROM studly_caps WHERE id = \'42\'']
+        ];
+    }
+
+    /**
+     * @dataProvider provideDeleteStatements
+     */
+    public function testDeleteStatement($entity, $statement)
+    {
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
+
+        self::expectException(\PDOException::class);
+
+        $this->em->delete($entity);
+    }
+
+    /**
+     * @dataProvider provideDeleteStatements
+     */
+    public function testDeleteReturnsSuccess($entity, $statement)
+    {
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $result = $this->em->delete($entity);
+
+        self::assertTrue($result);
+    }
+
+    /**
+     * @dataProvider provideDeleteStatements
+     */
+    public function testDeleteRemovesOriginalData(Entity $entity, $statement)
+    {
+        $entity->setOriginalData($entity->getData());
+        self::assertFalse($entity->isDirty());
+
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $this->em->delete($entity);
+
+        self::assertTrue($entity->isDirty());
+    }
 }
