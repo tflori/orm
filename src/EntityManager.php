@@ -141,7 +141,7 @@ class EntityManager
      * If $reset is true it also calls reset() on $entity.
      *
      * @param Entity $entity
-     * @param bool   $reset
+     * @param bool   $reset Reset entities current data
      * @return bool
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
@@ -173,42 +173,58 @@ class EntityManager
      *
      * $data needs to be an array in form $col => $value and only with scalar data.
      *
-     * @param string $table
-     * @param array $data
-     * @param string $connection
-     * @param string $autoIncremented
+     * @param Entity $entity
+     * @param bool   $useAutoIncrement
      * @return mixed Returns boolean if it is not auto incremented or the $autoIncremented column
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
      * @throws NoConnection
+     * @throws NoEntity
      * @throws UnsupportedDriver
+     * @internal
      */
-    public function insert($table, array $data, $connection = 'default', $autoIncremented = null)
+    public function insert(Entity $entity, $useAutoIncrement = true)
     {
+        $data = $entity->getData();
+
         $cols = array_keys($data);
-        $values = array_values(array_map(function ($value) use ($connection) {
-            return $this->convertValue($value, $connection);
+        $values = array_values(array_map(function ($value) use ($entity) {
+            return $this->convertValue($value, $entity::$connection);
         }, $data));
 
-        $statement = 'INSERT INTO ' . $table . ' (' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
-        $pdo = $this->getConnection($connection);
+        $statement = 'INSERT INTO ' . $entity::getTableName()
+                   . ' (' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+        $pdo = $this->getConnection($entity::$connection);
 
-        if ($autoIncremented) {
+        if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
             switch ($driver) {
                 case 'sqlite':
                     $pdo->query($statement);
-                    return $pdo->lastInsertId();
+                    $id = $pdo->lastInsertId();
+                    break;
+
                 case 'mysql':
                     $pdo->query($statement);
-                    return $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+                    $id = $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+                    break;
+
                 case 'pgsql':
-                    $statement .= ' RETURNING ' . $autoIncremented;
+                    $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
                     $result = $pdo->query($statement);
-                    return $result->fetchColumn();
+                    $id = $result->fetchColumn();
+                    break;
+
+                default:
+                    throw new UnsupportedDriver('Auto incremented column for driver ' . $driver . ' is not supported');
             }
-            throw new UnsupportedDriver('Auto incremented column for driver ' . $driver . ' is not supported');
+
+            return $id;
         }
 
         $pdo->query($statement);
+        $this->sync($entity, true);
         return true;
     }
 
@@ -217,29 +233,41 @@ class EntityManager
      *
      * Set $data where $primaryKey on $connection. $data and $primaryKey need to be an array in form $col => $value.
      *
-     * @param string $table
-     * @param array  $primaryKey
-     * @param array  $data
-     * @param string $connection
+     * @param Entity $entity
      * @return bool
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
      * @throws NoConnection
+     * @throws NoEntity
      * @throws NotScalar
+     * @internal
      */
-    public function update($table, array $primaryKey, array $data, $connection = 'default')
+    public function update(Entity $entity)
     {
-        $set = [];
-        foreach ($data as $col => $value) {
-            $set[] = $col . ' = ' . $this->convertValue($value, $connection);
-        }
+        $data = $entity->getData();
+        $primaryKey = $entity->getPrimaryKey();
 
         $where = [];
-        foreach ($primaryKey as $col => $value) {
-            $where[] = $col . ' = ' . $this->convertValue($value, $connection);
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+            if (isset($data[$col])) {
+                unset($data[$col]);
+            }
         }
 
-        $statement = 'UPDATE ' . $table . ' SET ' . implode(',', $set) . ' WHERE ' . implode(' AND ', $where);
-        $this->getConnection($connection)->query($statement);
+        $set = [];
+        foreach ($data as $col => $value) {
+            $set[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+        }
 
+        $statement = 'UPDATE ' . $entity::getTableName()
+                   . ' SET ' . implode(',', $set)
+                   . ' WHERE ' . implode(' AND ', $where);
+        $this->getConnection($entity::$connection)->query($statement);
+
+        $this->sync($entity, true);
         return true;
     }
 

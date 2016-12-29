@@ -395,6 +395,7 @@ abstract class Entity
      * Save the entity to $entityManager
      *
      * @param EntityManager $entityManager
+     * @return Entity
      * @throws Exceptions\NoConnection
      * @throws Exceptions\NoEntity
      * @throws Exceptions\NotScalar
@@ -406,63 +407,26 @@ abstract class Entity
     public function save(EntityManager $entityManager)
     {
         if (!$this->isDirty()) {
-            return;
+            return $this;
         }
 
-        $keyComplete = true;
-        $primaryKey = [];
-        $primaryKeyVars = static::getPrimaryKeyVars();
-        foreach ($primaryKeyVars as $var) {
-            $col = static::getColumnName($var);
-            if (isset($this->data[$col])) {
-                $primaryKey[$col] = $this->data[$col];
-                continue;
-            }
-            $keyComplete = false;
-        }
-
-        if (!$keyComplete) {
-            if (!static::isAutoIncremented()) {
-                $msg = 'Primary key consist of [' . implode(',', $primaryKeyVars) . '] ';
-                if (!empty($primaryKey)) {
-                    $msg .= 'only ' . implode(',', array_keys($primaryKey)) .  ' given';
-                } else {
-                    $msg .= 'nothing given';
-                }
-                throw new IncompletePrimaryKey($msg);
-            }
-            $col = static::getColumnName(reset($primaryKeyVars));
-            $id = $entityManager->insert(
-                static::getTableName(),
-                $this->data,
-                static::$connection,
-                $col
-            );
-            if ($id) {
-                $this->data[$col] = $id;
-                $entityManager->sync($this, true);
-            }
-        } else {
+        try {
             if (!$entityManager->sync($this)) {
-                $entityManager->insert(static::getTableName(), $this->data, static::$connection);
-                $entityManager->sync($this, true);
+                $entityManager->insert($this, false);
             } elseif ($this->isDirty()) {
-                $data = $this->data;
-                $primaryKeyCols = array_keys($primaryKey);
-                $i = count($primaryKeyCols);
-                foreach ($data as $col => $value) {
-                    if (in_array($col, $primaryKeyCols)) {
-                        unset($data[$col]);
-                        $i--;
-                        if ($i === 0) {
-                            break;
-                        }
-                    }
-                }
-                $entityManager->update(static::getTableName(), $primaryKey, $data, static::$connection);
+                $entityManager->update($this);
+            }
+        } catch (IncompletePrimaryKey $e) {
+            if (static::isAutoIncremented()) {
+                $id = $entityManager->insert($this);
+                $this->data[static::getColumnName(static::getPrimaryKeyVars()[0])] = $id;
                 $entityManager->sync($this, true);
+            } else {
+                throw $e;
             }
         }
+
+        return $this;
     }
 
     /**
@@ -482,6 +446,16 @@ abstract class Entity
             $primaryKey[$var] = $value;
         }
         return $primaryKey;
+    }
+
+    /**
+     * Get current data
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
     }
 
     /**

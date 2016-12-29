@@ -24,6 +24,7 @@ permalink: /reference.html
 * [NoEntity](#ormexceptionsnoentity)
 * [NotJoined](#ormexceptionsnotjoined)
 * [NotScalar](#ormexceptionsnotscalar)
+* [UnsupportedDriver](#ormexceptionsunsupporteddriver)
 
 
 ### ORM\QueryBuilder
@@ -159,7 +160,6 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
-| **protected static** | `$autoIncrementSequence` | **string** | Auto increment sequence to use for pgsql. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
 
@@ -171,9 +171,10 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
-* [getAutoIncrementSequence](#ormentitygetautoincrementsequence) Get the sequence of the auto increment column (pgsql only).
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
-* [getPrimaryKey](#ormentitygetprimarykey) Get the primary key vars
+* [getData](#ormentitygetdata) Get current data
+* [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
+* [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getTableName](#ormentitygettablename) Get the table name
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
@@ -294,24 +295,6 @@ and UPPER.
 
 
 
-#### ORM\Entity::getAutoIncrementSequence
-
-```php?start_inline=true
-public static function getAutoIncrementSequence(): string
-```
-
-##### Get the sequence of the auto increment column (pgsql only).
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
-
-
-
 #### ORM\Entity::getColumnName
 
 ```php?start_inline=true
@@ -340,10 +323,44 @@ the same as getColumnName($name).
 
 
 
+#### ORM\Entity::getData
+
+```php?start_inline=true
+public function getData(): array
+```
+
+##### Get current data
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
 #### ORM\Entity::getPrimaryKey
 
 ```php?start_inline=true
-public static function getPrimaryKey(): array
+public function getPrimaryKey(): array
+```
+
+##### Get the primary key
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+
+
+#### ORM\Entity::getPrimaryKeyVars
+
+```php?start_inline=true
+public static function getPrimaryKeyVars(): array
 ```
 
 ##### Get the primary key vars
@@ -508,7 +525,7 @@ public function reset( string $var = null )
 #### ORM\Entity::save
 
 ```php?start_inline=true
-public function save( \ORM\EntityManager $entityManager )
+public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 ```
 
 ##### Save the entity to $entityManager
@@ -517,7 +534,8 @@ public function save( \ORM\EntityManager $entityManager )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
 
 ##### Parameters
 
@@ -573,10 +591,10 @@ Supported:
 | **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
-| **protected** | `$parent` | **QueryBuilder\ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$parent` | **QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
 | **protected** | `$class` | **string &#124; Entity** | The entity class that we want to fetch |
-| **protected** | `$result` | **\PDOStatement** | The result object from PDO |
-| **protected** | `$query` | **string &#124; QueryBuilder\QueryBuilderInterface** | The query to execute (overwrites other settings) |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$query` | **string &#124; QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
 | **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 
 
@@ -802,7 +820,7 @@ $translateCols is true (default).
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
 
 ##### Parameters
 
@@ -1219,14 +1237,14 @@ For easier use and against sql injection it allows question mark placeholders.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **$this**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$query` | **string &#124; QueryBuilder\QueryBuilderInterface**  | Raw query string or a QueryBuilderInterface |
-| `$args` | **array &#124; null**  | The arguments for placeholders |
+| `$args` | **array**  | The arguments for placeholders |
 
 
 
@@ -1303,7 +1321,7 @@ where('name = ?', ['John Doe'])
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$connections` | **array&lt;\PDO> &#124; array&lt;callable> &#124; array&lt;DbConfig>** | Named connections to database |
+| **protected** | `$connections` | **array&lt; \ PDO> &#124; array&lt;callable> &#124; array&lt;DbConfig>** | Named connections to database |
 | **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
 | **protected** | `$options` | **array** | The options set for this instance |
 
@@ -1317,6 +1335,7 @@ where('name = ?', ['John Doe'])
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
+* [sync](#ormentitymanagersync) Synchronizing $entity with database
 
 #### ORM\EntityManager::__construct
 
@@ -1420,7 +1439,7 @@ public function getConnection( string $name = 'default' ): \PDO
 #### ORM\EntityManager::map
 
 ```php?start_inline=true
-public function map( \ORM\Entity $entity ): \ORM\Entity
+public function map( \ORM\Entity $entity, boolean $update = false ): \ORM\Entity
 ```
 
 ##### Map $entity in the entity map
@@ -1442,6 +1461,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
+| `$update` | **boolean**  | Update the entity map |
 
 
 
@@ -1468,6 +1488,30 @@ When it is not a PDO instance the connection get established on first use.
 |-----------|------|-------------|
 | `$name` | **string**  | Name of the connection |
 | `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
+
+
+
+#### ORM\EntityManager::sync
+
+```php?start_inline=true
+public function sync( \ORM\Entity $entity, boolean $reset = false ): boolean
+```
+
+##### Synchronizing $entity with database
+
+If $reset is true it also calls reset() on $entity.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **Entity**  |  |
+| `$reset` | **boolean**  | Reset entities current data |
 
 
 
@@ -2155,9 +2199,9 @@ Supported:
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **protected** | `$entityManager` | **\ORM\EntityManager** | EntityManager to use for quoting |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
 | **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
-| **public static** | `$defaultEntityManager` | **\ORM\EntityManager** | The default EntityManager to use to for quoting |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 
 
@@ -3342,6 +3386,23 @@ where('name = ?', ['John Doe'])
 **See Also:**
 
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+
+
+---
+
+### ORM\Exceptions\UnsupportedDriver
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
 
 
 ---

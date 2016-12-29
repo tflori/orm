@@ -44,17 +44,11 @@ class DataTest extends TestCase
 
     public function testStoresDataInCorrectNamingScheme()
     {
-        $studlyCaps = new StudlyCaps();
-        $emMock = \Mockery::mock(EntityManager::class);
-        $emMock->shouldReceive('insert')->once()->with(
-            'studly_caps',
-            ['some_var' => 'foobar'],
-            'default',
-            'id'
-        );
+        $entity = new StudlyCaps();
 
-        $studlyCaps->someVar = 'foobar';
-        $studlyCaps->save($emMock);
+        $entity->someVar = 'foobar';
+
+        self::assertSame(['some_var' => 'foobar'], $entity->getData());
     }
 
     public function testStoresOnlyDirtyEntities()

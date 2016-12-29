@@ -6,6 +6,7 @@ use Mockery\Mock;
 use ORM\Entity;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\UnsupportedDriver;
+use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
@@ -181,32 +182,44 @@ class DataModificationTest extends TestCase
     public function provideInsertStatements()
     {
         return [
-            [['id' => 42, '"foo"' => 'bar'], 'foobar', 'INSERT INTO foobar (id,"foo") VALUES (42,\'bar\')'],
-            [['foo' => 'bar'], 'foobar', 'INSERT INTO foobar (foo) VALUES (\'bar\')'],
+            [new StudlyCaps(['id' => 42, '"foo"' => 'bar']), 'INSERT INTO studly_caps (id,"foo") VALUES (42,\'bar\')'],
+            [new StudlyCaps(['foo' => 'bar']), 'INSERT INTO studly_caps (foo) VALUES (\'bar\')'],
         ];
     }
 
     /**
      * @dataProvider provideInsertStatements
      */
-    public function testInsertStatement($data, $table, $statement)
+    public function testInsertStatement($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
 
-        $this->em->insert($table, $data);
+        $this->em->insert($entity);
     }
 
-    /**
-     * @dataProvider provideInsertStatements
-     */
-    public function testInsertReturnsTrue($data, $table, $statement)
-    {
-        $this->pdo->shouldReceive('query')->with($statement)->once()
-            ->andReturn(\Mockery::mock(\PDOStatement::class));
 
-        $result = $this->em->insert($table, $data);
+    public function testInsertReturnsTrue()
+    {
+        $entity = new Psr0_StudlyCaps(['id' => 42, 'foo' => 'bar']);
+
+        $this->pdo->shouldReceive('query')->with('INSERT INTO psr0_studly_caps (id,foo) VALUES (42,\'bar\')')->once()
+            ->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $result = $this->em->insert($entity);
+
+        self::assertTrue($result);
+    }
+
+    public function testDoesNotUseAutoIncrement()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
+
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $result = $this->em->insert($entity, false);
 
         self::assertTrue($result);
     }
@@ -218,7 +231,7 @@ class DataModificationTest extends TestCase
             ->andReturn(\Mockery::mock(\PDOStatement::class));
         $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42');
 
-        $result = $this->em->insert('foobar', ['foo' => 'bar'], 'default', 'id');
+        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
 
         self::assertSame('42', $result);
     }
@@ -232,7 +245,7 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('query')->with('SELECT LAST_INSERT_ID()')->once()->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
 
-        $result = $this->em->insert('foobar', ['foo' => 'bar'], 'default', 'id');
+        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
 
         self::assertSame(42, $result);
     }
@@ -245,7 +258,7 @@ class DataModificationTest extends TestCase
             ->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
 
-        $result = $this->em->insert('foobar', ['foo' => 'bar'], 'default', 'id');
+        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
 
         self::assertSame(42, $result);
     }
@@ -257,25 +270,21 @@ class DataModificationTest extends TestCase
         self::expectException(UnsupportedDriver::class);
         self::expectExceptionMessage('Auto incremented column for driver foobar is not supported');
 
-         $this->em->insert('foobar', ['foo' => 'bar'], 'default', 'id');
+        $this->em->insert(new StudlyCaps(['foo' => 'bar']));
     }
 
     public function provideUpdateStatements()
     {
         return [
-            [['foo' => 'bar'], ['id' => 42], 'foobar', 'UPDATE foobar SET foo = \'bar\' WHERE id = 42'],
-            [['"foo"' => 'bar'], ['id' => '42'], '"foobar"', 'UPDATE "foobar" SET "foo" = \'bar\' WHERE id = \'42\''],
+            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'UPDATE studly_caps SET foo = \'bar\' WHERE id = 42'],
             [
-                ['"id"' => 666, '"foo"' => 'bar'],
-                ['"id"' => '42'],
-                '"foobar"',
-                'UPDATE "foobar" SET "id" = 666,"foo" = \'bar\' WHERE "id" = \'42\''
+                new StudlyCaps(['id' => '42', '"foo"' => 'bar']),
+                'UPDATE studly_caps SET "foo" = \'bar\' WHERE id = \'42\''
             ],
             [
-                ['bar' => '42'],
-                ['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default'],
-                'my_table',
-                'UPDATE my_table SET bar = \'42\' WHERE stn_table = \'a\' AND stn_name = \'b\' AND bar = \'default\''
+                new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'stn_col1' => 'abc']),
+                'UPDATE my_table SET stn_col1 = \'abc\''
+                . ' WHERE stn_table = \'a\' AND stn_name = \'b\' AND bar = \'default\''
             ]
         ];
     }
@@ -283,23 +292,24 @@ class DataModificationTest extends TestCase
     /**
      * @dataProvider provideUpdateStatements
      */
-    public function testUpdateStatement($data, $primaryKey, $table, $statement)
+    public function testUpdateStatement($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
 
-        $this->em->update($table, $primaryKey, $data);
+        $this->em->update($entity);
     }
 
     /**
      * @dataProvider provideUpdateStatements
      */
-    public function testUpdateReturnsSuccess($data, $primaryKey, $table, $statement)
+    public function testUpdateReturnsSuccessAndSyncs($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
-        $result = $this->em->update($table, $primaryKey, $data);
+        $result = $this->em->update($entity);
 
         self::assertTrue($result);
     }
