@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\Exceptions\NotJoined;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\ContactPhone;
+use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
@@ -42,6 +43,15 @@ class EntityFetcherTest extends TestCase
         $result = $fetcher->one();
 
         self::assertNull($result);
+    }
+
+    public function testExecutesQueryOnSpecifiedConnection()
+    {
+        $fetcher = $this->em->fetch(Snake_Ucfirst::class);
+        $this->em->shouldReceive('getConnection')->once()->with('dw')->andReturn($this->pdo);
+        $this->pdo->shouldReceive('query')->andReturn(false);
+
+        $fetcher->one();
     }
 
     public function testExecutesQueryOnce()
@@ -101,6 +111,14 @@ class EntityFetcherTest extends TestCase
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();
+    }
+
+    public function testUsesSpecifiedConnectionForQuoting()
+    {
+        $fetcher = new EntityFetcher($this->em, Snake_Ucfirst::class);
+        $this->em->shouldReceive('convertValue')->once()->with(42, 'dw')->andReturn('42');
+
+        $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ?', 42);
     }
 
     public function testReturnsAnEntity()

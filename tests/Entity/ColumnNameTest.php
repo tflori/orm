@@ -92,21 +92,21 @@ class ColumnNameTest extends TestCase
 
     public function testPrimaryKeyIsId()
     {
-        $primaryKey = StudlyCaps::getPrimaryKey();
+        $primaryKey = StudlyCaps::getPrimaryKeyVars();
 
         self::assertSame(['id'], $primaryKey);
     }
 
     public function testPrimaryKeyIsAlwaysArray()
     {
-        $primaryKey = Snake_Ucfirst::getPrimaryKey();
+        $primaryKey = Snake_Ucfirst::getPrimaryKeyVars();
 
         self::assertSame(['My_Key'], $primaryKey);
     }
 
     public function testCombinedPrimaryKey()
     {
-        $primaryKey = StaticTableName::getPrimaryKey();
+        $primaryKey = StaticTableName::getPrimaryKeyVars();
 
         self::assertSame(['table', 'name', 'foo'], $primaryKey);
     }
@@ -123,22 +123,5 @@ class ColumnNameTest extends TestCase
         $r = StaticTableName::isAutoIncremented();
 
         self::assertFalse($r);
-    }
-
-    public function testAutoIncrementSequenceByDefault()
-    {
-        $sequence = StudlyCaps::getAutoIncrementSequence();
-
-        self::assertSame(
-            StudlyCaps::getTableName() . '_' . StudlyCaps::getColumnName(StudlyCaps::getPrimaryKey()[0] . '_seq'),
-            $sequence
-        );
-    }
-
-    public function testCustomAutoIncrementSequence()
-    {
-        $sequence = Snake_Ucfirst::getAutoIncrementSequence();
-
-        self::assertSame('snake_ucfirst_seq', $sequence);
     }
 }

@@ -24,6 +24,9 @@ class TestCase extends MockeryTestCase
         $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
             return '\'' . addslashes($var) . '\'';
         })->byDefault();
+        $this->pdo->shouldReceive('query')->andReturn(false)->byDefault();
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite')->byDefault();
+        $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
         $this->em = \Mockery::mock(EntityManager::class)->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();

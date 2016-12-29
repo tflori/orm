@@ -63,6 +63,7 @@ class EntityFetcher extends QueryBuilder
     public function __construct(EntityManager $entityManager, $class)
     {
         $this->entityManager = $entityManager;
+        $this->connection    = $class::$connection;
         $this->class         = $class;
 
         $this->tableName = $class::getTableName();
@@ -100,6 +101,8 @@ class EntityFetcher extends QueryBuilder
      * @param array|mixed $args          Argument(s) to insert
      * @param bool        $translateCols Whether or not column names should be translated
      * @return string
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NotScalar
      */
     protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
@@ -154,6 +157,8 @@ class EntityFetcher extends QueryBuilder
      * @return EntityFetcher|ParenthesisInterface
      * @throws Exceptions\InvalidConfiguration
      * @throws Exceptions\InvalidName
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NotScalar
      * @internal
      */
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
@@ -274,10 +279,12 @@ class EntityFetcher extends QueryBuilder
      * For easier use and against sql injection it allows question mark placeholders.
      *
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
-     * @param array|null                   $args  The arguments for placeholders
+     * @param array                        $args  The arguments for placeholders
      * @return $this
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NotScalar
      */
-    public function setQuery($query, array $args = null)
+    public function setQuery($query, $args = null)
     {
         if (!$query instanceof QueryBuilderInterface) {
             $query = $this->convertPlaceholders($query, $args, false);

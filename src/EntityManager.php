@@ -7,6 +7,7 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
 use ORM\Exceptions\NoEntity;
 use ORM\Exceptions\NotScalar;
+use ORM\Exceptions\UnsupportedDriver;
 
 /**
  * The EntityManager that manages the instances of Entities.
@@ -135,16 +136,168 @@ class EntityManager
     }
 
     /**
-     * Save $entity with $data.
+     * Synchronizing $entity with database
      *
-     * Should not be called directly. Instead you should use $entity->save($entityManager);
+     * If $reset is true it also calls reset() on $entity.
      *
-     * @param Entity $entity Entity to save
-     * @param array  $data   Data to store
+     * @param Entity $entity
+     * @param bool   $reset Reset entities current data
+     * @return bool
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
+     * @throws NoEntity
+     */
+    public function sync(Entity $entity, $reset = false)
+    {
+        $this->map($entity, true);
+
+        $fetcher = $this->fetch(get_class($entity));
+        foreach ($entity->getPrimaryKey() as $var => $value) {
+            $fetcher->where($var, $value);
+        }
+
+        $result = $this->getConnection($entity::$connection)->query($fetcher->getQuery());
+        if ($originalData = $result->fetch(\PDO::FETCH_ASSOC)) {
+            $entity->setOriginalData($originalData);
+            if ($reset) {
+                $entity->reset();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Insert $data in $table on $connection
+     *
+     * $data needs to be an array in form $col => $value and only with scalar data.
+     *
+     * @param Entity $entity
+     * @param bool   $useAutoIncrement
+     * @return mixed Returns boolean if it is not auto incremented or the $autoIncremented column
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
+     * @throws NoEntity
+     * @throws UnsupportedDriver
      * @internal
      */
-    public function save(Entity $entity, array $data)
+    public function insert(Entity $entity, $useAutoIncrement = true)
     {
+        $data = $entity->getData();
+
+        $cols = array_keys($data);
+        $values = array_values(array_map(function ($value) use ($entity) {
+            return $this->convertValue($value, $entity::$connection);
+        }, $data));
+
+        $statement = 'INSERT INTO ' . $entity::getTableName()
+                   . ' (' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+        $pdo = $this->getConnection($entity::$connection);
+
+        if ($useAutoIncrement && $entity::isAutoIncremented()) {
+            $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            switch ($driver) {
+                case 'sqlite':
+                    $pdo->query($statement);
+                    $id = $pdo->lastInsertId();
+                    break;
+
+                case 'mysql':
+                    $pdo->query($statement);
+                    $id = $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+                    break;
+
+                case 'pgsql':
+                    $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
+                    $result = $pdo->query($statement);
+                    $id = $result->fetchColumn();
+                    break;
+
+                default:
+                    throw new UnsupportedDriver('Auto incremented column for driver ' . $driver . ' is not supported');
+            }
+
+            return $id;
+        }
+
+        $pdo->query($statement);
+        $this->sync($entity, true);
+        return true;
+    }
+
+    /**
+     * Update $table
+     *
+     * Set $data where $primaryKey on $connection. $data and $primaryKey need to be an array in form $col => $value.
+     *
+     * @param Entity $entity
+     * @return bool
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
+     * @throws NoEntity
+     * @throws NotScalar
+     * @internal
+     */
+    public function update(Entity $entity)
+    {
+        $data = $entity->getData();
+        $primaryKey = $entity->getPrimaryKey();
+
+        $where = [];
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+            if (isset($data[$col])) {
+                unset($data[$col]);
+            }
+        }
+
+        $set = [];
+        foreach ($data as $col => $value) {
+            $set[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+        }
+
+        $statement = 'UPDATE ' . $entity::getTableName()
+                   . ' SET ' . implode(',', $set)
+                   . ' WHERE ' . implode(' AND ', $where);
+        $this->getConnection($entity::$connection)->query($statement);
+
+        $this->sync($entity, true);
+        return true;
+    }
+
+    /**
+     * Delete $entity from database
+     *
+     * This method does not delete from the map - you can still receive the entity via fetch.
+     *
+     * @param Entity $entity
+     * @return bool
+     * @throws Exceptions\InvalidName
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoConnection
+     * @throws NotScalar
+     */
+    public function delete(Entity $entity)
+    {
+        $primaryKey = $entity->getPrimaryKey();
+        $where = [];
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+        }
+
+        $statement = 'DELETE FROM ' . $entity::getTableName() . ' WHERE ' . implode(' AND ', $where);
+        $this->getConnection($entity::$connection)->query($statement);
+
+        $entity->setOriginalData([]);
+        return true;
     }
 
     /**
@@ -158,24 +311,16 @@ class EntityManager
      * ```
      *
      * @param Entity $entity
+     * @param bool   $update Update the entity map
      * @return Entity
      * @throws IncompletePrimaryKey
      */
-    public function map(Entity $entity)
+    public function map(Entity $entity, $update = false)
     {
-        $key = [];
-        foreach ($entity::getPrimaryKey() as $var) {
-            $value = $entity->$var;
-            if ($value === null) {
-                throw new IncompletePrimaryKey('Entity can not be mapped: ' . $var . ' is null');
-            }
-            $key[] = $value;
-        }
-
         $class = get_class($entity);
-        $key = md5(serialize($key));
+        $key = md5(serialize($entity->getPrimaryKey()));
 
-        if (!isset($this->map[$class][$key])) {
+        if ($update || !isset($this->map[$class][$key])) {
             $this->map[$class][$key] = $entity;
         }
 
@@ -214,20 +359,22 @@ class EntityManager
             $primaryKey = [$primaryKey];
         }
 
-        $primaryKeyVars = $class::getPrimaryKey();
+        $primaryKeyVars = $class::getPrimaryKeyVars();
         if (count($primaryKeyVars) !== count($primaryKey)) {
             throw new IncompletePrimaryKey(
                 'Primary key consist of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
             );
         }
 
+        $primaryKey = array_combine($primaryKeyVars, $primaryKey);
+
         if (isset($this->map[$class][md5(serialize($primaryKey))])) {
             return $this->map[$class][md5(serialize($primaryKey))];
         }
 
         $fetcher = new EntityFetcher($this, $class);
-        foreach ($primaryKeyVars as $i => $col) {
-            $fetcher->where($col, $primaryKey[$i]);
+        foreach ($primaryKey as $var => $value) {
+            $fetcher->where($var, $value);
         }
 
         return $fetcher->one();
