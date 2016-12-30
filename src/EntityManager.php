@@ -193,8 +193,8 @@ class EntityManager
             return $this->convertValue($value, $entity::$connection);
         }, $data));
 
-        $statement = 'INSERT INTO ' . $entity::getTableName()
-                   . ' (' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+        $statement = 'INSERT INTO "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
+                     '("' . implode('","', $cols) . '") VALUES (' . implode(',', $values) . ')';
         $pdo = $this->getConnection($entity::$connection);
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
@@ -251,7 +251,7 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+            $where[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
             if (isset($data[$col])) {
                 unset($data[$col]);
             }
@@ -259,12 +259,12 @@ class EntityManager
 
         $set = [];
         foreach ($data as $col => $value) {
-            $set[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+            $set[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
         }
 
-        $statement = 'UPDATE ' . $entity::getTableName()
-                   . ' SET ' . implode(',', $set)
-                   . ' WHERE ' . implode(' AND ', $where);
+        $statement = 'UPDATE "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
+                     'SET ' . implode(',', $set) . ' ' .
+                     'WHERE ' . implode(' AND ', $where);
         $this->getConnection($entity::$connection)->query($statement);
 
         $this->sync($entity, true);
@@ -290,10 +290,11 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = $col . ' = ' . $this->convertValue($value, $entity::$connection);
+            $where[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
         }
 
-        $statement = 'DELETE FROM ' . $entity::getTableName() . ' WHERE ' . implode(' AND ', $where);
+        $statement = 'DELETE FROM "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
+                     'WHERE ' . implode(' AND ', $where);
         $this->getConnection($entity::$connection)->query($statement);
 
         $entity->setOriginalData([]);
