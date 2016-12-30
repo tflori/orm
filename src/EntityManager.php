@@ -25,6 +25,8 @@ class EntityManager
     const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
     const OPT_PGSQL_BOOLEAN_TRUE   = 'pgsqlTrue';
     const OPT_PGSQL_BOOLEAN_FALSE  = 'pgsqlFalse';
+    const OPT_QUOTING_CHARACTER    = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER   = 'identifierDivider';
 
     /** Named connections to database
      * @var \PDO[]|callable[]|DbConfig[] */
@@ -42,7 +44,9 @@ class EntityManager
         self::OPT_SQLITE_BOOLEAN_TRUE  => '1',
         self::OPT_SQLITE_BOOLEAN_FASLE => '0',
         self::OPT_PGSQL_BOOLEAN_TRUE   => 'true',
-        self::OPT_PGSQL_BOOLEAN_FALSE  => 'false'
+        self::OPT_PGSQL_BOOLEAN_FALSE  => 'false',
+        self::OPT_QUOTING_CHARACTER    => '"',
+        self::OPT_IDENTIFIER_DIVIDER   => '.',
     ];
 
     /**
@@ -116,12 +120,9 @@ class EntityManager
                 $this->connections[$name] = $pdo = new \PDO(
                     $dbConfig->getDsn(),
                     $dbConfig->user,
-                    $dbConfig->pass
+                    $dbConfig->pass,
+                    $dbConfig->attributes
                 );
-
-                foreach ($dbConfig->attributes as $attribute => $value) {
-                    $pdo->setAttribute($attribute, $value);
-                }
             } else {
                 $pdo = call_user_func($this->connections[$name]);
                 if (!$pdo instanceof \PDO) {
@@ -188,13 +189,16 @@ class EntityManager
     {
         $data = $entity->getData();
 
-        $cols = array_keys($data);
-        $values = array_values(array_map(function ($value) use ($entity) {
-            return $this->convertValue($value, $entity::$connection);
-        }, $data));
+        $cols = array_map(function ($key) {
+            return $this->escapeIdentifier($key);
+        }, array_keys($data));
 
-        $statement = 'INSERT INTO "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
-                     '("' . implode('","', $cols) . '") VALUES (' . implode(',', $values) . ')';
+        $values = array_map(function ($value) use ($entity) {
+            return $this->escapeValue($value, $entity::$connection);
+        }, array_values($data));
+
+        $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
+                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
         $pdo = $this->getConnection($entity::$connection);
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
@@ -251,7 +255,7 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
             if (isset($data[$col])) {
                 unset($data[$col]);
             }
@@ -259,10 +263,10 @@ class EntityManager
 
         $set = [];
         foreach ($data as $col => $value) {
-            $set[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
+            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
         }
 
-        $statement = 'UPDATE "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
+        $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'SET ' . implode(',', $set) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
         $this->getConnection($entity::$connection)->query($statement);
@@ -290,10 +294,10 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = '"' . $col . '" = ' . $this->convertValue($value, $entity::$connection);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
         }
 
-        $statement = 'DELETE FROM "' . str_replace('.', '"."', $entity::getTableName()) . '" ' .
+        $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
         $this->getConnection($entity::$connection)->query($statement);
 
@@ -382,7 +386,7 @@ class EntityManager
     }
 
     /**
-     * Returns the given $value formatted to use in a sql statement.
+     * Returns $value formatted to use in a sql statement.
      *
      * @param  mixed  $value      The variable that should be returned in SQL syntax
      * @param  string $connection The connection to use for quoting
@@ -390,7 +394,7 @@ class EntityManager
      * @throws NoConnection
      * @throws NotScalar
      */
-    public function convertValue($value, $connection = 'default')
+    public function escapeValue($value, $connection = 'default')
     {
         switch (strtolower(gettype($value))) {
             case 'string':
@@ -417,5 +421,18 @@ class EntityManager
             default:
                 throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
         }
+    }
+
+    /**
+     * Returns $identifier quoted for use in a sql statement
+     *
+     * @param string $identifier Identifier to quote
+     * @return string
+     */
+    public function escapeIdentifier($identifier)
+    {
+        $q = $this->options[self::OPT_QUOTING_CHARACTER];
+        $d = $this->options[self::OPT_IDENTIFIER_DIVIDER];
+        return $q . str_replace($d, $q . $d . $q, $identifier) . $q;
     }
 }

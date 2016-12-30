@@ -16,12 +16,12 @@ class DataModificationTest extends TestCase
     public function provideEntitiesWithPrimary()
     {
         return [
-            [new StudlyCaps(['id' => 42]), 'studly_caps', '.*id = 42'],
-            [new StudlyCaps(['id' => 1]), 'studly_caps', '.*id = 1'],
+            [new StudlyCaps(['id' => 42]), 'studly_caps', '.*"id" = 42'],
+            [new StudlyCaps(['id' => 1]), 'studly_caps', '.*"id" = 1'],
             [
                 new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 42]),
                 'my_table',
-                '.*table = \'a\' AND .*name = \'b\' AND .*bar = 42'
+                '.*table" = \'a\' AND .*name" = \'b\' AND .*bar" = 42'
             ],
         ];
     }
@@ -32,7 +32,7 @@ class DataModificationTest extends TestCase
     public function testSyncQueriesTheDatabase($entity, $table, $whereConditions)
     {
         $this->pdo->shouldReceive('query')->once()
-            ->with('/^SELECT .*\* FROM ' . $table . '.* WHERE ' . $whereConditions . '/')
+            ->with('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/')
             ->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);

@@ -127,7 +127,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         while ($part = array_shift($parts)) {
             $expression .= $part;
             if (count($args)) {
-                $expression .= $entityManager->convertValue(array_shift($args), $connection);
+                $expression .= $entityManager->escapeValue(array_shift($args), $connection);
             } elseif (count($parts)) {
                 $expression .= '?';
             }
@@ -164,9 +164,9 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 }
             }
 
-            $expression = $expression = $column . ' ' . $operator;
+            $expression = $column . ' ' . $operator;
 
-            if (in_array(strtoupper($operator), ['IN', 'NOT IN'], true) && is_array($value)) {
+            if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
                 $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
             } else {
                 $expression .= ' ?';

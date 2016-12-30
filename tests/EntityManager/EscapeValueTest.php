@@ -5,7 +5,7 @@ namespace ORM\Test\EntityManager;
 use ORM\Exceptions\NotScalar;
 use ORM\Test\TestCase;
 
-class ConvertValueTest extends TestCase
+class EscapeValueTest extends TestCase
 {
     public function testOnlyConvertsScalarData()
     {
@@ -14,7 +14,7 @@ class ConvertValueTest extends TestCase
         self::expectException(NotScalar::class);
         self::expectExceptionMessage('$value has to be scalar data type. array given');
 
-        $this->em->convertValue($array);
+        $this->em->escapeValue($array);
     }
 
     public function provideScalarsWithoutStringAndBoolean()
@@ -34,7 +34,7 @@ class ConvertValueTest extends TestCase
      */
     public function testConvertsScalar($value, $expected)
     {
-        $result = $this->em->convertValue($value);
+        $result = $this->em->escapeValue($value);
 
         self::assertSame($expected, $result);
     }
@@ -58,7 +58,7 @@ class ConvertValueTest extends TestCase
     {
         $this->pdo->shouldReceive('getAttribute')->once()->with(\PDO::ATTR_DRIVER_NAME)->andReturn($connectionType);
 
-        $result = $this->em->convertValue($value);
+        $result = $this->em->escapeValue($value);
 
         self::assertSame($expected, $result);
     }
@@ -67,7 +67,7 @@ class ConvertValueTest extends TestCase
     {
         $this->pdo->shouldReceive('quote')->once()->with('foobar')->andReturn('\'buzzword\'');
 
-        $result = $this->em->convertValue('foobar');
+        $result = $this->em->escapeValue('foobar');
 
         self::assertSame('\'buzzword\'', $result);
     }

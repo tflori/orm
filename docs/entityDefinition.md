@@ -19,6 +19,13 @@ To make this example work you need to have a table `user` with columns `id`, `us
 different in your system. In further description we show how to setup differnt table name, column names, column 
 aliases and identifier.
 
+All table and column names get quoted in queries. The usual way for quoting in SQL is with double quote (`"`).
+Table names can also be in separated schemas or databases (in mysql) it is usually divided by a dot (`.`). Maybe your
+database is different (mysql uses `` ` `` for quoting) - then you can define them with the options 
+`OPT_QUOTING_CHARACTER` and `OPT_IDENTIFIER_DIVIDER`.
+
+> For mysql we suggest to use `PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode ='ANSI_QUOTES'"`
+
 This orm library also handles relations. To configure relations check the documentation term Relations.
 
 ### Table name
