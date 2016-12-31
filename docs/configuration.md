@@ -67,6 +67,24 @@ $entityManager = new ORM\EntityManager([
 > We are just checking if the function `is_callable()`. When the function is not returning an instance of `PDO` we
 > throw an `ORM\ExceptionsTest\NoConnection` exception.
 
+#### PDO Attributes
+
+You can define PDO attributes in DbConfig. We highly recommend two settings for mysql and we set them by default:
+
+```php?start_inline=true
+[
+    // Change sql_mode to ANSI_QUOTES and communication to utf8 on connect
+    PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode ='ANSI_QUOTES', NAMES utf8",
+    
+    // Dont emulate prepare statements
+    PDO::ATTR_EMULATE_PREPARES => false,
+]
+```
+
+With `ANSI_QUOTES` we can use the default quoting character `"` for identifier (columns and tables) and by disabling
+emulation of prepare statements we get integer and float from numeric columns. These are the most annoying drawbacks
+from mysql against postgres. Of course you can still overwrite these attributes.
+
 ### Naming schemes
 
 There are three settings:

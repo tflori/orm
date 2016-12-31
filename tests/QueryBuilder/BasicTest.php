@@ -86,7 +86,7 @@ class BasicTest extends TestCase
     public function testExpressionUsingDifferentConnection()
     {
         $query = new QueryBuilder('foobar', '', $this->em, 'con');
-        $this->em->shouldReceive('convertValue')->with('something', 'con')->once()->andReturn('\'something\'');
+        $this->em->shouldReceive('escapeValue')->with('something', 'con')->once()->andReturn('\'something\'');
 
         $query->column('IF(a = ?, 1, 0)', 'something');
     }
@@ -95,7 +95,7 @@ class BasicTest extends TestCase
     {
         QueryBuilder::$defaultConnection = 'con';
         $query = new QueryBuilder('foobar', '');
-        $this->em->shouldReceive('convertValue')->with('something', 'con')->once()->andReturn('\'something\'');
+        $this->em->shouldReceive('escapeValue')->with('something', 'con')->once()->andReturn('\'something\'');
 
         $query->column('IF(a = ?, 1, 0)', 'something');
     }

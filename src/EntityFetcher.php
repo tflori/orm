@@ -66,7 +66,7 @@ class EntityFetcher extends QueryBuilder
         $this->connection    = $class::$connection;
         $this->class         = $class;
 
-        $this->tableName = $class::getTableName();
+        $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
         $this->alias = 't0';
         $this->columns = ['t0.*'];
         $this->modifier = ['DISTINCT'];
@@ -134,7 +134,9 @@ class EntityFetcher extends QueryBuilder
                     }
 
                     /** @var Entity|string $class */
-                    return $match['b'] . $alias . '.' . $class::getColumnName($match['column']) . $match['a'];
+                    return $match['b'] . $this->entityManager->escapeIdentifier(
+                        $alias . '.' . $class::getColumnName($match['column'])
+                    ) . $match['a'];
                 },
                 $expression
             );
@@ -164,7 +166,7 @@ class EntityFetcher extends QueryBuilder
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
     {
         /** @var Entity|string $class */
-        $tableName = $class::getTableName();
+        $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
         $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
 
         $this->classMapping['byClass'][$class] = $alias;

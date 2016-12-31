@@ -136,7 +136,7 @@ class MappingTest extends TestCase
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()
-            ->with('SELECT DISTINCT t0.* FROM studly_caps AS t0 WHERE t0.id = 42')
+            ->with('SELECT DISTINCT t0.* FROM "studly_caps" AS t0 WHERE "t0"."id" = 42')
             ->andReturn($statement);
         $statement->shouldReceive('fetch')->once()->with(\PDO::FETCH_ASSOC)->andReturn(
             ['id' => 42, 'col1' => 'hallo', 'col2' => 'welt']

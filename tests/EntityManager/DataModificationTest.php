@@ -16,12 +16,12 @@ class DataModificationTest extends TestCase
     public function provideEntitiesWithPrimary()
     {
         return [
-            [new StudlyCaps(['id' => 42]), 'studly_caps', '.*id = 42'],
-            [new StudlyCaps(['id' => 1]), 'studly_caps', '.*id = 1'],
+            [new StudlyCaps(['id' => 42]), 'studly_caps', '.*"id" = 42'],
+            [new StudlyCaps(['id' => 1]), 'studly_caps', '.*"id" = 1'],
             [
                 new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 42]),
                 'my_table',
-                '.*table = \'a\' AND .*name = \'b\' AND .*bar = 42'
+                '.*table" = \'a\' AND .*name" = \'b\' AND .*bar" = 42'
             ],
         ];
     }
@@ -32,7 +32,7 @@ class DataModificationTest extends TestCase
     public function testSyncQueriesTheDatabase($entity, $table, $whereConditions)
     {
         $this->pdo->shouldReceive('query')->once()
-            ->with('/^SELECT .*\* FROM ' . $table . '.* WHERE ' . $whereConditions . '/')
+            ->with('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/')
             ->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -182,8 +182,13 @@ class DataModificationTest extends TestCase
     public function provideInsertStatements()
     {
         return [
-            [new StudlyCaps(['id' => 42, '"foo"' => 'bar']), 'INSERT INTO studly_caps (id,"foo") VALUES (42,\'bar\')'],
-            [new StudlyCaps(['foo' => 'bar']), 'INSERT INTO studly_caps (foo) VALUES (\'bar\')'],
+            [
+                new StudlyCaps(['id' => 42, 'foo' => 'bar']),
+                'INSERT INTO "studly_caps" ("id","foo") VALUES (42,\'bar\')'],
+            [
+                new StudlyCaps(['foo' => 'bar']),
+                'INSERT INTO "studly_caps" ("foo") VALUES (\'bar\')'
+            ],
         ];
     }
 
@@ -204,8 +209,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new Psr0_StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
-        $this->pdo->shouldReceive('query')->with('INSERT INTO psr0_studly_caps (id,foo) VALUES (42,\'bar\')')->once()
-            ->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')
+            ->with('INSERT INTO "psr0_studly_caps" ("id","foo") VALUES (42,\'bar\')')
+            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
         $result = $this->em->insert($entity);
@@ -276,15 +282,15 @@ class DataModificationTest extends TestCase
     public function provideUpdateStatements()
     {
         return [
-            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'UPDATE studly_caps SET foo = \'bar\' WHERE id = 42'],
+            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = 42'],
             [
-                new StudlyCaps(['id' => '42', '"foo"' => 'bar']),
-                'UPDATE studly_caps SET "foo" = \'bar\' WHERE id = \'42\''
+                new StudlyCaps(['id' => '42', 'foo' => 'bar']),
+                'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = \'42\''
             ],
             [
                 new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'stn_col1' => 'abc']),
-                'UPDATE my_table SET stn_col1 = \'abc\''
-                . ' WHERE stn_table = \'a\' AND stn_name = \'b\' AND bar = \'default\''
+                'UPDATE "my_table" SET "stn_col1" = \'abc\''
+                . ' WHERE "stn_table" = \'a\' AND "stn_name" = \'b\' AND "bar" = \'default\''
             ]
         ];
     }
@@ -317,8 +323,8 @@ class DataModificationTest extends TestCase
     public function provideDeleteStatements()
     {
         return [
-            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'DELETE FROM studly_caps WHERE id = 42'],
-            [new StudlyCaps(['id' => '42']), 'DELETE FROM studly_caps WHERE id = \'42\'']
+            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'DELETE FROM "studly_caps" WHERE "id" = 42'],
+            [new StudlyCaps(['id' => '42']), 'DELETE FROM "studly_caps" WHERE "id" = \'42\'']
         ];
     }
 
