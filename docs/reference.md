@@ -1297,6 +1297,8 @@ where('name = ?', ['John Doe'])
 | OPT_SQLITE_BOOLEAN_FASLE | `'sqliteFalse'` |
 | OPT_PGSQL_BOOLEAN_TRUE | `'pgsqlTrue'` |
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
+| OPT_QUOTING_CHARACTER | `'quotingChar'` |
+| OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
 
 
 #### Properties
@@ -1312,8 +1314,9 @@ where('name = ?', ['John Doe'])
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
-* [convertValue](#ormentitymanagerconvertvalue) Returns the given $value formatted to use in a sql statement.
 * [delete](#ormentitymanagerdelete) Delete $entity from database
+* [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
 * [map](#ormentitymanagermap) Map $entity in the entity map
@@ -1342,30 +1345,6 @@ public function __construct( array $options = array() ): EntityManager
 
 
 
-#### ORM\EntityManager::convertValue
-
-```php?start_inline=true
-public function convertValue( $value, string $connection = 'default' ): string
-```
-
-##### Returns the given $value formatted to use in a sql statement.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
-| `$connection` | **string**  | The connection to use for quoting |
-
-
-
 #### ORM\EntityManager::delete
 
 ```php?start_inline=true
@@ -1386,6 +1365,53 @@ This method does not delete from the map - you can still receive the entity via 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
+
+
+
+#### ORM\EntityManager::escapeIdentifier
+
+```php?start_inline=true
+public function escapeIdentifier( string $identifier ): string
+```
+
+##### Returns $identifier quoted for use in a sql statement
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\EntityManager::escapeValue
+
+```php?start_inline=true
+public function escapeValue( $value, string $connection = 'default' ): string
+```
+
+##### Returns $value formatted to use in a sql statement.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
+| `$connection` | **string**  | The connection to use for quoting |
 
 
 

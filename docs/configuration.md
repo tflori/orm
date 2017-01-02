@@ -5,6 +5,14 @@ permalink: /configuration.html
 ---
 ## Configuration
 
+The entity manager gets configured through an array of options in the constructor. The keys of this array should be
+`EntityManager::OPT_*` constants but you can also use the strings if you prefer (once the library is stable the keys
+should only change when the meaning changes - so never).
+
+The entities mostly get configured with static variables. Some of them are public because you don't need to change them
+for every entity (you can change `Entity::$namingSchemeTable` directly after loading this class) and others are
+protected because they differ in every entity. If you need to have them in common you can create an abstract class.
+
 ### Database Configuration
 
 A project without dependency injection, different databases, database cluster or anything else can just use configure
