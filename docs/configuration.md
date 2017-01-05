@@ -19,7 +19,7 @@ $entitymanager = new EntityManager([
 
 // suggested in favor of type hinting
 $entitymanager = new EntityManager([
-    EntityManager::OPT_DEFAULT_CONNECTION => new ORM\DbConfig('pgsql', 'mydb', 'postgres')
+    EntityManager::OPT_CONNECTION => new ORM\DbConfig('pgsql', 'mydb', 'postgres')
 ]);
 ```
 
@@ -29,38 +29,9 @@ If you are using dependency injection you can pass a function that has to return
 $diContainer = $GLOBALS['DI']; // what the heck? You don't know how to get your dependency injection container? we too!
 
 $entityManager = new ORM\EntityManager([
-    ORM\EntityManager::OPT_DEFAULT_CONNECTION  => function () use ($diContainer) {
+    ORM\EntityManager::OPT_CONNECTION  => function () use ($diContainer) {
         return $diContainer::get('pdoInstance');
     }
-]);
-```
-
-For people with multiple databases they have to setup named database connections. Remember that you need to tell every
-entity that does not use the `default` database the connection name. Have a look at 
-[Entity definitions](entityDefinition.html) for information how to do this.
-
-```php?start_inline=true
-$entityManager = new ORM\EntityManager([
-    ORM\EntityManager::OPT_CONNECTIONS => [
-        'default'       => new ORM\DbConfig('pgsql', 'mydb', 'postgres'),
-        'datawarehouse' => new ORM\DbConfig('mysql', 'mydb_stats', 'someone', 'password', 'dw.local')
-    ]
-]);
-```
-
-You can also use the getter method here and use the `connection` attribute to provide `default`. Or directly pass a PDO
-instance.
-
-```php?start_inline=true
-$diContainer = $GLOBALS['DI'];
-
-$entityManager = new ORM\EntityManager([
-    'connection' => function () use($diContainer) {
-        return $diContainer::get('db.main');
-    },
-    'connections' => [
-        'datawarehouse' => $diContainer::get('db.datawarehouse')
-    ]
 ]);
 ```
 

@@ -37,10 +37,6 @@ abstract class Entity
      * @var string */
     public static $namingSchemeMethods = 'camelCase';
 
-    /** The database connection to use.
-     * @var string */
-    public static $connection = 'default';
-
     /** Fixed table name (ignore other settings)
      * @var string */
     protected static $tableName;

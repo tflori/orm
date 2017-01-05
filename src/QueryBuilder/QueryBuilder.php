@@ -64,17 +64,9 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @var EntityManager */
     protected $entityManager;
 
-    /** Connection from EntityManager to use for quoting
-     * @var string */
-    protected $connection;
-
     /** The default EntityManager to use to for quoting
      * @var EntityManager */
     public static $defaultEntityManager;
-
-    /** The default connection to use for quoting
-     * @var string */
-    public static $defaultConnection = 'default';
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
@@ -82,20 +74,17 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      *
      * Create a select statement for $tableName with an object oriented interface.
      *
-     * When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
-     * used.
+     * It uses static::$defaultEntityManager if $entityManager is not given.
      *
      * @param string        $tableName     The main table to use in FROM clause
      * @param string        $alias         An alias for the table
      * @param EntityManager $entityManager EntityManager for quoting
-     * @param string        $connection    Connection from EntityManager for quoting
      */
-    public function __construct($tableName, $alias = '', EntityManager $entityManager = null, $connection = null)
+    public function __construct($tableName, $alias = '', EntityManager $entityManager = null)
     {
         $this->tableName = $tableName;
         $this->alias = $alias;
         $this->entityManager = $entityManager;
-        $this->connection = $connection;
     }
 
     /**
@@ -120,14 +109,13 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         }
 
         $entityManager = $this->entityManager ?: static::$defaultEntityManager;
-        $connection = $this->connection ?: static::$defaultConnection;
 
         $parts = explode('?', $expression);
         $expression = '';
         while ($part = array_shift($parts)) {
             $expression .= $part;
             if (count($args)) {
-                $expression .= $entityManager->escapeValue(array_shift($args), $connection);
+                $expression .= $entityManager->escapeValue(array_shift($args));
             } elseif (count($parts)) {
                 $expression .= '?';
             }
@@ -241,7 +229,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $join .= ' ON ' . $parenthesis->getExpression();
                 $this->joins[] = $join;
                 return $this;
-            }, $this, $this->entityManager, $this->connection);
+            }, $this, $this->entityManager);
         }
 
         return $this;

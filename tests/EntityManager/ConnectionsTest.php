@@ -13,34 +13,10 @@ class ConnectionsTest extends TestCase
     public function testCallsSetConnectionForDefault()
     {
         $emMock = \Mockery::mock(EntityManager::class)->makePartial();
-        $emMock->shouldReceive('setConnection')->with('default', 'something')->once();
+        $emMock->shouldReceive('setConnection')->with('something')->once();
 
         $emMock->__construct([
-            EntityManager::OPT_DEFAULT_CONNECTION => 'something'
-        ]);
-    }
-
-    public function testCallsSetConnectionForEveryConfig()
-    {
-        $emMock = \Mockery::mock(EntityManager::class)->makePartial();
-        $emMock->shouldReceive('setConnection')->with('a', 'z')->once();
-        $emMock->shouldReceive('setConnection')->with('b', 'y')->once();
-
-        $emMock->__construct([
-            EntityManager::OPT_CONNECTIONS => [
-                'a' => 'z',
-                'b' => 'y'
-            ]
-        ]);
-    }
-
-    public function testThrowsWhenOptConnectionsIsNotArray()
-    {
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('OPT_CONNECTIONS requires an array');
-
-        new EntityManager([
-            EntityManager::OPT_CONNECTIONS => 'foobar'
+            EntityManager::OPT_CONNECTION => 'something'
         ]);
     }
 
@@ -52,20 +28,20 @@ class ConnectionsTest extends TestCase
             'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
         );
 
-        $em->setConnection('default', 'foobar');
+        $em->setConnection('foobar');
     }
 
     public function provideValidConnectionSettings()
     {
         if (!extension_loaded('pdo_sqlite')) {
-            return [['array', ['sqlite', '/tmp/test.sqlite']]];
+            return [[null]];
         }
 
         return [
-            ['array', ['sqlite', '/tmp/test.sqlite']],
-            ['dbconfig', new DbConfig('sqlite', '/tmp/test.sqlite')],
-            ['pdo', new \PDO('sqlite:///tmp/test.sqlite')],
-            ['getter', function () {
+            [['sqlite', '/tmp/test.sqlite']],
+            [new DbConfig('sqlite', '/tmp/test.sqlite')],
+            [new \PDO('sqlite:///tmp/test.sqlite')],
+            [function () {
                 return new \PDO('sqlite:///tmp/test.sqlite');
             }]
         ];
@@ -74,16 +50,16 @@ class ConnectionsTest extends TestCase
     /**
      * @dataProvider provideValidConnectionSettings
      */
-    public function testSetConnectionAccepts($name, $value)
+    public function testSetConnectionAccepts($value)
     {
         if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite extension required for this test');
         }
         $em = new EntityManager();
 
-        $em->setConnection($name, $value);
+        $em->setConnection($value);
 
-        $pdo = $em->getConnection($name);
+        $pdo = $em->getConnection();
 
         self::assertSame('sqlite', $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
         self::assertSame(
@@ -98,7 +74,7 @@ class ConnectionsTest extends TestCase
         $mock = \Mockery::mock(\stdClass::class);
         $mock->shouldNotReceive('get');
 
-        $em->setConnection('default', [$mock, 'get']);
+        $em->setConnection([$mock, 'get']);
     }
 
     public function testGetConnectionCallsGetterAndThrows()
@@ -106,11 +82,11 @@ class ConnectionsTest extends TestCase
         $em = new EntityManager();
         $mock = \Mockery::mock(\stdClass::class);
         $mock->shouldReceive('get')->once()->andReturn('foobar');
-        $em->setConnection('default', [$mock, 'get']);
+        $em->setConnection([$mock, 'get']);
         self::expectException(NoConnection::class);
-        self::expectExceptionMessage('Getter for default does not return PDO instance');
+        self::expectExceptionMessage('Getter does not return PDO instance');
 
-        $em->getConnection('default');
+        $em->getConnection();
     }
 
     public function testGetConnectionCallsGetterAndReturnsTheResult()
@@ -121,23 +97,23 @@ class ConnectionsTest extends TestCase
 
         $pdo = new \PDO('sqlite:///tmp/test.sqlite');
         $em = new EntityManager([
-            EntityManager::OPT_DEFAULT_CONNECTION => function () use ($pdo) {
+            EntityManager::OPT_CONNECTION => function () use ($pdo) {
                 return $pdo;
             }
         ]);
 
-        $result = $em->getConnection('default');
+        $result = $em->getConnection();
 
         self::assertSame($pdo, $result);
     }
 
-    public function testGetConnectionThrowsForUnknown()
+    public function testGetConnectionThrows()
     {
         $em = new EntityManager();
         self::expectException(NoConnection::class);
-        self::expectExceptionMessage('Unknown database connection foobar');
+        self::expectExceptionMessage('No database connection');
 
-        $em->getConnection('foobar');
+        $em->getConnection();
     }
 
     public function testGetConnectionUsesConfiguredDbConfig()
@@ -148,7 +124,7 @@ class ConnectionsTest extends TestCase
 
         $dbConfig = new DbConfig('sqlite', '/tmp/test.sqlite');
         $em = new EntityManager([
-            EntityManager::OPT_DEFAULT_CONNECTION => $dbConfig
+            EntityManager::OPT_CONNECTION => $dbConfig
         ]);
 
         $pdo = $em->getConnection();
@@ -167,7 +143,7 @@ class ConnectionsTest extends TestCase
         }
 
         $em = new EntityManager([
-            EntityManager::OPT_DEFAULT_CONNECTION => ['sqlite', '/tmp/test.sqlite', null, null, null, null, [
+            EntityManager::OPT_CONNECTION => ['sqlite', '/tmp/test.sqlite', null, null, null, null, [
                 \PDO::ATTR_CASE => \PDO::CASE_LOWER
             ]]
         ]);

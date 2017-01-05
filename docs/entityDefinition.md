@@ -204,15 +204,3 @@ class AB extends ORM\Entity {
     protected static $primaryKey = ['aId', 'bId']; // column names a_id b_id
 }
 ```
-
-### Database connection
-
-As mentioned in [Configuration](configuration.html) you can set up multiple databases to be handled by the
-`EntityManager`. When a class does not store to `default` database you tell the class by public static `$connection`
-the name of the connection.
-
-```php?start_inline=true
-class User extends ORM\Entity {
-    public static $connection = 'authdb';
-}
-```

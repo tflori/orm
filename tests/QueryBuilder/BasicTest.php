@@ -83,23 +83,6 @@ class BasicTest extends TestCase
         self::assertSame('SELECT IF(a = \'something\', 1, 0) FROM foobar', $query->getQuery());
     }
 
-    public function testExpressionUsingDifferentConnection()
-    {
-        $query = new QueryBuilder('foobar', '', $this->em, 'con');
-        $this->em->shouldReceive('escapeValue')->with('something', 'con')->once()->andReturn('\'something\'');
-
-        $query->column('IF(a = ?, 1, 0)', 'something');
-    }
-
-    public function testExpressionsUsingDefaultConnection()
-    {
-        QueryBuilder::$defaultConnection = 'con';
-        $query = new QueryBuilder('foobar', '');
-        $this->em->shouldReceive('escapeValue')->with('something', 'con')->once()->andReturn('\'something\'');
-
-        $query->column('IF(a = ?, 1, 0)', 'something');
-    }
-
     public function testLimit()
     {
         $query = new QueryBuilder('foobar');

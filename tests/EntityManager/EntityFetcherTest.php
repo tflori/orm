@@ -45,15 +45,6 @@ class EntityFetcherTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testExecutesQueryOnSpecifiedConnection()
-    {
-        $fetcher = $this->em->fetch(Snake_Ucfirst::class);
-        $this->em->shouldReceive('getConnection')->once()->with('dw')->andReturn($this->pdo);
-        $this->pdo->shouldReceive('query')->andReturn(false);
-
-        $fetcher->one();
-    }
-
     public function testExecutesQueryOnce()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
@@ -106,19 +97,11 @@ class EntityFetcherTest extends TestCase
         $this->pdo->shouldReceive('query')->once()
                   ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
                   ->andReturn(false);
-        $this->em->shouldReceive('escapeValue')->once()->with(42, 'default')->andReturn('42');
-        $this->em->shouldReceive('escapeValue')->once()->with('mobile', 'default')->andReturn('\'mobile\'');
+        $this->em->shouldReceive('escapeValue')->once()->with(42)->andReturn('42');
+        $this->em->shouldReceive('escapeValue')->once()->with('mobile')->andReturn('\'mobile\'');
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();
-    }
-
-    public function testUsesSpecifiedConnectionForQuoting()
-    {
-        $fetcher = new EntityFetcher($this->em, Snake_Ucfirst::class);
-        $this->em->shouldReceive('escapeValue')->once()->with(42, 'dw')->andReturn('42');
-
-        $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ?', 42);
     }
 
     public function testReturnsAnEntity()

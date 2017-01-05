@@ -154,7 +154,6 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **public static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
 | **public static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
 | **public static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
-| **public static** | `$connection` | **string** | The database connection to use. |
 | **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
 | **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
@@ -568,9 +567,7 @@ Supported:
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager where entities get stored |
-| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
-| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
 | **protected** | `$parent` | **QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
@@ -622,8 +619,7 @@ public function __construct(
 
 Create a select statement for $tableName with an object oriented interface.
 
-When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
-used.
+It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
@@ -1289,21 +1285,22 @@ where('name = ?', ['John Doe'])
 
 | Name | Value |
 |------|-------|
-| OPT_DEFAULT_CONNECTION | `'connection'` |
-| OPT_CONNECTIONS | `'connections'` |
+| OPT_CONNECTION | `'connection'` |
 | OPT_MYSQL_BOOLEAN_TRUE | `'mysqlTrue'` |
 | OPT_MYSQL_BOOLEAN_FALSE | `'mysqlFalse'` |
 | OPT_SQLITE_BOOLEAN_TRUE | `'sqliteTrue'` |
 | OPT_SQLITE_BOOLEAN_FASLE | `'sqliteFalse'` |
 | OPT_PGSQL_BOOLEAN_TRUE | `'pgsqlTrue'` |
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
+| OPT_QUOTING_CHARACTER | `'quotingChar'` |
+| OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
 
 
 #### Properties
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$connections` | **array&lt; \ PDO> &#124; array&lt;callable> &#124; array&lt;DbConfig>** | Named connections to database |
+| **protected** | `$connection` | ** \ PDO &#124; callable &#124; DbConfig** | Connection to database |
 | **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
 | **protected** | `$options` | **array** | The options set for this instance |
 
@@ -1312,8 +1309,9 @@ where('name = ?', ['John Doe'])
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
-* [convertValue](#ormentitymanagerconvertvalue) Returns the given $value formatted to use in a sql statement.
 * [delete](#ormentitymanagerdelete) Delete $entity from database
+* [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
 * [map](#ormentitymanagermap) Map $entity in the entity map
@@ -1342,30 +1340,6 @@ public function __construct( array $options = array() ): EntityManager
 
 
 
-#### ORM\EntityManager::convertValue
-
-```php?start_inline=true
-public function convertValue( $value, string $connection = 'default' ): string
-```
-
-##### Returns the given $value formatted to use in a sql statement.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
-| `$connection` | **string**  | The connection to use for quoting |
-
-
-
 #### ORM\EntityManager::delete
 
 ```php?start_inline=true
@@ -1386,6 +1360,52 @@ This method does not delete from the map - you can still receive the entity via 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
+
+
+
+#### ORM\EntityManager::escapeIdentifier
+
+```php?start_inline=true
+public function escapeIdentifier( string $identifier ): string
+```
+
+##### Returns $identifier quoted for use in a sql statement
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\EntityManager::escapeValue
+
+```php?start_inline=true
+public function escapeValue( $value ): string
+```
+
+##### Returns $value formatted to use in a sql statement.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
 
 
 
@@ -1422,7 +1442,7 @@ Without $primaryKey it creates an entityFetcher and returns this.
 #### ORM\EntityManager::getConnection
 
 ```php?start_inline=true
-public function getConnection( string $name = 'default' ): \PDO
+public function getConnection(): \PDO
 ```
 
 ##### Get the pdo connection for $name.
@@ -1433,12 +1453,6 @@ public function getConnection( string $name = 'default' ): \PDO
 <br />
  **Returns**: this method returns **\PDO**
 <br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$name` | **string**  | Name of the connection |
 
 
 
@@ -1474,7 +1488,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 #### ORM\EntityManager::setConnection
 
 ```php?start_inline=true
-public function setConnection( string $name, \PDO $connection )
+public function setConnection( \PDO $connection )
 ```
 
 ##### Add connection after instantiation
@@ -1492,7 +1506,6 @@ When it is not a PDO instance the connection get established on first use.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  | Name of the connection |
 | `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
 
 
@@ -2206,9 +2219,7 @@ Supported:
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
-| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
-| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 
 
 
@@ -2242,7 +2253,7 @@ Supported:
 ```php?start_inline=true
 public function __construct(
     string $tableName, string $alias = '', 
-    \ORM\EntityManager $entityManager = null, string $connection = null
+    \ORM\EntityManager $entityManager = null
 ): QueryBuilder
 ```
 
@@ -2250,8 +2261,7 @@ public function __construct(
 
 Create a select statement for $tableName with an object oriented interface.
 
-When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
-used.
+It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
@@ -2264,7 +2274,6 @@ used.
 | `$tableName` | **string**  | The main table to use in FROM clause |
 | `$alias` | **string**  | An alias for the table |
 | `$entityManager` | **\ORM\EntityManager**  | EntityManager for quoting |
-| `$connection` | **string**  | Connection from EntityManager for quoting |
 
 
 

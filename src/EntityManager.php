@@ -17,8 +17,7 @@ use ORM\Exceptions\UnsupportedDriver;
  */
 class EntityManager
 {
-    const OPT_DEFAULT_CONNECTION   = 'connection';
-    const OPT_CONNECTIONS          = 'connections';
+    const OPT_CONNECTION           = 'connection';
     const OPT_MYSQL_BOOLEAN_TRUE   = 'mysqlTrue';
     const OPT_MYSQL_BOOLEAN_FALSE  = 'mysqlFalse';
     const OPT_SQLITE_BOOLEAN_TRUE  = 'sqliteTrue';
@@ -28,9 +27,9 @@ class EntityManager
     const OPT_QUOTING_CHARACTER    = 'quotingChar';
     const OPT_IDENTIFIER_DIVIDER   = 'identifierDivider';
 
-    /** Named connections to database
-     * @var \PDO[]|callable[]|DbConfig[] */
-    protected $connections = [];
+    /** Connection to database
+     * @var \PDO|callable|DbConfig */
+    protected $connection;
 
     /** The Entity map
      * @var Entity[][] */
@@ -59,16 +58,8 @@ class EntityManager
     {
         foreach ($options as $option => $value) {
             switch ($option) {
-                case self::OPT_DEFAULT_CONNECTION:
-                    $this->setConnection('default', $value);
-                    break;
-                case self::OPT_CONNECTIONS:
-                    if (!is_array($value)) {
-                        throw new InvalidConfiguration('OPT_CONNECTIONS requires an array');
-                    }
-                    foreach ($value as $name => $connection) {
-                        $this->setConnection($name, $connection);
-                    }
+                case self::OPT_CONNECTION:
+                    $this->setConnection($value);
                     break;
             }
         }
@@ -82,17 +73,16 @@ class EntityManager
      *
      * When it is not a PDO instance the connection get established on first use.
      *
-     * @param string                       $name       Name of the connection
      * @param \PDO|callable|DbConfig|array $connection A configuration for (or a) PDO instance
      * @throws InvalidConfiguration
      */
-    public function setConnection($name, $connection)
+    public function setConnection($connection)
     {
         if (is_callable($connection) || $connection instanceof DbConfig || $connection instanceof \PDO) {
-            $this->connections[$name] = $connection;
+            $this->connection = $connection;
         } elseif (is_array($connection)) {
             $dbConfigReflection = new \ReflectionClass(DbConfig::class);
-            $this->connections[$name] = $dbConfigReflection->newInstanceArgs($connection);
+            $this->connection = $dbConfigReflection->newInstanceArgs($connection);
         } else {
             throw new InvalidConfiguration(
                 'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
@@ -103,37 +93,36 @@ class EntityManager
     /**
      * Get the pdo connection for $name.
      *
-     * @param string $name Name of the connection
      * @return \PDO
      * @throws NoConnection
      */
-    public function getConnection($name = 'default')
+    public function getConnection()
     {
-        if (!isset($this->connections[$name])) {
-            throw new NoConnection('Unknown database connection ' . $name);
+        if (!$this->connection) {
+            throw new NoConnection('No database connection');
         }
 
-        if (!$this->connections[$name] instanceof \PDO) {
-            if ($this->connections[$name] instanceof DbConfig) {
+        if (!$this->connection instanceof \PDO) {
+            if ($this->connection instanceof DbConfig) {
                 /** @var DbConfig $dbConfig */
-                $dbConfig = $this->connections[$name];
-                $this->connections[$name] = $pdo = new \PDO(
+                $dbConfig = $this->connection;
+                $this->connection = new \PDO(
                     $dbConfig->getDsn(),
                     $dbConfig->user,
                     $dbConfig->pass,
                     $dbConfig->attributes
                 );
             } else {
-                $pdo = call_user_func($this->connections[$name]);
+                $pdo = call_user_func($this->connection);
                 if (!$pdo instanceof \PDO) {
-                    throw new NoConnection('Getter for ' . $name . ' does not return PDO instance');
+                    throw new NoConnection('Getter does not return PDO instance');
                 }
-                $this->connections[$name] = $pdo;
+                $this->connection = $pdo;
             }
-            $this->connections[$name]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         }
 
-        return $this->connections[$name];
+        return $this->connection;
     }
 
     /**
@@ -158,7 +147,7 @@ class EntityManager
             $fetcher->where($var, $value);
         }
 
-        $result = $this->getConnection($entity::$connection)->query($fetcher->getQuery());
+        $result = $this->getConnection()->query($fetcher->getQuery());
         if ($originalData = $result->fetch(\PDO::FETCH_ASSOC)) {
             $entity->setOriginalData($originalData);
             if ($reset) {
@@ -170,13 +159,13 @@ class EntityManager
     }
 
     /**
-     * Insert $data in $table on $connection
+     * Insert $entity in database
      *
-     * $data needs to be an array in form $col => $value and only with scalar data.
+     * Returns boolean if it is not auto incremented or the value of auto incremented column otherwise.
      *
      * @param Entity $entity
      * @param bool   $useAutoIncrement
-     * @return mixed Returns boolean if it is not auto incremented or the $autoIncremented column
+     * @return mixed
      * @throws Exceptions\InvalidName
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
@@ -194,12 +183,12 @@ class EntityManager
         }, array_keys($data));
 
         $values = array_map(function ($value) use ($entity) {
-            return $this->escapeValue($value, $entity::$connection);
+            return $this->escapeValue($value);
         }, array_values($data));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
-        $pdo = $this->getConnection($entity::$connection);
+        $pdo = $this->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -233,9 +222,7 @@ class EntityManager
     }
 
     /**
-     * Update $table
-     *
-     * Set $data where $primaryKey on $connection. $data and $primaryKey need to be an array in form $col => $value.
+     * Update $entity in database
      *
      * @param Entity $entity
      * @return bool
@@ -255,7 +242,7 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
             if (isset($data[$col])) {
                 unset($data[$col]);
             }
@@ -263,13 +250,13 @@ class EntityManager
 
         $set = [];
         foreach ($data as $col => $value) {
-            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
+            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
         }
 
         $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'SET ' . implode(',', $set) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
-        $this->getConnection($entity::$connection)->query($statement);
+        $this->getConnection()->query($statement);
 
         $this->sync($entity, true);
         return true;
@@ -294,12 +281,12 @@ class EntityManager
         $where = [];
         foreach ($primaryKey as $var => $value) {
             $col = $entity::getColumnName($var);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value, $entity::$connection);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
         }
 
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
-        $this->getConnection($entity::$connection)->query($statement);
+        $this->getConnection()->query($statement);
 
         $entity->setOriginalData([]);
         return true;
@@ -389,16 +376,15 @@ class EntityManager
      * Returns $value formatted to use in a sql statement.
      *
      * @param  mixed  $value      The variable that should be returned in SQL syntax
-     * @param  string $connection The connection to use for quoting
      * @return string
      * @throws NoConnection
      * @throws NotScalar
      */
-    public function escapeValue($value, $connection = 'default')
+    public function escapeValue($value)
     {
         switch (strtolower(gettype($value))) {
             case 'string':
-                return $this->getConnection($connection)->quote($value);
+                return $this->getConnection()->quote($value);
                 break;
 
             case 'integer':
@@ -410,7 +396,7 @@ class EntityManager
                 break;
 
             case 'boolean':
-                $connectionType = $this->getConnection($connection)->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
                 return ($value) ? $this->options[$connectionType . 'True'] : $this->options[$connectionType . 'False'];
                 break;
 
