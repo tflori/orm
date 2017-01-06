@@ -17,15 +17,19 @@ use ORM\Exceptions\UnsupportedDriver;
  */
 class EntityManager
 {
-    const OPT_CONNECTION           = 'connection';
-    const OPT_MYSQL_BOOLEAN_TRUE   = 'mysqlTrue';
-    const OPT_MYSQL_BOOLEAN_FALSE  = 'mysqlFalse';
-    const OPT_SQLITE_BOOLEAN_TRUE  = 'sqliteTrue';
-    const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
-    const OPT_PGSQL_BOOLEAN_TRUE   = 'pgsqlTrue';
-    const OPT_PGSQL_BOOLEAN_FALSE  = 'pgsqlFalse';
-    const OPT_QUOTING_CHARACTER    = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER   = 'identifierDivider';
+    const OPT_CONNECTION             = 'connection';
+    const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
+    const OPT_MYSQL_BOOLEAN_FALSE    = 'mysqlFalse';
+    const OPT_SQLITE_BOOLEAN_TRUE    = 'sqliteTrue';
+    const OPT_SQLITE_BOOLEAN_FASLE   = 'sqliteFalse';
+    const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
+    const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
+    const OPT_QUOTING_CHARACTER      = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
+    const OPT_TABLE_NAME_TEMPLATE    = 'tableNameTemplate';
+    const OPT_NAMING_SCHEME_TABLE    = 'namingSchemeTable';
+    const OPT_NAMING_SCHEME_COLUMN   = 'namingSchemeColumn';
+    const OPT_NAMING_SCHEME_METHODS  = 'namingSchemeMethods';
 
     /** Connection to database
      * @var \PDO|callable|DbConfig */
@@ -61,8 +65,51 @@ class EntityManager
                 case self::OPT_CONNECTION:
                     $this->setConnection($value);
                     break;
+
+                case self::OPT_TABLE_NAME_TEMPLATE:
+                    Entity::setTableNameTemplate($value);
+                    break;
+
+                case self::OPT_NAMING_SCHEME_TABLE:
+                    Entity::setNamingSchemeTable($value);
+                    break;
+
+                case self::OPT_NAMING_SCHEME_COLUMN:
+                    Entity::setNamingSchemeColumn($value);
+                    break;
+
+                case self::OPT_NAMING_SCHEME_METHODS:
+                    Entity::setNamingSchemeMethods($value);
+                    break;
+
+                default:
+                    $this->setOption($option, $value);
             }
         }
+    }
+
+    /**
+     * Set $option to $value
+     *
+     * @param string $option One of OPT_* constants
+     * @param mixed  $value
+     * @return self
+     */
+    public function setOption($option, $value)
+    {
+        $this->options[$option] = $value;
+        return $this;
+    }
+
+    /**
+     * Get $option
+     *
+     * @param $option
+     * @return mixed
+     */
+    public function getOption($option)
+    {
+        return @$this->options[$option];
     }
 
     /**

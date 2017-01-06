@@ -1581,6 +1581,10 @@ where('name = ?', ['John Doe'])
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
 | OPT_QUOTING_CHARACTER | `'quotingChar'` |
 | OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
+| OPT_TABLE_NAME_TEMPLATE | `'tableNameTemplate'` |
+| OPT_NAMING_SCHEME_TABLE | `'namingSchemeTable'` |
+| OPT_NAMING_SCHEME_COLUMN | `'namingSchemeColumn'` |
+| OPT_NAMING_SCHEME_METHODS | `'namingSchemeMethods'` |
 
 
 #### Properties
@@ -1601,8 +1605,10 @@ where('name = ?', ['John Doe'])
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
+* [getOption](#ormentitymanagergetoption) Get $option
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
+* [setOption](#ormentitymanagersetoption) Set $option to $value
 * [sync](#ormentitymanagersync) Synchronizing $entity with database
 
 #### ORM\EntityManager::__construct
@@ -1743,6 +1749,29 @@ public function getConnection(): \PDO
 
 
 
+#### ORM\EntityManager::getOption
+
+```php?start_inline=true
+public function getOption( $option ): mixed
+```
+
+##### Get $option
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` |   |  |
+
+
+
 #### ORM\EntityManager::map
 
 ```php?start_inline=true
@@ -1794,6 +1823,30 @@ When it is not a PDO instance the connection get established on first use.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
+
+
+
+#### ORM\EntityManager::setOption
+
+```php?start_inline=true
+public function setOption( string $option, $value ): EntityManager
+```
+
+##### Set $option to $value
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  | One of OPT_* constants |
+| `$value` | **mixed**  |  |
 
 
 

@@ -10,16 +10,6 @@ use ORM\Test\TestCase;
 
 class ConnectionsTest extends TestCase
 {
-    public function testCallsSetConnectionForDefault()
-    {
-        $emMock = \Mockery::mock(EntityManager::class)->makePartial();
-        $emMock->shouldReceive('setConnection')->with('something')->once();
-
-        $emMock->__construct([
-            EntityManager::OPT_CONNECTION => 'something'
-        ]);
-    }
-
     public function testSetConnectionAcceptsOnlyCallableArrayDbConfig()
     {
         $em = new EntityManager();
@@ -96,11 +86,10 @@ class ConnectionsTest extends TestCase
         }
 
         $pdo = new \PDO('sqlite:///tmp/test.sqlite');
-        $em = new EntityManager([
-            EntityManager::OPT_CONNECTION => function () use ($pdo) {
-                return $pdo;
-            }
-        ]);
+        $em = new EntityManager();
+        $em->setConnection(function () use ($pdo) {
+            return $pdo;
+        });
 
         $result = $em->getConnection();
 
@@ -123,9 +112,8 @@ class ConnectionsTest extends TestCase
         }
 
         $dbConfig = new DbConfig('sqlite', '/tmp/test.sqlite');
-        $em = new EntityManager([
-            EntityManager::OPT_CONNECTION => $dbConfig
-        ]);
+        $em = new EntityManager();
+        $em->setConnection($dbConfig);
 
         $pdo = $em->getConnection();
 
@@ -142,11 +130,10 @@ class ConnectionsTest extends TestCase
             $this->markTestSkipped('pdo_sqlite extension required for this test');
         }
 
-        $em = new EntityManager([
-            EntityManager::OPT_CONNECTION => ['sqlite', '/tmp/test.sqlite', null, null, null, null, [
-                \PDO::ATTR_CASE => \PDO::CASE_LOWER
-            ]]
-        ]);
+        $em = new EntityManager();
+        $em->setConnection(['sqlite', '/tmp/test.sqlite', null, null, null, null, [
+            \PDO::ATTR_CASE => \PDO::CASE_LOWER
+        ]]);
 
         $pdo = $em->getConnection();
 
