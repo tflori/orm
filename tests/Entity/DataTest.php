@@ -5,9 +5,11 @@ namespace ORM\Test\Entity;
 use Mockery\Mock;
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exceptions\InvalidConfiguration;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
+use ORM\Test\Entity\Examples\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase
@@ -51,18 +53,6 @@ class DataTest extends TestCase
         self::assertSame(['some_var' => 'foobar'], $entity->getData());
     }
 
-    public function testStoresOnlyDirtyEntities()
-    {
-        $studlyCaps = new StudlyCaps([
-            'id' => 42,
-            'some_var' => 'foobar'
-        ], true);
-        $emMock = \Mockery::mock(EntityManager::class);
-        $emMock->shouldNotReceive('save');
-
-        $studlyCaps->save($emMock);
-    }
-
     public function testDelegatesToSetter()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
@@ -90,12 +80,24 @@ class DataTest extends TestCase
 
     public function testUsesNamingSchemeMethods()
     {
-        Entity::$namingSchemeMethods = 'snake_lower';
+        Entity::setNamingSchemeMethods('snake_lower');
         $mock = \Mockery::mock(Snake_Ucfirst::class)->makePartial();
         $mock->shouldReceive('set_another_var')->once()->with('foobar');
         $mock->shouldReceive('get_another_var')->atLeast()->once();
 
         $mock->another_var = 'foobar';
+    }
+
+    public function testDoesNotAllowToChangeNamingSchemeAfterUsage()
+    {
+        TestEntity::setNamingSchemeMethods('snake_lower');
+        $entity = new Snake_Ucfirst();
+        $entity->anotherVar = 'foobar';
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
+
+        TestEntity::setNamingSchemeMethods('camelCase');
     }
 
     public function testGetsInitialDataOverConstructor()
@@ -121,7 +123,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ], true);
+        ], $this->em, true);
 
         self::assertFalse($studlyCaps->isDirty());
     }
@@ -140,7 +142,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ], true);
+        ], $this->em, true);
 
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
@@ -156,7 +158,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ], true);
+        ], $this->em, true);
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
 
@@ -171,7 +173,7 @@ class DataTest extends TestCase
         $studlyCaps = new StudlyCaps([
             'id' => 42,
             'some_var' => 'foobar'
-        ], true);
+        ], $this->em, true);
         $studlyCaps->someVar = 'foobaz';
         $studlyCaps->newVar = 'foobar';
 
@@ -244,6 +246,34 @@ class DataTest extends TestCase
         $mock->__construct([
             'id' => 42,
             'some_var' => 'foobar'
-        ], true);
+        ], $this->em, true);
+    }
+
+    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":26:{a:1:{s:3:"foo";s:3:"bar";}}';
+
+    public function testSerialization()
+    {
+        $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
+
+        $serialized = serialize($entity);
+
+        self::assertSame($this->serialized, $serialized);
+    }
+
+    public function testDeserialization()
+    {
+        $entity = unserialize($this->serialized);
+
+        self::assertInstanceOf(StudlyCaps::class, $entity);
+        self::assertSame('bar', $entity->foo);
+    }
+
+    public function testUnserializeCallsOnInit()
+    {
+        $entity = \Mockery::mock(StudlyCaps::class)->makePartial();
+
+        $entity->shouldReceive('onInit')->with(false)->once();
+
+        $entity->unserialize(serialize(['foo' => 'bar']));
     }
 }

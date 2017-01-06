@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Entity;
 
+use ORM\Exceptions\InvalidConfiguration;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -34,18 +35,29 @@ class ColumnNameTest extends TestCase
      */
     public function testUsesNamingScheme($namingScheme, $name, $expected)
     {
-        TestEntity::$namingSchemeColumn = $namingScheme;
+        TestEntity::setNamingSchemeColumn($namingScheme);
 
         $colName = StudlyCaps::getColumnName($name);
 
         self::assertSame($expected, $colName);
     }
 
+    public function testDoesNotAllowToChangeNamingSchemeColumnAfterUsage()
+    {
+        StudlyCaps::getColumnName('someVar');
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
+
+        TestEntity::setNamingSchemeColumn('snake_case');
+    }
+
     public function testStoresTheNames()
     {
-        TestEntity::$namingSchemeColumn = 'snake_lower';
+        TestEntity::setNamingSchemeColumn('snake_lower');
         $colNameBefore                  = StudlyCaps::getColumnName('StudlyCaps');
-        TestEntity::$namingSchemeColumn = 'StudlyCaps';
+        TestEntity::resetNamingUsed();
+        TestEntity::setNamingSchemeColumn('StudlyCaps');
 
         $colName = StudlyCaps::getColumnName('StudlyCaps');
 
@@ -54,7 +66,7 @@ class ColumnNameTest extends TestCase
 
     public function testPrependsPrefix()
     {
-        TestEntity::$namingSchemeColumn = 'snake_lower';
+        TestEntity::setNamingSchemeColumn('snake_lower');
 
         $colName = StaticTableName::getColumnName('someCol');
 
@@ -63,7 +75,7 @@ class ColumnNameTest extends TestCase
 
     public function testDoesNotDoublePrefix()
     {
-        TestEntity::$namingSchemeColumn = 'snake_lower';
+        TestEntity::setNamingSchemeColumn('snake_lower');
 
         $colName = StaticTableName::getColumnName('stn_SomeCol');
 
@@ -75,7 +87,7 @@ class ColumnNameTest extends TestCase
      */
     public function testDoesNotTouchColumnNames($namingScheme, $name)
     {
-        TestEntity::$namingSchemeColumn = $namingScheme;
+        TestEntity::setNamingSchemeColumn($namingScheme);
         $colName                        = StaticTableName::getColumnName($name);
 
         $second = StaticTableName::getColumnName($colName);

@@ -11,7 +11,7 @@ $password = 'password_a'; // $_POST['password']
  * SETUP EXAMPLE DATABASE *
  **************************/
 $em = new EntityManager([
-    EntityManager::OPT_DEFAULT_CONNECTION => new \ORM\DbConfig('sqlite', '/tmp/example.sqlite')
+    EntityManager::OPT_CONNECTION => new \ORM\DbConfig('sqlite', '/tmp/example.sqlite')
 ]);
 
 $em->getConnection()->query("DROP TABLE IF EXISTS user");
@@ -88,13 +88,27 @@ try {
     file_put_contents('php://stderr', $exception->getMessage() . "\nSQL:" . $fetcher->getQuery());
 }
 
+/*******************
+ * Cache an entity *
+ *******************/
+$cachedUser = serialize($user);
+var_dump($cachedUser);
+
 /******************************
  * Get previously cached User *
  ******************************/
+// lets say we cached user3 with password from user1 - so modify the $cachedUser
+$cachedUser = str_replace([
+    's:1:"1"',
+    's:6:"user_a"'
+], [
+    's:1:"3"',
+    's:6:"user_c"'
+], $cachedUser);
 /** @var User $user */
-$user = $em->map(unserialize("O:4:\"User\":2:{s:7:\"\x00*\x00data\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:4:\"jdoe\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}s:15:\"\x00*\x00originalData\";a:3:{s:2:\"id\";s:1:\"3\";s:8:\"username\";s:6:\"user_c\";s:8:\"password\";s:32:\"200364197fad7c1cd2dc8ed45eee7428\";}}"));
+$user = $em->map(unserialize($cachedUser));
 $user = $em->fetch(User::class, 3);
-var_dump($user, $user->isDirty(), $user->isDirty('password'));
+var_dump($user, $user->isDirty(), $user->isDirty('username'));
 
 /*********************************
  * Get a previously fetched user *
