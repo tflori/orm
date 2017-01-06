@@ -5,6 +5,7 @@ namespace ORM;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
+use ORM\Exceptions\NoEntityManager;
 
 /**
  * Definition of an entity
@@ -19,7 +20,7 @@ use ORM\Exceptions\InvalidName;
  * @link https://tflori.github.io/orm/entityDefinition.html Entity Definition
  * @author Thomas Flori <thflori@gmail.com>
  */
-abstract class Entity
+abstract class Entity implements \Serializable
 {
     /** The template to use to calculate the table name.
      * @var string */
@@ -68,6 +69,10 @@ abstract class Entity
     /** The original data of the row.
      * @var mixed[] */
     protected $originalData = [];
+
+    /** The entity manager from which this entity got created
+     * @var EntityManager*/
+    protected $entityManager;
 
     /** Calculated table names.
      * @internal
@@ -367,15 +372,17 @@ abstract class Entity
      *
      * It calls ::onInit() after initializing $data and $originalData.
      *
-     * @param array $data         The current data
-     * @param bool  $fromDatabase Whether or not the data comes from database
+     * @param array         $data          The current data
+     * @param EntityManager $entityManager The EntityManager that created this entity
+     * @param bool          $fromDatabase  Whether or not the data comes from database
      */
-    final public function __construct(array $data = [], $fromDatabase = false)
+    final public function __construct(array $data = [], EntityManager $entityManager = null, $fromDatabase = false)
     {
         if ($fromDatabase) {
             $this->originalData = $data;
         }
         $this->data = array_merge($this->data, $data);
+        $this->entityManager = $entityManager;
         $this->onInit(!$fromDatabase);
     }
 
@@ -489,27 +496,44 @@ abstract class Entity
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @throws InvalidName
+     * @throws NoEntityManager
      */
-    public function save(EntityManager $entityManager)
+    public function save(EntityManager $entityManager = null)
     {
-        if (!$this->isDirty()) {
-            return $this;
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager defined');
         }
 
+        $inserted = false;
+        $updated = false;
+
         try {
+            // this may throw if the primary key is implemented but we using this to omit duplicated code
             if (!$entityManager->sync($this)) {
                 $entityManager->insert($this, false);
+                $inserted = true;
             } elseif ($this->isDirty()) {
+                $this->preUpdate();
                 $entityManager->update($this);
+                $updated = true;
             }
         } catch (IncompletePrimaryKey $e) {
             if (static::isAutoIncremented()) {
+                $this->prePersist();
                 $id = $entityManager->insert($this);
                 $this->data[static::getColumnName(static::getPrimaryKeyVars()[0])] = $id;
-                $entityManager->sync($this, true);
+                $inserted = true;
             } else {
                 throw $e;
             }
+        }
+
+        if ($inserted || $updated) {
+            $inserted && $this->postPersist();
+            $updated && $this->postUpdate();
+            $entityManager->sync($this, true);
         }
 
         return $this;
@@ -578,5 +602,64 @@ abstract class Entity
      */
     public function onInit($new)
     {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get inserted in database.
+     */
+    public function prePersist()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got inserted in database.
+     */
+    public function postPersist()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get updated in database.
+     */
+    public function preUpdate()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got updated in database.
+     */
+    public function postUpdate()
+    {
+    }
+
+    /**
+     * String representation of data
+     *
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->data);
+    }
+
+    /**
+     * Constructs the object
+     *
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized The string representation of data
+     */
+    public function unserialize($serialized)
+    {
+        $this->data = unserialize($serialized);
+        $this->onInit(false);
     }
 }

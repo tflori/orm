@@ -22,6 +22,7 @@ permalink: /reference.html
 * [InvalidName](#ormexceptionsinvalidname)
 * [NoConnection](#ormexceptionsnoconnection)
 * [NoEntity](#ormexceptionsnoentity)
+* [NoEntityManager](#ormexceptionsnoentitymanager)
 * [NotJoined](#ormexceptionsnotjoined)
 * [NotScalar](#ormexceptionsnotscalar)
 * [UnsupportedDriver](#ormexceptionsunsupporteddriver)
@@ -130,6 +131,7 @@ public function getDsn(): string
 ### ORM\Entity
 
 
+**Implements:** [](#)
 
 #### Definition of an entity
 
@@ -162,6 +164,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
+| **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
 
 
 
@@ -184,18 +187,25 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [isDirty](#ormentityisdirty) Checks if entity or $var got changed
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
+* [postPersist](#ormentitypostpersist) Empty event handler
+* [postUpdate](#ormentitypostupdate) Empty event handler
+* [prePersist](#ormentityprepersist) Empty event handler
+* [preUpdate](#ormentitypreupdate) Empty event handler
 * [reset](#ormentityreset) Resets the entity or $var to original data
 * [save](#ormentitysave) Save the entity to $entityManager
+* [serialize](#ormentityserialize) String representation of data
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
+* [unserialize](#ormentityunserialize) Constructs the object
 
 #### ORM\Entity::__construct
 
 ```php?start_inline=true
 final public function __construct(
-    array $data = array(), boolean $fromDatabase = false
+    array $data = array(), \ORM\EntityManager $entityManager = null, 
+    boolean $fromDatabase = false
 ): Entity
 ```
 
@@ -212,6 +222,7 @@ It calls ::onInit() after initializing $data and $originalData.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$data` | **array**  | The current data |
+| `$entityManager` | **EntityManager**  | The EntityManager that created this entity |
 | `$fromDatabase` | **boolean**  | Whether or not the data comes from database |
 
 
@@ -558,6 +569,70 @@ Get called when the entity get initialized.
 
 
 
+#### ORM\Entity::postPersist
+
+```php?start_inline=true
+public function postPersist()
+```
+
+##### Empty event handler
+
+Get called after the entity got inserted in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::postUpdate
+
+```php?start_inline=true
+public function postUpdate()
+```
+
+##### Empty event handler
+
+Get called after the entity got updated in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::prePersist
+
+```php?start_inline=true
+public function prePersist()
+```
+
+##### Empty event handler
+
+Get called before the entity get inserted in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::preUpdate
+
+```php?start_inline=true
+public function preUpdate()
+```
+
+##### Empty event handler
+
+Get called before the entity get updated in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
 #### ORM\Entity::reset
 
 ```php?start_inline=true
@@ -583,7 +658,7 @@ public function reset( string $var = null )
 #### ORM\Entity::save
 
 ```php?start_inline=true
-public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
+public function save( \ORM\EntityManager $entityManager = null ): \ORM\Entity
 ```
 
 ##### Save the entity to $entityManager
@@ -593,7 +668,7 @@ public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -602,6 +677,27 @@ public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 | `$entityManager` | **EntityManager**  |  |
 
 
+
+#### ORM\Entity::serialize
+
+```php?start_inline=true
+public function serialize(): string
+```
+
+##### String representation of data
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+**See Also:**
+
+* [http://php.net/manual/en/serializable.serialize.php](http://php.net/manual/en/serializable.serialize.php)
 
 #### ORM\Entity::setNamingSchemeColumn
 
@@ -659,7 +755,7 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -681,7 +777,7 @@ public static function setTableNameTemplate( string $tableNameTemplate )
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -690,6 +786,32 @@ public static function setTableNameTemplate( string $tableNameTemplate )
 | `$tableNameTemplate` | **string**  |  |
 
 
+
+#### ORM\Entity::unserialize
+
+```php?start_inline=true
+public function unserialize( string $serialized )
+```
+
+##### Constructs the object
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$serialized` | **string**  | The string representation of data |
+
+
+
+**See Also:**
+
+* [http://php.net/manual/en/serializable.unserialize.php](http://php.net/manual/en/serializable.unserialize.php)
 
 
 
@@ -1789,6 +1911,23 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exceptions\NoEntityManager
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 

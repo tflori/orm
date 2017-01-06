@@ -224,6 +224,8 @@ class DataModificationTest extends TestCase
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
+                  ->andReturn(\Mockery::mock(\PDOStatement::class));
 
         $result = $this->em->insert($entity, false);
 
