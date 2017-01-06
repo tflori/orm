@@ -5,9 +5,11 @@ namespace ORM\Test\Entity;
 use Mockery\Mock;
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exceptions\InvalidConfiguration;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
+use ORM\Test\Entity\Examples\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase
@@ -90,12 +92,24 @@ class DataTest extends TestCase
 
     public function testUsesNamingSchemeMethods()
     {
-        Entity::$namingSchemeMethods = 'snake_lower';
+        Entity::setNamingSchemeMethods('snake_lower');
         $mock = \Mockery::mock(Snake_Ucfirst::class)->makePartial();
         $mock->shouldReceive('set_another_var')->once()->with('foobar');
         $mock->shouldReceive('get_another_var')->atLeast()->once();
 
         $mock->another_var = 'foobar';
+    }
+
+    public function testDoesNotAllowToChangeNamingSchemeAfterUsage()
+    {
+        TestEntity::setNamingSchemeMethods('snake_lower');
+        $entity = new Snake_Ucfirst();
+        $entity->anotherVar = 'foobar';
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
+
+        TestEntity::setNamingSchemeMethods('camelCase');
     }
 
     public function testGetsInitialDataOverConstructor()

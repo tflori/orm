@@ -12,8 +12,13 @@ class TestEntity extends Entity
         self::$namingSchemeColumn = 'snake_lower';
         self::$namingSchemeMethods = 'camelCase';
         self::$tableNameTemplate = '%short%';
+        self::$namingUsed = false;
         self::$reflections = [];
         self::$calculatedTableNames = [];
         self::$calculatedColumnNames = [];
+    }
+
+    public static function resetNamingUsed() {
+        self::$namingUsed = false;
     }
 }

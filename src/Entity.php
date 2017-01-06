@@ -23,19 +23,23 @@ abstract class Entity
 {
     /** The template to use to calculate the table name.
      * @var string */
-    public static $tableNameTemplate = '%short%';
+    protected static $tableNameTemplate = '%short%';
 
     /** The naming scheme to use for table names.
      * @var string */
-    public static $namingSchemeTable = 'snake_lower';
+    protected static $namingSchemeTable = 'snake_lower';
 
     /** The naming scheme to use for column names.
      * @var string */
-    public static $namingSchemeColumn = 'snake_lower';
+    protected static $namingSchemeColumn = 'snake_lower';
 
     /** The naming scheme to use for method names.
      * @var string */
-    public static $namingSchemeMethods = 'camelCase';
+    protected static $namingSchemeMethods = 'camelCase';
+
+    /** Whether or not the naming got used
+     * @var bool */
+    protected static $namingUsed = false;
 
     /** Fixed table name (ignore other settings)
      * @var string */
@@ -57,7 +61,6 @@ abstract class Entity
      * @var bool */
     protected static $autoIncrement = true;
 
-    // data
     /** The current data of a row.
      * @var mixed[] */
     protected $data = [];
@@ -66,7 +69,6 @@ abstract class Entity
      * @var mixed[] */
     protected $originalData = [];
 
-    // internal
     /** Calculated table names.
      * @internal
      * @var string[] */
@@ -98,6 +100,7 @@ abstract class Entity
         }
 
         if (!isset(self::$calculatedTableNames[static::class])) {
+            static::$namingUsed = true;
             $reflection = self::getReflection();
 
             $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
@@ -130,13 +133,13 @@ abstract class Entity
                         implode('_', array_slice($words, $from));
                 }
                 return '';
-            }, static::$tableNameTemplate);
+            }, static::getTableNameTemplate());
 
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
             self::$calculatedTableNames[static::class] =
-                self::forceNamingScheme($tableName, static::$namingSchemeTable);
+                self::forceNamingScheme($tableName, static::getNamingSchemeTable());
         }
 
         return self::$calculatedTableNames[static::class];
@@ -162,18 +165,104 @@ abstract class Entity
         }
 
         if (!isset(self::$calculatedColumnNames[static::class][$var])) {
+            static::$namingUsed = true;
             $colName = $var;
 
             if (static::$columnPrefix &&
-                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
+                strpos(
+                    $colName,
+                    self::forceNamingScheme(static::$columnPrefix, static::getNamingSchemeColumn())
+                ) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
             self::$calculatedColumnNames[static::class][$var] =
-                self::forceNamingScheme($colName, static::$namingSchemeColumn);
+                self::forceNamingScheme($colName, static::getNamingSchemeColumn());
         }
 
         return self::$calculatedColumnNames[static::class][$var];
+    }
+
+    /**
+     * @return string
+     */
+    public static function getTableNameTemplate()
+    {
+        return static::$tableNameTemplate;
+    }
+
+    /**
+     * @param string $tableNameTemplate
+     * @throws InvalidConfiguration
+     */
+    public static function setTableNameTemplate($tableNameTemplate)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Template can not be changed afterwards');
+        }
+
+        static::$tableNameTemplate = $tableNameTemplate;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeTable()
+    {
+        return static::$namingSchemeTable;
+    }
+
+    /**
+     * @param string $namingSchemeTable
+     * @throws InvalidConfiguration
+     */
+    public static function setNamingSchemeTable($namingSchemeTable)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeTable = $namingSchemeTable;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeColumn()
+    {
+        return static::$namingSchemeColumn;
+    }
+
+    /**
+     * @param string $namingSchemeColumn
+     */
+    public static function setNamingSchemeColumn($namingSchemeColumn)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeColumn = $namingSchemeColumn;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeMethods()
+    {
+        return static::$namingSchemeMethods;
+    }
+
+    /**
+     * @param string $namingSchemeMethods
+     */
+    public static function setNamingSchemeMethods($namingSchemeMethods)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeMethods = $namingSchemeMethods;
     }
 
     /**
@@ -308,7 +397,8 @@ abstract class Entity
     {
         $col = $this->getColumnName($var);
 
-        $setter = self::forceNamingScheme('set' . ucfirst($var), static::$namingSchemeMethods);
+        static::$namingUsed = true;
+        $setter = self::forceNamingScheme('set' . ucfirst($var), static::getNamingSchemeMethods());
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
             $oldValue = $this->__get($var);
             $md5OldData = md5(serialize($this->data));
@@ -337,7 +427,7 @@ abstract class Entity
      */
     public function __get($var)
     {
-        $getter = self::forceNamingScheme('get' . ucfirst($var), static::$namingSchemeMethods);
+        $getter = self::forceNamingScheme('get' . ucfirst($var), static::getNamingSchemeMethods());
         if (method_exists($this, $getter) && is_callable([$this, $getter])) {
             return $this->$getter();
         } else {

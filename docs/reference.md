@@ -150,10 +150,11 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **public static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
-| **public static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
-| **public static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
-| **public static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
+| **protected static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
+| **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
+| **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
+| **protected static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
+| **protected static** | `$namingUsed` | **boolean** | Whether or not the naming got used |
 | **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
 | **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
@@ -171,16 +172,24 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__set](#ormentity__set) Set $var to $value
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
+* [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
+* [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
+* [getNamingSchemeTable](#ormentitygetnamingschemetable) 
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getTableName](#ormentitygettablename) Get the table name
+* [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
 * [isDirty](#ormentityisdirty) Checks if entity or $var got changed
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
 * [reset](#ormentityreset) Resets the entity or $var to original data
 * [save](#ormentitysave) Save the entity to $entityManager
+* [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
+* [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
+* [setNamingSchemeTable](#ormentitysetnamingschemetable) 
+* [setTableNameTemplate](#ormentitysettablenametemplate) 
 
 #### ORM\Entity::__construct
 
@@ -321,6 +330,57 @@ the same as getColumnName($name).
 
 
 
+#### ORM\Entity::getNamingSchemeColumn
+
+```php?start_inline=true
+public static function getNamingSchemeColumn(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Entity::getNamingSchemeMethods
+
+```php?start_inline=true
+public static function getNamingSchemeMethods(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Entity::getNamingSchemeTable
+
+```php?start_inline=true
+public static function getNamingSchemeTable(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
 #### ORM\Entity::getPrimaryKey
 
 ```php?start_inline=true
@@ -391,6 +451,23 @@ $tableName.
 <br />
  **Returns**: this method returns **string**
 <br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\InvalidConfiguration**<br />
+
+
+
+#### ORM\Entity::getTableNameTemplate
+
+```php?start_inline=true
+public static function getTableNameTemplate(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
@@ -523,6 +600,94 @@ public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Entity::setNamingSchemeColumn
+
+```php?start_inline=true
+public static function setNamingSchemeColumn( string $namingSchemeColumn )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeColumn` | **string**  |  |
+
+
+
+#### ORM\Entity::setNamingSchemeMethods
+
+```php?start_inline=true
+public static function setNamingSchemeMethods( string $namingSchemeMethods )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeMethods` | **string**  |  |
+
+
+
+#### ORM\Entity::setNamingSchemeTable
+
+```php?start_inline=true
+public static function setNamingSchemeTable( string $namingSchemeTable )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeTable` | **string**  |  |
+
+
+
+#### ORM\Entity::setTableNameTemplate
+
+```php?start_inline=true
+public static function setTableNameTemplate( string $tableNameTemplate )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableNameTemplate` | **string**  |  |
 
 
 

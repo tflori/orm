@@ -56,20 +56,21 @@ With `ANSI_QUOTES` we can use the default quoting character `"` for identifier (
 emulation of prepare statements we get integer and float from numeric columns. These are the most annoying drawbacks
 from mysql against postgres. Of course you can still overwrite these attributes.
 
-### Naming schemes
+### Table Names And Naming Schemes
 
-There are three settings:
+There are four settings:
 
 | Setting                | Option                      | Description                          | Default         |
 |------------------------|-----------------------------|--------------------------------------|-----------------|
+| `$tableNameTemplate`   | `OPT_TABLE_NAME_TEMPLATE`   | The template for table names.        | `'%short%'`     |
 | `$namingSchemeTable`   | `OPT_NAMING_SCHEME_TABLE`   | The naming scheme for table names.   | `'snake_lower'` |
 | `$namingSchemeColumn`  | `OPT_NAMING_SCHEME_COLUMN`  | The naming scheme for column names.  | `'snake_lower'` |
 | `$namingSchemeMethods` | `OPT_NAMING_SCHEME_METHODS` | The naming scheme for class methods. | `'camelCase'`   |
 
-All these settings are stored as public static property in `Entity` class. This also means that you can overwrite this
-variable in any subclass. And you can change this at runtime. We do not prevent you from making errors. But we insist
-that you not change these values at runtime. Instead we suggest you to set these settings when creating the
-`EntityManager` as option.
+All these settings are stored as protected static property in `Entity` class. You can access them with static setters
+and getters. After using them with `getTableName`, `getColumnName` or magic getters and setters you can not change
+these values anymore. We suggest you use the options for `EntityManager` instead.
 
 The available naming schemes are: `snake_lower`, `SNAKE_UPPER`, `camelCase`, `StudlyCaps`, `Snake_Ucfirst`,
-`snake_case`, `lower` and `UPPER`.
+`snake_case`, `lower` and `UPPER`. You can read more about table name template in
+[Entity Definition](entityDefinition.html#template).
