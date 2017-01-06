@@ -22,6 +22,7 @@ permalink: /reference.html
 * [InvalidName](#ormexceptionsinvalidname)
 * [NoConnection](#ormexceptionsnoconnection)
 * [NoEntity](#ormexceptionsnoentity)
+* [NoEntityManager](#ormexceptionsnoentitymanager)
 * [NotJoined](#ormexceptionsnotjoined)
 * [NotScalar](#ormexceptionsnotscalar)
 * [UnsupportedDriver](#ormexceptionsunsupporteddriver)
@@ -130,6 +131,7 @@ public function getDsn(): string
 ### ORM\Entity
 
 
+**Implements:** [](#)
 
 #### Definition of an entity
 
@@ -150,11 +152,11 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **public static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
-| **public static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
-| **public static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
-| **public static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
-| **public static** | `$connection` | **string** | The database connection to use. |
+| **protected static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
+| **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
+| **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
+| **protected static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
+| **protected static** | `$namingUsed` | **boolean** | Whether or not the naming got used |
 | **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
 | **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
@@ -162,6 +164,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
+| **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
 
 
 
@@ -172,22 +175,37 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__set](#ormentity__set) Set $var to $value
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
+* [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
+* [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
+* [getNamingSchemeTable](#ormentitygetnamingschemetable) 
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getTableName](#ormentitygettablename) Get the table name
+* [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
 * [isDirty](#ormentityisdirty) Checks if entity or $var got changed
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
+* [postPersist](#ormentitypostpersist) Empty event handler
+* [postUpdate](#ormentitypostupdate) Empty event handler
+* [prePersist](#ormentityprepersist) Empty event handler
+* [preUpdate](#ormentitypreupdate) Empty event handler
 * [reset](#ormentityreset) Resets the entity or $var to original data
 * [save](#ormentitysave) Save the entity to $entityManager
+* [serialize](#ormentityserialize) String representation of data
+* [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
+* [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
+* [setNamingSchemeTable](#ormentitysetnamingschemetable) 
+* [setTableNameTemplate](#ormentitysettablenametemplate) 
+* [unserialize](#ormentityunserialize) Constructs the object
 
 #### ORM\Entity::__construct
 
 ```php?start_inline=true
 final public function __construct(
-    array $data = array(), boolean $fromDatabase = false
+    array $data = array(), \ORM\EntityManager $entityManager = null, 
+    boolean $fromDatabase = false
 ): Entity
 ```
 
@@ -204,6 +222,7 @@ It calls ::onInit() after initializing $data and $originalData.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$data` | **array**  | The current data |
+| `$entityManager` | **EntityManager**  | The EntityManager that created this entity |
 | `$fromDatabase` | **boolean**  | Whether or not the data comes from database |
 
 
@@ -322,6 +341,57 @@ the same as getColumnName($name).
 
 
 
+#### ORM\Entity::getNamingSchemeColumn
+
+```php?start_inline=true
+public static function getNamingSchemeColumn(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Entity::getNamingSchemeMethods
+
+```php?start_inline=true
+public static function getNamingSchemeMethods(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Entity::getNamingSchemeTable
+
+```php?start_inline=true
+public static function getNamingSchemeTable(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
 #### ORM\Entity::getPrimaryKey
 
 ```php?start_inline=true
@@ -392,6 +462,23 @@ $tableName.
 <br />
  **Returns**: this method returns **string**
 <br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\InvalidConfiguration**<br />
+
+
+
+#### ORM\Entity::getTableNameTemplate
+
+```php?start_inline=true
+public static function getTableNameTemplate(): string
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
 
 
 
@@ -482,6 +569,70 @@ Get called when the entity get initialized.
 
 
 
+#### ORM\Entity::postPersist
+
+```php?start_inline=true
+public function postPersist()
+```
+
+##### Empty event handler
+
+Get called after the entity got inserted in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::postUpdate
+
+```php?start_inline=true
+public function postUpdate()
+```
+
+##### Empty event handler
+
+Get called after the entity got updated in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::prePersist
+
+```php?start_inline=true
+public function prePersist()
+```
+
+##### Empty event handler
+
+Get called before the entity get inserted in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::preUpdate
+
+```php?start_inline=true
+public function preUpdate()
+```
+
+##### Empty event handler
+
+Get called before the entity get updated in database.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
 #### ORM\Entity::reset
 
 ```php?start_inline=true
@@ -507,7 +658,7 @@ public function reset( string $var = null )
 #### ORM\Entity::save
 
 ```php?start_inline=true
-public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
+public function save( \ORM\EntityManager $entityManager = null ): \ORM\Entity
 ```
 
 ##### Save the entity to $entityManager
@@ -517,7 +668,7 @@ public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -526,6 +677,141 @@ public function save( \ORM\EntityManager $entityManager ): \ORM\Entity
 | `$entityManager` | **EntityManager**  |  |
 
 
+
+#### ORM\Entity::serialize
+
+```php?start_inline=true
+public function serialize(): string
+```
+
+##### String representation of data
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+**See Also:**
+
+* [http://php.net/manual/en/serializable.serialize.php](http://php.net/manual/en/serializable.serialize.php)
+
+#### ORM\Entity::setNamingSchemeColumn
+
+```php?start_inline=true
+public static function setNamingSchemeColumn( string $namingSchemeColumn )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeColumn` | **string**  |  |
+
+
+
+#### ORM\Entity::setNamingSchemeMethods
+
+```php?start_inline=true
+public static function setNamingSchemeMethods( string $namingSchemeMethods )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeMethods` | **string**  |  |
+
+
+
+#### ORM\Entity::setNamingSchemeTable
+
+```php?start_inline=true
+public static function setNamingSchemeTable( string $namingSchemeTable )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$namingSchemeTable` | **string**  |  |
+
+
+
+#### ORM\Entity::setTableNameTemplate
+
+```php?start_inline=true
+public static function setTableNameTemplate( string $tableNameTemplate )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableNameTemplate` | **string**  |  |
+
+
+
+#### ORM\Entity::unserialize
+
+```php?start_inline=true
+public function unserialize( string $serialized )
+```
+
+##### Constructs the object
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$serialized` | **string**  | The string representation of data |
+
+
+
+**See Also:**
+
+* [http://php.net/manual/en/serializable.unserialize.php](http://php.net/manual/en/serializable.unserialize.php)
 
 
 
@@ -568,9 +854,7 @@ Supported:
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager where entities get stored |
-| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
-| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
 | **protected** | `$parent` | **QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
@@ -622,8 +906,7 @@ public function __construct(
 
 Create a select statement for $tableName with an object oriented interface.
 
-When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
-used.
+It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
@@ -1289,21 +1572,26 @@ where('name = ?', ['John Doe'])
 
 | Name | Value |
 |------|-------|
-| OPT_DEFAULT_CONNECTION | `'connection'` |
-| OPT_CONNECTIONS | `'connections'` |
+| OPT_CONNECTION | `'connection'` |
 | OPT_MYSQL_BOOLEAN_TRUE | `'mysqlTrue'` |
 | OPT_MYSQL_BOOLEAN_FALSE | `'mysqlFalse'` |
 | OPT_SQLITE_BOOLEAN_TRUE | `'sqliteTrue'` |
 | OPT_SQLITE_BOOLEAN_FASLE | `'sqliteFalse'` |
 | OPT_PGSQL_BOOLEAN_TRUE | `'pgsqlTrue'` |
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
+| OPT_QUOTING_CHARACTER | `'quotingChar'` |
+| OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
+| OPT_TABLE_NAME_TEMPLATE | `'tableNameTemplate'` |
+| OPT_NAMING_SCHEME_TABLE | `'namingSchemeTable'` |
+| OPT_NAMING_SCHEME_COLUMN | `'namingSchemeColumn'` |
+| OPT_NAMING_SCHEME_METHODS | `'namingSchemeMethods'` |
 
 
 #### Properties
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$connections` | **array&lt; \ PDO> &#124; array&lt;callable> &#124; array&lt;DbConfig>** | Named connections to database |
+| **protected** | `$connection` | ** \ PDO &#124; callable &#124; DbConfig** | Connection to database |
 | **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
 | **protected** | `$options` | **array** | The options set for this instance |
 
@@ -1312,12 +1600,15 @@ where('name = ?', ['John Doe'])
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
-* [convertValue](#ormentitymanagerconvertvalue) Returns the given $value formatted to use in a sql statement.
 * [delete](#ormentitymanagerdelete) Delete $entity from database
+* [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection for $name.
+* [getOption](#ormentitymanagergetoption) Get $option
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
+* [setOption](#ormentitymanagersetoption) Set $option to $value
 * [sync](#ormentitymanagersync) Synchronizing $entity with database
 
 #### ORM\EntityManager::__construct
@@ -1342,30 +1633,6 @@ public function __construct( array $options = array() ): EntityManager
 
 
 
-#### ORM\EntityManager::convertValue
-
-```php?start_inline=true
-public function convertValue( $value, string $connection = 'default' ): string
-```
-
-##### Returns the given $value formatted to use in a sql statement.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
-| `$connection` | **string**  | The connection to use for quoting |
-
-
-
 #### ORM\EntityManager::delete
 
 ```php?start_inline=true
@@ -1386,6 +1653,52 @@ This method does not delete from the map - you can still receive the entity via 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
+
+
+
+#### ORM\EntityManager::escapeIdentifier
+
+```php?start_inline=true
+public function escapeIdentifier( string $identifier ): string
+```
+
+##### Returns $identifier quoted for use in a sql statement
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\EntityManager::escapeValue
+
+```php?start_inline=true
+public function escapeValue( $value ): string
+```
+
+##### Returns $value formatted to use in a sql statement.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
 
 
 
@@ -1422,7 +1735,7 @@ Without $primaryKey it creates an entityFetcher and returns this.
 #### ORM\EntityManager::getConnection
 
 ```php?start_inline=true
-public function getConnection( string $name = 'default' ): \PDO
+public function getConnection(): \PDO
 ```
 
 ##### Get the pdo connection for $name.
@@ -1434,11 +1747,28 @@ public function getConnection( string $name = 'default' ): \PDO
  **Returns**: this method returns **\PDO**
 <br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
 
+
+
+#### ORM\EntityManager::getOption
+
+```php?start_inline=true
+public function getOption( $option ): mixed
+```
+
+##### Get $option
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  | Name of the connection |
+| `$option` |   |  |
 
 
 
@@ -1474,7 +1804,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 #### ORM\EntityManager::setConnection
 
 ```php?start_inline=true
-public function setConnection( string $name, \PDO $connection )
+public function setConnection( \PDO $connection )
 ```
 
 ##### Add connection after instantiation
@@ -1492,8 +1822,31 @@ When it is not a PDO instance the connection get established on first use.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  | Name of the connection |
 | `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
+
+
+
+#### ORM\EntityManager::setOption
+
+```php?start_inline=true
+public function setOption( string $option, $value ): EntityManager
+```
+
+##### Set $option to $value
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  | One of OPT_* constants |
+| `$value` | **mixed**  |  |
 
 
 
@@ -1611,6 +1964,23 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exceptions\NoEntityManager
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -2206,9 +2576,7 @@ Supported:
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
-| **protected** | `$connection` | **string** | Connection from EntityManager to use for quoting |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
-| **public static** | `$defaultConnection` | **string** | The default connection to use for quoting |
 
 
 
@@ -2242,7 +2610,7 @@ Supported:
 ```php?start_inline=true
 public function __construct(
     string $tableName, string $alias = '', 
-    \ORM\EntityManager $entityManager = null, string $connection = null
+    \ORM\EntityManager $entityManager = null
 ): QueryBuilder
 ```
 
@@ -2250,8 +2618,7 @@ public function __construct(
 
 Create a select statement for $tableName with an object oriented interface.
 
-When you omit $entityManager and $connection static::$defaultEntityManager and static::$defaultConnection is
-used.
+It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
@@ -2264,7 +2631,6 @@ used.
 | `$tableName` | **string**  | The main table to use in FROM clause |
 | `$alias` | **string**  | An alias for the table |
 | `$entityManager` | **\ORM\EntityManager**  | EntityManager for quoting |
-| `$connection` | **string**  | Connection from EntityManager for quoting |
 
 
 

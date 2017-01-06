@@ -45,15 +45,6 @@ class EntityFetcherTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testExecutesQueryOnSpecifiedConnection()
-    {
-        $fetcher = $this->em->fetch(Snake_Ucfirst::class);
-        $this->em->shouldReceive('getConnection')->once()->with('dw')->andReturn($this->pdo);
-        $this->pdo->shouldReceive('query')->andReturn(false);
-
-        $fetcher->one();
-    }
-
     public function testExecutesQueryOnce()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
@@ -106,19 +97,11 @@ class EntityFetcherTest extends TestCase
         $this->pdo->shouldReceive('query')->once()
                   ->with('SELECT * FROM contact_phone WHERE id = 42 AND name = \'mobile\'')
                   ->andReturn(false);
-        $this->em->shouldReceive('escapeValue')->once()->with(42, 'default')->andReturn('42');
-        $this->em->shouldReceive('escapeValue')->once()->with('mobile', 'default')->andReturn('\'mobile\'');
+        $this->em->shouldReceive('escapeValue')->once()->with(42)->andReturn('42');
+        $this->em->shouldReceive('escapeValue')->once()->with('mobile')->andReturn('\'mobile\'');
 
         $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ? AND name = ?', [42, 'mobile']);
         $fetcher->one();
-    }
-
-    public function testUsesSpecifiedConnectionForQuoting()
-    {
-        $fetcher = new EntityFetcher($this->em, Snake_Ucfirst::class);
-        $this->em->shouldReceive('escapeValue')->once()->with(42, 'dw')->andReturn('42');
-
-        $fetcher->setQuery('SELECT * FROM contact_phone WHERE id = ?', 42);
     }
 
     public function testReturnsAnEntity()
@@ -142,7 +125,7 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $this->em->map($e1);
 
         $fetcher = $this->em->fetch(ContactPhone::class);
@@ -165,7 +148,7 @@ class EntityFetcherTest extends TestCase
             'id' => 42,
             'name' => 'mobile',
             'number' => '+41 160 21305919'
-        ], true);
+        ], $this->em, true);
         $this->em->map($e1);
         $e1->number = '+49 151 00000000';
 
@@ -188,7 +171,7 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $this->em->map($e1);
 
         $fetcher = $this->em->fetch(ContactPhone::class);
@@ -211,7 +194,7 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $this->em->map($e1);
         $e1->number = '+41 160 23142312';
 
@@ -250,15 +233,15 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e2 = new ContactPhone([
             'id' => 43,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e3 = new ContactPhone([
             'id' => 44,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
 
         /** @var EntityFetcher|Mock $fetcher */
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
@@ -278,15 +261,15 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e2 = new ContactPhone([
             'id' => 43,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e3 = new ContactPhone([
             'id' => 44,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
 
         /** @var EntityFetcher|Mock $fetcher */
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
@@ -307,15 +290,15 @@ class EntityFetcherTest extends TestCase
         $e1 = new ContactPhone([
             'id' => 42,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e2 = new ContactPhone([
             'id' => 43,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
         $e3 = new ContactPhone([
             'id' => 44,
             'name' => 'mobile'
-        ], true);
+        ], $this->em, true);
 
         /** @var EntityFetcher|Mock $fetcher */
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();

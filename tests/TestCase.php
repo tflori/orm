@@ -24,7 +24,9 @@ class TestCase extends MockeryTestCase
         $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
             return '\'' . addslashes($var) . '\'';
         })->byDefault();
-        $this->pdo->shouldReceive('query')->andReturn(false)->byDefault();
+        $this->pdo->shouldReceive('query')->andReturnUsing(function ($query) {
+            throw new \PDOException('Query failed by default (Query: ' . $query . ')');
+        })->byDefault();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 

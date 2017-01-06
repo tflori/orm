@@ -50,27 +50,27 @@ We configure the table name template as string in the abstract Entity class.
 
 ```php?start_inline=true
 // only short class name (without namespace)
-Entity::$tableNameTemplate = '%short%'; 
+Entity::setTableNameTemplate('%short%'); 
 namespace App\Models { class User extends \ORM\Entity {} }
 echo App\Models\User::getTableName(); // 'user'
 
 // the second part of namespace plus %short% class name
-Entity::$tableNameTemplate = '%namespace[1]%_%short%';
+Entity::setTableNameTemplate('%namespace[1]%_%short%');
 namespace App\Car\Model { class Weel extends \ORM\Entity {} }
 echo App\Car\Model\Weel::getTableName(); // 'car_weel'
 
 // the comple name of the class
-Entity::$tableNameTemplate = '%name%'; 
+Entity::setTableNameTemplate('%name%');
 namespace Foo\Bar { class CustomerAddress extends \ORM\Entity {} }
 echo Foo\Bar\CustomerAddress::getTableName(); // 'foo_bar_customer_address'
 
 // only the namespace from third till end
-Entity::$tableNameTemplate = '%namespace[2*]%';
+Entity::setTableNameTemplate('%namespace[2*]%');
 namespace App\Modules\Gangsters\Car { class Entity extends \ORM\Entity {} }
-echo App\Modules\Gangsters\Car\Entity::getTableName(); // 'gansters_car'
+echo App\Modules\Gangsters\Car\Entity::getTableName(); // 'gangsters_car'
 
 // the last two of the name (useful for psr-0 autoloaded classes)
-Entity::$tableNameTemplate = '%name[0]%_%name[-1]%';
+Entity::setTableNameTemplate('%name[0]%_%name[-1]%');
 class Module_Model_Entity_UserAddress extends \ORM\Entity {}
 echo Module_Model_Entity_UserAddress::getTableName(); // 'module_user_address'
 ```
@@ -80,36 +80,6 @@ but the namespace is exploded by `\` only (PSR-0). You can access specific parts
 the rest of the namespace with a `*` character. The placeholders are converted by your naming scheme. The default
 naming scheme is `snake_lower` what means that your StudlyCaps class name `CustomerAddress` gets converted to
 `customer_address`.
-
-To make it configurable at initialisation of `EntityManager` there is a configuration for it too.
-
-```php?start_inline=true
-new ORM\EntityManager([
-  ORM\EntityManager::OPT_TABLE_NAME_TEMPLATE => '%namespace[2*]%'
-]);
-```
-
-The table name template comes from static public variable and you can overwrite this variable in each entity if you
-need to.
-
-```php?start_inline=true
-
-namespace Foo\Bar;
-
-use ORM\Entity;
-
-Entity::$tableNameTemplate = '%namespace%_%short%';
-
-class Baz Extends Entity {
-  public static $tableNameTemplate = '%short%';
-}
-
-echo Baz::getTableName(); // 'baz'
-```
-
-> The tables names are stored in a protected static variable in Entity. It is not a good idea to change the template at
-> runtime because you will get unexpected behaviour when the template got changed before or after you get the name of 
-> the table the first time.
 
 #### Overwrite getter
 
@@ -169,7 +139,7 @@ namespace App\Model;
 
 abstract class Entity extends \ORM\Entity {
     public static function getColumnName($name) {
-        return self::forceNamingScheme($name, static::$namingSchemeDb);
+        return self::forceNamingScheme($name, static::$namingSchemeColumn);
     }
 }
 ```
@@ -202,17 +172,5 @@ class B extends ORM\Entity { // table name b
 
 class AB extends ORM\Entity {
     protected static $primaryKey = ['aId', 'bId']; // column names a_id b_id
-}
-```
-
-### Database connection
-
-As mentioned in [Configuration](configuration.html) you can set up multiple databases to be handled by the
-`EntityManager`. When a class does not store to `default` database you tell the class by public static `$connection`
-the name of the connection.
-
-```php?start_inline=true
-class User extends ORM\Entity {
-    public static $connection = 'authdb';
 }
 ```

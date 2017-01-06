@@ -63,7 +63,6 @@ class EntityFetcher extends QueryBuilder
     public function __construct(EntityManager $entityManager, $class)
     {
         $this->entityManager = $entityManager;
-        $this->connection    = $class::$connection;
         $this->class         = $class;
 
         $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
@@ -207,7 +206,7 @@ class EntityFetcher extends QueryBuilder
         }
 
         $c         = $this->class;
-        $newEntity = new $c($data, true);
+        $newEntity = new $c($data, $this->entityManager, true);
         $entity    = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
@@ -260,8 +259,7 @@ class EntityFetcher extends QueryBuilder
     private function getStatement()
     {
         if ($this->result === null) {
-            $c            = $this->class;
-            $this->result = $this->entityManager->getConnection($c::$connection)->query($this->getQuery());
+            $this->result = $this->entityManager->getConnection()->query($this->getQuery());
         }
         return $this->result;
     }
