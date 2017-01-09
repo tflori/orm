@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Define Relations
-permalink: /defineRelations.html
+title: Relation Definition
+permalink: /relationDefinition.html
 ---
-## Define Relations
+## Relation Definition
 
 One of the most important feature of a relational database are relations. A relation is the reference from one row of
 a table to another row from the same table or a different table. In our context it means from one object of a subclass
@@ -21,7 +21,7 @@ Three examples with the same relations:
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [User::class, ['userId' => 'id']],
-    'comments' => ['many', ArticleComments::class, ['id' => 'articleId']]
+    'comments' => ['many', ArticleComments::class, ['id' => 'articleId'], 'article']
   ];
 }
 ```
@@ -30,13 +30,14 @@ class Article extends ORM\ENtity {
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
-        'class' => User::class, 
-        'relation' => ['userId' => 'id']
+        'class' => User::class,
+        'relation' => ['userId' => 'id'],
     ],
     'comments' => [
         'cardinality' => 'many',
         'class' => ArticleComments::class,
-        'relation' => ['id' => 'articleId']
+        'relation' => ['id' => 'articleId'],
+        'opponent' => 'article',
     ]
   ];
 }
@@ -46,13 +47,14 @@ class Article extends ORM\ENtity {
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
-        self::OPT_RELATION_CLASS => User::class, 
+        self::OPT_RELATION_CLASS => User::class,
         self::OPT_RELATION_RELATION => ['userId' => 'id']
     ],
     'comments' => [
         self::OPT_RELATION_CARDINALITY => 'many',
         self::OPT_RELATION_CLASS => ArticleComments::class,
-        self::OPT_RELATION_RELATION => ['id' => 'articleId']
+        self::OPT_RELATION_RELATION => ['id' => 'articleId'],
+        self::OPT_RELATION_OPPONENT => 'article',
     ]
   ];
 }
@@ -81,7 +83,8 @@ Example (one article has many categories and one category has many articles):
 #### One To One
 
 The one to one relationship is very rarely. Mostly it is used to hide additional data from a otherwise big table. It 
-is configured for the owner (the table with the foreign key) exactly the same as a one to many relationship.
+is configured for the owner (the table with the foreign key) exactly the same as a one to many relationship. The
+related entity may have the relation defined - the `'opponent'` is required here.
 
 Example (one article has additional data):
 
@@ -111,12 +114,14 @@ This is the most used relationship. You can find it in almost every application.
 many orders", "one user wrote many articles", "one developer created many repositories" and so on. The owner should
 have a relation with cardinality one and the related entity may have a relation with cardinality many.
 
+In the related entity with cardinality many you also have to define the `'opponent'`.
+
 Lets see a complete example (one article has many comments):
 
 ```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
-        'comments' => ['many', ArticleComments::class, ['id' => 'articleId']]
+        'comments' => ['many', ArticleComments::class, ['id' => 'articleId'], 'article']
     ];
 }
 
@@ -137,21 +142,21 @@ echo $article === $comment->article ? 'true' : 'false', "\n"; // true
 #### Many To Many
 
 As we saw in the other examples: the owner of the relation is the entity that has the foreign key. In a many to many
-relationship (without properties) there exist no owner and both entities have to define the relationship with two
-additional options `'table'` and `'opponent'`.
+relationship (without properties) there exist no owner and both entities have to define the relationship with the
+additional option `'table'`.
  
 It is not very rare and an example might be an article that can have multiple categories and vise versa:
 
 ```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
-        'categories' => [Category::class, ['id' => 'articleId'], 'article_category', 'articles']
+        'categories' => ['many', Category::class, ['id' => 'articleId'], 'articles', 'article_category']
     ];
 }
 
 class Category extends ORM\Entity {
     protected static $relations = [
-        'articles' => [Article::class, ['id' => 'categoryId'], 'article_category', 'categories']
+        'articles' => ['many', Article::class, ['id' => 'categoryId'], 'categories', 'article_category']
     ];
 }
 
