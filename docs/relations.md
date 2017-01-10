@@ -48,8 +48,8 @@ $em = new \ORM\EntityManager();
 ### Fetch relations
 
 You can fetch relations with `fetch($relation)` and with `getRelated($relation)` (or the magic getter). For a relation
-with cardinality one you will always receive the Entity (or null). But for relations with cardinality with many you
-will receive an array from getter and an `EntityFetcher` from fetch.
+with cardinality one you will always receive the Entity (or null). But for relations with cardinality *many* you will
+receive an array from getter and an `EntityFetcher` from fetch.
 
 The getter will only execute a query when it is not fetched previously. Fetch will always call `fetch($class)` on the
 `EntityManager`. For an owner it can use the primary key and therefore it can use the mapping without executing a 
