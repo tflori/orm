@@ -64,8 +64,8 @@ class Article extends ORM\ENtity {
 
 ### Relation Types
 
-Well known there are three types of relationships between entities ("one to one", "one to many" and "many to many").
-In tables a many to many relationship gets solved by two one to many relationships. So there are only two left.
+Well known there are three types of relationships between entities (*one-to-one*, *one-to-many* and *many-to-many*).
+In tables a *many-to-many* relationship gets solved by two *one-to-many* relationships. So there are only two left.
 
 Example (one article has many categories and one category has many articles):
 
@@ -80,10 +80,10 @@ Example (one article has many categories and one category has many articles):
 
 > If you need additional properties in the relation table you need an entity for it. 
 
-#### One To One
+#### One-To-One
 
-The one to one relationship is very rarely. Mostly it is used to hide additional data from a otherwise big table. It 
-is configured for the owner (the table with the foreign key) exactly the same as a one to many relationship. The
+The *one-to-one* relationship is very rarely. Mostly it is used to hide additional data from a otherwise big table. It 
+is configured for the owner (the table with the foreign key) exactly the same as a *one-to-many* relationship. The
 related entity may have the relation defined - the `'opponent'` is required here.
 
 Example (one article has additional data):
@@ -108,7 +108,7 @@ $additionalData = $article->fetch($em, 'additionalData');
 echo get_class($additionalData), "\n";                               // ArticleAdditionalData
 echo $article === $additionalData->article ? 'true' : 'false', "\n"; // true
 ```
-#### One To Many
+#### One-To-Many
 
 This is the most used relationship. You can find it in almost every application. Some Examples are "one customer has 
 many orders", "one user wrote many articles", "one developer created many repositories" and so on. The owner should
@@ -139,9 +139,9 @@ echo get_class($comment), "\n";                               // ArticleComment
 echo $article === $comment->article ? 'true' : 'false', "\n"; // true
 ```
 
-#### Many To Many
+#### Many-To-Many
 
-As we saw in the other examples: the owner of the relation is the entity that has the foreign key. In a many to many
+As we saw in the other examples: the owner of the relation is the entity that has the foreign key. In a *many-to-many*
 relationship (without properties) there exist no owner and both entities have to define the relationship with the
 additional option `'table'`.
  

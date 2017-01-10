@@ -47,17 +47,19 @@ $em = new \ORM\EntityManager();
 
 ### Fetch relations
 
-You can fetch relations with fetch but also with the default getter. For a relation with cardinality one you will 
-always receive the Entity (or null). But for relations with cardinality with many you will receive an array from getter
-and a `EntityFetcher` from fetch.
+You can fetch relations with `fetch($relation)` and with `getRelated($relation)` (or the magic getter). For a relation
+with cardinality one you will always receive the Entity (or null). But for relations with cardinality with many you
+will receive an array from getter and an `EntityFetcher` from fetch.
 
-The getter will only execute a query when it is not fetched previously - and for the owner try the mapping first. Fetch
-will always execute a query to receive the current data.
+The getter will only execute a query when it is not fetched previously. Fetch will always call `fetch($class)` on the
+`EntityManager`. For an owner it can use the primary key and therefore it can use the mapping without executing a 
+query.
 
-For many to many relations the getter try to use mapping so it might be faster.
+For *many-to-many* relations the getter will first fetch all primary ids from relation table and then use
+`fetch($class, $primaryKey)` from `EntityManager`.  Under some circumstances this can be faster.
 
-The getter can be called by magic getter with the name of the relation or by `getRelated()`. The magic getter might not
-work when there is a column with the same name.
+The method `getRelated($relation)` can be called by magic getter with the name of the relation as property. This might
+not work when there is a column with the same name as the relation.
 
 ```php
 <?php
@@ -77,15 +79,15 @@ echo get_class($article->fetch('comments')), "\n"; // ORM\EntityFetcher
 ### Update Relations
 
 You can update relations with `setRelated($relation, $entities)`. For the owner in relations this will just call 
-`__set($key, $entity->__get($value))` (key and value are from the relation definition). For non owner in one to one and
-one to many relations it calls `setRelated($opponent, $this)` to each entity.
+`__set($key, $entity->__get($value))` (key and value are from the relation definition). For non owner in *one-to-one*
+and *one-to-many* relations it calls `setRelated($opponent, $this)` to each entity.
 
 The methods do not store the data (neither they don't care about whether the related class is persisted or not). To
 store the data you have to call save on each entity. The other problem you might encounter is: it does not update non
 related entities - you will have to call `$articleComment->setRelated('article', null)` to remove the writer.
 
-**Many to many is differnt**: for many to many relations there is no owner. You can not just set the related entity. So
-there are two other methods: `addRelations($relation, $entities)` and `deleteRelations($relation, $entities)`.
+**Many-to-many is differnt**: for *many-to-many* relations there is no owner. You can not just set the related entity.
+So there are two other methods: `addRelations($relation, $entities)` and `deleteRelations($relation, $entities)`.
 
 ```php
 <?php
@@ -116,6 +118,19 @@ if ($user = @$_SESSION['user']) {
     $additional->setRelated('article', $article);
     $additional->save();
     
+    $em->getConnection()->commit();
+}
+
+// Example - update categories
+/** @var Article $article */
+if ($article = $em->fetch(Article::class, 1)) {
+    $currentCategories = $article->getRelated('categories')->all();
+    $categoryKeys = $_POST['categories'];
+    $newCategories = $em->fetch(Category::class)->where('key', $categoryKeys)->all();
+    
+    $em->getConnection()->beginTransaction();
+    $article->deleteRelations(array_diff($currentCategories, $newCategories));
+    $article->addRelations(array_diff($newCategories, $currentCategories));
     $em->getConnection()->commit();
 }
 ```
