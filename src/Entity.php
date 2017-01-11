@@ -22,6 +22,12 @@ use ORM\Exceptions\NoEntityManager;
  */
 abstract class Entity implements \Serializable
 {
+    const OPT_RELATION_CLASS       = 'class';
+    const OPT_RELATION_CARDINALITY = 'cardinality';
+    const OPT_RELATION_RELATION    = 'relation';
+    const OPT_RELATION_OPPONENT    = 'opponent';
+    const OPT_RELATION_TABLE       = 'table';
+
     /** The template to use to calculate the table name.
      * @var string */
     protected static $tableNameTemplate = '%short%';
@@ -61,6 +67,10 @@ abstract class Entity implements \Serializable
     /** Whether or not the primary key is auto incremented.
      * @var bool */
     protected static $autoIncrement = true;
+
+    /** Relation definitions
+     * @var array */
+    protected static $relations = [];
 
     /** The current data of a row.
      * @var mixed[] */
@@ -186,6 +196,11 @@ abstract class Entity implements \Serializable
         }
 
         return self::$calculatedColumnNames[static::class][$var];
+    }
+
+    public static function getRelationDefinition($relation)
+    {
+      return static::$relations[$relation];
     }
 
     /**
