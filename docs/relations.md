@@ -15,9 +15,9 @@ All examples refer to this definitions:
 
 class Article extends ORM\Entity {
     protected static $relations = [
-        'additionalData' => [ArticleAdditionalData::class, ['id' => 'articleId']],
-        'comments' => ['many', ArticleComments::class, ['id' => 'articleId'], 'article'],
-        'categories' => ['many', Category::class, ['id' => 'articleId'], 'articles', 'article_category'],
+        'additionalData' => [ArticleAdditionalData::class, 'article'],
+        'comments' => ['many', ArticleComments::class, 'article'],
+        'categories' => [Category::class, ['id' => 'articleId'], 'articles', 'article_category'],
         'writer' => [User::class, ['userId' => 'id']]
     ];
 }
@@ -36,7 +36,7 @@ class ArticleComments extends ORM\Entity {
 
 class Category extends ORM\Entity {
     protected static $relations = [
-        'articles' => ['many', Article::class, ['id' => 'categoryId'], 'categories', 'article_category']
+        'articles' => [Article::class, ['id' => 'categoryId'], 'categories', 'article_category']
     ];
 }
 
