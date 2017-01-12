@@ -15,8 +15,8 @@ All examples refer to this definitions:
 
 class Article extends ORM\Entity {
     protected static $relations = [
-        'additionalData' => [ArticleAdditionalData::class, 'article'],
-        'comments' => ['many', ArticleComments::class, 'article'],
+        'additionalData' => ['one', ArticleAdditionalData::class, 'article'],
+        'comments' => [ArticleComments::class, 'article'],
         'categories' => [Category::class, ['id' => 'articleId'], 'articles', 'article_category'],
         'writer' => [User::class, ['userId' => 'id']]
     ];
