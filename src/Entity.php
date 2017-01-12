@@ -24,7 +24,7 @@ abstract class Entity implements \Serializable
 {
     const OPT_RELATION_CLASS       = 'class';
     const OPT_RELATION_CARDINALITY = 'cardinality';
-    const OPT_RELATION_RELATION    = 'relation';
+    const OPT_RELATION_REFERENCE   = 'reference';
     const OPT_RELATION_OPPONENT    = 'opponent';
     const OPT_RELATION_TABLE       = 'table';
 
@@ -200,7 +200,12 @@ abstract class Entity implements \Serializable
 
     public static function getRelationDefinition($relation)
     {
-      return static::$relations[$relation];
+        $relation = &static::$relations[$relation];
+        if (empty($relation[self::OPT_RELATION_CARDINALITY])) {
+            $relation[self::OPT_RELATION_CARDINALITY] = !empty($relation[self::OPT_RELATION_OPPONENT])
+                ? 'many' : 'one';
+        }
+        return $relation;
     }
 
     /**
