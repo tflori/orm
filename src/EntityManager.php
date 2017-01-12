@@ -125,15 +125,20 @@ class EntityManager
      */
     public function setConnection($connection)
     {
-        if (is_callable($connection) || $connection instanceof DbConfig || $connection instanceof \PDO) {
+        if (is_callable($connection) || $connection instanceof DbConfig) {
             $this->connection = $connection;
-        } elseif (is_array($connection)) {
-            $dbConfigReflection = new \ReflectionClass(DbConfig::class);
-            $this->connection = $dbConfigReflection->newInstanceArgs($connection);
         } else {
-            throw new InvalidConfiguration(
-                'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
-            );
+            if ($connection instanceof \PDO) {
+                $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->connection = $connection;
+            } elseif (is_array($connection)) {
+                $dbConfigReflection = new \ReflectionClass(DbConfig::class);
+                $this->connection   = $dbConfigReflection->newInstanceArgs($connection);
+            } else {
+                throw new InvalidConfiguration(
+                    'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
+                );
+            }
         }
     }
 
