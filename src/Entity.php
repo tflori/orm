@@ -621,7 +621,7 @@ abstract class Entity implements \Serializable
         $relDef = static::getRelationDefinition($relation);
         $class = $relDef[self::OPT_RELATION_CLASS];
 
-        if (isset($relDef[self::OPT_RELATION_REFERENCE]) && 
+        if (isset($relDef[self::OPT_RELATION_REFERENCE]) &&
             !isset($relDef[self::OPT_RELATION_TABLE])) {
             $key = array_map([$this, '__get'], array_keys($relDef[self::OPT_RELATION_REFERENCE]));
 
