@@ -574,7 +574,7 @@ abstract class Entity implements \Serializable
         $entityManager = $entityManager ?: $this->entityManager;
 
         if (!$entityManager) {
-            throw new NoEntityManager('No entity manager defined');
+            throw new NoEntityManager('No entity manager given');
         }
 
         $inserted = false;
@@ -608,6 +608,38 @@ abstract class Entity implements \Serializable
         }
 
         return $this;
+    }
+
+    public function fetch($relation, $entityManager = null)
+    {
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
+        }
+
+        $relDef = static::getRelationDefinition($relation);
+        $class = $relDef[self::OPT_RELATION_CLASS];
+
+        if (isset($relDef[self::OPT_RELATION_REFERENCE]) && 
+            !isset($relDef[self::OPT_RELATION_TABLE])) {
+            $key = array_map([$this, '__get'], array_keys($relDef[self::OPT_RELATION_REFERENCE]));
+
+            if (in_array(null, $key)) {
+                return null;
+            }
+
+            return $entityManager->fetch($class, $key);
+        }
+
+        $fetcher = $entityManager->fetch($class);
+
+        if ($relDef[self::OPT_RELATION_CARDINALITY] === 'one') {
+            $fetcher->where('dmgd_id', 42);
+            return $fetcher->one();
+        }
+
+        return $fetcher;
     }
 
     /**
