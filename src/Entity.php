@@ -6,6 +6,7 @@ use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
+use ORM\Exceptions\UndefinedRelation;
 
 /**
  * Definition of an entity
@@ -200,12 +201,60 @@ abstract class Entity implements \Serializable
 
     public static function getRelationDefinition($relation)
     {
-        $relation = &static::$relations[$relation];
-        if (empty($relation[self::OPT_RELATION_CARDINALITY])) {
-            $relation[self::OPT_RELATION_CARDINALITY] = !empty($relation[self::OPT_RELATION_OPPONENT])
-                ? 'many' : 'one';
+        if (!isset(static::$relations[$relation])) {
+            throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
         }
-        return $relation;
+
+        $relationDefinition = &static::$relations[$relation];
+
+        if (isset($relationDefinition[0])) {
+            // convert the short form
+            $length = count($relationDefinition);
+
+            if ($length === 2 && gettype($relationDefinition[1]) === 'array') {
+                // owner of one-to-many or one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                ];
+            } elseif ($length === 3 && $relationDefinition[0] === 'one') {
+                // non-owner of one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                ];
+            } elseif ($length === 2) {
+                // non-owner of one-to-many
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[1],
+                ];
+            } elseif ($length === 4 && gettype($relationDefinition[1]) === 'array') {
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                    self::OPT_RELATION_TABLE       => $relationDefinition[3],
+                ];
+            } else {
+                throw new InvalidConfiguration('Invalid short form for relation ' . $relation);
+            }
+        } elseif (empty($relationDefinition[self::OPT_RELATION_CARDINALITY])) {
+            // default cardinality
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] =
+                !empty($relationDefinition[self::OPT_RELATION_OPPONENT]) ? 'many' : 'one';
+        } elseif (isset($relationDefinition[self::OPT_RELATION_REFERENCE]) &&
+                  !isset($relationDefinition[self::OPT_RELATION_TABLE]) &&
+                  $relationDefinition[self::OPT_RELATION_CARDINALITY] === 'many') {
+            // overwrite wrong cardinality for owner
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] = 'one';
+        }
+
+        return $relationDefinition;
     }
 
     /**
@@ -260,6 +309,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeColumn
+     * @throws InvalidConfiguration
      */
     public static function setNamingSchemeColumn($namingSchemeColumn)
     {
@@ -280,6 +330,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeMethods
+     * @throws InvalidConfiguration
      */
     public static function setNamingSchemeMethods($namingSchemeMethods)
     {

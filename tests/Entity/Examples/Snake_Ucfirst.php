@@ -11,6 +11,10 @@ class Snake_Ucfirst extends TestEntity
         'anotherVar' => 'another_var'
     ];
 
+    protected static $relations = [
+        'relations' => [Relation::class, 'snake']
+    ];
+
     public function set_another_var($value)
     {
     }

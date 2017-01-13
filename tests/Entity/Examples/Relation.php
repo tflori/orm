@@ -8,8 +8,8 @@ class Relation extends Entity
 {
     protected static $relations = [
         'studlyCaps' => [
-            self::OPT_RELATION_CARDINALITY => 'one',
-            self::OPT_RELATION_CLASS => StudlyCaps::class, 
+            self::OPT_RELATION_CARDINALITY => 'many',
+            self::OPT_RELATION_CLASS => StudlyCaps::class,
             self::OPT_RELATION_REFERENCE => ['studlyCapsId' => 'id'],
         ],
         'psr0StudlyCaps' => [
@@ -20,5 +20,7 @@ class Relation extends Entity
             self::OPT_RELATION_CLASS => TestEntity::class,
             self::OPT_RELATION_OPPONENT => 'relation',
         ],
+        'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
+        'invalid' => ['many', StudlyCaps::class, 'opponent'], // many has to be omitted
     ];
 }
