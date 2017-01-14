@@ -25,6 +25,7 @@ permalink: /reference.html
 * [NoEntityManager](#ormexceptionsnoentitymanager)
 * [NotJoined](#ormexceptionsnotjoined)
 * [NotScalar](#ormexceptionsnotscalar)
+* [UndefinedRelation](#ormexceptionsundefinedrelation)
 * [UnsupportedDriver](#ormexceptionsunsupporteddriver)
 
 
@@ -147,6 +148,16 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [Entity Definition](https://tflori.github.io/orm/entityDefinition.html)
 
 
+#### Constants
+
+| Name | Value |
+|------|-------|
+| OPT_RELATION_CLASS | `'class'` |
+| OPT_RELATION_CARDINALITY | `'cardinality'` |
+| OPT_RELATION_REFERENCE | `'reference'` |
+| OPT_RELATION_OPPONENT | `'opponent'` |
+| OPT_RELATION_TABLE | `'table'` |
+
 
 #### Properties
 
@@ -162,6 +173,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$relations` | **array** | Relation definitions |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
@@ -173,6 +185,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
+* [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
@@ -181,6 +194,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
+* [getRelationDefinition](#ormentitygetrelationdefinition) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
@@ -284,6 +298,34 @@ The onChange event is called after something got changed.
 **See Also:**
 
 * [Working with entities](https://tflori.github.io/orm/entities.html)
+
+#### ORM\Entity::fetch
+
+```php?start_inline=true
+public function fetch(
+    string $relation, \ORM\EntityManager $entityManager = null
+): \ORM\Entity|\ORM\EntityFetcher
+```
+
+##### Fetches related objects
+
+For relations with cardinality many it returns an EntityFetcher. Otherwise it returns the entity.
+
+It will throw an error for non owner when the key is incomplete.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoEntityManager** or **\ORM\Exceptions\UndefinedRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  | The relation to fetch |
+| `$entityManager` | **EntityManager**  | The EntityManager to use |
+
+
 
 #### ORM\Entity::forceNamingScheme
 
@@ -443,6 +485,33 @@ protected static function getReflection(): \ReflectionClass
 <br />
  **Returns**: this method returns **\ReflectionClass**
 <br />
+
+
+
+#### ORM\Entity::getRelationDefinition
+
+```php?start_inline=true
+public static function getRelationDefinition( string $relation ): array
+```
+
+##### Get the definition for $relation
+
+It will normalize the definition before.
+
+The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
+`class`, `cardinality`, `reference`, `opponent` and `table`
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\UndefinedRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
 
 
 
@@ -711,7 +780,7 @@ public static function setNamingSchemeColumn( string $namingSchemeColumn )
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -733,7 +802,7 @@ public static function setNamingSchemeMethods( string $namingSchemeMethods )
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -3758,6 +3827,23 @@ where('name = ?', ['John Doe'])
 **See Also:**
 
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+
+
+---
+
+### ORM\Exceptions\UndefinedRelation
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
 
 
 ---

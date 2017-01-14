@@ -177,19 +177,22 @@ As we have seen in the other examples: the owner of the relation is the entity t
 *many-to-many* relationship there is no owner and both entities have to define the relationship. To define the
 relationship both entities **require** the attributes `'class'`, `'reference'`, `'opponent'` and `'table'`.
 
+**ATTENTION**: Because we don't have an entity in the middle the foreign key column in the association table has to be
+the column name and not the variable name.
+
 Here comes again an example:
 
 ```php
 <?php //?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
-        'categories' => [Category::class, ['id' => 'articleId'], 'articles', 'article_category']
+        'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']
     ];
 }
 
 class Category extends ORM\Entity {
     protected static $relations = [
-        'articles' => [Article::class, ['id' => 'categoryId'], 'categories', 'article_category']
+        'articles' => [Article::class, ['id' => 'category_id'], 'categories', 'article_category']
     ];
 }
 

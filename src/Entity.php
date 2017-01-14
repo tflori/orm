@@ -199,6 +199,19 @@ abstract class Entity implements \Serializable
         return self::$calculatedColumnNames[static::class][$var];
     }
 
+    /**
+     * Get the definition for $relation
+     *
+     * It will normalize the definition before.
+     *
+     * The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
+     * `class`, `cardinality`, `reference`, `opponent` and `table`
+     *
+     * @param string $relation
+     * @return array
+     * @throws InvalidConfiguration
+     * @throws UndefinedRelation
+     */
     public static function getRelationDefinition($relation)
     {
         if (!isset(static::$relations[$relation])) {
@@ -610,7 +623,24 @@ abstract class Entity implements \Serializable
         return $this;
     }
 
-    public function fetch($relation, $entityManager = null)
+    /**
+     * Fetches related objects
+     *
+     * For relations with cardinality many it returns an EntityFetcher. Otherwise it returns the entity.
+     *
+     * It will throw an error for non owner when the key is incomplete.
+     *
+     * @param string $relation The relation to fetch
+     * @param EntityManager $entityManager The EntityManager to use
+     * @return Entity|EntityFetcher
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
+    public function fetch($relation, EntityManager $entityManager = null)
     {
         $entityManager = $entityManager ?: $this->entityManager;
 
@@ -618,12 +648,13 @@ abstract class Entity implements \Serializable
             throw new NoEntityManager('No entity manager given');
         }
 
-        $relDef = static::getRelationDefinition($relation);
-        $class = $relDef[self::OPT_RELATION_CLASS];
+        $myRelDef = static::getRelationDefinition($relation);
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
 
-        if (isset($relDef[self::OPT_RELATION_REFERENCE]) &&
-            !isset($relDef[self::OPT_RELATION_TABLE])) {
-            $key = array_map([$this, '__get'], array_keys($relDef[self::OPT_RELATION_REFERENCE]));
+        // the owner can directly fetch by primary key
+        if (isset($myRelDef[self::OPT_RELATION_REFERENCE]) &&
+            !isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            $key = array_map([$this, '__get'], array_keys($myRelDef[self::OPT_RELATION_REFERENCE]));
 
             if (in_array(null, $key)) {
                 return null;
@@ -632,11 +663,46 @@ abstract class Entity implements \Serializable
             return $entityManager->fetch($class, $key);
         }
 
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+
+        if (!isset($oppRelDef[self::OPT_RELATION_REFERENCE])) {
+            throw new InvalidConfiguration('Reference is not defined in opponent');
+        }
+
         $fetcher = $entityManager->fetch($class);
 
-        if ($relDef[self::OPT_RELATION_CARDINALITY] === 'one') {
-            $fetcher->where('dmgd_id', 42);
-            return $fetcher->one();
+        if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $fkVar => $myVar) {
+                $value = $this->__get($myVar);
+
+                if ($value === null) {
+                    throw new IncompletePrimaryKey('Key incomplete for join');
+                }
+
+                $fetcher->where($fkVar, $value);
+            }
+
+            // one to one can return the first object
+            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
+                return $fetcher->one();
+            }
+        } else {
+            $expression = [];
+            $table = $entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
+            }
+            $fetcher->join($table, implode(' AND ', $expression));
+
+            foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $var => $fkCol) {
+                $value = $this->__get($var);
+
+                if ($value === null) {
+                    throw new IncompletePrimaryKey('Key incomplete for join');
+                }
+
+                $fetcher->where($table . '.' . $entityManager->escapeIdentifier($fkCol), $value);
+            }
         }
 
         return $fetcher;

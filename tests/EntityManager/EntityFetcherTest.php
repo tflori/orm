@@ -346,6 +346,18 @@ class EntityFetcherTest extends TestCase
         );
     }
 
+    public function testJoinAllowsTableNames()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+
+        $fetcher->join('foo_bar', 'foo_bar.id = t0.fooBarId');
+
+        self::assertSame(
+            'SELECT DISTINCT t0.* FROM "contact_phone" AS t0 JOIN foo_bar ON foo_bar.id = "t0"."foo_bar_id"',
+            $fetcher->getQuery()
+        );
+    }
+
     public function testTranslatesColumnNames()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
@@ -374,14 +386,13 @@ class EntityFetcherTest extends TestCase
         $fetcher->where(ContactPhone::class . '::id', 23);
     }
 
-    public function testThrowsWhenAliasUnknown()
+    public function testDoesNotTouchUnknownAlias()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
-        self::expectException(NotJoined::class);
-        self::expectExceptionMessage("Alias foobar unknown");
-
         $fetcher->where('foobar.id', 23);
+
+        self::assertSame('SELECT DISTINCT t0.* FROM "my_table" AS t0 WHERE foobar.id = 23', $fetcher->getQuery());
     }
 
     public function testKnowsAliasesInParenthesis()

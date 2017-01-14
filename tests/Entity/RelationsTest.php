@@ -33,7 +33,7 @@ class RelationsTest extends TestCase
                 'categories',
                 'many',
                 Category::class,
-                ['id' => 'articleId'],
+                ['id' => 'article_id'],
                 'articles',
                 'article_category'
             ],
@@ -42,7 +42,7 @@ class RelationsTest extends TestCase
                 'articles',
                 'many',
                 Article::class,
-                ['id' => 'categoryId'],
+                ['id' => 'category_id'],
                 'categories',
                 'article_category'
             ],
@@ -148,7 +148,7 @@ class RelationsTest extends TestCase
 
     public function testFetchReturnsEntityFetcherForMany()
     {
-        $entity = new Article();
+        $entity = new Article(['id' => 42]);
 
         $fetcher = $entity->fetch('categories', $this->em);
 
@@ -157,7 +157,7 @@ class RelationsTest extends TestCase
 
     public function testFetchUsesEntityManagerFromConstruct()
     {
-        $entity = new Article([], $this->em);
+        $entity = new Article(['id' => 42], $this->em);
 
         $fetcher = $entity->fetch('categories');
 
@@ -166,7 +166,7 @@ class RelationsTest extends TestCase
 
     public function testFetchCreatesFetcherForTheRelatedClass()
     {
-        $entity = new Article([], $this->em);
+        $entity = new Article(['id' => 42], $this->em);
         $fetcher = new EntityFetcher($this->em, Category::class);
         $this->em->shouldReceive('fetch')->with(Category::class)->once()->andReturn($fetcher);
 
@@ -198,14 +198,81 @@ class RelationsTest extends TestCase
     public function testFetchFiltersByForeignKeyAndReturnsFirstFor1T1()
     {
         $entity = new DamagedABBRVCase(['id' => 42], $this->em);
-        $related = new Relation(['dmgd_id' => 42], $this->em);
+        $related = new Relation();
         $fetcher = \Mockery::mock(EntityFetcher::class);
         $this->em->shouldReceive('fetch')->with(Relation::class)->once()->andReturn($fetcher);
-        $fetcher->shouldReceive('where')->with('dmgd_id', 42)->once()->andReturn($fetcher);
+        $fetcher->shouldReceive('where')->with('dmgdId', 42)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('one')->with()->once()->andReturn($related);
 
         $result = $entity->fetch('relation');
 
         self::assertSame($related, $result);
+    }
+
+    public function testFetchThrowsWhenOpponentIsNotDefined()
+    {
+        $entity = new Snake_Ucfirst([], $this->em);
+
+        self::expectException(UndefinedRelation::class);
+        self::expectExceptionMessage('Relation snake is not defined');
+
+        $entity->fetch('relations');
+    }
+
+    public function testFetchThrowsWhenReferenceInOpponentIsNotDefined()
+    {
+        $entity = new Snake_Ucfirst([], $this->em);
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Reference is not defined in opponent');
+
+        $entity->fetch('relation');
+    }
+
+    public function testFetchFiltersByForeignKeyFor1TM()
+    {
+        $entity = new Relation(['id' => 42], $this->em);
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
+
+        $result = $entity->fetch('testEntities');
+
+        self::assertSame($fetcher, $result);
+    }
+
+    public function testFetchThrowsWhenKeyIsEmptyFor1TM()
+    {
+        $entity = new Relation([], $this->em);
+
+        self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete for join');
+
+        $entity->fetch('testEntities');
+    }
+
+    public function testFetchFiltersByRelationTableForMTM()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+        $fetcher = \Mockery::mock(EntityFetcher::class);
+        $this->em->shouldReceive('fetch')->with(Category::class)->once()->andReturn($fetcher);
+        $fetcher->shouldReceive('join')
+            ->with('"article_category"', '"article_category"."category_id" = t0.id')
+            ->once()->andReturn($fetcher);
+        $fetcher->shouldReceive('where')->with('"article_category"."article_id"', 42)->once()->andReturn($fetcher);
+
+        $result = $entity->fetch('categories');
+
+        self::assertSame($fetcher, $result);
+    }
+
+    public function testFetchThrowsWhenKeyIsEmptyForMTM()
+    {
+        $entity = new Article([], $this->em);
+
+        self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete for join');
+
+        $entity->fetch('categories');
     }
 }

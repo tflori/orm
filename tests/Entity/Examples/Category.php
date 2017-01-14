@@ -7,6 +7,6 @@ use ORM\Entity;
 class Category extends Entity
 {
     protected static $relations = [
-        'articles' => [Article::class, ['id' => 'categoryId'], 'categories', 'article_category']
+        'articles' => [Article::class, ['id' => 'category_id'], 'categories', 'article_category']
     ];
 }
