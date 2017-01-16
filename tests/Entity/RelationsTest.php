@@ -241,6 +241,21 @@ class RelationsTest extends TestCase
         self::assertSame($fetcher, $result);
     }
 
+
+    public function testFetchReturnsAllWithGetAllFor1TM()
+    {
+        $entity = new Relation(['id' => 42], $this->em);
+        $related = [new TestEntity(), new TestEntity()];
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
+        $fetcher->shouldReceive('all')->with()->once()->andReturn($related);
+
+        $result = $entity->fetch('testEntities', null, true);
+
+        self::assertSame($related, $result);
+    }
+
     public function testFetchThrowsWhenKeyIsEmptyFor1TM()
     {
         $entity = new Relation([], $this->em);
@@ -274,5 +289,94 @@ class RelationsTest extends TestCase
         self::expectExceptionMessage('Key incomplete for join');
 
         $entity->fetch('categories');
+    }
+
+    public function testReturnsAllWithGetAllForMTM()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+        $related = [
+            $this->em->map(new Category(['id' => 12])),
+            $this->em->map(new Category(['id' => 33])),
+        ];
+        $ids = array_map(function ($related) {
+            return $related->id;
+        }, $related);
+
+        $statement = \Mockery::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')
+            ->with('SELECT "category_id" FROM "article_category" WHERE "article_id" = 42')
+            ->once()->andReturn($statement);
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_NUM)->once()->andReturn($ids);
+
+        $result = $entity->fetch('categories', null, true);
+
+        self::assertSame($related, $result);
+    }
+
+    public function provideRelationsWithCardinalityOne()
+    {
+        return [
+            [Relation::class, 'dmgd'],
+            [Relation::class, 'mySnake'],
+        ];
+    }
+
+    /**
+     * @dataProvider provideRelationsWithCardinalityOne
+     */
+    public function testGetRelatedReturnsResultFromFetchFor($class, $relation)
+    {
+        $entity = \Mockery::mock($class)->makePartial();
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with($relation, null, true)->once()->andReturn($related);
+
+        $result = $entity->getRelated($relation);
+
+        self::assertSame($related, $result);
+    }
+
+    /**
+     * @dataProvider provideRelationsWithCardinalityOne
+     */
+    public function testGetRelatedStoresTheValue($class, $relation)
+    {
+        $entity = \Mockery::mock($class)->makePartial();
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with($relation, null, true)->once()->andReturn($related);
+        $entity->getRelated($relation);
+
+        $result = $entity->getRelated($relation);
+
+        self::assertSame($related, $result);
+    }
+
+    /**
+     * @dataProvider provideRelationsWithCardinalityOne
+     */
+    public function testRefreshsRelationWithRefresh($class, $relation)
+    {
+        $entity = \Mockery::mock($class)->makePartial();
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with($relation, null, true)->twice()->andReturn($related);
+        $entity->getRelated($relation);
+
+        $result = $entity->getRelated($relation, true);
+
+        self::assertSame($related, $result);
+    }
+
+    /**
+     * @dataProvider provideRelationsWithCardinalityOne
+     */
+    public function testGetRelatedDoesNotStoreNullValues($class, $relation)
+    {
+        $entity = \Mockery::mock($class)->makePartial();
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with($relation, null, true)->twice()->andReturn(null, $related);
+        $entity->getRelated($relation);
+
+        $result = $entity->getRelated($relation);
+
+        self::assertSame($related, $result);
     }
 }

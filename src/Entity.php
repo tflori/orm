@@ -7,6 +7,7 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
+use ORM\QueryBuilder\QueryBuilder;
 
 /**
  * Definition of an entity
@@ -84,6 +85,10 @@ abstract class Entity implements \Serializable
     /** The entity manager from which this entity got created
      * @var EntityManager*/
     protected $entityManager;
+
+    /** Related objects for getRelated
+     * @var array */
+    protected $relatedObjects = [];
 
     /** Calculated table names.
      * @internal
@@ -527,6 +532,15 @@ abstract class Entity implements \Serializable
         }
     }
 
+    public function getRelated($relation, $refresh = false)
+    {
+        if ($refresh || !isset($this->relatedObjects[$relation])) {
+            $this->relatedObjects[$relation] = $this->fetch($relation, null, true);
+        }
+
+        return $this->relatedObjects[$relation];
+    }
+
     /**
      * Checks if entity or $var got changed
      *
@@ -632,7 +646,7 @@ abstract class Entity implements \Serializable
      *
      * @param string $relation The relation to fetch
      * @param EntityManager $entityManager The EntityManager to use
-     * @return Entity|EntityFetcher
+     * @return Entity|EntityFetcher|Entity[]
      * @throws Exceptions\NoConnection
      * @throws Exceptions\NoEntity
      * @throws IncompletePrimaryKey
@@ -640,7 +654,7 @@ abstract class Entity implements \Serializable
      * @throws NoEntityManager
      * @throws UndefinedRelation
      */
-    public function fetch($relation, EntityManager $entityManager = null)
+    public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
     {
         $entityManager = $entityManager ?: $this->entityManager;
 
@@ -669,39 +683,69 @@ abstract class Entity implements \Serializable
             throw new InvalidConfiguration('Reference is not defined in opponent');
         }
 
+        $foreignKey = [];
+        $reference = !isset($myRelDef[self::OPT_RELATION_TABLE]) ?
+            array_flip($oppRelDef[self::OPT_RELATION_REFERENCE]) :
+            $myRelDef[self::OPT_RELATION_REFERENCE];
+
+        foreach ($reference as $var => $fkCol) {
+            $value = $this->__get($var);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete for join');
+            }
+
+            $foreignKey[$fkCol] = $value;
+        }
+
         $fetcher = $entityManager->fetch($class);
 
         if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $fkVar => $myVar) {
-                $value = $this->__get($myVar);
-
-                if ($value === null) {
-                    throw new IncompletePrimaryKey('Key incomplete for join');
-                }
-
-                $fetcher->where($fkVar, $value);
+            foreach ($foreignKey as $col => $value) {
+                $fetcher->where($col, $value);
             }
 
-            // one to one can return the first object
             if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
                 return $fetcher->one();
+            } elseif ($getAll) {
+                return $fetcher->all();
             }
         } else {
-            $expression = [];
             $table = $entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
-                $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
-            }
-            $fetcher->join($table, implode(' AND ', $expression));
 
-            foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $var => $fkCol) {
-                $value = $this->__get($var);
+            if ($getAll) {
+                $query = new QueryBuilder($table, '', $entityManager);
 
-                if ($value === null) {
-                    throw new IncompletePrimaryKey('Key incomplete for join');
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $query->column($entityManager->escapeIdentifier($fkCol));
                 }
 
-                $fetcher->where($table . '.' . $entityManager->escapeIdentifier($fkCol), $value);
+                foreach ($foreignKey as $col => $value) {
+                    $query->where($entityManager->escapeIdentifier($col), $value);
+                }
+
+                $result = $entityManager->getConnection()->query($query->getQuery());
+                $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
+
+                $result = [];
+                foreach ($primaryKeys as $primaryKey) {
+                    if ($entity = $entityManager->fetch($class, $primaryKey)) {
+                        $result[] = $entity;
+                    }
+                }
+
+                return $result;
+            } else {
+                $expression = [];
+
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
+                }
+                $fetcher->join($table, implode(' AND ', $expression));
+
+                foreach ($foreignKey as $col => $value) {
+                    $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
+                }
             }
         }
 
