@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>tflori/orm - {{ page.title }}</title>
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/highlight.css">
     <meta name="viewport" content="width=device-width">
@@ -22,7 +22,7 @@
           <ul>
             {% for link in site.data.menu %}
             <li {% if page.url == link[1] %}class="selected"{% endif %}>
-              <a href="{{ site.baseurl }}{{ link[1] }}">{{ link[0] }}</a>
+              <a href=".{{ link[1] }}">{{ link[0] }}</a>
             </li>
             {% endfor %}
           </ul>

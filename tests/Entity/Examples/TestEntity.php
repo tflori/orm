@@ -6,10 +6,23 @@ use ORM\Entity;
 
 class TestEntity extends Entity
 {
+    protected static $relations = [
+        'relation' => [Relation::class, ['relationId' => 'id']],
+    ];
+
     public static function resetStaticsForTest()
     {
+        self::$namingSchemeTable = 'snake_lower';
+        self::$namingSchemeColumn = 'snake_lower';
+        self::$namingSchemeMethods = 'camelCase';
+        self::$tableNameTemplate = '%short%';
+        self::$namingUsed = false;
         self::$reflections = [];
-        self::$tableNames = [];
-        self::$translatedColumns = [];
+        self::$calculatedTableNames = [];
+        self::$calculatedColumnNames = [];
+    }
+
+    public static function resetNamingUsed() {
+        self::$namingUsed = false;
     }
 }

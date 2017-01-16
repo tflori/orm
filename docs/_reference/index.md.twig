@@ -1,0 +1,24 @@
+---
+layout: default
+title: API Reference
+permalink: /reference.html
+---
+## API Reference
+
+{% for namespace in project.indexes.namespaces %}
+{% if not namespace.classes.merge(namespace.interfaces) is empty %}
+
+### {{ namespace|trim('\\') }}
+
+{% for node in namespace.classes.merge(namespace.interfaces)|sort_asc %}
+* [{{ node.name }}](#{{ node.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }})
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+
+---
+
+{% for node in project.indexes.classes.merge(project.indexes.interfaces)|sort_asc %}
+{% include 'class.md.twig' %}
+{% endfor %}

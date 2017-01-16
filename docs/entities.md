@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Working with entities
+title: Working With Entities
 permalink: /entities.html
 ---
 ## Working with entities

@@ -2,66 +2,114 @@
 
 namespace ORM;
 
+use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
+use ORM\Exceptions\NoEntityManager;
+use ORM\Exceptions\UndefinedRelation;
+use ORM\QueryBuilder\QueryBuilder;
 
 /**
- * Abstract class of entity.
+ * Definition of an entity
  *
- * The instance of an entity represents a row of the table.
+ * The instance of an entity represents a row of the table and the statics variables and methods describe the database
+ * table.
  *
- * The class and statics describe the table.
+ * This is the main part where your configuration efforts go. The following properties and methods are well documented
+ * in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity Definition).
  *
  * @package ORM
+ * @link https://tflori.github.io/orm/entityDefinition.html Entity Definition
  * @author Thomas Flori <thflori@gmail.com>
  */
-abstract class Entity
+abstract class Entity implements \Serializable
 {
-    /** @var string */
-    public static $tableNameTemplate = '%short%';
+    const OPT_RELATION_CLASS       = 'class';
+    const OPT_RELATION_CARDINALITY = 'cardinality';
+    const OPT_RELATION_REFERENCE   = 'reference';
+    const OPT_RELATION_OPPONENT    = 'opponent';
+    const OPT_RELATION_TABLE       = 'table';
 
-    /** @var string */
-    public static $namingSchemeTable = 'snake_lower';
+    /** The template to use to calculate the table name.
+     * @var string */
+    protected static $tableNameTemplate = '%short%';
 
-    /** @var string */
-    public static $namingSchemeColumn = 'snake_lower';
+    /** The naming scheme to use for table names.
+     * @var string */
+    protected static $namingSchemeTable = 'snake_lower';
 
-    /** @var string */
-    public static $namingSchemeMethods = 'camelCase';
+    /** The naming scheme to use for column names.
+     * @var string */
+    protected static $namingSchemeColumn = 'snake_lower';
 
-    /** @var string */
+    /** The naming scheme to use for method names.
+     * @var string */
+    protected static $namingSchemeMethods = 'camelCase';
+
+    /** Whether or not the naming got used
+     * @var bool */
+    protected static $namingUsed = false;
+
+    /** Fixed table name (ignore other settings)
+     * @var string */
     protected static $tableName;
 
-    /** @var string[]|string */
+    /** The variable(s) used for primary key.
+     * @var string[]|string */
     protected static $primaryKey = ['id'];
 
-    /** @var string[] */
+    /** Fixed column names (ignore other settings)
+     * @var string[] */
     protected static $columnAliases = [];
 
-    /** @var string */
+    /** A prefix for column names.
+     * @var string */
     protected static $columnPrefix;
 
-    /** @var bool */
+    /** Whether or not the primary key is auto incremented.
+     * @var bool */
     protected static $autoIncrement = true;
 
-    /** @var string */
-    protected static $autoIncrementSequence;
+    /** Relation definitions
+     * @var array */
+    protected static $relations = [];
 
-    /** @var mixed[] */
+    /** The current data of a row.
+     * @var mixed[] */
     protected $data = [];
-    /** @var mixed[] */
+
+    /** The original data of the row.
+     * @var mixed[] */
     protected $originalData = [];
 
-    // internal
-    /** @var string[] */
-    protected static $tableNames = [];
-    /** @var string[][] */
-    protected static $translatedColumns = [];
-    /** @var \ReflectionClass[] */
+    /** The entity manager from which this entity got created
+     * @var EntityManager*/
+    protected $entityManager;
+
+    /** Related objects for getRelated
+     * @var array */
+    protected $relatedObjects = [];
+
+    /** Calculated table names.
+     * @internal
+     * @var string[] */
+    protected static $calculatedTableNames = [];
+
+    /** Calculated column names.
+     * @internal
+     * @var string[][] */
+    protected static $calculatedColumnNames = [];
+
+    /** The reflections of the classes.
+     * @internal
+     * @var \ReflectionClass[] */
     protected static $reflections = [];
 
     /**
-     * Get the table name.
+     * Get the table name
+     *
+     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
+     * $tableName.
      *
      * @return string
      * @throws InvalidName|InvalidConfiguration
@@ -72,7 +120,8 @@ abstract class Entity
             return static::$tableName;
         }
 
-        if (!isset(self::$tableNames[static::class])) {
+        if (!isset(self::$calculatedTableNames[static::class])) {
+            static::$namingUsed = true;
             $reflection = self::getReflection();
 
             $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
@@ -105,84 +154,242 @@ abstract class Entity
                         implode('_', array_slice($words, $from));
                 }
                 return '';
-            }, static::$tableNameTemplate);
+            }, static::getTableNameTemplate());
 
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$tableNames[static::class] = self::forceNamingScheme($tableName, static::$namingSchemeTable);
+            self::$calculatedTableNames[static::class] =
+                self::forceNamingScheme($tableName, static::getNamingSchemeTable());
         }
 
-        return self::$tableNames[static::class];
+        return self::$calculatedTableNames[static::class];
     }
 
     /**
-     * Get the column name of the column $name.
+     * Get the column name of $name
      *
-     * Important: getColumnName($name) === getColumnName(getColumnName($name))
+     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
+     * to $namingSchemeColumn.
      *
-     * @param string $name
+     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
+     * the same as getColumnName($name).
+     *
+     * @param string $var
      * @return string
+     * @throws InvalidConfiguration
      */
-    public static function getColumnName($name)
+    public static function getColumnName($var)
     {
-        if (isset(static::$columnAliases[$name])) {
-            return static::$columnAliases[$name];
+        if (isset(static::$columnAliases[$var])) {
+            return static::$columnAliases[$var];
         }
 
-        if (!isset(self::$translatedColumns[static::class][$name])) {
-            $colName = $name;
+        if (!isset(self::$calculatedColumnNames[static::class][$var])) {
+            static::$namingUsed = true;
+            $colName = $var;
 
             if (static::$columnPrefix &&
-                strpos($colName, self::forceNamingScheme(static::$columnPrefix, static::$namingSchemeColumn)) !== 0) {
+                strpos(
+                    $colName,
+                    self::forceNamingScheme(static::$columnPrefix, static::getNamingSchemeColumn())
+                ) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$translatedColumns[static::class][$name] =
-                self::forceNamingScheme($colName, static::$namingSchemeColumn);
+            self::$calculatedColumnNames[static::class][$var] =
+                self::forceNamingScheme($colName, static::getNamingSchemeColumn());
         }
 
-        return self::$translatedColumns[static::class][$name];
+        return self::$calculatedColumnNames[static::class][$var];
     }
 
     /**
-     * Get the primary key for this Table
+     * Get the definition for $relation
+     *
+     * It will normalize the definition before.
+     *
+     * The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
+     * `class`, `cardinality`, `reference`, `opponent` and `table`
+     *
+     * @param string $relation
+     * @return array
+     * @throws InvalidConfiguration
+     * @throws UndefinedRelation
+     */
+    public static function getRelationDefinition($relation)
+    {
+        if (!isset(static::$relations[$relation])) {
+            throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
+        }
+
+        $relationDefinition = &static::$relations[$relation];
+
+        if (isset($relationDefinition[0])) {
+            // convert the short form
+            $length = count($relationDefinition);
+
+            if ($length === 2 && gettype($relationDefinition[1]) === 'array') {
+                // owner of one-to-many or one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                ];
+            } elseif ($length === 3 && $relationDefinition[0] === 'one') {
+                // non-owner of one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                ];
+            } elseif ($length === 2) {
+                // non-owner of one-to-many
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[1],
+                ];
+            } elseif ($length === 4 && gettype($relationDefinition[1]) === 'array') {
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                    self::OPT_RELATION_TABLE       => $relationDefinition[3],
+                ];
+            } else {
+                throw new InvalidConfiguration('Invalid short form for relation ' . $relation);
+            }
+        } elseif (empty($relationDefinition[self::OPT_RELATION_CARDINALITY])) {
+            // default cardinality
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] =
+                !empty($relationDefinition[self::OPT_RELATION_OPPONENT]) ? 'many' : 'one';
+        } elseif (isset($relationDefinition[self::OPT_RELATION_REFERENCE]) &&
+                  !isset($relationDefinition[self::OPT_RELATION_TABLE]) &&
+                  $relationDefinition[self::OPT_RELATION_CARDINALITY] === 'many') {
+            // overwrite wrong cardinality for owner
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] = 'one';
+        }
+
+        return $relationDefinition;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getTableNameTemplate()
+    {
+        return static::$tableNameTemplate;
+    }
+
+    /**
+     * @param string $tableNameTemplate
+     * @throws InvalidConfiguration
+     */
+    public static function setTableNameTemplate($tableNameTemplate)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Template can not be changed afterwards');
+        }
+
+        static::$tableNameTemplate = $tableNameTemplate;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeTable()
+    {
+        return static::$namingSchemeTable;
+    }
+
+    /**
+     * @param string $namingSchemeTable
+     * @throws InvalidConfiguration
+     */
+    public static function setNamingSchemeTable($namingSchemeTable)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeTable = $namingSchemeTable;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeColumn()
+    {
+        return static::$namingSchemeColumn;
+    }
+
+    /**
+     * @param string $namingSchemeColumn
+     * @throws InvalidConfiguration
+     */
+    public static function setNamingSchemeColumn($namingSchemeColumn)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeColumn = $namingSchemeColumn;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getNamingSchemeMethods()
+    {
+        return static::$namingSchemeMethods;
+    }
+
+    /**
+     * @param string $namingSchemeMethods
+     * @throws InvalidConfiguration
+     */
+    public static function setNamingSchemeMethods($namingSchemeMethods)
+    {
+        if (static::$namingUsed) {
+            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
+        }
+
+        static::$namingSchemeMethods = $namingSchemeMethods;
+    }
+
+    /**
+     * Get the primary key vars
+     *
+     * The primary key can consist of multiple columns. You should configure the vars that are translated to these
+     * columns.
      *
      * @return array
      */
-    public static function getPrimaryKey()
+    public static function getPrimaryKeyVars()
     {
         return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
     }
 
     /**
-     * Whether or not the table has an auto incremented primary key.
+     * Check if the table has a auto increment column.
      *
      * @return bool
      */
     public static function isAutoIncremented()
     {
-        return count(static::getPrimaryKey()) > 1 ? false : self::$autoIncrement;
+        return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
     }
 
     /**
-     * Get the sequence of the auto increment column (pgsql only).
+     * Enforce $namingScheme to $name
      *
-     * @return string
-     */
-    public static function getAutoIncrementSequence()
-    {
-        if (static::$autoIncrementSequence) {
-            return static::$autoIncrementSequence;
-        }
-        return static::getTableName() . '_' . static::getColumnName(static::getPrimaryKey()[0]) . '_seq';
-    }
-
-    /**
-     * Enforces $namingScheme to $name.
+     * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
+     * and UPPER.
      *
-     * @param string $name
-     * @param string $namingScheme
+     * @param string $name         The name of the var / column
+     * @param string $namingScheme The naming scheme to use
      * @return string
      * @throws InvalidConfiguration
      */
@@ -237,7 +444,7 @@ abstract class Entity
     }
 
     /**
-     * Get reflection of the entity class.
+     * Get reflection of the entity
      *
      * @return \ReflectionClass
      */
@@ -250,31 +457,55 @@ abstract class Entity
     }
 
     /**
-     * Entity constructor.
+     * Constructor
      *
-     * @param array $data
-     * @param bool $fromDatabase
+     * It calls ::onInit() after initializing $data and $originalData.
+     *
+     * @param array         $data          The current data
+     * @param EntityManager $entityManager The EntityManager that created this entity
+     * @param bool          $fromDatabase  Whether or not the data comes from database
      */
-    final public function __construct(array $data = [], $fromDatabase = false)
+    final public function __construct(array $data = [], EntityManager $entityManager = null, $fromDatabase = false)
     {
-        $this->data = $this->originalData = array_merge($this->data, $data);
+        if ($fromDatabase) {
+            $this->originalData = $data;
+        }
+        $this->data = array_merge($this->data, $data);
+        $this->entityManager = $entityManager;
         $this->onInit(!$fromDatabase);
     }
 
     /**
-     * Magic setter.
+     * @param EntityManager $entityManager
+     * @return self
+     */
+    public function setEntityManager(EntityManager $entityManager)
+    {
+        $this->entityManager = $entityManager;
+        return $this;
+    }
+
+    /**
+     * Set $var to $value
      *
-     * You can overwrite this for custom functionality but we recommend not to use the properties or setter (set*)
-     * directly when they have to update the data stored in table.
+     * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
+     * data that should be updated in the database to $data. Do not store data in $originalData as it will not be
+     * written and give wrong results for dirty checking.
      *
-     * @param $var
-     * @param $value
+     * The onChange event is called after something got changed.
+     *
+     * @param string $var   The variable to change
+     * @param mixed  $value The value to store
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($var, $value)
     {
         $col = $this->getColumnName($var);
 
-        $setter = self::forceNamingScheme('set' . ucfirst($var), static::$namingSchemeMethods);
+        static::$namingUsed = true;
+        $setter = self::forceNamingScheme('set' . ucfirst($var), static::getNamingSchemeMethods());
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
             $oldValue = $this->__get($var);
             $md5OldData = md5(serialize($this->data));
@@ -292,27 +523,64 @@ abstract class Entity
     }
 
     /**
-     * Magic getter.
+     * Get the value from $var
      *
-     * @param $var
+     * If there is a custom getter this method get called instead.
+     *
+     * @param string $var The variable to get
      * @return mixed|null
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __get($var)
     {
-        $getter = self::forceNamingScheme('get' . ucfirst($var), static::$namingSchemeMethods);
+        $getter = self::forceNamingScheme('get' . ucfirst($var), static::getNamingSchemeMethods());
         if (method_exists($this, $getter) && is_callable([$this, $getter])) {
             return $this->$getter();
         } else {
             $col = static::getColumnName($var);
-            return isset($this->data[$col]) ? $this->data[$col] : null;
+            $result = isset($this->data[$col]) ? $this->data[$col] : null;
+
+            if (!$result && isset(static::$relations[$var]) && isset($this->entityManager)) {
+                return $this->getRelated($var);
+            }
+
+            return $result;
         }
     }
 
     /**
-     * Checks if entity or $var got changed.
+     * Get related objects
      *
-     * @param string $var
+     * The difference between getRelated and fetch is that getRelated stores the fetched entities. To refresh set
+     * $refresh to true.
+     *
+     * @param string $relation
+     * @param bool   $refresh
+     * @return mixed
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
+    public function getRelated($relation, $refresh = false)
+    {
+        if ($refresh || !isset($this->relatedObjects[$relation])) {
+            $this->relatedObjects[$relation] = $this->fetch($relation, null, true);
+        }
+
+        return $this->relatedObjects[$relation];
+    }
+
+    /**
+     * Checks if entity or $var got changed
+     *
+     * @param string $var Check only this variable or all variables
      * @return bool
+     * @throws InvalidConfiguration
      */
     public function isDirty($var = null)
     {
@@ -321,13 +589,17 @@ abstract class Entity
             return @$this->data[$col] !== @$this->originalData[$col];
         }
 
-        return md5(serialize($this->data)) !== md5(serialize($this->originalData));
+        ksort($this->data);
+        ksort($this->originalData);
+
+        return serialize($this->data) !== serialize($this->originalData);
     }
 
     /**
-     * Resets the entity or $var to original data.
+     * Resets the entity or $var to original data
      *
-     * @param string $var
+     * @param string $var Reset only this variable or all variables
+     * @throws InvalidConfiguration
      */
     public function reset($var = null)
     {
@@ -345,49 +617,296 @@ abstract class Entity
     }
 
     /**
-     * Save the entity to $entityManager.
+     * Save the entity to $entityManager
      *
      * @param EntityManager $entityManager
+     * @return Entity
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws Exceptions\NotScalar
+     * @throws Exceptions\UnsupportedDriver
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws InvalidName
+     * @throws NoEntityManager
      */
-    public function save(EntityManager $entityManager)
+    public function save(EntityManager $entityManager = null)
     {
-        if ($this->isDirty()) {
-            $entityManager->save($this, $this->data);
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
         }
+
+        $inserted = false;
+        $updated = false;
+
+        try {
+            // this may throw if the primary key is implemented but we using this to omit duplicated code
+            if (!$entityManager->sync($this)) {
+                $entityManager->insert($this, false);
+                $inserted = true;
+            } elseif ($this->isDirty()) {
+                $this->preUpdate();
+                $entityManager->update($this);
+                $updated = true;
+            }
+        } catch (IncompletePrimaryKey $e) {
+            if (static::isAutoIncremented()) {
+                $this->prePersist();
+                $id = $entityManager->insert($this);
+                $this->data[static::getColumnName(static::getPrimaryKeyVars()[0])] = $id;
+                $inserted = true;
+            } else {
+                throw $e;
+            }
+        }
+
+        if ($inserted || $updated) {
+            $inserted && $this->postPersist();
+            $updated && $this->postUpdate();
+            $entityManager->sync($this, true);
+        }
+
+        return $this;
     }
 
     /**
-     * Set new original data.
+     * Fetches related objects
+     *
+     * For relations with cardinality many it returns an EntityFetcher. Otherwise it returns the entity.
+     *
+     * It will throw an error for non owner when the key is incomplete.
+     *
+     * @param string $relation The relation to fetch
+     * @param EntityManager $entityManager The EntityManager to use
+     * @return Entity|EntityFetcher|Entity[]
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
+    public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
+    {
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
+        }
+
+        $myRelDef = static::getRelationDefinition($relation);
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
+
+        // the owner can directly fetch by primary key
+        if (isset($myRelDef[self::OPT_RELATION_REFERENCE]) &&
+            !isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            $key = array_map([$this, '__get'], array_keys($myRelDef[self::OPT_RELATION_REFERENCE]));
+
+            if (in_array(null, $key)) {
+                return null;
+            }
+
+            return $entityManager->fetch($class, $key);
+        }
+
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+
+        if (!isset($oppRelDef[self::OPT_RELATION_REFERENCE])) {
+            throw new InvalidConfiguration('Reference is not defined in opponent');
+        }
+
+        $foreignKey = [];
+        $reference = !isset($myRelDef[self::OPT_RELATION_TABLE]) ?
+            array_flip($oppRelDef[self::OPT_RELATION_REFERENCE]) :
+            $myRelDef[self::OPT_RELATION_REFERENCE];
+
+        foreach ($reference as $var => $fkCol) {
+            $value = $this->__get($var);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete for join');
+            }
+
+            $foreignKey[$fkCol] = $value;
+        }
+
+        $fetcher = $entityManager->fetch($class);
+
+        if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            foreach ($foreignKey as $col => $value) {
+                $fetcher->where($col, $value);
+            }
+
+            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
+                return $fetcher->one();
+            } elseif ($getAll) {
+                return $fetcher->all();
+            }
+        } else {
+            $table = $entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+
+            if ($getAll) {
+                $query = new QueryBuilder($table, '', $entityManager);
+
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $query->column($entityManager->escapeIdentifier($fkCol));
+                }
+
+                foreach ($foreignKey as $col => $value) {
+                    $query->where($entityManager->escapeIdentifier($col), $value);
+                }
+
+                $result = $entityManager->getConnection()->query($query->getQuery());
+                $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
+
+                $result = [];
+                foreach ($primaryKeys as $primaryKey) {
+                    if ($entity = $entityManager->fetch($class, $primaryKey)) {
+                        $result[] = $entity;
+                    }
+                }
+
+                return $result;
+            } else {
+                $expression = [];
+
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
+                }
+                $fetcher->join($table, implode(' AND ', $expression));
+
+                foreach ($foreignKey as $col => $value) {
+                    $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
+                }
+            }
+        }
+
+        return $fetcher;
+    }
+
+    /**
+     * Get the primary key
+     *
+     * @return array
+     * @throws IncompletePrimaryKey
+     */
+    public function getPrimaryKey()
+    {
+        $primaryKey = [];
+        foreach (static::getPrimaryKeyVars() as $var) {
+            $value = $this->$var;
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Incomplete primary key - missing ' . $var);
+            }
+            $primaryKey[$var] = $value;
+        }
+        return $primaryKey;
+    }
+
+    /**
+     * Get current data
+     *
+     * @return array
+     * @internal
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * Set new original data
      *
      * @param array $data
      * @internal
      */
-    final public function setOriginalData(array $data)
+    public function setOriginalData(array $data)
     {
         $this->originalData = $data;
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when something is changed with magic setter.
      *
-     * @param string $var
-     * @param mixed  $oldValue
-     * @param mixed  $value
+     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param mixed  $oldValue The old value of the variable
+     * @param mixed  $value The new value of the variable
      */
     public function onChange($var, $oldValue, $value)
     {
     }
 
     /**
-     * Empty event handler.
+     * Empty event handler
      *
      * Get called when the entity get initialized.
      *
-     * @param bool $new
+     * @param bool $new Whether or not the entity is new or from database
      */
     public function onInit($new)
     {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get inserted in database.
+     */
+    public function prePersist()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got inserted in database.
+     */
+    public function postPersist()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get updated in database.
+     */
+    public function preUpdate()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got updated in database.
+     */
+    public function postUpdate()
+    {
+    }
+
+    /**
+     * String representation of data
+     *
+     * @link http://php.net/manual/en/serializable.serialize.php
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->data);
+    }
+
+    /**
+     * Constructs the object
+     *
+     * @link http://php.net/manual/en/serializable.unserialize.php
+     * @param string $serialized The string representation of data
+     */
+    public function unserialize($serialized)
+    {
+        $this->data = unserialize($serialized);
+        $this->onInit(false);
     }
 }

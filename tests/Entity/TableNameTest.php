@@ -10,6 +10,7 @@ use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
+use ORM\Test\TestCase;
 
 class TableNameTest extends TestCase
 {
@@ -25,7 +26,7 @@ class TableNameTest extends TestCase
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Naming scheme foobar unknown');
 
-        Entity::$namingSchemeTable = 'foobar';
+        Entity::setNamingSchemeTable('foobar');
 
         StudlyCaps::getTableName();
     }
@@ -80,8 +81,8 @@ class TableNameTest extends TestCase
      */
     public function testTableNamingByNamingScheme($class, $namingScheme, $expected)
     {
-        Entity::$tableNameTemplate = '%short%';
-        Entity::$namingSchemeTable = $namingScheme;
+        Entity::setTableNameTemplate('%short%');
+        Entity::setNamingSchemeTable($namingScheme);
 
         /** @var Entity $class */
         $tableName = $class::getTableName();
@@ -89,9 +90,19 @@ class TableNameTest extends TestCase
         self::assertSame($expected, $tableName);
     }
 
+    public function testDoesNotAllowToChangeNamingThemeAfterUsage()
+    {
+        StudlyCaps::getTableName();
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
+
+        Entity::setNamingSchemeTable('UPPER');
+    }
+
     public function testThrowsForIllegalTemplates()
     {
-        Entity::$tableNameTemplate = '%foobar%';
+        Entity::setTableNameTemplate('%foobar%');
 
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Template invalid: Placeholder %foobar% is not allowed');
@@ -130,8 +141,8 @@ class TableNameTest extends TestCase
      */
     public function testTableNamingByTemplate($class, $template, $expected)
     {
-        Entity::$tableNameTemplate = $template;
-        Entity::$namingSchemeTable = 'snake_case';
+        Entity::setTableNameTemplate($template);
+        Entity::setNamingSchemeTable('snake_case');
 
         if ($expected === '') {
             self::expectException(InvalidName::class);
@@ -142,5 +153,15 @@ class TableNameTest extends TestCase
         $tableName = $class::getTableName();
 
         self::assertSame($expected, $tableName);
+    }
+
+    public function testDoesNotAllowToChangeTableNameTemplateAfterUsage()
+    {
+        StudlyCaps::getTableName();
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Template can not be changed afterwards');
+
+        Entity::setTableNameTemplate('%namespace%');
     }
 }

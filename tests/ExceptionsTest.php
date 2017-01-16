@@ -2,20 +2,22 @@
 
 namespace ORM\Test;
 
-use ORM\Exceptions\Base;
+use ORM\Exception;
 
 class ExceptionsTest extends TestCase
 {
     public function provideExceptionClasses()
     {
-        exec('find "' . __DIR__ . '/../src" -type f -iwholename "*exception*.php"', $exceptionFiles);
+        exec('find "' . __DIR__ . '/../src" -type f -wholename "*Exceptions/*.php"', $exceptionFiles);
         $exceptionClasses = [];
         foreach ($exceptionFiles as $exceptionFile) {
-            $exceptionClasses[] = 'ORM\\' . str_replace(
+            $class = 'ORM\\' . str_replace(
                 ['/', '.php'],
                 ['\\', ''],
                 substr($exceptionFile, strlen(__DIR__ . '/../src/'))
             );
+
+            $exceptionClasses[] = $class;
         }
         return array_map(function ($exceptionClass) {
             return [$exceptionClass];
@@ -35,9 +37,9 @@ class ExceptionsTest extends TestCase
     }
 
     /**
-     * les see if every exception extends Base for easier handling
+     * les see if every exception extends Exception for easier handling
      *
-     * You can just catch every ORM\Exception\Base if you need to.
+     * You can just catch every ORM\Exception\Exception if you need to.
      *
      * @dataProvider provideExceptionClasses
      */
@@ -45,6 +47,6 @@ class ExceptionsTest extends TestCase
     {
         $exception = new $exceptionClass('No exception');
 
-        self::assertInstanceOf(Base::class, $exception);
+        self::assertInstanceOf(Exception::class, $exception);
     }
 }

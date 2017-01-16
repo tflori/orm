@@ -1,5 +1,7 @@
 Introduction: /
-Quick Reference: /quick.html
 Configuration: /configuration.html
 Entity Definition: /entityDefinition.html
-Working with entities: /entities.html
+Working With Rntities: /entities.html
+Relation Definition: /relationDefinition.html
+Working With Relations: /relations.html
+API Reference: /reference.html

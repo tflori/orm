@@ -1,12 +1,15 @@
 {
   "name": "tflori/orm",
+  "description": "lightweight object relational mapper",
+  "license": "MIT",
   "require": {
     "php": "^5.6 || ^7.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.6",
     "mockery/mockery": "^0.9.6",
-    "squizlabs/php_codesniffer": "^2.7"
+    "squizlabs/php_codesniffer": "^2.7",
+    "phpdocumentor/phpdocumentor": "^2.9"
   },
   "autoload": {
     "psr-4": {
@@ -19,6 +22,8 @@
     }
   },
   "scripts": {
-    "code-style": "phpcs --standard=PSR2 src && phpcs --standard=PSR2 --ignore=Examples tests"
+    "code-style": "phpcs --standard=PSR2 src && phpcs --standard=PSR2 --ignore=Examples tests",
+    "test": "phpunit",
+    "coverage": "phpunit --coverage-text"
   }
 }

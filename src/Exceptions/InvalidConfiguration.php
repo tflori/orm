@@ -2,6 +2,14 @@
 
 namespace ORM\Exceptions;
 
-class InvalidConfiguration extends Base
+use ORM\Exception;
+
+/**
+ * Class InvalidConfiguration
+ *
+ * @package ORM
+ * @author Thomas Flori <thflori@gmail.com>
+ */
+class InvalidConfiguration extends Exception
 {
 }

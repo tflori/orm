@@ -15,7 +15,7 @@ matrix:
   fast_finish: true
 
 before_script:
-  - composer install --dev --no-interaction
+  - composer install --no-interaction
   - composer require satooshi/php-coveralls:~0.6@stable
   - mkdir -p build/logs
 
