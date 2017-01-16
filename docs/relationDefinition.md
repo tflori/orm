@@ -94,8 +94,7 @@ To define the **owner** the **required** attributes are `'class'` and `'referenc
 
 Lets see an example (one article has many comments):
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
         'comments' => [ArticleComments::class, 'article']
@@ -127,8 +126,7 @@ To define the **owner** the **required** attributes are `'class'` and `'referenc
 
 Example (one article has additional data):
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
         'additionalData' => ['one', ArticleAdditionalData::class, 'article']
@@ -182,8 +180,7 @@ the column name and not the variable name.
 
 Here comes again an example:
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
         'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']

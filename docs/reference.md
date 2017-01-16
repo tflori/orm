@@ -256,7 +256,7 @@ If there is a custom getter this method get called instead.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed|null**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -286,7 +286,7 @@ The onChange event is called after something got changed.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 

@@ -10,9 +10,7 @@ want to describe how and what else you can do with these relations. How to add r
 
 All examples refer to this definitions:
 
-```php
-<?php
-
+```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
         'additionalData' => ['one', ArticleAdditionalData::class, 'article'],
@@ -61,9 +59,7 @@ For *many-to-many* relations the getter will first fetch all primary ids from re
 The method `getRelated($relation)` can be called by magic getter with the name of the relation as property. This might
 not work when there is a column with the same name as the relation.
 
-```php
-<?php
-
+```php?start_inline=true
 /** @var Article $article */
 $article = $em->fetch(Article::class, 1);
 
@@ -89,9 +85,7 @@ related entities - you will have to call `$articleComment->setRelated('article',
 **Many-to-many is differnt**: for *many-to-many* relations there is no owner. You can not just set the related entity.
 So there are two other methods: `addRelations($relation, $entities)` and `deleteRelations($relation, $entities)`.
 
-```php
-<?php
-
+```php?start_inline=true
 // Example - Create a comment:
 /** @var Article $article */
 if ($article = $em->fetch(Article::class, 1)) {

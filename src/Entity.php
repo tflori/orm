@@ -486,6 +486,7 @@ abstract class Entity implements \Serializable
      *
      * @param string $var   The variable to change
      * @param mixed  $value The value to store
+     * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
@@ -518,6 +519,7 @@ abstract class Entity implements \Serializable
      *
      * @param string $var The variable to get
      * @return mixed|null
+     * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
@@ -530,7 +532,7 @@ abstract class Entity implements \Serializable
             $col = static::getColumnName($var);
             $result = isset($this->data[$col]) ? $this->data[$col] : null;
 
-            if (!$result && isset(static::$relations[$var])) {
+            if (!$result && isset(static::$relations[$var]) && isset($this->entityManager)) {
                 return $this->getRelated($var);
             }
 
