@@ -528,7 +528,13 @@ abstract class Entity implements \Serializable
             return $this->$getter();
         } else {
             $col = static::getColumnName($var);
-            return isset($this->data[$col]) ? $this->data[$col] : null;
+            $result = isset($this->data[$col]) ? $this->data[$col] : null;
+
+            if (!$result && isset(static::$relations[$var])) {
+                return $this->getRelated($var);
+            }
+
+            return $result;
         }
     }
 
