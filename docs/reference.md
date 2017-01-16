@@ -177,6 +177,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
+| **protected** | `$relatedObjects` | **array** | Related objects for getRelated |
 
 
 
@@ -194,6 +195,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
+* [getRelated](#ormentitygetrelated) Get related objects
 * [getRelationDefinition](#ormentitygetrelationdefinition) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
@@ -303,8 +305,9 @@ The onChange event is called after something got changed.
 
 ```php?start_inline=true
 public function fetch(
-    string $relation, \ORM\EntityManager $entityManager = null
-): \ORM\Entity|\ORM\EntityFetcher
+    string $relation, \ORM\EntityManager $entityManager = null, 
+    $getAll = false
+): \ORM\Entity|\ORM\EntityFetcher|array<\ORM\Entity>
 ```
 
 ##### Fetches related objects
@@ -315,7 +318,7 @@ It will throw an error for non owner when the key is incomplete.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
+ **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher|array&lt;mixed,\ORM\Entity&gt;**
 <br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoEntityManager** or **\ORM\Exceptions\UndefinedRelation**<br />
 
 ##### Parameters
@@ -324,6 +327,7 @@ It will throw an error for non owner when the key is incomplete.
 |-----------|------|-------------|
 | `$relation` | **string**  | The relation to fetch |
 | `$entityManager` | **EntityManager**  | The EntityManager to use |
+| `$getAll` |   |  |
 
 
 
@@ -485,6 +489,31 @@ protected static function getReflection(): \ReflectionClass
 <br />
  **Returns**: this method returns **\ReflectionClass**
 <br />
+
+
+
+#### ORM\Entity::getRelated
+
+```php?start_inline=true
+public function getRelated( string $relation, boolean $refresh = false ): mixed
+```
+
+##### Get related objects
+
+The difference between getRelated and fetch is that getRelated stores the fetched entities. To refresh set
+$refresh to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoEntityManager** or **\ORM\Exceptions\UndefinedRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$refresh` | **boolean**  |  |
 
 
 

@@ -538,6 +538,22 @@ abstract class Entity implements \Serializable
         }
     }
 
+    /**
+     * Get related objects
+     *
+     * The difference between getRelated and fetch is that getRelated stores the fetched entities. To refresh set
+     * $refresh to true.
+     *
+     * @param string $relation
+     * @param bool   $refresh
+     * @return mixed
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
     public function getRelated($relation, $refresh = false)
     {
         if ($refresh || !isset($this->relatedObjects[$relation])) {
