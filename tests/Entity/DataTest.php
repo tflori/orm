@@ -82,6 +82,7 @@ class DataTest extends TestCase
     public function testCallsGetRelatedWhenThereIsARelationButNoValue()
     {
         $entity = \Mockery::mock(Relation::class)->makePartial();
+        $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
         $entity->shouldReceive('getRelated')->with('studlyCaps')->once()->andReturn($related);
 

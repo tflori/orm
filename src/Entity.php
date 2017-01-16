@@ -476,6 +476,16 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * @param EntityManager $entityManager
+     * @return self
+     */
+    public function setEntityManager(EntityManager $entityManager)
+    {
+        $this->entityManager = $entityManager;
+        return $this;
+    }
+
+    /**
      * Set $var to $value
      *
      * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store

@@ -210,6 +210,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [reset](#ormentityreset) Resets the entity or $var to original data
 * [save](#ormentitysave) Save the entity to $entityManager
 * [serialize](#ormentityserialize) String representation of data
+* [setEntityManager](#ormentitysetentitymanager) 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
@@ -796,6 +797,28 @@ public function serialize(): string
 **See Also:**
 
 * [http://php.net/manual/en/serializable.serialize.php](http://php.net/manual/en/serializable.serialize.php)
+
+#### ORM\Entity::setEntityManager
+
+```php?start_inline=true
+public function setEntityManager( \ORM\EntityManager $entityManager ): Entity
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Entity**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entityManager` | **EntityManager**  |  |
+
+
 
 #### ORM\Entity::setNamingSchemeColumn
 
