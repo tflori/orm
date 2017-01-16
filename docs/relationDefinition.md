@@ -20,8 +20,7 @@ you have to stick to the order we show in the following examples.
 
 Here are three examples with the same relations:
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user'     => [User::class, ['userId' => 'id']],   // owner
@@ -30,8 +29,7 @@ class Article extends ORM\ENtity {
 }
 ```
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
@@ -46,8 +44,7 @@ class Article extends ORM\ENtity {
 }
 ```
 
-```php
-<?php //?start_inline=true
+```php?start_inline=true
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
