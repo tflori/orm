@@ -26,7 +26,8 @@ database is different (mysql uses `` ` `` for quoting) - then you can define the
 
 > For mysql we suggest to use `PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode ='ANSI_QUOTES'"`
 
-This orm library also handles relations. To configure relations check the documentation term Relations.
+This orm library also handles relations - for more information about configuring relations check the [documentation 
+of relations](relations.html).
 
 ### Table name
 

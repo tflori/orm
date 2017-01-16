@@ -6,6 +6,7 @@ use Mockery\Mock;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Test\Entity\Examples\Relation;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -76,6 +77,17 @@ class DataTest extends TestCase
         $mock->shouldReceive('getAnotherVar')->once()->andReturn('foobar');
 
         self::assertSame('foobar', $mock->anotherVar);
+    }
+
+    public function testCallsGetRelatedWhenThereIsARelationButNoValue()
+    {
+        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $related = [new StudlyCaps(), new StudlyCaps()];
+        $entity->shouldReceive('getRelated')->with('studlyCaps')->once()->andReturn($related);
+
+        $result = $entity->studlyCaps;
+
+        self::assertSame($related, $result);
     }
 
     public function testUsesNamingSchemeMethods()

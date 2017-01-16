@@ -6,6 +6,8 @@ use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
+use ORM\Exceptions\UndefinedRelation;
+use ORM\QueryBuilder\QueryBuilder;
 
 /**
  * Definition of an entity
@@ -22,6 +24,12 @@ use ORM\Exceptions\NoEntityManager;
  */
 abstract class Entity implements \Serializable
 {
+    const OPT_RELATION_CLASS       = 'class';
+    const OPT_RELATION_CARDINALITY = 'cardinality';
+    const OPT_RELATION_REFERENCE   = 'reference';
+    const OPT_RELATION_OPPONENT    = 'opponent';
+    const OPT_RELATION_TABLE       = 'table';
+
     /** The template to use to calculate the table name.
      * @var string */
     protected static $tableNameTemplate = '%short%';
@@ -62,6 +70,10 @@ abstract class Entity implements \Serializable
      * @var bool */
     protected static $autoIncrement = true;
 
+    /** Relation definitions
+     * @var array */
+    protected static $relations = [];
+
     /** The current data of a row.
      * @var mixed[] */
     protected $data = [];
@@ -73,6 +85,10 @@ abstract class Entity implements \Serializable
     /** The entity manager from which this entity got created
      * @var EntityManager*/
     protected $entityManager;
+
+    /** Related objects for getRelated
+     * @var array */
+    protected $relatedObjects = [];
 
     /** Calculated table names.
      * @internal
@@ -189,6 +205,77 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * Get the definition for $relation
+     *
+     * It will normalize the definition before.
+     *
+     * The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
+     * `class`, `cardinality`, `reference`, `opponent` and `table`
+     *
+     * @param string $relation
+     * @return array
+     * @throws InvalidConfiguration
+     * @throws UndefinedRelation
+     */
+    public static function getRelationDefinition($relation)
+    {
+        if (!isset(static::$relations[$relation])) {
+            throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
+        }
+
+        $relationDefinition = &static::$relations[$relation];
+
+        if (isset($relationDefinition[0])) {
+            // convert the short form
+            $length = count($relationDefinition);
+
+            if ($length === 2 && gettype($relationDefinition[1]) === 'array') {
+                // owner of one-to-many or one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                ];
+            } elseif ($length === 3 && $relationDefinition[0] === 'one') {
+                // non-owner of one-to-one
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'one',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                ];
+            } elseif ($length === 2) {
+                // non-owner of one-to-many
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[1],
+                ];
+            } elseif ($length === 4 && gettype($relationDefinition[1]) === 'array') {
+                static::$relations[$relation] = [
+                    self::OPT_RELATION_CARDINALITY => 'many',
+                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
+                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
+                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
+                    self::OPT_RELATION_TABLE       => $relationDefinition[3],
+                ];
+            } else {
+                throw new InvalidConfiguration('Invalid short form for relation ' . $relation);
+            }
+        } elseif (empty($relationDefinition[self::OPT_RELATION_CARDINALITY])) {
+            // default cardinality
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] =
+                !empty($relationDefinition[self::OPT_RELATION_OPPONENT]) ? 'many' : 'one';
+        } elseif (isset($relationDefinition[self::OPT_RELATION_REFERENCE]) &&
+                  !isset($relationDefinition[self::OPT_RELATION_TABLE]) &&
+                  $relationDefinition[self::OPT_RELATION_CARDINALITY] === 'many') {
+            // overwrite wrong cardinality for owner
+            $relationDefinition[self::OPT_RELATION_CARDINALITY] = 'one';
+        }
+
+        return $relationDefinition;
+    }
+
+    /**
      * @return string
      */
     public static function getTableNameTemplate()
@@ -240,6 +327,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeColumn
+     * @throws InvalidConfiguration
      */
     public static function setNamingSchemeColumn($namingSchemeColumn)
     {
@@ -260,6 +348,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeMethods
+     * @throws InvalidConfiguration
      */
     public static function setNamingSchemeMethods($namingSchemeMethods)
     {
@@ -439,8 +528,39 @@ abstract class Entity implements \Serializable
             return $this->$getter();
         } else {
             $col = static::getColumnName($var);
-            return isset($this->data[$col]) ? $this->data[$col] : null;
+            $result = isset($this->data[$col]) ? $this->data[$col] : null;
+
+            if (!$result && isset(static::$relations[$var])) {
+                return $this->getRelated($var);
+            }
+
+            return $result;
         }
+    }
+
+    /**
+     * Get related objects
+     *
+     * The difference between getRelated and fetch is that getRelated stores the fetched entities. To refresh set
+     * $refresh to true.
+     *
+     * @param string $relation
+     * @param bool   $refresh
+     * @return mixed
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
+    public function getRelated($relation, $refresh = false)
+    {
+        if ($refresh || !isset($this->relatedObjects[$relation])) {
+            $this->relatedObjects[$relation] = $this->fetch($relation, null, true);
+        }
+
+        return $this->relatedObjects[$relation];
     }
 
     /**
@@ -503,7 +623,7 @@ abstract class Entity implements \Serializable
         $entityManager = $entityManager ?: $this->entityManager;
 
         if (!$entityManager) {
-            throw new NoEntityManager('No entity manager defined');
+            throw new NoEntityManager('No entity manager given');
         }
 
         $inserted = false;
@@ -537,6 +657,121 @@ abstract class Entity implements \Serializable
         }
 
         return $this;
+    }
+
+    /**
+     * Fetches related objects
+     *
+     * For relations with cardinality many it returns an EntityFetcher. Otherwise it returns the entity.
+     *
+     * It will throw an error for non owner when the key is incomplete.
+     *
+     * @param string $relation The relation to fetch
+     * @param EntityManager $entityManager The EntityManager to use
+     * @return Entity|EntityFetcher|Entity[]
+     * @throws Exceptions\NoConnection
+     * @throws Exceptions\NoEntity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @throws NoEntityManager
+     * @throws UndefinedRelation
+     */
+    public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
+    {
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
+        }
+
+        $myRelDef = static::getRelationDefinition($relation);
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
+
+        // the owner can directly fetch by primary key
+        if (isset($myRelDef[self::OPT_RELATION_REFERENCE]) &&
+            !isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            $key = array_map([$this, '__get'], array_keys($myRelDef[self::OPT_RELATION_REFERENCE]));
+
+            if (in_array(null, $key)) {
+                return null;
+            }
+
+            return $entityManager->fetch($class, $key);
+        }
+
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+
+        if (!isset($oppRelDef[self::OPT_RELATION_REFERENCE])) {
+            throw new InvalidConfiguration('Reference is not defined in opponent');
+        }
+
+        $foreignKey = [];
+        $reference = !isset($myRelDef[self::OPT_RELATION_TABLE]) ?
+            array_flip($oppRelDef[self::OPT_RELATION_REFERENCE]) :
+            $myRelDef[self::OPT_RELATION_REFERENCE];
+
+        foreach ($reference as $var => $fkCol) {
+            $value = $this->__get($var);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete for join');
+            }
+
+            $foreignKey[$fkCol] = $value;
+        }
+
+        $fetcher = $entityManager->fetch($class);
+
+        if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
+            foreach ($foreignKey as $col => $value) {
+                $fetcher->where($col, $value);
+            }
+
+            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
+                return $fetcher->one();
+            } elseif ($getAll) {
+                return $fetcher->all();
+            }
+        } else {
+            $table = $entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+
+            if ($getAll) {
+                $query = new QueryBuilder($table, '', $entityManager);
+
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $query->column($entityManager->escapeIdentifier($fkCol));
+                }
+
+                foreach ($foreignKey as $col => $value) {
+                    $query->where($entityManager->escapeIdentifier($col), $value);
+                }
+
+                $result = $entityManager->getConnection()->query($query->getQuery());
+                $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
+
+                $result = [];
+                foreach ($primaryKeys as $primaryKey) {
+                    if ($entity = $entityManager->fetch($class, $primaryKey)) {
+                        $result[] = $entity;
+                    }
+                }
+
+                return $result;
+            } else {
+                $expression = [];
+
+                foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
+                    $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
+                }
+                $fetcher->join($table, implode(' AND ', $expression));
+
+                foreach ($foreignKey as $col => $value) {
+                    $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
+                }
+            }
+        }
+
+        return $fetcher;
     }
 
     /**

@@ -33,6 +33,14 @@ class DbConfigTest extends TestCase
      */
     public function testConstructorSetsDsn($args, $expectedDsn)
     {
+        if ($args[0] === 'mysql' && !extension_loaded('pdo_mysql')) {
+            self::markTestSkipped('pdo_mysql extension required');
+        } elseif ($args[0] === 'pgsql' && !extension_loaded('pdo_pgsql')) {
+            self::markTestSkipped('pdo_pgsql extension required');
+        } elseif ($args[0] === 'sqlite' && !extension_loaded('pdo_sqlite')) {
+            self::markTestSkipped('pdo_sqlite extension required');
+        }
+
         $dbConfigReflection = new \ReflectionClass(DbConfig::class);
 
         /** @var DbConfig $dbConfig */

@@ -120,7 +120,7 @@ class EntityFetcher extends QueryBuilder
                         $alias = $this->classMapping['byClass'][$match['class']];
                     } elseif ($match['alias']) {
                         if (!isset($this->classMapping['byAlias'][$match['alias']])) {
-                            throw new NotJoined("Alias " . $match['alias'] . " unknown");
+                            return $match[0];
                         }
                         $alias = $match['alias'];
                         $class = $this->classMapping['byAlias'][$match['alias']];
@@ -164,12 +164,16 @@ class EntityFetcher extends QueryBuilder
      */
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
     {
-        /** @var Entity|string $class */
-        $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
-        $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
+        if (class_exists($class)) {
+            /** @var Entity|string $class */
+            $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
+            $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
 
-        $this->classMapping['byClass'][$class] = $alias;
-        $this->classMapping['byAlias'][$alias] = $class;
+            $this->classMapping['byClass'][$class] = $alias;
+            $this->classMapping['byAlias'][$alias] = $class;
+        } else {
+            $tableName = $class;
+        }
 
         return parent::createJoin(
             $join,

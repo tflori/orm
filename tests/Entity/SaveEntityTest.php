@@ -52,7 +52,7 @@ class SaveEntityTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar']);
 
         self::expectException(NoEntityManager::class);
-        self::expectExceptionMessage('No entity manager defined');
+        self::expectExceptionMessage('No entity manager given');
 
         $entity->save();
     }
