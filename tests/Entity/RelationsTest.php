@@ -2,11 +2,14 @@
 
 namespace ORM\Test\Entity;
 
+use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exceptions\InvalidRelated;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
@@ -24,7 +27,7 @@ class RelationsTest extends TestCase
         return [
             [Relation::class, 'studlyCaps', 'one', StudlyCaps::class, ['studlyCapsId' => 'id']],
             [Relation::class, 'psr0StudlyCaps', 'one', Psr0_StudlyCaps::class, ['psr0StudlyCaps' => 'id']],
-            [Relation::class, 'testEntities', 'many', TestEntity::class, null, 'relation'],
+            [Relation::class, 'contactPhones', 'many', ContactPhone::class, null, 'relation'],
             [Relation::class, 'dmgd', 'one', DamagedABBRVCase::class, ['dmgdId' => 'id']],
             [DamagedABBRVCase::class, 'relation', 'one', Relation::class, null, 'dmgd'],
             [Snake_Ucfirst::class, 'relations', 'many', Relation::class, null, 'snake'],
@@ -232,11 +235,11 @@ class RelationsTest extends TestCase
     public function testFetchFiltersByForeignKeyFor1TM()
     {
         $entity = new Relation(['id' => 42], $this->em);
-        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
-        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
 
-        $result = $entity->fetch('testEntities');
+        $result = $entity->fetch('contactPhones');
 
         self::assertSame($fetcher, $result);
     }
@@ -245,13 +248,13 @@ class RelationsTest extends TestCase
     public function testFetchReturnsAllWithGetAllFor1TM()
     {
         $entity = new Relation(['id' => 42], $this->em);
-        $related = [new TestEntity(), new TestEntity()];
-        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
-        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $related = [new ContactPhone(), new ContactPhone()];
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
         $fetcher->shouldReceive('all')->with()->once()->andReturn($related);
 
-        $result = $entity->fetch('testEntities', null, true);
+        $result = $entity->fetch('contactPhones', null, true);
 
         self::assertSame($related, $result);
     }
@@ -263,7 +266,7 @@ class RelationsTest extends TestCase
         self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');
 
-        $entity->fetch('testEntities');
+        $entity->fetch('contactPhones');
     }
 
     public function testFetchFiltersByRelationTableForMTM()
@@ -378,5 +381,80 @@ class RelationsTest extends TestCase
         $result = $entity->getRelated($relation);
 
         self::assertSame($related, $result);
+    }
+
+    public function testSetRelatedStoresTheId()
+    {
+        $entity = new Relation();
+        $related = new StudlyCaps(['id' => 42]);
+
+        $entity->setRelated('studlyCaps', $related);
+
+        self::assertSame(42, $entity->studlyCapsId);
+    }
+
+    public function testSetRelatedThrowsWhenKeyIsIncomplete()
+    {
+        $entity = new Relation();
+        $related = new StudlyCaps();
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->setRelated('studlyCaps', $related);
+    }
+
+    public function testSetRelatedThrowsWhenClassWrong()
+    {
+        $entity = new Relation();
+
+        self::expectException(InvalidRelated::class);
+        self::expectExceptionMessage('Invalid entity for relation studlyCaps');
+
+        $entity->setRelated('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
+    }
+
+    public function testSetRelatedCallsSetRelatedFromOwnerFor1T1()
+    {
+        $entity = new DamagedABBRVCase();
+        $related = \Mockery::mock(Relation::class)->makePartial();
+        $related->shouldReceive('setRelated')->with('dmgd', $entity)->once();
+
+        $entity->setRelated('relation', $related);
+    }
+
+    public function testSetRelatedFor1TMExpectingArray()
+    {
+        $entity = new Relation(['id' => 42]);
+        $related = \Mockery::mock(ContactPhone::class);
+        $related->shouldReceive('setRelated')->with('relation', $entity);
+
+        self::expectException(InvalidRelated::class);
+        self::expectExceptionMessage('Set related requires an array for one-to-many relations');
+
+        $entity->setRelated('contactPhones', $related);
+    }
+
+    public function testSetRelatedFor1TMThrowsWhenClassWrong()
+    {
+        $entity = new Relation(['id' => 42]);
+        $related = \Mockery::mock(StudlyCaps::class);
+        $related->shouldReceive('setRelated')->with('relation', $entity);
+
+        self::expectException(InvalidRelated::class);
+        self::expectExceptionMessage('Invalid entity for relation contactPhones');
+
+        $entity->setRelated('contactPhones', [$related]);
+    }
+
+    public function testSetRelatedCallsSetRelatedFor1TM()
+    {
+        $entity = new Relation(['id' => 42]);
+        $related1 = \Mockery::mock(ContactPhone::class);
+        $related1->shouldReceive('setRelated')->with('relation', $entity)->once();
+        $related2 = \Mockery::mock(ContactPhone::class);
+        $related2->shouldReceive('setRelated')->with('relation', $entity)->once();
+
+        $entity->setRelated('contactPhones', [$related1, $related2]);
     }
 }

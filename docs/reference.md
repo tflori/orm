@@ -20,6 +20,7 @@ permalink: /reference.html
 * [IncompletePrimaryKey](#ormexceptionsincompleteprimarykey)
 * [InvalidConfiguration](#ormexceptionsinvalidconfiguration)
 * [InvalidName](#ormexceptionsinvalidname)
+* [InvalidRelated](#ormexceptionsinvalidrelated)
 * [NoConnection](#ormexceptionsnoconnection)
 * [NoEntity](#ormexceptionsnoentity)
 * [NoEntityManager](#ormexceptionsnoentitymanager)
@@ -214,6 +215,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
+* [setRelated](#ormentitysetrelated) Set the related object(s)
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
 
@@ -883,6 +885,33 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$namingSchemeTable` | **string**  |  |
+
+
+
+#### ORM\Entity::setRelated
+
+```php?start_inline=true
+public function setRelated( string $relation, array $entity )
+```
+
+##### Set the related object(s)
+
+Sets $entity to the related object for $relation. If $relation has cardinality many you need to provide an array
+of entities in $entity.
+
+This method does not care about loaded and stored relations for $relation. Also it does not reset the foreign
+key in the opponent of previously defined relations.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelated**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entity` | **array**  |  |
 
 
 
@@ -2053,6 +2082,23 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exceptions\InvalidRelated
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
