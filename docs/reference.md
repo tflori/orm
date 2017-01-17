@@ -20,7 +20,7 @@ permalink: /reference.html
 * [IncompletePrimaryKey](#ormexceptionsincompleteprimarykey)
 * [InvalidConfiguration](#ormexceptionsinvalidconfiguration)
 * [InvalidName](#ormexceptionsinvalidname)
-* [InvalidRelated](#ormexceptionsinvalidrelated)
+* [InvalidRelation](#ormexceptionsinvalidrelation)
 * [NoConnection](#ormexceptionsnoconnection)
 * [NoEntity](#ormexceptionsnoentity)
 * [NoEntityManager](#ormexceptionsnoentitymanager)
@@ -187,6 +187,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
+* [addRelations](#ormentityaddrelations) Add relations for $relation to $entities
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
@@ -215,7 +216,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
-* [setRelated](#ormentitysetrelated) Set the related object(s)
+* [setRelation](#ormentitysetrelation) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
 
@@ -303,6 +304,31 @@ The onChange event is called after something got changed.
 **See Also:**
 
 * [Working with entities](https://tflori.github.io/orm/entities.html)
+
+#### ORM\Entity::addRelations
+
+```php?start_inline=true
+public function addRelations(
+    string $relation, array<\ORM\Entity> $entities
+)
+```
+
+##### Add relations for $relation to $entities
+
+This method does not take care about already existing relations and will fail hard.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+
+
 
 #### ORM\Entity::fetch
 
@@ -888,30 +914,26 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 
 
 
-#### ORM\Entity::setRelated
+#### ORM\Entity::setRelation
 
 ```php?start_inline=true
-public function setRelated( string $relation, array $entity )
+public function setRelation( string $relation, \ORM\Entity $entity = null )
 ```
 
-##### Set the related object(s)
+##### Set $relation to $entity
 
-Sets $entity to the related object for $relation. If $relation has cardinality many you need to provide an array
-of entities in $entity.
-
-This method does not care about loaded and stored relations for $relation. Also it does not reset the foreign
-key in the opponent of previously defined relations.
+This method is only for the owner of a relation.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelated**<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
-| `$entity` | **array**  |  |
+| `$entity` | **Entity**  |  |
 
 
 
@@ -2093,7 +2115,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\InvalidRelated
+### ORM\Exceptions\InvalidRelation
 
 **Extends:** [ORM\Exception](#ormexception)
 

@@ -4,10 +4,9 @@ namespace ORM\Test\Entity;
 
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\InvalidRelated;
+use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Exceptions\NoEntityManager;
-use ORM\Exceptions\NoOwner;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
 use ORM\Test\Entity\Examples\ContactPhone;
@@ -409,7 +408,7 @@ class RelationsTest extends TestCase
     {
         $entity = new Relation();
 
-        self::expectException(InvalidRelated::class);
+        self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('Invalid entity for relation studlyCaps');
 
         $entity->setRelation('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
@@ -419,7 +418,7 @@ class RelationsTest extends TestCase
     {
         $entity = new DamagedABBRVCase();
 
-        self::expectException(NoOwner::class);
+        self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('This is not the owner of the relation');
 
         $entity->setRelation('relation', new Relation());
@@ -447,5 +446,68 @@ class RelationsTest extends TestCase
 
         self::assertNull($entity->studlyCapsId);
         self::assertNull($entity->getRelated('studlyCaps'));
+    }
+
+    public function testAddRelationsCreatesTheAssociation()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category = new Category(['id' => 23]);
+        $this->pdo->shouldReceive('query')
+            ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
+            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->addRelations('categories', [$category]);
+    }
+
+    public function testAddRelationsCreatesAMultilineInsert()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category1 = new Category(['id' => 23]);
+        $category2 = new Category(['id' => 24]);
+        $this->pdo->shouldReceive('query')
+                  ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23),(42,24)')
+                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->addRelations('categories', [$category1, $category2]);
+    }
+
+    public function testAddRelationsThrowsWhenClassWrong()
+    {
+        $article = new Article(['id' => 42], $this->em);
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('Invalid entity for relation categories');
+
+        $article->addRelations('categories', [new Category(['id' => 23]), new StudlyCaps()]);
+    }
+
+    public function testAddRelationsThrowsWhenRelationIsNotManyToMany()
+    {
+        $entity = new Relation();
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('This is not a many-to-many relation');
+
+        $entity->addRelations('studlyCaps', [new StudlyCaps(['id' => 23])]);
+    }
+
+    public function testAddRelationsThrowsWhenEntityHasNoKey()
+    {
+        $entity = new Article([], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->addRelations('categories', [new Category(['id' => 23])]);
+    }
+
+    public function testAddRelationsThrowsWhenARelationHasNoKey()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->addRelations('categories', [new Category(['id' => 23]), new Category()]);
     }
 }
