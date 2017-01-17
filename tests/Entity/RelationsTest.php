@@ -7,6 +7,7 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidRelated;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Exceptions\NoEntityManager;
+use ORM\Exceptions\NoOwner;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
 use ORM\Test\Entity\Examples\ContactPhone;
@@ -383,17 +384,17 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testSetRelatedStoresTheId()
+    public function testSetRelationStoresTheId()
     {
         $entity = new Relation();
         $related = new StudlyCaps(['id' => 42]);
 
-        $entity->setRelated('studlyCaps', $related);
+        $entity->setRelation('studlyCaps', $related);
 
         self::assertSame(42, $entity->studlyCapsId);
     }
 
-    public function testSetRelatedThrowsWhenKeyIsIncomplete()
+    public function testSetRelationThrowsWhenKeyIsIncomplete()
     {
         $entity = new Relation();
         $related = new StudlyCaps();
@@ -401,60 +402,50 @@ class RelationsTest extends TestCase
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete to save foreign key');
 
-        $entity->setRelated('studlyCaps', $related);
+        $entity->setRelation('studlyCaps', $related);
     }
 
-    public function testSetRelatedThrowsWhenClassWrong()
+    public function testSetRelationThrowsWhenClassWrong()
     {
         $entity = new Relation();
 
         self::expectException(InvalidRelated::class);
         self::expectExceptionMessage('Invalid entity for relation studlyCaps');
 
-        $entity->setRelated('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
+        $entity->setRelation('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
     }
 
-    public function testSetRelatedCallsSetRelatedFromOwnerFor1T1()
+    public function testSetRelationThrowsForNonOwner()
     {
         $entity = new DamagedABBRVCase();
-        $related = \Mockery::mock(Relation::class)->makePartial();
-        $related->shouldReceive('setRelated')->with('dmgd', $entity)->once();
 
-        $entity->setRelated('relation', $related);
+        self::expectException(NoOwner::class);
+        self::expectExceptionMessage('This is not the owner of the relation');
+
+        $entity->setRelation('relation', new Relation());
     }
 
-    public function testSetRelatedFor1TMExpectingArray()
+    public function testSetRelationStoresTheRelatedObject()
     {
-        $entity = new Relation(['id' => 42]);
-        $related = \Mockery::mock(ContactPhone::class);
-        $related->shouldReceive('setRelated')->with('relation', $entity);
+        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $related = new StudlyCaps(['id' => 42]);
+        $entity->shouldNotReceive('fetch')->with('studlyCaps', null, true);
+        $entity->setRelation('studlyCaps', $related);
 
-        self::expectException(InvalidRelated::class);
-        self::expectExceptionMessage('Set related requires an array for one-to-many relations');
+        $result = $entity->getRelated('studlyCaps');
 
-        $entity->setRelated('contactPhones', $related);
+        self::assertSame($related, $result);
     }
 
-    public function testSetRelatedFor1TMThrowsWhenClassWrong()
+    public function testSetRelationAllowsNull()
     {
-        $entity = new Relation(['id' => 42]);
-        $related = \Mockery::mock(StudlyCaps::class);
-        $related->shouldReceive('setRelated')->with('relation', $entity);
+        $entity = new Relation([], $this->em);
+        $related = new StudlyCaps(['id' => 42]);
+        $entity->setRelation('studlyCaps', $related);
 
-        self::expectException(InvalidRelated::class);
-        self::expectExceptionMessage('Invalid entity for relation contactPhones');
+        $entity->setRelation('studlyCaps', null);
 
-        $entity->setRelated('contactPhones', [$related]);
-    }
-
-    public function testSetRelatedCallsSetRelatedFor1TM()
-    {
-        $entity = new Relation(['id' => 42]);
-        $related1 = \Mockery::mock(ContactPhone::class);
-        $related1->shouldReceive('setRelated')->with('relation', $entity)->once();
-        $related2 = \Mockery::mock(ContactPhone::class);
-        $related2->shouldReceive('setRelated')->with('relation', $entity)->once();
-
-        $entity->setRelated('contactPhones', [$related1, $related2]);
+        self::assertNull($entity->studlyCapsId);
+        self::assertNull($entity->getRelated('studlyCaps'));
     }
 }

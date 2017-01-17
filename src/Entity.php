@@ -8,6 +8,7 @@ use ORM\Exceptions\InvalidRelated;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
+use ORM\Exceptions\NoOwner;
 use ORM\QueryBuilder\QueryBuilder;
 
 /**
@@ -577,62 +578,46 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Set the related object(s)
+     * Set $relation to $entity
      *
-     * Sets $entity to the related object for $relation. If $relation has cardinality many you need to provide an array
-     * of entities in $entity.
-     *
-     * This method does not care about loaded and stored relations for $relation. Also it does not reset the foreign
-     * key in the opponent of previously defined relations.
+     * This method is only for the owner of a relation.
      *
      * @param string $relation
-     * @param array  $entity
+     * @param Entity $entity
      * @throws IncompletePrimaryKey
      * @throws InvalidRelated
      */
-    public function setRelated($relation, $entity)
+    public function setRelation($relation, Entity $entity = null)
     {
         $myRelDef = static::getRelationDefinition($relation);
 
-        $entities = $entity;
-
-        if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
-            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
-                throw new InvalidRelated('Invalid entity for relation ' . $relation);
-            }
-        } else {
-            if (!is_array($entities)) {
-                throw new InvalidRelated('Set related requires an array for one-to-many relations');
-            }
-
-            foreach ($entities as $entity) {
-                if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
-                    throw new InvalidRelated('Invalid entity for relation ' . $relation);
-                }
-            }
+        if ($entity !== null && !$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
+            throw new InvalidRelated('Invalid entity for relation ' . $relation);
         }
 
-        if (isset($myRelDef[self::OPT_RELATION_REFERENCE]) &&
-            !isset($myRelDef[self::OPT_RELATION_TABLE])) {
-            $reference = $myRelDef[self::OPT_RELATION_REFERENCE];
-            foreach ($reference as $fkVar => $var) {
-                $value = $entity->__get($var);
-
-                if ($value === null) {
-                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-                }
-
-                $this->__set($fkVar, $value);
-            }
-        } elseif (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
-            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
-                $entity->setRelated($myRelDef[self::OPT_RELATION_OPPONENT], $this);
-            } else {
-                foreach ($entities as $entity) {
-                    $entity->setRelated($myRelDef[self::OPT_RELATION_OPPONENT], $this);
-                }
-            }
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'one' ||
+            !isset($myRelDef[self::OPT_RELATION_REFERENCE])
+        ) {
+            throw new NoOwner('This is not the owner of the relation');
         }
+
+        $reference = $myRelDef[self::OPT_RELATION_REFERENCE];
+        foreach ($reference as $fkVar => $var) {
+            if ($entity === null) {
+                $this->__set($fkVar, null);
+                continue;
+            }
+
+            $value = $entity->__get($var);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+            }
+
+            $this->__set($fkVar, $value);
+        }
+
+        $this->relatedObjects[$relation] = $entity;
     }
 
     /**
