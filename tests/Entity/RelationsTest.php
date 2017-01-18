@@ -2,11 +2,14 @@
 
 namespace ORM\Test\Entity;
 
+use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
@@ -24,7 +27,7 @@ class RelationsTest extends TestCase
         return [
             [Relation::class, 'studlyCaps', 'one', StudlyCaps::class, ['studlyCapsId' => 'id']],
             [Relation::class, 'psr0StudlyCaps', 'one', Psr0_StudlyCaps::class, ['psr0StudlyCaps' => 'id']],
-            [Relation::class, 'testEntities', 'many', TestEntity::class, null, 'relation'],
+            [Relation::class, 'contactPhones', 'many', ContactPhone::class, null, 'relation'],
             [Relation::class, 'dmgd', 'one', DamagedABBRVCase::class, ['dmgdId' => 'id']],
             [DamagedABBRVCase::class, 'relation', 'one', Relation::class, null, 'dmgd'],
             [Snake_Ucfirst::class, 'relations', 'many', Relation::class, null, 'snake'],
@@ -232,11 +235,11 @@ class RelationsTest extends TestCase
     public function testFetchFiltersByForeignKeyFor1TM()
     {
         $entity = new Relation(['id' => 42], $this->em);
-        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
-        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
 
-        $result = $entity->fetch('testEntities');
+        $result = $entity->fetch('contactPhones');
 
         self::assertSame($fetcher, $result);
     }
@@ -245,13 +248,13 @@ class RelationsTest extends TestCase
     public function testFetchReturnsAllWithGetAllFor1TM()
     {
         $entity = new Relation(['id' => 42], $this->em);
-        $related = [new TestEntity(), new TestEntity()];
-        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, TestEntity::class])->makePartial();
-        $this->em->shouldReceive('fetch')->with(TestEntity::class)->once()->andReturn($fetcher);
+        $related = [new ContactPhone(), new ContactPhone()];
+        $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
+        $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
         $fetcher->shouldReceive('all')->with()->once()->andReturn($related);
 
-        $result = $entity->fetch('testEntities', null, true);
+        $result = $entity->fetch('contactPhones', null, true);
 
         self::assertSame($related, $result);
     }
@@ -263,7 +266,7 @@ class RelationsTest extends TestCase
         self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');
 
-        $entity->fetch('testEntities');
+        $entity->fetch('contactPhones');
     }
 
     public function testFetchFiltersByRelationTableForMTM()
@@ -378,5 +381,213 @@ class RelationsTest extends TestCase
         $result = $entity->getRelated($relation);
 
         self::assertSame($related, $result);
+    }
+
+    public function testSetRelationStoresTheId()
+    {
+        $entity = new Relation();
+        $related = new StudlyCaps(['id' => 42]);
+
+        $entity->setRelation('studlyCaps', $related);
+
+        self::assertSame(42, $entity->studlyCapsId);
+    }
+
+    public function testSetRelationThrowsWhenKeyIsIncomplete()
+    {
+        $entity = new Relation();
+        $related = new StudlyCaps();
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->setRelation('studlyCaps', $related);
+    }
+
+    public function testSetRelationThrowsWhenClassWrong()
+    {
+        $entity = new Relation();
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('Invalid entity for relation studlyCaps');
+
+        $entity->setRelation('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
+    }
+
+    public function testSetRelationThrowsForNonOwner()
+    {
+        $entity = new DamagedABBRVCase();
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('This is not the owner of the relation');
+
+        $entity->setRelation('relation', new Relation());
+    }
+
+    public function testSetRelationStoresTheRelatedObject()
+    {
+        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $related = new StudlyCaps(['id' => 42]);
+        $entity->shouldNotReceive('fetch')->with('studlyCaps', null, true);
+        $entity->setRelation('studlyCaps', $related);
+
+        $result = $entity->getRelated('studlyCaps');
+
+        self::assertSame($related, $result);
+    }
+
+    public function testSetRelationAllowsNull()
+    {
+        $entity = new Relation([], $this->em);
+        $related = new StudlyCaps(['id' => 42]);
+        $entity->setRelation('studlyCaps', $related);
+
+        $entity->setRelation('studlyCaps', null);
+
+        self::assertNull($entity->studlyCapsId);
+        self::assertNull($entity->getRelated('studlyCaps'));
+    }
+
+    public function testAddRelationsCreatesTheAssociation()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category = new Category(['id' => 23]);
+        $this->pdo->shouldReceive('query')
+            ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
+            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->addRelations('categories', [$category]);
+    }
+
+    public function testAddRelationsCreatesAMultilineInsert()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category1 = new Category(['id' => 23]);
+        $category2 = new Category(['id' => 24]);
+        $this->pdo->shouldReceive('query')
+                  ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23),(42,24)')
+                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->addRelations('categories', [$category1, $category2]);
+    }
+
+    public function testAddRelationsThrowsWhenClassWrong()
+    {
+        $article = new Article(['id' => 42], $this->em);
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('Invalid entity for relation categories');
+
+        $article->addRelations('categories', [new Category(['id' => 23]), new StudlyCaps()]);
+    }
+
+    public function testAddRelationsThrowsWhenRelationIsNotManyToMany()
+    {
+        $entity = new Relation();
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('This is not a many-to-many relation');
+
+        $entity->addRelations('studlyCaps', [new StudlyCaps(['id' => 23])]);
+    }
+
+    public function testAddRelationsThrowsWhenEntityHasNoKey()
+    {
+        $entity = new Article([], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->addRelations('categories', [new Category(['id' => 23])]);
+    }
+
+    public function testAddRelationsThrowsWhenARelationHasNoKey()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->addRelations('categories', [new Category(['id' => 23]), new Category()]);
+    }
+
+    public function testAddRelationsDoesNothingWithEmptyArray()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+        $this->pdo->shouldNotReceive('query');
+
+        $entity->addRelations('categories', []);
+    }
+
+    public function testDeleteRelationsDeletesTheAssociation()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category = new Category(['id' => 23]);
+        $this->pdo->shouldReceive('query')
+            ->with('DELETE FROM "article_category" WHERE "article_id" = 42 AND ("category_id" = 23)')
+            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->deleteRelations('categories', [$category]);
+    }
+
+    public function testDeleteRelationsExecutesOnlyOneStatement()
+    {
+        $article = new Article(['id' => 42], $this->em);
+        $category1 = new Category(['id' => 23]);
+        $category2 = new Category(['id' => 24]);
+        $this->pdo->shouldReceive('query')
+                  ->with('DELETE FROM "article_category" WHERE "article_id" = 42 ' .
+                         'AND ("category_id" = 23 OR "category_id" = 24)')
+                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->deleteRelations('categories', [$category1, $category2]);
+    }
+
+    public function testDeleteRelationsThrowsWhenClassWrong()
+    {
+        $article = new Article(['id' => 42], $this->em);
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('Invalid entity for relation categories');
+
+        $article->deleteRelations('categories', [new Category(['id' => 23]), new StudlyCaps()]);
+    }
+
+    public function testDeleteRelationsThrowsWhenRelationIsNotManyToMany()
+    {
+        $entity = new Relation();
+
+        self::expectException(InvalidRelation::class);
+        self::expectExceptionMessage('This is not a many-to-many relation');
+
+        $entity->deleteRelations('studlyCaps', [new StudlyCaps(['id' => 23])]);
+    }
+
+    public function testDeleteRelationsThrowsWhenEntityHasNoKey()
+    {
+        $entity = new Article([], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->deleteRelations('categories', [new Category(['id' => 23])]);
+    }
+
+    public function testDeleteRelationsThrowsWhenARelationHasNoKey()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Key incomplete to save foreign key');
+
+        $entity->deleteRelations('categories', [new Category(['id' => 23]), new Category()]);
+    }
+
+    public function testDeleteRelationsDoesNothingWithEmptyArray()
+    {
+        $entity = new Article(['id' => 42], $this->em);
+        $this->pdo->shouldNotReceive('query');
+
+        $entity->deleteRelations('categories', []);
     }
 }

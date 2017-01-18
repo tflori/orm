@@ -4,12 +4,8 @@ namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
 
-class TestEntity extends Entity
+abstract class TestEntity extends Entity
 {
-    protected static $relations = [
-        'relation' => [Relation::class, ['relationId' => 'id']],
-    ];
-
     public static function resetStaticsForTest()
     {
         self::$namingSchemeTable = 'snake_lower';

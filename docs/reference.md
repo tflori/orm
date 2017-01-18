@@ -20,6 +20,7 @@ permalink: /reference.html
 * [IncompletePrimaryKey](#ormexceptionsincompleteprimarykey)
 * [InvalidConfiguration](#ormexceptionsinvalidconfiguration)
 * [InvalidName](#ormexceptionsinvalidname)
+* [InvalidRelation](#ormexceptionsinvalidrelation)
 * [NoConnection](#ormexceptionsnoconnection)
 * [NoEntity](#ormexceptionsnoentity)
 * [NoEntityManager](#ormexceptionsnoentitymanager)
@@ -186,6 +187,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
+* [addRelations](#ormentityaddrelations) Add relations for $relation to $entities
+* [deleteRelations](#ormentitydeleterelations) Delete relations for $relation to $entities
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
@@ -214,6 +217,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
+* [setRelation](#ormentitysetrelation) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
 
@@ -301,6 +305,58 @@ The onChange event is called after something got changed.
 **See Also:**
 
 * [Working with entities](https://tflori.github.io/orm/entities.html)
+
+#### ORM\Entity::addRelations
+
+```php?start_inline=true
+public function addRelations(
+    string $relation, array<\ORM\Entity> $entities
+)
+```
+
+##### Add relations for $relation to $entities
+
+This method is only for many-to-many relations.
+
+This method does not take care about already existing relations and will fail hard.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+
+
+
+#### ORM\Entity::deleteRelations
+
+```php?start_inline=true
+public function deleteRelations(
+    string $relation, array<\ORM\Entity> $entities
+)
+```
+
+##### Delete relations for $relation to $entities
+
+This method is only for many-to-many relations.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+
+
 
 #### ORM\Entity::fetch
 
@@ -883,6 +939,29 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$namingSchemeTable` | **string**  |  |
+
+
+
+#### ORM\Entity::setRelation
+
+```php?start_inline=true
+public function setRelation( string $relation, \ORM\Entity $entity = null )
+```
+
+##### Set $relation to $entity
+
+This method is only for the owner of a relation.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entity` | **Entity**  |  |
 
 
 
@@ -2053,6 +2132,23 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exceptions\InvalidRelation
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 

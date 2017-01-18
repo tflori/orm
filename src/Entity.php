@@ -4,6 +4,7 @@ namespace ORM;
 
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
@@ -573,6 +574,183 @@ abstract class Entity implements \Serializable
         }
 
         return $this->relatedObjects[$relation];
+    }
+
+    /**
+     * Set $relation to $entity
+     *
+     * This method is only for the owner of a relation.
+     *
+     * @param string $relation
+     * @param Entity $entity
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     */
+    public function setRelation($relation, Entity $entity = null)
+    {
+        $relDef = static::getRelationDefinition($relation);
+
+        if ($relDef[self::OPT_RELATION_CARDINALITY] !== 'one' ||
+            !isset($relDef[self::OPT_RELATION_REFERENCE])
+        ) {
+            throw new InvalidRelation('This is not the owner of the relation');
+        }
+
+        if ($entity !== null && !$entity instanceof $relDef[self::OPT_RELATION_CLASS]) {
+            throw new InvalidRelation('Invalid entity for relation ' . $relation);
+        }
+
+        $reference = $relDef[self::OPT_RELATION_REFERENCE];
+        foreach ($reference as $fkVar => $var) {
+            if ($entity === null) {
+                $this->__set($fkVar, null);
+                continue;
+            }
+
+            $value = $entity->__get($var);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+            }
+
+            $this->__set($fkVar, $value);
+        }
+
+        $this->relatedObjects[$relation] = $entity;
+    }
+
+    /**
+     * Add relations for $relation to $entities
+     *
+     * This method is only for many-to-many relations.
+     *
+     * This method does not take care about already existing relations and will fail hard.
+     *
+     * @param string $relation
+     * @param Entity[] $entities
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     */
+    public function addRelations($relation, $entities)
+    {
+        $myRelDef = static::getRelationDefinition($relation);
+
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'many' ||
+            !isset($myRelDef[self::OPT_RELATION_TABLE])
+        ) {
+            throw new InvalidRelation('This is not a many-to-many relation');
+        }
+
+        if (empty($entities)) {
+            return;
+        }
+
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+        $table = $this->entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+
+        $cols = [];
+        $baseAssociation = [];
+        foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
+            $cols[]            = $this->entityManager->escapeIdentifier($fkCol);
+            $value             = $this->__get($myVar);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+            }
+
+            $baseAssociation[] = $this->entityManager->escapeValue($value);
+        }
+
+        $associations = [];
+        foreach ($entities as $entity) {
+            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
+                throw new InvalidRelation('Invalid entity for relation ' . $relation);
+            }
+
+            $association = $baseAssociation;
+            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
+                if (empty($associations)) {
+                    $cols[] = $this->entityManager->escapeIdentifier($fkCol);
+                }
+                $value        = $entity->__get($hisVar);
+
+                if ($value === null) {
+                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+                }
+
+                $association[] = $this->entityManager->escapeValue($value);
+            }
+            $associations[] = implode(',', $association);
+        }
+
+        $statement = 'INSERT INTO ' . $table . ' (' . implode(',', $cols) . ') ' .
+                     'VALUES (' . implode('),(', $associations) . ')';
+        $this->entityManager->getConnection()->query($statement);
+    }
+
+    /**
+     * Delete relations for $relation to $entities
+     *
+     * This method is only for many-to-many relations.
+     *
+     * @param string $relation
+     * @param Entity[] $entities
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     */
+    public function deleteRelations($relation, $entities)
+    {
+        $myRelDef = static::getRelationDefinition($relation);
+
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'many' ||
+            !isset($myRelDef[self::OPT_RELATION_TABLE])
+        ) {
+            throw new InvalidRelation('This is not a many-to-many relation');
+        }
+
+        if (empty($entities)) {
+            return;
+        }
+
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+        $table = $this->entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+        $where = [];
+
+        foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
+            $value             = $this->__get($myVar);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+            }
+
+            $where[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
+                       $this->entityManager->escapeValue($value);
+        }
+
+        foreach ($entities as $entity) {
+            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
+                throw new InvalidRelation('Invalid entity for relation ' . $relation);
+            }
+
+            $condition = [];
+            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
+                $value        = $entity->__get($hisVar);
+
+                if ($value === null) {
+                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+                }
+
+                $condition[] = $this->entityManager->escapeIdentifier($fkCol) .' = ' .
+                        $this->entityManager->escapeValue($value);
+            }
+            $where[] = implode(' AND ', $condition);
+        }
+
+        $statement = 'DELETE FROM ' . $table . ' WHERE ' . array_shift($where) . ' ' .
+                     'AND (' . implode(' OR ', $where) . ')';
+        $this->entityManager->getConnection()->query($statement);
     }
 
     /**

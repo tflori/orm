@@ -16,8 +16,8 @@ class Relation extends Entity
             self::OPT_RELATION_CLASS => Psr0_StudlyCaps::class,
             self::OPT_RELATION_REFERENCE => ['psr0StudlyCaps' => 'id'],
         ],
-        'testEntities' => [
-            self::OPT_RELATION_CLASS => TestEntity::class,
+        'contactPhones' => [
+            self::OPT_RELATION_CLASS => ContactPhone::class,
             self::OPT_RELATION_OPPONENT => 'relation',
         ],
         'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
