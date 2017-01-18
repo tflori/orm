@@ -188,6 +188,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
 * [addRelations](#ormentityaddrelations) Add relations for $relation to $entities
+* [deleteRelations](#ormentitydeleterelations) Delete relations for $relation to $entities
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
@@ -315,7 +316,34 @@ public function addRelations(
 
 ##### Add relations for $relation to $entities
 
+This method is only for many-to-many relations.
+
 This method does not take care about already existing relations and will fail hard.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+
+
+
+#### ORM\Entity::deleteRelations
+
+```php?start_inline=true
+public function deleteRelations(
+    string $relation, array<\ORM\Entity> $entities
+)
+```
+
+##### Delete relations for $relation to $entities
+
+This method is only for many-to-many relations.
 
 **Visibility:** this method is **public**.
 <br />

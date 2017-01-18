@@ -622,6 +622,8 @@ abstract class Entity implements \Serializable
     /**
      * Add relations for $relation to $entities
      *
+     * This method is only for many-to-many relations.
+     *
      * This method does not take care about already existing relations and will fail hard.
      *
      * @param string $relation
@@ -637,6 +639,10 @@ abstract class Entity implements \Serializable
             !isset($myRelDef[self::OPT_RELATION_TABLE])
         ) {
             throw new InvalidRelation('This is not a many-to-many relation');
+        }
+
+        if (empty($entities)) {
+            return;
         }
 
         $class = $myRelDef[self::OPT_RELATION_CLASS];
@@ -680,6 +686,70 @@ abstract class Entity implements \Serializable
 
         $statement = 'INSERT INTO ' . $table . ' (' . implode(',', $cols) . ') ' .
                      'VALUES (' . implode('),(', $associations) . ')';
+        $this->entityManager->getConnection()->query($statement);
+    }
+
+    /**
+     * Delete relations for $relation to $entities
+     *
+     * This method is only for many-to-many relations.
+     *
+     * @param string $relation
+     * @param Entity[] $entities
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     */
+    public function deleteRelations($relation, $entities)
+    {
+        $myRelDef = static::getRelationDefinition($relation);
+
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'many' ||
+            !isset($myRelDef[self::OPT_RELATION_TABLE])
+        ) {
+            throw new InvalidRelation('This is not a many-to-many relation');
+        }
+
+        if (empty($entities)) {
+            return;
+        }
+
+        $class = $myRelDef[self::OPT_RELATION_CLASS];
+        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
+        $table = $this->entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+        $where = [];
+
+        foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
+            $value             = $this->__get($myVar);
+
+            if ($value === null) {
+                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+            }
+
+            $where[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
+                       $this->entityManager->escapeValue($value);
+        }
+
+        foreach ($entities as $entity) {
+            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
+                throw new InvalidRelation('Invalid entity for relation ' . $relation);
+            }
+
+            $condition = [];
+            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
+                $value        = $entity->__get($hisVar);
+
+                if ($value === null) {
+                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
+                }
+
+                $condition[] = $this->entityManager->escapeIdentifier($fkCol) .' = ' .
+                        $this->entityManager->escapeValue($value);
+            }
+            $where[] = implode(' AND ', $condition);
+        }
+
+        $statement = 'DELETE FROM ' . $table . ' WHERE ' . array_shift($where) . ' ' .
+                     'AND (' . implode(' OR ', $where) . ')';
         $this->entityManager->getConnection()->query($statement);
     }
 
