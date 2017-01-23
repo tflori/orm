@@ -3,6 +3,13 @@ checks:
       code_rating: true
       duplication: false
 build:
+    tests:
+        override:
+            -
+                command: 'phpunit --coverage-clover=coverage.clover'
+                coverage:
+                    file: 'coverage.clover'
+                    format: 'clover'
     environment:
         php:
             version: 7.1.0
