@@ -33,7 +33,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     protected $alias = '';
 
     /** Columns to fetch (null is equal to ['*'])
-     * @var array */
+     * @var array|null */
     protected $columns = null;
 
     /** Joins get concatenated with space
@@ -229,7 +229,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $join .= ' ON ' . $parenthesis->getExpression();
                 $this->joins[] = $join;
                 return $this;
-            }, $this, $this->entityManager);
+            }, $this);
         }
 
         return $this;

@@ -194,6 +194,7 @@ class EntityManager
     {
         $this->map($entity, true);
 
+        /** @var EntityFetcher $fetcher */
         $fetcher = $this->fetch(get_class($entity));
         foreach ($entity->getPrimaryKey() as $var => $value) {
             $fetcher->where($var, $value);
@@ -437,24 +438,19 @@ class EntityManager
         switch (strtolower(gettype($value))) {
             case 'string':
                 return $this->getConnection()->quote($value);
-                break;
 
             case 'integer':
                 return (string)$value;
-                break;
 
             case 'double':
                 return (string)$value;
-                break;
 
             case 'boolean':
                 $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
                 return ($value) ? $this->options[$connectionType . 'True'] : $this->options[$connectionType . 'False'];
-                break;
 
             case 'null':
                 return 'NULL';
-                break;
 
             default:
                 throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
