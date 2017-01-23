@@ -1,5 +1,7 @@
 checks:
-    php: true
+    php:
+      code_rating: true
+      duplication: false
 build:
     environment:
         php:
