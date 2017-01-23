@@ -31,6 +31,9 @@ abstract class Entity implements \Serializable
     const OPT_RELATION_OPPONENT    = 'opponent';
     const OPT_RELATION_TABLE       = 'table';
 
+    const CARDINALITY_ONE          = 'one';
+    const CARDINALITY_MANY         = 'many';
+
     /** The template to use to calculate the table name.
      * @var string */
     protected static $tableNameTemplate = '%short%';
@@ -462,7 +465,7 @@ abstract class Entity implements \Serializable
      *
      * It calls ::onInit() after initializing $data and $originalData.
      *
-     * @param array         $data          The current data
+     * @param mixed[]       $data          The current data
      * @param EntityManager $entityManager The EntityManager that created this entity
      * @param bool          $fromDatabase  Whether or not the data comes from database
      */
@@ -635,7 +638,7 @@ abstract class Entity implements \Serializable
     {
         $myRelDef = static::getRelationDefinition($relation);
 
-        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'many' ||
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== self::CARDINALITY_MANY ||
             !isset($myRelDef[self::OPT_RELATION_TABLE])
         ) {
             throw new InvalidRelation('This is not a many-to-many relation');
@@ -703,7 +706,7 @@ abstract class Entity implements \Serializable
     {
         $myRelDef = static::getRelationDefinition($relation);
 
-        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== 'many' ||
+        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== self::CARDINALITY_MANY ||
             !isset($myRelDef[self::OPT_RELATION_TABLE])
         ) {
             throw new InvalidRelation('This is not a many-to-many relation');
@@ -762,7 +765,7 @@ abstract class Entity implements \Serializable
      */
     public function isDirty($var = null)
     {
-        if ($var) {
+        if (!empty($var)) {
             $col = static::getColumnName($var);
             return @$this->data[$col] !== @$this->originalData[$col];
         }
@@ -781,7 +784,7 @@ abstract class Entity implements \Serializable
      */
     public function reset($var = null)
     {
-        if ($var) {
+        if (!empty($var)) {
             $col = static::getColumnName($var);
             if (isset($this->originalData[$col])) {
                 $this->data[$col] = $this->originalData[$col];
@@ -910,6 +913,7 @@ abstract class Entity implements \Serializable
             $foreignKey[$fkCol] = $value;
         }
 
+        /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($class);
 
         if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
@@ -917,7 +921,7 @@ abstract class Entity implements \Serializable
                 $fetcher->where($col, $value);
             }
 
-            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === 'one') {
+            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === self::CARDINALITY_ONE) {
                 return $fetcher->one();
             } elseif ($getAll) {
                 return $fetcher->all();
@@ -939,6 +943,7 @@ abstract class Entity implements \Serializable
                 $result = $entityManager->getConnection()->query($query->getQuery());
                 $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
 
+                /** @var Entity[] $result */
                 $result = [];
                 foreach ($primaryKeys as $primaryKey) {
                     if ($entity = $entityManager->fetch($class, $primaryKey)) {

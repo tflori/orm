@@ -9,3 +9,4 @@ filter:
         - tests/*
         - docs/*
         - vendor/*
+        - example.php
