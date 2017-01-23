@@ -231,16 +231,16 @@ class EntityManager
     {
         $data = $entity->getData();
 
-        $cols = array_map(function ($key) {
+        $cols = array_map(function($key) {
             return $this->escapeIdentifier($key);
         }, array_keys($data));
 
-        $values = array_map(function ($value) use ($entity) {
+        $values = array_map(function($value) use ($entity) {
             return $this->escapeValue($value);
         }, array_values($data));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+                        '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
         $pdo = $this->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
@@ -307,8 +307,8 @@ class EntityManager
         }
 
         $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'SET ' . implode(',', $set) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'SET ' . implode(',', $set) . ' ' .
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $this->sync($entity, true);
@@ -338,7 +338,7 @@ class EntityManager
         }
 
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $entity->setOriginalData([]);
