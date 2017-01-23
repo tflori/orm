@@ -158,6 +158,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | OPT_RELATION_REFERENCE | `'reference'` |
 | OPT_RELATION_OPPONENT | `'opponent'` |
 | OPT_RELATION_TABLE | `'table'` |
+| CARDINALITY_ONE | `'one'` |
+| CARDINALITY_MANY | `'many'` |
 
 
 #### Properties
@@ -192,6 +194,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
+* [getForeignKey](#ormentitygetforeignkey) Get the foreign key for the given reference
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
 * [getNamingSchemeTable](#ormentitygetnamingschemetable) 
@@ -225,8 +228,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 ```php?start_inline=true
 final public function __construct(
-    array $data = array(), \ORM\EntityManager $entityManager = null, 
-    boolean $fromDatabase = false
+    array<mixed> $data = array(), 
+    \ORM\EntityManager $entityManager = null, boolean $fromDatabase = false
 ): Entity
 ```
 
@@ -242,7 +245,7 @@ It calls ::onInit() after initializing $data and $originalData.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$data` | **array**  | The current data |
+| `$data` | **array&lt;mixed>**  | The current data |
 | `$entityManager` | **EntityManager**  | The EntityManager that created this entity |
 | `$fromDatabase` | **boolean**  | Whether or not the data comes from database |
 
@@ -441,6 +444,29 @@ the same as getColumnName($name).
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$var` | **string**  |  |
+
+
+
+#### ORM\Entity::getForeignKey
+
+```php?start_inline=true
+private function getForeignKey( array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$reference` | **array**  |  |
 
 
 
@@ -1046,7 +1072,7 @@ Supported:
 |------------|------|------|---------------------------------------|
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
-| **protected** | `$columns` | **array** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
 | **protected** | `$offset` | **integer** | Offset to start from |
@@ -2785,7 +2811,7 @@ Supported:
 | **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
-| **protected** | `$columns` | **array** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
 | **protected** | `$offset` | **integer** | Offset to start from |
