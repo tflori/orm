@@ -79,7 +79,7 @@ abstract class Relation
      * Converts short form to assoc form
      *
      * @param string $name
-     * @param string $relDef
+     * @param array $relDef
      * @return array
      * @throws InvalidConfiguration
      */

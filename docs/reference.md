@@ -2351,7 +2351,7 @@ public function addRelated(
 #### ORM\Relation\ManyToMany::convertShort
 
 ```php?start_inline=true
-protected static function convertShort( string $name, string $relDef ): array
+protected static function convertShort( string $name, array $relDef ): array
 ```
 
 ##### Converts short form to assoc form
@@ -2369,7 +2369,7 @@ protected static function convertShort( string $name, string $relDef ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` | **string**  |  |
-| `$relDef` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -2792,7 +2792,7 @@ public function addRelated(
 #### ORM\Relation\OneToMany::convertShort
 
 ```php?start_inline=true
-protected static function convertShort( string $name, string $relDef ): array
+protected static function convertShort( string $name, array $relDef ): array
 ```
 
 ##### Converts short form to assoc form
@@ -2810,7 +2810,7 @@ protected static function convertShort( string $name, string $relDef ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` | **string**  |  |
-| `$relDef` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -3139,7 +3139,7 @@ public function addRelated(
 #### ORM\Relation\OneToOne::convertShort
 
 ```php?start_inline=true
-protected static function convertShort( string $name, string $relDef ): array
+protected static function convertShort( string $name, array $relDef ): array
 ```
 
 ##### Converts short form to assoc form
@@ -3157,7 +3157,7 @@ protected static function convertShort( string $name, string $relDef ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` | **string**  |  |
-| `$relDef` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -3484,7 +3484,7 @@ public function addRelated(
 #### ORM\Relation\Owner::convertShort
 
 ```php?start_inline=true
-protected static function convertShort( string $name, string $relDef ): array
+protected static function convertShort( string $name, array $relDef ): array
 ```
 
 ##### Converts short form to assoc form
@@ -3502,7 +3502,7 @@ protected static function convertShort( string $name, string $relDef ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` | **string**  |  |
-| `$relDef` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -5565,7 +5565,7 @@ public function addRelated(
 #### ORM\Relation::convertShort
 
 ```php?start_inline=true
-protected static function convertShort( string $name, string $relDef ): array
+protected static function convertShort( string $name, array $relDef ): array
 ```
 
 ##### Converts short form to assoc form
@@ -5583,7 +5583,7 @@ protected static function convertShort( string $name, string $relDef ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` | **string**  |  |
-| `$relDef` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 

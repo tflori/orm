@@ -24,7 +24,6 @@ class ManyToMany extends Relation
      * @param array  $reference
      * @param string $opponent
      * @param string $table
-     * @codeCoverageIgnore don't know why this should be uncovered
      */
     public function __construct($name, $class, array $reference, $opponent, $table)
     {
