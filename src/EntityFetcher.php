@@ -111,7 +111,7 @@ class EntityFetcher extends QueryBuilder
                 '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
                 '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
                 '(?<a>$| |,|\))/',
-                function ($match) {
+                function($match) {
                     if ($match['class']) {
                         if (!isset($this->classMapping['byClass'][$match['class']])) {
                             throw new NotJoined("Class " . $match['class'] . " not joined");
@@ -203,7 +203,7 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $data      = $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
 
         if (!$data) {
             return null;
