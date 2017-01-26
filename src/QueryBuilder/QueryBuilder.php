@@ -212,7 +212,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)
     {
         $join = $join . ' ' . $tableName
-              . ($alias ? ' AS ' . $alias : '');
+                . ($alias ? ' AS ' . $alias : '');
 
         if (preg_match('/^[A-Za-z_]+$/', $expression)) {
             $join .= ' USING (' . $expression . ')';
@@ -225,7 +225,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         } elseif ($empty) {
             $this->joins[] = $join;
         } else {
-            return new Parenthesis(function (ParenthesisInterface $parenthesis) use ($join) {
+            return new Parenthesis(function(ParenthesisInterface $parenthesis) use ($join) {
                 $join .= ' ON ' . $parenthesis->getExpression();
                 $this->joins[] = $join;
                 return $this;
@@ -308,7 +308,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function limit($limit)
     {
-        $this->limit = (int)$limit;
+        $this->limit = (int) $limit;
 
         return $this;
     }
@@ -316,7 +316,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function offset($offset)
     {
-        $this->offset = (int)$offset;
+        $this->offset = (int) $offset;
 
         return $this;
     }
@@ -325,14 +325,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     public function getQuery()
     {
         return 'SELECT '
-               . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
-               . ($this->columns ? implode(',', $this->columns) : '*')
-               . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
-               . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
-               . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
-               . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
-               . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
-               . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
+                . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
+                . ($this->columns ? implode(',', $this->columns) : '*')
+                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
+                . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
+                . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
+                . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
+                . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
+                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
     }
 
     /** {@inheritdoc} */

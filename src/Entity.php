@@ -128,7 +128,7 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $reflection = self::getReflection();
 
-            $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
+            $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function($match) use ($reflection) {
                 switch ($match[1]) {
                     case 'short':
                         $words = [$reflection->getShortName()];
@@ -154,8 +154,7 @@ abstract class Entity implements \Serializable
                 $from = $match[3][0] === '-' ? count($words) - substr($match[3], 1) : $match[3];
                 if (isset($words[$from])) {
                     return !isset($match[4]) ?
-                        $words[$from] :
-                        implode('_', array_slice($words, $from));
+                        $words[$from] : implode('_', array_slice($words, $from));
                 }
                 return '';
             }, static::getTableNameTemplate());
@@ -403,7 +402,7 @@ abstract class Entity implements \Serializable
         $words = explode('_', preg_replace(
             '/([a-z0-9])([A-Z])/',
             '$1_$2',
-            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($d) {
+            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function($d) {
                 return ($d[1] ? $d[1] . '_' : '') . $d[2] . '_' . $d[3];
             }, $name)
         ));
@@ -677,7 +676,7 @@ abstract class Entity implements \Serializable
                 if (empty($associations)) {
                     $cols[] = $this->entityManager->escapeIdentifier($fkCol);
                 }
-                $value        = $entity->__get($hisVar);
+                $value = $entity->__get($hisVar);
 
                 if ($value === null) {
                     throw new IncompletePrimaryKey('Key incomplete to save foreign key');
@@ -689,7 +688,7 @@ abstract class Entity implements \Serializable
         }
 
         $statement = 'INSERT INTO ' . $table . ' (' . implode(',', $cols) . ') ' .
-                     'VALUES (' . implode('),(', $associations) . ')';
+                        'VALUES (' . implode('),(', $associations) . ')';
         $this->entityManager->getConnection()->query($statement);
     }
 
@@ -723,14 +722,14 @@ abstract class Entity implements \Serializable
         $where = [];
 
         foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
-            $value             = $this->__get($myVar);
+            $value = $this->__get($myVar);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
             $where[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
-                       $this->entityManager->escapeValue($value);
+                        $this->entityManager->escapeValue($value);
         }
 
         foreach ($entities as $entity) {
@@ -740,20 +739,20 @@ abstract class Entity implements \Serializable
 
             $condition = [];
             foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
-                $value        = $entity->__get($hisVar);
+                $value = $entity->__get($hisVar);
 
                 if ($value === null) {
                     throw new IncompletePrimaryKey('Key incomplete to save foreign key');
                 }
 
-                $condition[] = $this->entityManager->escapeIdentifier($fkCol) .' = ' .
+                $condition[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
                         $this->entityManager->escapeValue($value);
             }
             $where[] = implode(' AND ', $condition);
         }
 
         $statement = 'DELETE FROM ' . $table . ' WHERE ' . array_shift($where) . ' ' .
-                     'AND (' . implode(' OR ', $where) . ')';
+                        'AND (' . implode(' OR ', $where) . ')';
         $this->entityManager->getConnection()->query($statement);
     }
 
