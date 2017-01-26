@@ -167,8 +167,6 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | OPT_RELATION_REFERENCE | `'reference'` |
 | OPT_RELATION_OPPONENT | `'opponent'` |
 | OPT_RELATION_TABLE | `'table'` |
-| CARDINALITY_ONE | `'one'` |
-| CARDINALITY_MANY | `'many'` |
 
 
 #### Properties
@@ -2259,6 +2257,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
 * [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
+* [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
@@ -2345,6 +2344,33 @@ public function addRelated(
 | `$me` | **\ORM\Entity**  |  |
 | `$entities` | **array**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::createRelation
+
+```php?start_inline=true
+public static function createRelation(
+    string $name, array $relDef
+): \ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -2649,6 +2675,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
 * [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
+* [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
@@ -2732,6 +2759,33 @@ public function addRelated(
 | `$me` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::createRelation
+
+```php?start_inline=true
+public static function createRelation(
+    string $name, array $relDef
+): \ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -2940,6 +2994,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
 * [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
+* [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
 * [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
@@ -3025,6 +3080,33 @@ public function addRelated(
 | `$me` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::createRelation
+
+```php?start_inline=true
+public static function createRelation(
+    string $name, array $relDef
+): \ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -3233,6 +3315,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [__construct](#ormrelationowner__construct) Owner constructor.
 * [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
+* [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
@@ -3316,6 +3399,33 @@ public function addRelated(
 | `$me` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::createRelation
+
+```php?start_inline=true
+public static function createRelation(
+    string $name, array $relDef
+): \ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 
@@ -5261,6 +5371,13 @@ where('name = ?', ['John Doe'])
 
 
 
+#### Constants
+
+| Name | Value |
+|------|-------|
+| CARDINALITY_ONE | `'one'` |
+| CARDINALITY_MANY | `'many'` |
+
 
 #### Properties
 
@@ -5277,6 +5394,7 @@ where('name = ?', ['John Doe'])
 
 * [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
+* [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationfetch) Fetch the relation
 * [fetchAll](#ormrelationfetchall) Fetch all from the relation
@@ -5336,6 +5454,33 @@ public function addRelated(
 | `$me` | **Entity**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
 | `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::createRelation
+
+```php?start_inline=true
+public static function createRelation(
+    string $name, array $relDef
+): \ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
 
 
 

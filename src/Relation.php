@@ -3,10 +3,18 @@
 namespace ORM;
 
 use ORM\Exceptions\IncompletePrimaryKey;
+use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidRelation;
+use ORM\Relation\ManyToMany;
+use ORM\Relation\OneToMany;
+use ORM\Relation\OneToOne;
+use ORM\Relation\Owner;
 
 abstract class Relation
 {
+    const CARDINALITY_ONE          = 'one';
+    const CARDINALITY_MANY         = 'many';
+
     /** The name of the relation for error messages
      * @var string */
     protected $name;
@@ -22,6 +30,85 @@ abstract class Relation
     /** Reference definition as key value pairs
      * @var array */
     protected $reference;
+
+    /**
+     * Factory for relation definition object
+     *
+     * @param string $name
+     * @param array $relDef
+     * @return Relation
+     * @throws InvalidConfiguration
+     */
+    public static function createRelation($name, $relDef)
+    {
+        if (isset($relDef[0])) {
+            // convert the short form
+            $length = count($relDef);
+
+            if ($length === 2 && gettype($relDef[1]) === 'array') {
+                // owner of one-to-many or one-to-one
+                $relDef = [
+                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
+                    Entity::OPT_RELATION_CLASS       => $relDef[0],
+                    Entity::OPT_RELATION_REFERENCE   => $relDef[1],
+                ];
+            } elseif ($length === 3 && $relDef[0] === self::CARDINALITY_ONE) {
+                // non-owner of one-to-one
+                $relDef = [
+                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
+                    Entity::OPT_RELATION_CLASS       => $relDef[1],
+                    Entity::OPT_RELATION_OPPONENT    => $relDef[2],
+                ];
+            } elseif ($length === 2) {
+                // non-owner of one-to-many
+                $relDef = [
+                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
+                    Entity::OPT_RELATION_CLASS       => $relDef[0],
+                    Entity::OPT_RELATION_OPPONENT    => $relDef[1],
+                ];
+            } elseif ($length === 4 && gettype($relDef[1]) === 'array') {
+                $relDef = [
+                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
+                    Entity::OPT_RELATION_CLASS       => $relDef[0],
+                    Entity::OPT_RELATION_REFERENCE   => $relDef[1],
+                    Entity::OPT_RELATION_OPPONENT    => $relDef[2],
+                    Entity::OPT_RELATION_TABLE       => $relDef[3],
+                ];
+            } else {
+                throw new InvalidConfiguration('Invalid short form for relation ' . $name);
+            }
+        }
+
+        if (isset($relDef[Entity::OPT_RELATION_REFERENCE]) && !isset($relDef[Entity::OPT_RELATION_TABLE])) {
+            return new Owner(
+                $name,
+                $relDef[Entity::OPT_RELATION_CLASS],
+                $relDef[Entity::OPT_RELATION_REFERENCE]
+            );
+        } elseif (isset($relDef[Entity::OPT_RELATION_TABLE])) {
+            return new ManyToMany(
+                $name,
+                $relDef[Entity::OPT_RELATION_CLASS],
+                $relDef[Entity::OPT_RELATION_REFERENCE],
+                $relDef[Entity::OPT_RELATION_OPPONENT],
+                $relDef[Entity::OPT_RELATION_TABLE]
+            );
+        } elseif (!isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ||
+                  $relDef[Entity::OPT_RELATION_CARDINALITY] === self::CARDINALITY_MANY
+        ) {
+            return new OneToMany(
+                $name,
+                $relDef[Entity::OPT_RELATION_CLASS],
+                $relDef[Entity::OPT_RELATION_OPPONENT]
+            );
+        } else {
+            return new OneToOne(
+                $name,
+                $relDef[Entity::OPT_RELATION_CLASS],
+                $relDef[Entity::OPT_RELATION_OPPONENT]
+            );
+        }
+    }
 
     /**
      * @return string

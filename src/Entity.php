@@ -8,11 +8,6 @@ use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
-use ORM\QueryBuilder\QueryBuilder;
-use ORM\Relation\ManyToMany;
-use ORM\Relation\OneToMany;
-use ORM\Relation\OneToOne;
-use ORM\Relation\Owner;
 
 /**
  * Definition of an entity
@@ -34,9 +29,6 @@ abstract class Entity implements \Serializable
     const OPT_RELATION_REFERENCE   = 'reference';
     const OPT_RELATION_OPPONENT    = 'opponent';
     const OPT_RELATION_TABLE       = 'table';
-
-    const CARDINALITY_ONE          = 'one';
-    const CARDINALITY_MANY         = 'many';
 
     /** The template to use to calculate the table name.
      * @var string */
@@ -230,73 +222,7 @@ abstract class Entity implements \Serializable
         $relDef = &static::$relations[$relation];
 
         if (!$relDef instanceof Relation) {
-            if (isset($relDef[0])) {
-                // convert the short form
-                $length = count($relDef);
-
-                if ($length === 2 && gettype($relDef[1]) === 'array') {
-                    // owner of one-to-many or one-to-one
-                    static::$relations[$relation] = [
-                        self::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                        self::OPT_RELATION_CLASS       => $relDef[0],
-                        self::OPT_RELATION_REFERENCE   => $relDef[1],
-                    ];
-                } elseif ($length === 3 && $relDef[0] === self::CARDINALITY_ONE) {
-                    // non-owner of one-to-one
-                    static::$relations[$relation] = [
-                        self::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                        self::OPT_RELATION_CLASS       => $relDef[1],
-                        self::OPT_RELATION_OPPONENT    => $relDef[2],
-                    ];
-                } elseif ($length === 2) {
-                    // non-owner of one-to-many
-                    static::$relations[$relation] = [
-                        self::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                        self::OPT_RELATION_CLASS       => $relDef[0],
-                        self::OPT_RELATION_OPPONENT    => $relDef[1],
-                    ];
-                } elseif ($length === 4 && gettype($relDef[1]) === 'array') {
-                    static::$relations[$relation] = [
-                        self::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                        self::OPT_RELATION_CLASS       => $relDef[0],
-                        self::OPT_RELATION_REFERENCE   => $relDef[1],
-                        self::OPT_RELATION_OPPONENT    => $relDef[2],
-                        self::OPT_RELATION_TABLE       => $relDef[3],
-                    ];
-                } else {
-                    throw new InvalidConfiguration('Invalid short form for relation ' . $relation);
-                }
-            }
-
-            if (isset($relDef[self::OPT_RELATION_REFERENCE]) && !isset($relDef[self::OPT_RELATION_TABLE])) {
-                $relDef = new Owner(
-                    $relation,
-                    $relDef[self::OPT_RELATION_CLASS],
-                    $relDef[self::OPT_RELATION_REFERENCE]
-                );
-            } elseif (isset($relDef[self::OPT_RELATION_TABLE])) {
-                $relDef = new ManyToMany(
-                    $relation,
-                    $relDef[self::OPT_RELATION_CLASS],
-                    $relDef[self::OPT_RELATION_REFERENCE],
-                    $relDef[self::OPT_RELATION_OPPONENT],
-                    $relDef[self::OPT_RELATION_TABLE]
-                );
-            } elseif (!isset($relDef[self::OPT_RELATION_CARDINALITY]) ||
-                      $relDef[self::OPT_RELATION_CARDINALITY] === self::CARDINALITY_MANY
-            ) {
-                $relDef = new OneToMany(
-                    $relation,
-                    $relDef[self::OPT_RELATION_CLASS],
-                    $relDef[self::OPT_RELATION_OPPONENT]
-                );
-            } else {
-                $relDef = new OneToOne(
-                    $relation,
-                    $relDef[self::OPT_RELATION_CLASS],
-                    $relDef[self::OPT_RELATION_OPPONENT]
-                );
-            }
+            $relDef = Relation::createRelation($relation, $relDef);
         }
 
         return $relDef;
