@@ -9,7 +9,7 @@ use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
-use ORM\Test\Entity\Examples\Relation;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -423,10 +423,10 @@ class EntityFetcherTest extends TestCase
     public function provideRelations()
     {
         return [
-            [Relation::class, 'dmgd', '"damaged_abbrv_case" AS dmgd ON "t0"."dmgd_id" = "dmgd"."id"'],
-            [DamagedABBRVCase::class, 'relation', '"relation" AS relation ON "t0"."id" = "relation"."dmgd_id"'],
+            [RelationExample::class, 'dmgd', '"damaged_abbrv_case" AS dmgd ON "t0"."dmgd_id" = "dmgd"."id"'],
+            [DamagedABBRVCase::class, 'relation', '"relation_example" AS relation ON "t0"."id" = "relation"."dmgd_id"'],
             [
-                Relation::class,
+                RelationExample::class,
                 'contactPhones',
                 '"contact_phone" AS contactPhones ON "t0"."id" = "contactPhones"."relation_id"'
             ],

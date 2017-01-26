@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Relation Definition
+title: RelationExample Definition
 permalink: /relationDefinition.html
 ---
-## Relation Definition
+## RelationExample Definition
 
 One of the most important features of relational databases are references between tables. They are also called
 relationships or associations - we just say relation. A relation is the reference from one row of a table to another
@@ -69,7 +69,7 @@ class Article extends ORM\ENtity {
 | `OPT_RELATION_OPPONENT`    | `'opponent'`    | `string` | The name of the relation in related class        |
 | `OPT_RELATION_TABLE`       | `'table'`       | `string` | The table name for many to many relations        |
 
-### Relation Types
+### RelationExample Types
 
 Well known there are three types of relationships between entities: *one-to-one*, *one-to-many* and *many-to-many*.
 Here we want to describe what is required to define them and how you can define the **non-owner**.

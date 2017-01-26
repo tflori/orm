@@ -4,7 +4,7 @@ namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
 
-class Relation extends Entity
+class RelationExample extends Entity
 {
     protected static $relations = [
         'studlyCaps' => [

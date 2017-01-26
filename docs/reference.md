@@ -2257,6 +2257,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
 * [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
+* [convertShort](#ormrelationmanytomanyconvertshort) Converts short form to assoc form
 * [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
@@ -2347,6 +2348,31 @@ public function addRelated(
 
 
 
+#### ORM\Relation\ManyToMany::convertShort
+
+```php?start_inline=true
+protected static function convertShort( string $name, string $relDef ): array
+```
+
+##### Converts short form to assoc form
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **string**  |  |
+
+
+
 #### ORM\Relation\ManyToMany::createRelation
 
 ```php?start_inline=true
@@ -2363,7 +2389,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -2675,6 +2701,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
 * [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
+* [convertShort](#ormrelationonetomanyconvertshort) Converts short form to assoc form
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
@@ -2762,6 +2789,31 @@ public function addRelated(
 
 
 
+#### ORM\Relation\OneToMany::convertShort
+
+```php?start_inline=true
+protected static function convertShort( string $name, string $relDef ): array
+```
+
+##### Converts short form to assoc form
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **string**  |  |
+
+
+
 #### ORM\Relation\OneToMany::createRelation
 
 ```php?start_inline=true
@@ -2778,7 +2830,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -2994,6 +3046,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
 * [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
+* [convertShort](#ormrelationonetooneconvertshort) Converts short form to assoc form
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
@@ -3083,6 +3136,31 @@ public function addRelated(
 
 
 
+#### ORM\Relation\OneToOne::convertShort
+
+```php?start_inline=true
+protected static function convertShort( string $name, string $relDef ): array
+```
+
+##### Converts short form to assoc form
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **string**  |  |
+
+
+
 #### ORM\Relation\OneToOne::createRelation
 
 ```php?start_inline=true
@@ -3099,7 +3177,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -3315,6 +3393,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [__construct](#ormrelationowner__construct) Owner constructor.
 * [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
+* [convertShort](#ormrelationownerconvertshort) Converts short form to assoc form
 * [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
@@ -3402,6 +3481,31 @@ public function addRelated(
 
 
 
+#### ORM\Relation\Owner::convertShort
+
+```php?start_inline=true
+protected static function convertShort( string $name, string $relDef ): array
+```
+
+##### Converts short form to assoc form
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **string**  |  |
+
+
+
 #### ORM\Relation\Owner::createRelation
 
 ```php?start_inline=true
@@ -3418,7 +3522,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -5394,6 +5498,7 @@ where('name = ?', ['John Doe'])
 
 * [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
+* [convertShort](#ormrelationconvertshort) Converts short form to assoc form
 * [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationfetch) Fetch the relation
@@ -5457,6 +5562,31 @@ public function addRelated(
 
 
 
+#### ORM\Relation::convertShort
+
+```php?start_inline=true
+protected static function convertShort( string $name, string $relDef ): array
+```
+
+##### Converts short form to assoc form
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$relDef` | **string**  |  |
+
+
+
 #### ORM\Relation::createRelation
 
 ```php?start_inline=true
@@ -5473,7 +5603,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 

@@ -19,8 +19,7 @@ use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
-use ORM\Test\Entity\Examples\Relation;
-use ORM\Entity;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\EntityFetcher;
 
 class RelationsTest extends TestCase
@@ -29,29 +28,29 @@ class RelationsTest extends TestCase
     {
         return [
             [
-                Relation::class,
+                RelationExample::class,
                 'studlyCaps',
                 Owner::class,
                 StudlyCaps::class,
                 ['studlyCapsId' => 'id']
             ],
             [
-                Relation::class,
+                RelationExample::class,
                 'psr0StudlyCaps',
                 Owner::class,
                 Psr0_StudlyCaps::class,
                 ['psr0StudlyCaps' => 'id']
             ],
             [
-                Relation::class,
+                RelationExample::class,
                 'contactPhones',
                 OneToMany::class,
                 ContactPhone::class,
                 null,
-                ContactPhone::getRelation('relation')
+                'relation'
             ],
             [
-                Relation::class,
+                RelationExample::class,
                 'dmgd',
                 Owner::class,
                 DamagedABBRVCase::class,
@@ -59,19 +58,19 @@ class RelationsTest extends TestCase
             ],
             [
                 DamagedABBRVCase::class,
-                 'relation',
-                 OneToOne::class,
-                Relation::class,
+                'relation',
+                OneToOne::class,
+                RelationExample::class,
                 null,
-                Relation::getRelation('dmgd')
+                'dmgd'
             ],
             [
                 Snake_Ucfirst::class,
                 'relations',
                 OneToMany::class,
-                Relation::class,
+                RelationExample::class,
                 null,
-                Relation::getRelation('snake')
+                'snake'
             ],
             [
                 Article::class,
@@ -79,7 +78,7 @@ class RelationsTest extends TestCase
                 ManyToMany::class,
                 Category::class,
                 ['id' => 'article_id'],
-                Category::getRelation('articles'),
+                'articles',
                 'article_category'
             ],
             [
@@ -88,7 +87,7 @@ class RelationsTest extends TestCase
                 ManyToMany::class,
                 Article::class,
                 ['id' => 'category_id'],
-                Article::getRelation('categories'),
+                'categories',
                 'article_category'
             ],
         ];
@@ -121,7 +120,7 @@ class RelationsTest extends TestCase
         self::expectException(UndefinedRelation::class);
         self::expectExceptionMessage('Relation undefinedRel is not defined');
 
-        Relation::getRelation('undefinedRel');
+        RelationExample::getRelation('undefinedRel');
     }
 
     public function testThrowsWhenShortFormIsInvalid()
@@ -129,7 +128,7 @@ class RelationsTest extends TestCase
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Invalid short form for relation invalid');
 
-        Relation::getRelation('invalid');
+        RelationExample::getRelation('invalid');
     }
 
     /**
@@ -160,10 +159,11 @@ class RelationsTest extends TestCase
         if (!$opponent) {
             return;
         }
+        $opponentRelation = $related::getRelation($opponent);
 
         $relationDefinition = $class::getRelation($relation);
 
-        self::assertSame($opponent, $relationDefinition->getOpponent());
+        self::assertSame($opponentRelation, $relationDefinition->getOpponent());
     }
 
     /**
@@ -209,8 +209,8 @@ class RelationsTest extends TestCase
     public function provideRelationsWithCardinalityOne()
     {
         return [
-            [Relation::class, 'dmgd'],
-            [Relation::class, 'mySnake'],
+            [RelationExample::class, 'dmgd'],
+            [RelationExample::class, 'mySnake'],
         ];
     }
 
@@ -275,7 +275,7 @@ class RelationsTest extends TestCase
 
     public function testSetRelationStoresTheId()
     {
-        $entity = new Relation();
+        $entity = new RelationExample();
         $related = new StudlyCaps(['id' => 42]);
 
         $entity->setRelated('studlyCaps', $related);
@@ -285,7 +285,7 @@ class RelationsTest extends TestCase
 
     public function testSetRelationThrowsWhenKeyIsIncomplete()
     {
-        $entity = new Relation();
+        $entity = new RelationExample();
         $related = new StudlyCaps();
 
         self::expectException(IncompletePrimaryKey::class);
@@ -296,7 +296,7 @@ class RelationsTest extends TestCase
 
     public function testSetRelationThrowsWhenClassWrong()
     {
-        $entity = new Relation();
+        $entity = new RelationExample();
 
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('Invalid entity for relation studlyCaps');
@@ -311,12 +311,12 @@ class RelationsTest extends TestCase
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('This is not the owner of the relation');
 
-        $entity->setRelated('relation', new Relation());
+        $entity->setRelated('relation', new RelationExample());
     }
 
     public function testSetRelationStoresTheRelatedObject()
     {
-        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $related = new StudlyCaps(['id' => 42]);
         $entity->shouldNotReceive('fetch')->with('studlyCaps', null, true);
         $entity->setRelated('studlyCaps', $related);
@@ -328,7 +328,7 @@ class RelationsTest extends TestCase
 
     public function testSetRelationAllowsNull()
     {
-        $entity = new Relation([], $this->em);
+        $entity = new RelationExample([], $this->em);
         $related = new StudlyCaps(['id' => 42]);
         $entity->setRelated('studlyCaps', $related);
 
@@ -373,7 +373,7 @@ class RelationsTest extends TestCase
 
     public function testAddRelationsThrowsWhenRelationIsNotManyToMany()
     {
-        $entity = new Relation([], $this->em);
+        $entity = new RelationExample([], $this->em);
 
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('This is not a many-to-many relation');
@@ -445,7 +445,7 @@ class RelationsTest extends TestCase
 
     public function testDeleteRelationsThrowsWhenRelationIsNotManyToMany()
     {
-        $entity = new Relation([], $this->em);
+        $entity = new RelationExample([], $this->em);
 
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('This is not a many-to-many relation');

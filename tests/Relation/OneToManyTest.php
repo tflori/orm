@@ -8,7 +8,7 @@ use ORM\Exceptions\UndefinedRelation;
 use ORM\Relation\OneToMany;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
-use ORM\Test\Entity\Examples\Relation;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\TestCase;
 
@@ -16,14 +16,14 @@ class OneToManyTest extends TestCase
 {
     public function testGetsReturnedByGetRelation()
     {
-        $result = Relation::getRelation('contactPhones');
+        $result = RelationExample::getRelation('contactPhones');
 
         self::assertInstanceOf(OneToMany::class, $result);
     }
 
     public function testFetchFiltersByForeignKeyAndReturnsFetcher()
     {
-        $entity = new Relation(['id' => 42], $this->em);
+        $entity = new RelationExample(['id' => 42], $this->em);
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
         $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->andReturn($fetcher);
@@ -55,7 +55,7 @@ class OneToManyTest extends TestCase
 
     public function testFetchReturnsAllWithGetAll()
     {
-        $entity = new Relation(['id' => 42], $this->em);
+        $entity = new RelationExample(['id' => 42], $this->em);
         $related = [new ContactPhone(), new ContactPhone()];
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
         $this->em->shouldReceive('fetch')->with(ContactPhone::class)->once()->andReturn($fetcher);
@@ -69,7 +69,7 @@ class OneToManyTest extends TestCase
 
     public function testFetchThrowsWhenKeyIsEmpty()
     {
-        $entity = new Relation([], $this->em);
+        $entity = new RelationExample([], $this->em);
 
         self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');

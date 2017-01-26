@@ -7,7 +7,7 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Relation\OneToOne;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
-use ORM\Test\Entity\Examples\Relation;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\TestCase;
 
@@ -23,9 +23,9 @@ class OneToOneTest extends TestCase
     public function testFetchFiltersByForeignKeyAndReturnsFirst()
     {
         $entity = new DamagedABBRVCase(['id' => 42], $this->em);
-        $related = new Relation();
+        $related = new RelationExample();
         $fetcher = \Mockery::mock(EntityFetcher::class);
-        $this->em->shouldReceive('fetch')->with(Relation::class)->once()->andReturn($fetcher);
+        $this->em->shouldReceive('fetch')->with(RelationExample::class)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('where')->with('dmgdId', 42)->once()->andReturn($fetcher);
         $fetcher->shouldReceive('one')->with()->once()->andReturn($related);
 

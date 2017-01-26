@@ -37,46 +37,11 @@ abstract class Relation
      * @param string $name
      * @param array $relDef
      * @return Relation
-     * @throws InvalidConfiguration
      */
     public static function createRelation($name, $relDef)
     {
         if (isset($relDef[0])) {
-            // convert the short form
-            $length = count($relDef);
-
-            if ($length === 2 && gettype($relDef[1]) === 'array') {
-                // owner of one-to-many or one-to-one
-                $relDef = [
-                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                    Entity::OPT_RELATION_CLASS       => $relDef[0],
-                    Entity::OPT_RELATION_REFERENCE   => $relDef[1],
-                ];
-            } elseif ($length === 3 && $relDef[0] === self::CARDINALITY_ONE) {
-                // non-owner of one-to-one
-                $relDef = [
-                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                    Entity::OPT_RELATION_CLASS       => $relDef[1],
-                    Entity::OPT_RELATION_OPPONENT    => $relDef[2],
-                ];
-            } elseif ($length === 2) {
-                // non-owner of one-to-many
-                $relDef = [
-                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                    Entity::OPT_RELATION_CLASS       => $relDef[0],
-                    Entity::OPT_RELATION_OPPONENT    => $relDef[1],
-                ];
-            } elseif ($length === 4 && gettype($relDef[1]) === 'array') {
-                $relDef = [
-                    Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                    Entity::OPT_RELATION_CLASS       => $relDef[0],
-                    Entity::OPT_RELATION_REFERENCE   => $relDef[1],
-                    Entity::OPT_RELATION_OPPONENT    => $relDef[2],
-                    Entity::OPT_RELATION_TABLE       => $relDef[3],
-                ];
-            } else {
-                throw new InvalidConfiguration('Invalid short form for relation ' . $name);
-            }
+            $relDef = self::convertShort($name, $relDef);
         }
 
         if (isset($relDef[Entity::OPT_RELATION_REFERENCE]) && !isset($relDef[Entity::OPT_RELATION_TABLE])) {
@@ -107,6 +72,54 @@ abstract class Relation
                 $relDef[Entity::OPT_RELATION_CLASS],
                 $relDef[Entity::OPT_RELATION_OPPONENT]
             );
+        }
+    }
+
+    /**
+     * Converts short form to assoc form
+     *
+     * @param string $name
+     * @param string $relDef
+     * @return array
+     * @throws InvalidConfiguration
+     */
+    protected static function convertShort($name, $relDef)
+    {
+        // convert the short form
+        $length = count($relDef);
+
+        if ($length === 2 && gettype($relDef[1]) === 'array') {
+            // owner of one-to-many or one-to-one
+            return [
+                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
+                Entity::OPT_RELATION_CLASS       => $relDef[0],
+                Entity::OPT_RELATION_REFERENCE   => $relDef[1],
+            ];
+        } elseif ($length === 3 && $relDef[0] === self::CARDINALITY_ONE) {
+            // non-owner of one-to-one
+            return [
+                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
+                Entity::OPT_RELATION_CLASS       => $relDef[1],
+                Entity::OPT_RELATION_OPPONENT    => $relDef[2],
+            ];
+        } elseif ($length === 2) {
+            // non-owner of one-to-many
+            return [
+                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
+                Entity::OPT_RELATION_CLASS       => $relDef[0],
+                Entity::OPT_RELATION_OPPONENT    => $relDef[1],
+            ];
+        } elseif ($length === 4 && gettype($relDef[1]) === 'array') {
+            // many-to-many
+            return [
+                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
+                Entity::OPT_RELATION_CLASS       => $relDef[0],
+                Entity::OPT_RELATION_REFERENCE   => $relDef[1],
+                Entity::OPT_RELATION_OPPONENT    => $relDef[2],
+                Entity::OPT_RELATION_TABLE       => $relDef[3],
+            ];
+        } else {
+            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
         }
     }
 
