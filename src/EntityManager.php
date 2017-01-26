@@ -240,7 +240,7 @@ class EntityManager
         }, array_values($data));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+                        '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
         $pdo = $this->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
@@ -307,8 +307,8 @@ class EntityManager
         }
 
         $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'SET ' . implode(',', $set) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'SET ' . implode(',', $set) . ' ' .
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $this->sync($entity, true);
@@ -338,7 +338,7 @@ class EntityManager
         }
 
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $entity->setOriginalData([]);
@@ -440,10 +440,10 @@ class EntityManager
                 return $this->getConnection()->quote($value);
 
             case 'integer':
-                return (string)$value;
+                return (string) $value;
 
             case 'double':
-                return (string)$value;
+                return (string) $value;
 
             case 'boolean':
                 $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);

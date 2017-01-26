@@ -203,7 +203,7 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $data      = $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
 
         if (!$data) {
             return null;
