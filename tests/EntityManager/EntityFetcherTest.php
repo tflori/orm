@@ -6,7 +6,10 @@ use Mockery\Mock;
 use ORM\EntityFetcher;
 use ORM\Exceptions\NotJoined;
 use ORM\QueryBuilder\QueryBuilder;
+use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\ContactPhone;
+use ORM\Test\Entity\Examples\DamagedABBRVCase;
+use ORM\Test\Entity\Examples\Relation;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -413,6 +416,55 @@ class EntityFetcherTest extends TestCase
         self::assertSame(
             'SELECT DISTINCT t0.* FROM "my_table" AS t0 '
             . 'ORDER BY CASE WHEN "t0"."stn_username" = "t0"."stn_email" THEN 0 ELSE 1 END ASC',
+            $fetcher->getQuery()
+        );
+    }
+
+    public function provideRelations()
+    {
+        return [
+            [Relation::class, 'dmgd', '"damaged_abbrv_case" AS dmgd ON "t0"."dmgd_id" = "dmgd"."id"'],
+            [DamagedABBRVCase::class, 'relation', '"relation" AS relation ON "t0"."id" = "relation"."dmgd_id"'],
+            [
+                Relation::class,
+                'contactPhones',
+                '"contact_phone" AS contactPhones ON "t0"."id" = "contactPhones"."relation_id"'
+            ],
+            [
+                Article::class,
+                'categories',
+                '"article_category" ON "t0"."id" = "article_category"."article_id" ' .
+                '(LEFT )?JOIN "category" AS categories ON "article_category"."category_id" = "categories"."id"'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider provideRelations
+     */
+    public function testJoinRelatedCreatesJoinStatement($class, $relation, $statement)
+    {
+        $fetcher = $this->em->fetch($class);
+
+        $fetcher->joinRelated($relation);
+
+        self::assertRegExp(
+            '/SELECT DISTINCT t0\.\* FROM "[A-Za-z0-9_."]+" AS t0 JOIN ' . $statement . '/',
+            $fetcher->getQuery()
+        );
+    }
+
+    /**
+     * @dataProvider provideRelations
+     */
+    public function testLeftJoinRelatedCreatesLeftJoinStatement($class, $relation, $statement)
+    {
+        $fetcher = $this->em->fetch($class);
+
+        $fetcher->leftJoinRelated($relation);
+
+        self::assertRegExp(
+            '/SELECT DISTINCT t0\.\* FROM "[A-Za-z0-9_."]+" AS t0 LEFT JOIN ' . $statement . '/',
             $fetcher->getQuery()
         );
     }

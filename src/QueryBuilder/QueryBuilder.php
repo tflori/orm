@@ -108,20 +108,26 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $args = [$args];
         }
 
-        $entityManager = $this->entityManager ?: static::$defaultEntityManager;
-
         $parts = explode('?', $expression);
         $expression = '';
         while ($part = array_shift($parts)) {
             $expression .= $part;
             if (count($args)) {
-                $expression .= $entityManager->escapeValue(array_shift($args));
+                $expression .= $this->getEntityManager()->escapeValue(array_shift($args));
             } elseif (count($parts)) {
                 $expression .= '?';
             }
         }
 
         return $expression;
+    }
+
+    /**
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager ?: static::$defaultEntityManager;
     }
 
     /**
@@ -325,14 +331,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     public function getQuery()
     {
         return 'SELECT '
-                . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
-                . ($this->columns ? implode(',', $this->columns) : '*')
-                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
-                . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
-                . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
-                . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
-                . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
-                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
+               . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
+               . ($this->columns ? implode(',', $this->columns) : '*')
+               . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
+               . (!empty($this->joins) ? ' ' . implode(' ', $this->joins) : '')
+               . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
+               . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
+               . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
+               . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
     }
 
     /** {@inheritdoc} */

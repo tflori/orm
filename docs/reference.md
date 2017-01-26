@@ -13,6 +13,7 @@ permalink: /reference.html
 * [EntityFetcher](#ormentityfetcher)
 * [EntityManager](#ormentitymanager)
 * [Exception](#ormexception)
+* [Relation](#ormrelation)
 
 
 ### ORM\Exceptions
@@ -28,6 +29,14 @@ permalink: /reference.html
 * [NotScalar](#ormexceptionsnotscalar)
 * [UndefinedRelation](#ormexceptionsundefinedrelation)
 * [UnsupportedDriver](#ormexceptionsunsupporteddriver)
+
+
+### ORM\Relation
+
+* [ManyToMany](#ormrelationmanytomany)
+* [OneToMany](#ormrelationonetomany)
+* [OneToOne](#ormrelationonetoone)
+* [Owner](#ormrelationowner)
 
 
 ### ORM\QueryBuilder
@@ -189,12 +198,11 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
-* [addRelations](#ormentityaddrelations) Add relations for $relation to $entities
+* [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelations](#ormentitydeleterelations) Delete relations for $relation to $entities
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
-* [getForeignKey](#ormentitygetforeignkey) Get the foreign key for the given reference
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
 * [getNamingSchemeTable](#ormentitygetnamingschemetable) 
@@ -202,7 +210,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
 * [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getRelated](#ormentitygetrelated) Get related objects
-* [getRelationDefinition](#ormentitygetrelationdefinition) Get the definition for $relation
+* [getRelation](#ormentitygetrelation) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
@@ -220,7 +228,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
-* [setRelation](#ormentitysetrelation) Set $relation to $entity
+* [setRelated](#ormentitysetrelated) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
 
@@ -309,10 +317,10 @@ The onChange event is called after something got changed.
 
 * [Working with entities](https://tflori.github.io/orm/entities.html)
 
-#### ORM\Entity::addRelations
+#### ORM\Entity::addRelated
 
 ```php?start_inline=true
-public function addRelations(
+public function addRelated(
     string $relation, array<\ORM\Entity> $entities
 )
 ```
@@ -447,29 +455,6 @@ the same as getColumnName($name).
 
 
 
-#### ORM\Entity::getForeignKey
-
-```php?start_inline=true
-private function getForeignKey( array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **private**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$reference` | **array**  |  |
-
-
-
 #### ORM\Entity::getNamingSchemeColumn
 
 ```php?start_inline=true
@@ -600,23 +585,20 @@ $refresh to true.
 
 
 
-#### ORM\Entity::getRelationDefinition
+#### ORM\Entity::getRelation
 
 ```php?start_inline=true
-public static function getRelationDefinition( string $relation ): array
+public static function getRelation( string $relation ): \ORM\Relation
 ```
 
 ##### Get the definition for $relation
 
-It will normalize the definition before.
-
-The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
-`class`, `cardinality`, `reference`, `opponent` and `table`
+It normalize the short definition form and create a Relation object from it.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **\ORM\Relation**
 <br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\UndefinedRelation**<br />
 
 ##### Parameters
@@ -968,10 +950,10 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 
 
 
-#### ORM\Entity::setRelation
+#### ORM\Entity::setRelated
 
 ```php?start_inline=true
-public function setRelation( string $relation, \ORM\Entity $entity = null )
+public function setRelated( string $relation, \ORM\Entity $entity = null )
 ```
 
 ##### Set $relation to $entity
@@ -1079,7 +1061,7 @@ Supported:
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **protected** | `$entityManager` | **EntityManager** | The entity manager where entities get stored |
+| **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
@@ -1102,12 +1084,15 @@ Supported:
 * [columns](#ormentityfetchercolumns) Set $columns
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
+* [getEntityManager](#ormentityfetchergetentitymanager) 
 * [getExpression](#ormentityfetchergetexpression) Get the expression
 * [getQuery](#ormentityfetchergetquery) Get the query / select statement
 * [getStatement](#ormentityfetchergetstatement) Query database and return result
 * [groupBy](#ormentityfetchergroupby) Group By $column
 * [join](#ormentityfetcherjoin) (Inner) join $tableName with $options
+* [joinRelated](#ormentityfetcherjoinrelated) Join $relation
 * [leftJoin](#ormentityfetcherleftjoin) Left (outer) join $tableName with $options
+* [leftJoinRelated](#ormentityfetcherleftjoinrelated) Left outer join $relation
 * [limit](#ormentityfetcherlimit) Set $limit
 * [modifier](#ormentityfetchermodifier) Add $modifier
 * [offset](#ormentityfetcheroffset) Set $offset
@@ -1355,6 +1340,22 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 
 
+#### ORM\EntityFetcher::getEntityManager
+
+```php?start_inline=true
+public function getEntityManager(): \ORM\EntityManager
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+
+
 #### ORM\EntityFetcher::getExpression
 
 ```php?start_inline=true
@@ -1464,6 +1465,28 @@ can be set to true.
 
 
 
+#### ORM\EntityFetcher::joinRelated
+
+```php?start_inline=true
+public function joinRelated( $relation )
+```
+
+##### Join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+
+
+
 #### ORM\EntityFetcher::leftJoin
 
 ```php?start_inline=true
@@ -1492,6 +1515,28 @@ can be set to true.
 | `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
 | `$alias` | **string**  | Alias for the table |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\EntityFetcher::leftJoinRelated
+
+```php?start_inline=true
+public function leftJoinRelated( $relation )
+```
+
+##### Left outer join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
 
 
 
@@ -2186,6 +2231,316 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
+### ORM\Relation\ManyToMany
+
+**Extends:** [ORM\Relation](#ormrelation)
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
+| **protected** | `$table` | **string'categories** | The table that holds the foreign keys |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
+* [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
+* [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
+* [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
+* [fetch](#ormrelationmanytomanyfetch) Fetch the relation
+* [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
+* [getClass](#ormrelationmanytomanygetclass) 
+* [getForeignKey](#ormrelationmanytomanygetforeignkey) Get the foreign key for the given reference
+* [getOpponent](#ormrelationmanytomanygetopponent) 
+* [getReference](#ormrelationmanytomanygetreference) 
+* [getTable](#ormrelationmanytomanygettable) 
+* [setRelated](#ormrelationmanytomanysetrelated) Set the relation to $entity
+
+#### ORM\Relation\ManyToMany::__construct
+
+```php?start_inline=true
+public function __construct(
+    string $name, string $class, array $reference, string $opponent, 
+    string $table
+): ManyToMany
+```
+
+##### ManyToMany constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$class` | **string**  |  |
+| `$reference` | **array**  |  |
+| `$opponent` | **string**  |  |
+| `$table` | **string**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::addJoin
+
+```php?start_inline=true
+public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+```
+
+##### Join this relation in $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` | **string**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::addRelated
+
+```php?start_inline=true
+public function addRelated(
+    \ORM\Entity $me, array $entities, \ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::deleteRelated
+
+```php?start_inline=true
+public function deleteRelated(
+    \ORM\Entity $me, array $entities, \ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::fetch
+
+```php?start_inline=true
+public function fetch(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::fetchAll
+
+```php?start_inline=true
+public function fetchAll(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): array
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::getClass
+
+```php?start_inline=true
+public function getClass(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation\ManyToMany::getForeignKey
+
+```php?start_inline=true
+protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::getOpponent
+
+```php?start_inline=true
+public function getOpponent(): \ORM\Relation
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />
+
+
+
+#### ORM\Relation\ManyToMany::getReference
+
+```php?start_inline=true
+public function getReference(): array
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
+#### ORM\Relation\ManyToMany::getTable
+
+```php?start_inline=true
+public function getTable(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation\ManyToMany::setRelated
+
+```php?start_inline=true
+public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity &#124; null**  |  |
+
+
+
+
+
+---
+
 ### ORM\Exceptions\NoConnection
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -2260,6 +2615,881 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
+
+
+
+
+
+---
+
+### ORM\Relation\OneToMany
+
+**Extends:** [ORM\Relation](#ormrelation)
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationonetomany__construct) Owner constructor.
+* [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
+* [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
+* [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
+* [fetch](#ormrelationonetomanyfetch) Fetch the relation
+* [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
+* [getClass](#ormrelationonetomanygetclass) 
+* [getForeignKey](#ormrelationonetomanygetforeignkey) Get the foreign key for the given reference
+* [getOpponent](#ormrelationonetomanygetopponent) 
+* [getReference](#ormrelationonetomanygetreference) 
+* [setRelated](#ormrelationonetomanysetrelated) Set the relation to $entity
+
+#### ORM\Relation\OneToMany::__construct
+
+```php?start_inline=true
+public function __construct(
+    string $name, string $class, string $opponent
+): OneToMany
+```
+
+##### Owner constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$class` | **string**  |  |
+| `$opponent` | **string**  |  |
+
+
+
+#### ORM\Relation\OneToMany::addJoin
+
+```php?start_inline=true
+public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+```
+
+##### Join this relation in $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` | **string**  |  |
+
+
+
+#### ORM\Relation\OneToMany::addRelated
+
+```php?start_inline=true
+public function addRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::deleteRelated
+
+```php?start_inline=true
+public function deleteRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::fetch
+
+```php?start_inline=true
+public function fetch(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::fetchAll
+
+```php?start_inline=true
+public function fetchAll(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): array
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::getClass
+
+```php?start_inline=true
+public function getClass(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation\OneToMany::getForeignKey
+
+```php?start_inline=true
+protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\OneToMany::getOpponent
+
+```php?start_inline=true
+public function getOpponent(): \ORM\Relation
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />
+
+
+
+#### ORM\Relation\OneToMany::getReference
+
+```php?start_inline=true
+public function getReference(): array
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
+#### ORM\Relation\OneToMany::setRelated
+
+```php?start_inline=true
+public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity &#124; null**  |  |
+
+
+
+
+
+---
+
+### ORM\Relation\OneToOne
+
+**Extends:** [ORM\Relation\OneToMany](#ormrelationonetomany)
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationonetoone__construct) Owner constructor.
+* [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
+* [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
+* [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
+* [fetch](#ormrelationonetoonefetch) Fetch the relation
+* [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
+* [getClass](#ormrelationonetoonegetclass) 
+* [getForeignKey](#ormrelationonetoonegetforeignkey) Get the foreign key for the given reference
+* [getOpponent](#ormrelationonetoonegetopponent) 
+* [getReference](#ormrelationonetoonegetreference) 
+* [setRelated](#ormrelationonetoonesetrelated) Set the relation to $entity
+
+#### ORM\Relation\OneToOne::__construct
+
+```php?start_inline=true
+public function __construct(
+    string $name, string $class, string $opponent
+): OneToMany
+```
+
+##### Owner constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$class` | **string**  |  |
+| `$opponent` | **string**  |  |
+
+
+
+#### ORM\Relation\OneToOne::addJoin
+
+```php?start_inline=true
+abstract public function addJoin(
+    \ORM\EntityFetcher $fetcher, string $join
+): mixed
+```
+
+##### Join this relation in $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` | **string**  |  |
+
+
+
+#### ORM\Relation\OneToOne::addRelated
+
+```php?start_inline=true
+public function addRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::deleteRelated
+
+```php?start_inline=true
+public function deleteRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::fetch
+
+```php?start_inline=true
+public function fetch(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::fetchAll
+
+```php?start_inline=true
+public function fetchAll(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): array
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::getClass
+
+```php?start_inline=true
+public function getClass(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation\OneToOne::getForeignKey
+
+```php?start_inline=true
+protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\OneToOne::getOpponent
+
+```php?start_inline=true
+public function getOpponent(): \ORM\Relation
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />
+
+
+
+#### ORM\Relation\OneToOne::getReference
+
+```php?start_inline=true
+public function getReference(): array
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
+#### ORM\Relation\OneToOne::setRelated
+
+```php?start_inline=true
+public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity &#124; null**  |  |
+
+
+
+
+
+---
+
+### ORM\Relation\Owner
+
+**Extends:** [ORM\Relation](#ormrelation)
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationowner__construct) Owner constructor.
+* [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
+* [addRelated](#ormrelationowneraddrelated) Add $entities to association table
+* [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
+* [fetch](#ormrelationownerfetch) Fetch the relation
+* [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
+* [getClass](#ormrelationownergetclass) 
+* [getForeignKey](#ormrelationownergetforeignkey) Get the foreign key for the given reference
+* [getOpponent](#ormrelationownergetopponent) 
+* [getReference](#ormrelationownergetreference) 
+* [setRelated](#ormrelationownersetrelated) Set the relation to $entity
+
+#### ORM\Relation\Owner::__construct
+
+```php?start_inline=true
+public function __construct(
+    string $name, string $class, array $reference
+): Owner
+```
+
+##### Owner constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$class` | **string**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\Owner::addJoin
+
+```php?start_inline=true
+public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+```
+
+##### Join this relation in $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` | **string**  |  |
+
+
+
+#### ORM\Relation\Owner::addRelated
+
+```php?start_inline=true
+public function addRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::deleteRelated
+
+```php?start_inline=true
+public function deleteRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::fetch
+
+```php?start_inline=true
+public function fetch(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::fetchAll
+
+```php?start_inline=true
+public function fetchAll(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): array
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::getClass
+
+```php?start_inline=true
+public function getClass(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation\Owner::getForeignKey
+
+```php?start_inline=true
+protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\Owner::getOpponent
+
+```php?start_inline=true
+public function getOpponent(): \ORM\Relation
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />
+
+
+
+#### ORM\Relation\Owner::getReference
+
+```php?start_inline=true
+public function getReference(): array
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
+#### ORM\Relation\Owner::setRelated
+
+```php?start_inline=true
+public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity**  |  |
 
 
 
@@ -2833,6 +4063,7 @@ Supported:
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
+* [getEntityManager](#ormquerybuilderquerybuildergetentitymanager) 
 * [getExpression](#ormquerybuilderquerybuildergetexpression) Get the expression
 * [getQuery](#ormquerybuilderquerybuildergetquery) Get the query / select statement
 * [groupBy](#ormquerybuilderquerybuildergroupby) Group By $column
@@ -3057,6 +4288,22 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 | `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
 | `$alias` | **string**  | Alias for the table |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::getEntityManager
+
+```php?start_inline=true
+public function getEntityManager(): \ORM\EntityManager
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
 
 
 
@@ -4001,6 +5248,271 @@ where('name = ?', ['John Doe'])
 **See Also:**
 
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+
+
+---
+
+### ORM\Relation
+
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
+
+
+
+#### Methods
+
+* [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
+* [addRelated](#ormrelationaddrelated) Add $entities to association table
+* [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
+* [fetch](#ormrelationfetch) Fetch the relation
+* [fetchAll](#ormrelationfetchall) Fetch all from the relation
+* [getClass](#ormrelationgetclass) 
+* [getForeignKey](#ormrelationgetforeignkey) Get the foreign key for the given reference
+* [getOpponent](#ormrelationgetopponent) 
+* [getReference](#ormrelationgetreference) 
+* [setRelated](#ormrelationsetrelated) Set the relation to $entity
+
+#### ORM\Relation::addJoin
+
+```php?start_inline=true
+abstract public function addJoin(
+    \ORM\EntityFetcher $fetcher, string $join
+): mixed
+```
+
+##### Join this relation in $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **EntityFetcher**  |  |
+| `$join` | **string**  |  |
+
+
+
+#### ORM\Relation::addRelated
+
+```php?start_inline=true
+public function addRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+| `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::deleteRelated
+
+```php?start_inline=true
+public function deleteRelated(
+    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$entities` | **array&lt;Entity>**  |  |
+| `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::fetch
+
+```php?start_inline=true
+abstract public function fetch(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::fetchAll
+
+```php?start_inline=true
+public function fetchAll(
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
+): array
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::getClass
+
+```php?start_inline=true
+public function getClass(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Relation::getForeignKey
+
+```php?start_inline=true
+protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation::getOpponent
+
+```php?start_inline=true
+public function getOpponent(): \ORM\Relation
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />
+
+
+
+#### ORM\Relation::getReference
+
+```php?start_inline=true
+public function getReference(): array
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
+#### ORM\Relation::setRelated
+
+```php?start_inline=true
+public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$me` | **Entity**  |  |
+| `$entity` | **Entity &#124; null**  |  |
+
+
+
 
 
 ---

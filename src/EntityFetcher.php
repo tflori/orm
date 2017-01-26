@@ -28,10 +28,6 @@ use ORM\QueryBuilder\QueryBuilderInterface;
  */
 class EntityFetcher extends QueryBuilder
 {
-    /** The entity manager where entities get stored
-     * @var EntityManager */
-    protected $entityManager;
-
     /** The entity class that we want to fetch
      * @var string|Entity */
     protected $class;
@@ -183,6 +179,26 @@ class EntityFetcher extends QueryBuilder
             $args,
             $empty
         );
+    }
+
+    /**
+     * Join $relation
+     *
+     * @param $relation
+     */
+    public function joinRelated($relation)
+    {
+        call_user_func([$this->class, 'getRelation'], $relation)->addJoin($this, 'join');
+    }
+
+    /**
+     * Left outer join $relation
+     *
+     * @param $relation
+     */
+    public function leftJoinRelated($relation)
+    {
+        call_user_func([$this->class, 'getRelation'], $relation)->addJoin($this, 'leftJoin');
     }
 
 

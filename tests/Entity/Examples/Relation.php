@@ -23,5 +23,6 @@ class Relation extends Entity
         'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
         'invalid' => ['many', StudlyCaps::class, 'opponent'], // many has to be omitted
         'mySnake' => ['one', Snake_Ucfirst::class, 'relation'],
+        'snake' => [Snake_Ucfirst::class, ['snakeId' => 'id']]
     ];
 }
