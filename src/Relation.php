@@ -251,7 +251,8 @@ abstract class Relation
      *
      * @param EntityFetcher $fetcher
      * @param string        $join
+     * @param string        $alias
      * @return mixed
      */
-    abstract public function addJoin(EntityFetcher $fetcher, $join);
+    abstract public function addJoin(EntityFetcher $fetcher, $join, $alias);
 }

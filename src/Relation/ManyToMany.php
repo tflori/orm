@@ -189,13 +189,13 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritdoc} */
-    public function addJoin(EntityFetcher $fetcher, $join)
+    public function addJoin(EntityFetcher $fetcher, $join, $alias)
     {
         $table = $fetcher->getEntityManager()->escapeIdentifier($this->table);
 
         $expression = [];
         foreach ($this->reference as $myVar => $col) {
-            $expression[] = 't0.' . $myVar . ' = ' .
+            $expression[] = $alias . '.' . $myVar . ' = ' .
                             $table . '.' . $fetcher->getEntityManager()->escapeIdentifier($col);
         }
 

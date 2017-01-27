@@ -572,7 +572,7 @@ abstract class Entity implements \Serializable
      * @throws IncompletePrimaryKey
      * @throws InvalidRelation
      */
-    public function deleteRelations($relation, $entities)
+    public function deleteRelated($relation, $entities)
     {
         $this::getRelation($relation)->deleteRelated($this, $entities, $this->entityManager);
     }

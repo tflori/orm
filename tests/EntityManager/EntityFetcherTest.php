@@ -468,4 +468,26 @@ class EntityFetcherTest extends TestCase
             $fetcher->getQuery()
         );
     }
+
+    public function testReturnsSelf()
+    {
+        $fetcher = $this->em->fetch(DamagedABBRVCase::class);
+
+        $result = $fetcher->joinRelated('relation');
+
+        self::assertSame($fetcher, $result);
+    }
+
+    public function testChainedJoin()
+    {
+        $fetcher = $this->em->fetch(DamagedABBRVCase::class);
+
+        $fetcher->joinRelated('relation')->joinRelated('relation.contactPhones');
+
+        self::assertRegExp(
+            '/SELECT DISTINCT t0\.\* .* JOIN "contact_phone" AS contactPhones ON ' .
+            '"relation"."id" = "contactPhones"."relation_id"/',
+            $fetcher->getQuery()
+        );
+    }
 }

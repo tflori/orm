@@ -197,7 +197,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__get](#ormentity__get) Get the value from $var
 * [__set](#ormentity__set) Set $var to $value
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
-* [deleteRelations](#ormentitydeleterelations) Delete relations for $relation to $entities
+* [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [fetch](#ormentityfetch) Fetches related objects
 * [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $name
@@ -342,10 +342,10 @@ This method does not take care about already existing relations and will fail ha
 
 
 
-#### ORM\Entity::deleteRelations
+#### ORM\Entity::deleteRelated
 
 ```php?start_inline=true
-public function deleteRelations(
+public function deleteRelated(
     string $relation, array<\ORM\Entity> $entities
 )
 ```
@@ -1081,6 +1081,7 @@ Supported:
 * [column](#ormentityfetchercolumn) Add $column
 * [columns](#ormentityfetchercolumns) Set $columns
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
+* [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getEntityManager](#ormentityfetchergetentitymanager) 
 * [getExpression](#ormentityfetchergetexpression) Get the expression
@@ -1306,6 +1307,30 @@ $translateCols is true (default).
 
 
 
+#### ORM\EntityFetcher::createRelatedJoin
+
+```php?start_inline=true
+public function createRelatedJoin( $join, $relation ): $this
+```
+
+##### Create the join with $join type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` |   |  |
+| `$relation` |   |  |
+
+
+
 #### ORM\EntityFetcher::fullJoin
 
 ```php?start_inline=true
@@ -1466,7 +1491,7 @@ can be set to true.
 #### ORM\EntityFetcher::joinRelated
 
 ```php?start_inline=true
-public function joinRelated( $relation )
+public function joinRelated( $relation ): $this
 ```
 
 ##### Join $relation
@@ -1475,7 +1500,8 @@ public function joinRelated( $relation )
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **$this**
+<br />
 
 ##### Parameters
 
@@ -1519,7 +1545,7 @@ can be set to true.
 #### ORM\EntityFetcher::leftJoinRelated
 
 ```php?start_inline=true
-public function leftJoinRelated( $relation )
+public function leftJoinRelated( $relation ): $this
 ```
 
 ##### Left outer join $relation
@@ -1528,7 +1554,8 @@ public function leftJoinRelated( $relation )
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **$this**
+<br />
 
 ##### Parameters
 
@@ -2301,7 +2328,9 @@ public function __construct(
 #### ORM\Relation\ManyToMany::addJoin
 
 ```php?start_inline=true
-public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+public function addJoin(
+    \ORM\EntityFetcher $fetcher, string $join, string $alias
+): mixed
 ```
 
 ##### Join this relation in $fetcher
@@ -2319,6 +2348,7 @@ public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
 | `$join` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -2741,7 +2771,9 @@ public function __construct(
 #### ORM\Relation\OneToMany::addJoin
 
 ```php?start_inline=true
-public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+public function addJoin(
+    \ORM\EntityFetcher $fetcher, string $join, string $alias
+): mixed
 ```
 
 ##### Join this relation in $fetcher
@@ -2759,6 +2791,7 @@ public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
 | `$join` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -3087,7 +3120,7 @@ public function __construct(
 
 ```php?start_inline=true
 abstract public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join
+    \ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -3106,6 +3139,7 @@ abstract public function addJoin(
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
 | `$join` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -3433,7 +3467,9 @@ public function __construct(
 #### ORM\Relation\Owner::addJoin
 
 ```php?start_inline=true
-public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
+public function addJoin(
+    \ORM\EntityFetcher $fetcher, string $join, string $alias
+): mixed
 ```
 
 ##### Join this relation in $fetcher
@@ -3451,6 +3487,7 @@ public function addJoin( \ORM\EntityFetcher $fetcher, string $join ): mixed
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
 | `$join` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -5513,7 +5550,7 @@ where('name = ?', ['John Doe'])
 
 ```php?start_inline=true
 abstract public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join
+    \ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -5532,6 +5569,7 @@ abstract public function addJoin(
 |-----------|------|-------------|
 | `$fetcher` | **EntityFetcher**  |  |
 | `$join` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 

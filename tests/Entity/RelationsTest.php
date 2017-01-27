@@ -417,7 +417,7 @@ class RelationsTest extends TestCase
             ->with('DELETE FROM "article_category" WHERE "article_id" = 42 AND ("category_id" = 23)')
             ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
 
-        $article->deleteRelations('categories', [$category]);
+        $article->deleteRelated('categories', [$category]);
     }
 
     public function testDeleteRelationsExecutesOnlyOneStatement()
@@ -430,7 +430,7 @@ class RelationsTest extends TestCase
                          'AND ("category_id" = 23 OR "category_id" = 24)')
                   ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
 
-        $article->deleteRelations('categories', [$category1, $category2]);
+        $article->deleteRelated('categories', [$category1, $category2]);
     }
 
     public function testDeleteRelationsThrowsWhenClassWrong()
@@ -440,7 +440,7 @@ class RelationsTest extends TestCase
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('Invalid entity for relation categories');
 
-        $article->deleteRelations('categories', [new Category(['id' => 23]), new StudlyCaps()]);
+        $article->deleteRelated('categories', [new Category(['id' => 23]), new StudlyCaps()]);
     }
 
     public function testDeleteRelationsThrowsWhenRelationIsNotManyToMany()
@@ -450,7 +450,7 @@ class RelationsTest extends TestCase
         self::expectException(InvalidRelation::class);
         self::expectExceptionMessage('This is not a many-to-many relation');
 
-        $entity->deleteRelations('studlyCaps', [new StudlyCaps(['id' => 23])]);
+        $entity->deleteRelated('studlyCaps', [new StudlyCaps(['id' => 23])]);
     }
 
     public function testDeleteRelationsThrowsWhenEntityHasNoKey()
@@ -460,7 +460,7 @@ class RelationsTest extends TestCase
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete to save foreign key');
 
-        $entity->deleteRelations('categories', [new Category(['id' => 23])]);
+        $entity->deleteRelated('categories', [new Category(['id' => 23])]);
     }
 
     public function testDeleteRelationsThrowsWhenARelationHasNoKey()
@@ -470,7 +470,7 @@ class RelationsTest extends TestCase
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete to save foreign key');
 
-        $entity->deleteRelations('categories', [new Category(['id' => 23]), new Category()]);
+        $entity->deleteRelated('categories', [new Category(['id' => 23]), new Category()]);
     }
 
     public function testDeleteRelationsDoesNothingWithEmptyArray()
@@ -478,6 +478,6 @@ class RelationsTest extends TestCase
         $entity = new Article(['id' => 42], $this->em);
         $this->pdo->shouldNotReceive('query');
 
-        $entity->deleteRelations('categories', []);
+        $entity->deleteRelated('categories', []);
     }
 }

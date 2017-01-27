@@ -74,11 +74,11 @@ echo get_class($article->fetch('comments')), "\n"; // ORM\EntityFetcher
 
 ### Update Relations
 
-You can update relations with `setRelation($relation, $entity)` for owners. For non owner in *one-to-one*
-and *one-to-many* relations you have to get the owner and call `setRelation()` on the owner.
+You can update relations with `setRelated($relation, $entity)` for owners. For non owner in *one-to-one*
+and *one-to-many* relations you have to get the owner and call `setRelated()` on the owner.
 
 For *many-to-many* relations there is no owner - you can not just set the related entity. So there are two other 
-methods: `addRelations($relation, $entities)` and `deleteRelations($relation, $entities)`.
+methods: `addRelateds($relation, $entities)` and `deleteRelateds($relation, $entities)`.
 
 ```php?start_inline=true
 // Example - Create a comment:
@@ -87,7 +87,7 @@ if ($article = $em->fetch(Article::class, 1)) {
     $comment = new ArticleComment();
     $comment->author = 'iras';
     $comment->text = 'Awesome!';
-    $comment->setRelation('article', $article);
+    $comment->setRelated('article', $article);
     $comment->save($em);
 }
 
@@ -98,13 +98,13 @@ if ($user = @$_SESSION['user']) {
     
     $article = new Article();
     $article->title = 'An amazing title that points out nothing';
-    $article->setRelation('writer', $user);
-    $article->addRelations('categories', [$em->fetch(Category::class)->where('key', 'php')]);
+    $article->setRelated('writer', $user);
+    $article->addRelateds('categories', [$em->fetch(Category::class)->where('key', 'php')]);
     $article->save();
     
     $additional = new ArticleAdditionalData();
     $additional->text = 'Lorem ipsum dolor sit amet...';
-    $additional->setRelation('article', $article);
+    $additional->setRelated('article', $article);
     $additional->save();
     
     $em->getConnection()->commit();
@@ -118,8 +118,8 @@ if ($article = $em->fetch(Article::class, 1)) {
     $newCategories = $em->fetch(Category::class)->where('key', $categoryKeys)->all();
     
     $em->getConnection()->beginTransaction();
-    $article->deleteRelations(array_diff($currentCategories, $newCategories));
-    $article->addRelations(array_diff($newCategories, $currentCategories));
+    $article->deleteRelated(array_diff($currentCategories, $newCategories));
+    $article->addRelated(array_diff($newCategories, $currentCategories));
     $em->getConnection()->commit();
 }
 ```

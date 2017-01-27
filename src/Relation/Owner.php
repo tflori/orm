@@ -65,11 +65,11 @@ class Owner extends Relation
     }
 
     /** {@inheritdoc} */
-    public function addJoin(EntityFetcher $fetcher, $join)
+    public function addJoin(EntityFetcher $fetcher, $join, $alias)
     {
         $expression = [];
         foreach ($this->reference as $myVar => $hisVar) {
-            $expression[] = 't0.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
+            $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
         }
 
         call_user_func([$fetcher, $join], $this->class, implode(' AND ', $expression), $this->name, [], true);
