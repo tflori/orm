@@ -8,7 +8,6 @@ use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
-use ORM\QueryBuilder\QueryBuilder;
 
 /**
  * Definition of an entity
@@ -30,9 +29,6 @@ abstract class Entity implements \Serializable
     const OPT_RELATION_REFERENCE   = 'reference';
     const OPT_RELATION_OPPONENT    = 'opponent';
     const OPT_RELATION_TABLE       = 'table';
-
-    const CARDINALITY_ONE          = 'one';
-    const CARDINALITY_MANY         = 'many';
 
     /** The template to use to calculate the table name.
      * @var string */
@@ -210,73 +206,26 @@ abstract class Entity implements \Serializable
     /**
      * Get the definition for $relation
      *
-     * It will normalize the definition before.
-     *
-     * The resulting array will have at least `class` and `cardinality`. It may also have the following keys:
-     * `class`, `cardinality`, `reference`, `opponent` and `table`
+     * It normalize the short definition form and create a Relation object from it.
      *
      * @param string $relation
-     * @return array
+     * @return Relation
      * @throws InvalidConfiguration
      * @throws UndefinedRelation
      */
-    public static function getRelationDefinition($relation)
+    public static function getRelation($relation)
     {
         if (!isset(static::$relations[$relation])) {
             throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
         }
 
-        $relationDefinition = &static::$relations[$relation];
+        $relDef = &static::$relations[$relation];
 
-        if (isset($relationDefinition[0])) {
-            // convert the short form
-            $length = count($relationDefinition);
-
-            if ($length === 2 && gettype($relationDefinition[1]) === 'array') {
-                // owner of one-to-many or one-to-one
-                static::$relations[$relation] = [
-                    self::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
-                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
-                ];
-            } elseif ($length === 3 && $relationDefinition[0] === self::CARDINALITY_ONE) {
-                // non-owner of one-to-one
-                static::$relations[$relation] = [
-                    self::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                    self::OPT_RELATION_CLASS       => $relationDefinition[1],
-                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
-                ];
-            } elseif ($length === 2) {
-                // non-owner of one-to-many
-                static::$relations[$relation] = [
-                    self::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
-                    self::OPT_RELATION_OPPONENT    => $relationDefinition[1],
-                ];
-            } elseif ($length === 4 && gettype($relationDefinition[1]) === 'array') {
-                static::$relations[$relation] = [
-                    self::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                    self::OPT_RELATION_CLASS       => $relationDefinition[0],
-                    self::OPT_RELATION_REFERENCE   => $relationDefinition[1],
-                    self::OPT_RELATION_OPPONENT    => $relationDefinition[2],
-                    self::OPT_RELATION_TABLE       => $relationDefinition[3],
-                ];
-            } else {
-                throw new InvalidConfiguration('Invalid short form for relation ' . $relation);
-            }
-        } elseif (empty($relationDefinition[self::OPT_RELATION_CARDINALITY])) {
-            // default cardinality
-            $relationDefinition[self::OPT_RELATION_CARDINALITY] =
-                !empty($relationDefinition[self::OPT_RELATION_OPPONENT]) ?
-                    self::CARDINALITY_MANY : self::CARDINALITY_ONE;
-        } elseif (isset($relationDefinition[self::OPT_RELATION_REFERENCE]) &&
-                  !isset($relationDefinition[self::OPT_RELATION_TABLE]) &&
-                  $relationDefinition[self::OPT_RELATION_CARDINALITY] === self::CARDINALITY_MANY) {
-            // overwrite wrong cardinality for owner
-            $relationDefinition[self::OPT_RELATION_CARDINALITY] = self::CARDINALITY_ONE;
+        if (!$relDef instanceof Relation) {
+            $relDef = Relation::createRelation($relation, $relDef);
         }
 
-        return $relationDefinition;
+        return $relDef;
     }
 
     /**
@@ -589,35 +538,9 @@ abstract class Entity implements \Serializable
      * @throws IncompletePrimaryKey
      * @throws InvalidRelation
      */
-    public function setRelation($relation, Entity $entity = null)
+    public function setRelated($relation, Entity $entity = null)
     {
-        $relDef = static::getRelationDefinition($relation);
-
-        if ($relDef[self::OPT_RELATION_CARDINALITY] !== self::CARDINALITY_ONE ||
-            !isset($relDef[self::OPT_RELATION_REFERENCE])
-        ) {
-            throw new InvalidRelation('This is not the owner of the relation');
-        }
-
-        if ($entity !== null && !$entity instanceof $relDef[self::OPT_RELATION_CLASS]) {
-            throw new InvalidRelation('Invalid entity for relation ' . $relation);
-        }
-
-        $reference = $relDef[self::OPT_RELATION_REFERENCE];
-        foreach ($reference as $fkVar => $var) {
-            if ($entity === null) {
-                $this->__set($fkVar, null);
-                continue;
-            }
-
-            $value = $entity->__get($var);
-
-            if ($value === null) {
-                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-            }
-
-            $this->__set($fkVar, $value);
-        }
+        $this::getRelation($relation)->setRelated($this, $entity);
 
         $this->relatedObjects[$relation] = $entity;
     }
@@ -629,67 +552,20 @@ abstract class Entity implements \Serializable
      *
      * This method does not take care about already existing relations and will fail hard.
      *
-     * @param string $relation
-     * @param Entity[] $entities
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
+     * @param string        $relation
+     * @param Entity[]      $entities
+     * @param EntityManager $entityManager
+     * @throws NoEntityManager
      */
-    public function addRelations($relation, $entities)
+    public function addRelated($relation, array $entities, EntityManager $entityManager = null)
     {
-        $myRelDef = static::getRelationDefinition($relation);
+        $entityManager = $entityManager ?: $this->entityManager;
 
-        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== self::CARDINALITY_MANY ||
-            !isset($myRelDef[self::OPT_RELATION_TABLE])
-        ) {
-            throw new InvalidRelation('This is not a many-to-many relation');
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
         }
 
-        if (empty($entities)) {
-            return;
-        }
-
-        $class = $myRelDef[self::OPT_RELATION_CLASS];
-        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
-        $table = $this->entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
-
-        $cols = [];
-        $baseAssociation = [];
-        foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
-            $cols[]            = $this->entityManager->escapeIdentifier($fkCol);
-            $value             = $this->__get($myVar);
-
-            if ($value === null) {
-                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-            }
-
-            $baseAssociation[] = $this->entityManager->escapeValue($value);
-        }
-
-        $associations = [];
-        foreach ($entities as $entity) {
-            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
-                throw new InvalidRelation('Invalid entity for relation ' . $relation);
-            }
-
-            $association = $baseAssociation;
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
-                if (empty($associations)) {
-                    $cols[] = $this->entityManager->escapeIdentifier($fkCol);
-                }
-                $value = $entity->__get($hisVar);
-
-                if ($value === null) {
-                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-                }
-
-                $association[] = $this->entityManager->escapeValue($value);
-            }
-            $associations[] = implode(',', $association);
-        }
-
-        $statement = 'INSERT INTO ' . $table . ' (' . implode(',', $cols) . ') ' .
-                        'VALUES (' . implode('),(', $associations) . ')';
-        $this->entityManager->getConnection()->query($statement);
+        $this::getRelation($relation)->addRelated($this, $entities, $entityManager);
     }
 
     /**
@@ -697,63 +573,20 @@ abstract class Entity implements \Serializable
      *
      * This method is only for many-to-many relations.
      *
-     * @param string $relation
-     * @param Entity[] $entities
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
+     * @param string        $relation
+     * @param Entity[]      $entities
+     * @param EntityManager $entityManager
+     * @throws NoEntityManager
      */
-    public function deleteRelations($relation, $entities)
+    public function deleteRelated($relation, $entities, EntityManager $entityManager = null)
     {
-        $myRelDef = static::getRelationDefinition($relation);
+        $entityManager = $entityManager ?: $this->entityManager;
 
-        if ($myRelDef[self::OPT_RELATION_CARDINALITY] !== self::CARDINALITY_MANY ||
-            !isset($myRelDef[self::OPT_RELATION_TABLE])
-        ) {
-            throw new InvalidRelation('This is not a many-to-many relation');
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
         }
 
-        if (empty($entities)) {
-            return;
-        }
-
-        $class = $myRelDef[self::OPT_RELATION_CLASS];
-        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
-        $table = $this->entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
-        $where = [];
-
-        foreach ($myRelDef[self::OPT_RELATION_REFERENCE] as $myVar => $fkCol) {
-            $value = $this->__get($myVar);
-
-            if ($value === null) {
-                throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-            }
-
-            $where[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
-                        $this->entityManager->escapeValue($value);
-        }
-
-        foreach ($entities as $entity) {
-            if (!$entity instanceof $myRelDef[self::OPT_RELATION_CLASS]) {
-                throw new InvalidRelation('Invalid entity for relation ' . $relation);
-            }
-
-            $condition = [];
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $hisVar => $fkCol) {
-                $value = $entity->__get($hisVar);
-
-                if ($value === null) {
-                    throw new IncompletePrimaryKey('Key incomplete to save foreign key');
-                }
-
-                $condition[] = $this->entityManager->escapeIdentifier($fkCol) . ' = ' .
-                        $this->entityManager->escapeValue($value);
-            }
-            $where[] = implode(' AND ', $condition);
-        }
-
-        $statement = 'DELETE FROM ' . $table . ' WHERE ' . array_shift($where) . ' ' .
-                        'AND (' . implode(' OR ', $where) . ')';
-        $this->entityManager->getConnection()->query($statement);
+        $this::getRelation($relation)->deleteRelated($this, $entities, $entityManager);
     }
 
     /**
@@ -823,7 +656,7 @@ abstract class Entity implements \Serializable
         $updated = false;
 
         try {
-            // this may throw if the primary key is implemented but we using this to omit duplicated code
+            // this may throw if the primary key is auto incremented but we using this to omit duplicated code
             if (!$entityManager->sync($this)) {
                 $entityManager->insert($this, false);
                 $inserted = true;
@@ -859,15 +692,11 @@ abstract class Entity implements \Serializable
      *
      * It will throw an error for non owner when the key is incomplete.
      *
-     * @param string $relation The relation to fetch
+     * @param string        $relation      The relation to fetch
      * @param EntityManager $entityManager The EntityManager to use
-     * @return Entity|EntityFetcher|Entity[]
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NoEntity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
+     * @param bool          $getAll
+     * @return Entity|Entity[]|EntityFetcher
      * @throws NoEntityManager
-     * @throws UndefinedRelation
      */
     public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
     {
@@ -877,112 +706,13 @@ abstract class Entity implements \Serializable
             throw new NoEntityManager('No entity manager given');
         }
 
-        $myRelDef = static::getRelationDefinition($relation);
-
-        // the owner can directly fetch by primary key
-        if (isset($myRelDef[self::OPT_RELATION_REFERENCE]) &&
-            !isset($myRelDef[self::OPT_RELATION_TABLE])) {
-            $key = array_map([$this, '__get'], array_keys($myRelDef[self::OPT_RELATION_REFERENCE]));
-
-            if (in_array(null, $key)) {
-                return null;
-            }
-
-            return $entityManager->fetch($myRelDef[self::OPT_RELATION_CLASS], $key);
-        }
-
-        $class = $myRelDef[self::OPT_RELATION_CLASS];
-        $oppRelDef = $class::getRelationDefinition($myRelDef[self::OPT_RELATION_OPPONENT]);
-
-        if (!isset($oppRelDef[self::OPT_RELATION_REFERENCE])) {
-            throw new InvalidConfiguration('Reference is not defined in opponent');
-        }
-
-        $reference = !isset($myRelDef[self::OPT_RELATION_TABLE]) ?
-            array_flip($oppRelDef[self::OPT_RELATION_REFERENCE]) : $myRelDef[self::OPT_RELATION_REFERENCE];
-        $foreignKey = $this->getForeignKey($reference);
-
-        if (!isset($myRelDef[self::OPT_RELATION_TABLE])) {
-            /** @var EntityFetcher $fetcher */
-            $fetcher = $entityManager->fetch($class);
-            foreach ($foreignKey as $col => $value) {
-                $fetcher->where($col, $value);
-            }
-
-            if ($myRelDef[self::OPT_RELATION_CARDINALITY] === self::CARDINALITY_ONE) {
-                return $fetcher->one();
-            } elseif ($getAll) {
-                return $fetcher->all();
-            }
-
-            return $fetcher;
-        }
-
-        $table = $entityManager->escapeIdentifier($myRelDef[self::OPT_RELATION_TABLE]);
+        $relation = $this::getRelation($relation);
 
         if ($getAll) {
-            $query = new QueryBuilder($table, '', $entityManager);
-
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
-                $query->column($entityManager->escapeIdentifier($fkCol));
-            }
-
-            foreach ($foreignKey as $col => $value) {
-                $query->where($entityManager->escapeIdentifier($col), $value);
-            }
-
-            $result = $entityManager->getConnection()->query($query->getQuery());
-            $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
-
-            /** @var Entity[] $result */
-            $result = [];
-            foreach ($primaryKeys as $primaryKey) {
-                if ($entity = $entityManager->fetch($class, $primaryKey)) {
-                    $result[] = $entity;
-                }
-            }
-
-            return $result;
+            return $relation->fetchAll($this, $entityManager);
         } else {
-            /** @var EntityFetcher $fetcher */
-            $fetcher = $entityManager->fetch($class);
-
-            $expression = [];
-            foreach ($oppRelDef[self::OPT_RELATION_REFERENCE] as $t0Var => $fkCol) {
-                $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
-            }
-
-            $fetcher->join($table, implode(' AND ', $expression));
-
-            foreach ($foreignKey as $col => $value) {
-                $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
-            }
-            return $fetcher;
+            return $relation->fetch($this, $entityManager);
         }
-    }
-
-    /**
-     * Get the foreign key for the given reference
-     *
-     * @param array $reference
-     * @return array
-     * @throws IncompletePrimaryKey
-     */
-    private function getForeignKey($reference)
-    {
-        $foreignKey = [];
-
-        foreach ($reference as $var => $fkCol) {
-            $value = $this->__get($var);
-
-            if ($value === null) {
-                throw new IncompletePrimaryKey('Key incomplete for join');
-            }
-
-            $foreignKey[$fkCol] = $value;
-        }
-
-        return $foreignKey;
     }
 
     /**

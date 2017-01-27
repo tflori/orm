@@ -6,7 +6,7 @@ use Mockery\Mock;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exceptions\InvalidConfiguration;
-use ORM\Test\Entity\Examples\Relation;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -81,7 +81,7 @@ class DataTest extends TestCase
 
     public function testCallsGetRelatedWhenThereIsARelationButNoValue()
     {
-        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
         $entity->shouldReceive('getRelated')->with('studlyCaps')->once()->andReturn($related);
