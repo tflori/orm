@@ -43,7 +43,7 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager = null)
+    public function fetch(Entity $me, EntityManager $entityManager)
     {
 
         $foreignKey = $this->getForeignKey($me, $this->reference);

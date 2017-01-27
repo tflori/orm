@@ -30,7 +30,7 @@ class Owner extends Relation
     }
 
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager = null)
+    public function fetch(Entity $me, EntityManager $entityManager)
     {
         $key = array_map([$me, '__get'], array_keys($this->reference));
 

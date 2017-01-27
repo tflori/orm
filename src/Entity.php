@@ -552,14 +552,20 @@ abstract class Entity implements \Serializable
      *
      * This method does not take care about already existing relations and will fail hard.
      *
-     * @param string $relation
-     * @param Entity[] $entities
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
+     * @param string        $relation
+     * @param Entity[]      $entities
+     * @param EntityManager $entityManager
+     * @throws NoEntityManager
      */
-    public function addRelated($relation, array $entities)
+    public function addRelated($relation, array $entities, EntityManager $entityManager = null)
     {
-        $this::getRelation($relation)->addRelated($this, $entities, $this->entityManager);
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
+        }
+
+        $this::getRelation($relation)->addRelated($this, $entities, $entityManager);
     }
 
     /**
@@ -567,14 +573,20 @@ abstract class Entity implements \Serializable
      *
      * This method is only for many-to-many relations.
      *
-     * @param string $relation
-     * @param Entity[] $entities
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
+     * @param string        $relation
+     * @param Entity[]      $entities
+     * @param EntityManager $entityManager
+     * @throws NoEntityManager
      */
-    public function deleteRelated($relation, $entities)
+    public function deleteRelated($relation, $entities, EntityManager $entityManager = null)
     {
-        $this::getRelation($relation)->deleteRelated($this, $entities, $this->entityManager);
+        $entityManager = $entityManager ?: $this->entityManager;
+
+        if (!$entityManager) {
+            throw new NoEntityManager('No entity manager given');
+        }
+
+        $this::getRelation($relation)->deleteRelated($this, $entities, $entityManager);
     }
 
     /**
@@ -680,15 +692,11 @@ abstract class Entity implements \Serializable
      *
      * It will throw an error for non owner when the key is incomplete.
      *
-     * @param string $relation The relation to fetch
+     * @param string        $relation      The relation to fetch
      * @param EntityManager $entityManager The EntityManager to use
-     * @return Entity|EntityFetcher|Entity[]
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NoEntity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
+     * @param bool          $getAll
+     * @return Entity|Entity[]|EntityFetcher
      * @throws NoEntityManager
-     * @throws UndefinedRelation
      */
     public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
     {

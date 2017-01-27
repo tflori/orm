@@ -170,7 +170,7 @@ abstract class Relation
      *
      * @param Entity        $me
      * @param EntityManager $entityManager
-     * @return array
+     * @return Entity[]|Entity
      */
     public function fetchAll(Entity $me, EntityManager $entityManager)
     {

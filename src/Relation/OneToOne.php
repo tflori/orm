@@ -8,7 +8,7 @@ use ORM\EntityManager;
 class OneToOne extends OneToMany
 {
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager = null)
+    public function fetch(Entity $me, EntityManager $entityManager)
     {
         return parent::fetch($me, $entityManager)->one();
     }

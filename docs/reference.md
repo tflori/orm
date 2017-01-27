@@ -319,7 +319,8 @@ The onChange event is called after something got changed.
 
 ```php?start_inline=true
 public function addRelated(
-    string $relation, array<\ORM\Entity> $entities
+    string $relation, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager = null
 )
 ```
 
@@ -331,7 +332,7 @@ This method does not take care about already existing relations and will fail ha
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -339,6 +340,7 @@ This method does not take care about already existing relations and will fail ha
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
+| `$entityManager` | **EntityManager**  |  |
 
 
 
@@ -346,7 +348,8 @@ This method does not take care about already existing relations and will fail ha
 
 ```php?start_inline=true
 public function deleteRelated(
-    string $relation, array<\ORM\Entity> $entities
+    string $relation, array<\ORM\Entity> $entities, 
+    \ORM\EntityManager $entityManager = null
 )
 ```
 
@@ -356,7 +359,7 @@ This method is only for many-to-many relations.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -364,6 +367,7 @@ This method is only for many-to-many relations.
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
+| `$entityManager` | **EntityManager**  |  |
 
 
 
@@ -372,8 +376,8 @@ This method is only for many-to-many relations.
 ```php?start_inline=true
 public function fetch(
     string $relation, \ORM\EntityManager $entityManager = null, 
-    $getAll = false
-): \ORM\Entity|\ORM\EntityFetcher|array<\ORM\Entity>
+    boolean $getAll = false
+): \ORM\Entity|array<\ORM\Entity>|\ORM\EntityFetcher
 ```
 
 ##### Fetches related objects
@@ -384,8 +388,8 @@ It will throw an error for non owner when the key is incomplete.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher|array&lt;mixed,\ORM\Entity&gt;**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoEntityManager** or **\ORM\Exceptions\UndefinedRelation**<br />
+ **Returns**: this method returns **\ORM\Entity|array&lt;mixed,\ORM\Entity&gt;|\ORM\EntityFetcher**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -393,7 +397,7 @@ It will throw an error for non owner when the key is incomplete.
 |-----------|------|-------------|
 | `$relation` | **string**  | The relation to fetch |
 | `$entityManager` | **EntityManager**  | The EntityManager to use |
-| `$getAll` |   |  |
+| `$getAll` | **boolean**  |  |
 
 
 
@@ -2460,7 +2464,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -2487,7 +2491,7 @@ Runs fetch on the EntityManager and returns its result.
 ```php?start_inline=true
 public function fetchAll(
     \ORM\Entity $me, \ORM\EntityManager $entityManager
-): array
+): array<\ORM\Entity>|\ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -2496,7 +2500,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
 <br />
 
 ##### Parameters
@@ -2905,7 +2909,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -2932,7 +2936,7 @@ Runs fetch on the EntityManager and returns its result.
 ```php?start_inline=true
 public function fetchAll(
     \ORM\Entity $me, \ORM\EntityManager $entityManager
-): array
+): array<\ORM\Entity>|\ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -2941,7 +2945,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
 <br />
 
 ##### Parameters
@@ -3253,7 +3257,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -3280,7 +3284,7 @@ Runs fetch on the EntityManager and returns its result.
 ```php?start_inline=true
 public function fetchAll(
     \ORM\Entity $me, \ORM\EntityManager $entityManager
-): array
+): array<\ORM\Entity>|\ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -3289,7 +3293,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
 <br />
 
 ##### Parameters
@@ -3601,7 +3605,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager = null
+    \ORM\Entity $me, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -3628,7 +3632,7 @@ Runs fetch on the EntityManager and returns its result.
 ```php?start_inline=true
 public function fetchAll(
     \ORM\Entity $me, \ORM\EntityManager $entityManager
-): array
+): array<\ORM\Entity>|\ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -3637,7 +3641,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
 <br />
 
 ##### Parameters
@@ -5710,7 +5714,7 @@ Runs fetch on the EntityManager and returns its result.
 ```php?start_inline=true
 public function fetchAll(
     \ORM\Entity $me, \ORM\EntityManager $entityManager
-): array
+): array<\ORM\Entity>|\ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -5719,7 +5723,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
 <br />
 
 ##### Parameters

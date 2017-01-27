@@ -338,7 +338,7 @@ class RelationsTest extends TestCase
         self::assertNull($entity->getRelated('studlyCaps'));
     }
 
-    public function testAddRelationsCreatesTheAssociation()
+    public function testAddRelatedCreatesTheAssociation()
     {
         $article = new Article(['id' => 42], $this->em);
         $category = new Category(['id' => 23]);
@@ -349,7 +349,7 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [$category]);
     }
 
-    public function testAddRelationsCreatesAMultilineInsert()
+    public function testAddRelatedCreatesAMultilineInsert()
     {
         $article = new Article(['id' => 42], $this->em);
         $category1 = new Category(['id' => 23]);
@@ -361,7 +361,7 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [$category1, $category2]);
     }
 
-    public function testAddRelationsThrowsWhenClassWrong()
+    public function testAddRelatedThrowsWhenClassWrong()
     {
         $article = new Article(['id' => 42], $this->em);
 
@@ -371,7 +371,7 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [new Category(['id' => 23]), new StudlyCaps()]);
     }
 
-    public function testAddRelationsThrowsWhenRelationIsNotManyToMany()
+    public function testAddRelatedThrowsWhenRelationIsNotManyToMany()
     {
         $entity = new RelationExample([], $this->em);
 
@@ -381,7 +381,7 @@ class RelationsTest extends TestCase
         $entity->addRelated('studlyCaps', [new StudlyCaps(['id' => 23])]);
     }
 
-    public function testAddRelationsThrowsWhenEntityHasNoKey()
+    public function testAddRelatedThrowsWhenEntityHasNoKey()
     {
         $entity = new Article([], $this->em);
 
@@ -391,7 +391,7 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', [new Category(['id' => 23])]);
     }
 
-    public function testAddRelationsThrowsWhenARelationHasNoKey()
+    public function testAddRelatedThrowsWhenARelationHasNoKey()
     {
         $entity = new Article(['id' => 42], $this->em);
 
@@ -401,7 +401,7 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', [new Category(['id' => 23]), new Category()]);
     }
 
-    public function testAddRelationsDoesNothingWithEmptyArray()
+    public function testAddRelatedDoesNothingWithEmptyArray()
     {
         $entity = new Article(['id' => 42], $this->em);
         $this->pdo->shouldNotReceive('query');
@@ -409,7 +409,28 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', []);
     }
 
-    public function testDeleteRelationsDeletesTheAssociation()
+    public function testAddRelatedRequiresEntityManager()
+    {
+        $entity = new Article(['id' => 42]);
+
+        self::expectException(NoEntityManager::class);
+        self::expectExceptionMessage('No entity manager given');
+
+        $entity->addRelated('categories', [new Category(['id' => 23])]);
+    }
+
+    public function testAddRelatedAllowsToPassEntityManager()
+    {
+        $article = new Article(['id' => 42]);
+        $category = new Category(['id' => 23]);
+        $this->pdo->shouldReceive('query')
+                  ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
+                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->addRelated('categories', [$category], $this->em);
+    }
+
+    public function testDeleteRelatedDeletesTheAssociation()
     {
         $article = new Article(['id' => 42], $this->em);
         $category = new Category(['id' => 23]);
@@ -420,7 +441,7 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [$category]);
     }
 
-    public function testDeleteRelationsExecutesOnlyOneStatement()
+    public function testDeleteRelatedExecutesOnlyOneStatement()
     {
         $article = new Article(['id' => 42], $this->em);
         $category1 = new Category(['id' => 23]);
@@ -433,7 +454,7 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [$category1, $category2]);
     }
 
-    public function testDeleteRelationsThrowsWhenClassWrong()
+    public function testDeleteRelatedThrowsWhenClassWrong()
     {
         $article = new Article(['id' => 42], $this->em);
 
@@ -443,7 +464,7 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [new Category(['id' => 23]), new StudlyCaps()]);
     }
 
-    public function testDeleteRelationsThrowsWhenRelationIsNotManyToMany()
+    public function testDeleteRelatedThrowsWhenRelationIsNotManyToMany()
     {
         $entity = new RelationExample([], $this->em);
 
@@ -453,7 +474,7 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('studlyCaps', [new StudlyCaps(['id' => 23])]);
     }
 
-    public function testDeleteRelationsThrowsWhenEntityHasNoKey()
+    public function testDeleteRelatedThrowsWhenEntityHasNoKey()
     {
         $entity = new Article([], $this->em);
 
@@ -463,7 +484,7 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', [new Category(['id' => 23])]);
     }
 
-    public function testDeleteRelationsThrowsWhenARelationHasNoKey()
+    public function testDeleteRelatedThrowsWhenARelationHasNoKey()
     {
         $entity = new Article(['id' => 42], $this->em);
 
@@ -473,11 +494,33 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', [new Category(['id' => 23]), new Category()]);
     }
 
-    public function testDeleteRelationsDoesNothingWithEmptyArray()
+    public function testDeleteRelatedDoesNothingWithEmptyArray()
     {
         $entity = new Article(['id' => 42], $this->em);
         $this->pdo->shouldNotReceive('query');
 
         $entity->deleteRelated('categories', []);
+    }
+
+    public function testDeleteRelatedRequiresEntityManager()
+    {
+        $entity = new Article(['id' => 42]);
+
+        self::expectException(NoEntityManager::class);
+        self::expectExceptionMessage('No entity manager given');
+
+        $entity->deleteRelated('categories', [new Category(['id' => 23])]);
+    }
+
+    public function testDeleteRelatedAllowsToPassEntityManager()
+    {
+        $article = new Article(['id' => 42]);
+        $category = new Category(['id' => 23]);
+        $this->pdo->shouldReceive('query')
+                  ->with('DELETE FROM "article_category" WHERE "article_id" = 42 ' .
+                         'AND ("category_id" = 23)')
+                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+
+        $article->deleteRelated('categories', [$category], $this->em);
     }
 }
