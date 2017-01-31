@@ -55,7 +55,7 @@ cause a fatal error instead) you will get a `PDOException`.
 
 Install it via composer, configure it, use it.
 ```bash
-composer require tflori/orm:"@beta"
+composer require tflori/orm
 ```
 
 ```php
