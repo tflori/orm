@@ -824,7 +824,7 @@ abstract class Entity implements \Serializable
      */
     public function serialize()
     {
-        return serialize($this->data);
+        return serialize([$this->data, $this->relatedObjects]);
     }
 
     /**
@@ -835,7 +835,7 @@ abstract class Entity implements \Serializable
      */
     public function unserialize($serialized)
     {
-        $this->data = unserialize($serialized);
+        list($this->data, $this->relatedObjects) = unserialize($serialized);
         $this->onInit(false);
     }
 }

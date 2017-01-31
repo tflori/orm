@@ -523,4 +523,16 @@ class RelationsTest extends TestCase
 
         $article->deleteRelated('categories', [$category], $this->em);
     }
+
+    public function testSerializeSavesRelated()
+    {
+        $entity = new RelationExample();
+        $related = new DamagedABBRVCase(['id' => 42]);
+        $entity->setRelated('dmgd', $related);
+
+        $entity = unserialize(serialize($entity));
+        $result = $entity->getRelated('dmgd');
+
+        self::assertEquals($related, $result);
+    }
 }
