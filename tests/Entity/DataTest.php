@@ -262,7 +262,8 @@ class DataTest extends TestCase
         ], $this->em, true);
     }
 
-    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":46:{a:2:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}}}';
+    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":' .
+                          '46:{a:2:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}}}';
 
     public function testSerialization()
     {
