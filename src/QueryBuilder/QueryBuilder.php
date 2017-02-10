@@ -141,12 +141,12 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @throws \ORM\Exceptions\NotScalar
      * @internal
      */
-    public function createWhereCondition($column, $operator = '', $value = '')
+    public function createWhereCondition($column, $operator = null, $value = null)
     {
         if (strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
-        } elseif (!$operator && !$value) {
+        } elseif ($operator === null && $value === null) {
             $expression = $column;
         } else {
             if (!$value) {

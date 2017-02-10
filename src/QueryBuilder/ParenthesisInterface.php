@@ -138,5 +138,5 @@ interface ParenthesisInterface
      * @return string
      * @internal
      */
-    public function createWhereCondition($column, $operator = '', $value = '');
+    public function createWhereCondition($column, $operator = null, $value = null);
 }

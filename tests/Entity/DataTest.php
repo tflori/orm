@@ -4,7 +4,6 @@ namespace ORM\Test\Entity;
 
 use Mockery\Mock;
 use ORM\Entity;
-use ORM\EntityManager;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
