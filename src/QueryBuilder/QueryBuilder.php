@@ -155,26 +155,35 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $operator = null;
             }
 
-            if ($operator === null) {
-                if (is_array($value)) {
-                    $operator = 'IN';
-                } else {
-                    $operator = '=';
-                }
-            }
-
-            $expression = $column . ' ' . $operator;
-
-            if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
-                $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
-            } else {
-                $expression .= ' ?';
-            }
+            $expression = $this->buildExpression($column, $value, $operator);
         }
 
         $whereCondition = $this->convertPlaceholders($expression, $value);
 
         return $whereCondition;
+    }
+
+    private function buildExpression($column, $value, $operator = null)
+    {
+        $operator = $operator ?: $this->getDefaultOperator($value);
+        $expression = $column . ' ' . $operator;
+
+        if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
+            $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+        } else {
+            $expression .= ' ?';
+        }
+
+        return $expression;
+    }
+
+    private function getDefaultOperator($value)
+    {
+        if (is_array($value)) {
+            return 'IN';
+        } else {
+            return '=';
+        }
     }
 
     /** {@inheritdoc} */
