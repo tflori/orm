@@ -171,4 +171,31 @@ class WhereConditionsTest extends TestCase
 
         self::assertSame('SELECT * FROM foobar WHERE a IN (\'foo\', ?)', $query->getQuery());
     }
+
+    public function testCreatesWhere0()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', 0);
+
+        self::assertSame('SELECT * FROM foobar WHERE a = 0', $query->getQuery());
+    }
+
+    public function testCreatesWhereEmpty()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', '');
+
+        self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
+    }
+
+    public function testUsesEqualityOperator()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', null, '');
+
+        self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
+    }
 }

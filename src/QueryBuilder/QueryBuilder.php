@@ -3,6 +3,8 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
+use ORM\Exception;
+use ORM\Exceptions\NoOperator;
 
 /**
  * Build a ansi sql query / select statement
@@ -137,39 +139,51 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param string $operator Operator or value if operator is omited
      * @param string $value    Value or array of values
      * @return string
-     * @throws \ORM\Exceptions\NoConnection
-     * @throws \ORM\Exceptions\NotScalar
+     * @throws NoOperator
      * @internal
      */
-    public function createWhereCondition($column, $operator = '', $value = '')
+    public function createWhereCondition($column, $operator = null, $value = null)
     {
         if (strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
-        } elseif (!$operator && !$value) {
+        } elseif ($operator === null && $value === null) {
             $expression = $column;
         } else {
-            if (!$value) {
+            if ($value === null) {
                 $value = $operator;
-                if (is_array($value)) {
-                    $operator = 'IN';
-                } else {
-                    $operator = '=';
-                }
+                $operator = null;
             }
 
-            $expression = $column . ' ' . $operator;
-
-            if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
-                $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
-            } else {
-                $expression .= ' ?';
-            }
+            $expression = $this->buildExpression($column, $value, $operator);
         }
 
         $whereCondition = $this->convertPlaceholders($expression, $value);
 
         return $whereCondition;
+    }
+
+    private function buildExpression($column, $value, $operator = null)
+    {
+        $operator = $operator ?: $this->getDefaultOperator($value);
+        $expression = $column . ' ' . $operator;
+
+        if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
+            $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+        } else {
+            $expression .= ' ?';
+        }
+
+        return $expression;
+    }
+
+    private function getDefaultOperator($value)
+    {
+        if (is_array($value)) {
+            return 'IN';
+        } else {
+            return '=';
+        }
     }
 
     /** {@inheritdoc} */

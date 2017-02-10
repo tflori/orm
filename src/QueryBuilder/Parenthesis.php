@@ -49,19 +49,19 @@ class Parenthesis implements ParenthesisInterface
      * @return string
      * @internal
      */
-    public function createWhereCondition($column, $operator = '', $value = '')
+    public function createWhereCondition($column, $operator = null, $value = null)
     {
         return $this->parent->createWhereCondition($column, $operator, $value);
     }
 
     /** {@inheritdoc} */
-    public function where($column, $operator = '', $value = '')
+    public function where($column, $operator = null, $value = null)
     {
         return $this->andWhere($column, $operator, $value);
     }
 
     /** {@inheritdoc} */
-    public function andWhere($column, $operator = '', $value = '')
+    public function andWhere($column, $operator = null, $value = null)
     {
         $this->where[] = (!empty($this->where) ? 'AND ' : '') . $this->createWhereCondition($column, $operator, $value);
 
@@ -69,7 +69,7 @@ class Parenthesis implements ParenthesisInterface
     }
 
     /** {@inheritdoc} */
-    public function orWhere($column, $operator = '', $value = '')
+    public function orWhere($column, $operator = null, $value = null)
     {
         $this->where[] = (!empty($this->where) ? 'OR ' : '') . $this->createWhereCondition($column, $operator, $value);
 
