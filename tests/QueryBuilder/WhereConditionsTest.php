@@ -189,4 +189,13 @@ class WhereConditionsTest extends TestCase
 
         self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
     }
+
+    public function testUsesEqualityOperator()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', null, '');
+
+        self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
+    }
 }

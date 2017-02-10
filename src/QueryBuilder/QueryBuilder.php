@@ -3,6 +3,8 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
+use ORM\Exception;
+use ORM\Exceptions\NoOperator;
 
 /**
  * Build a ansi sql query / select statement
@@ -137,8 +139,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param string $operator Operator or value if operator is omited
      * @param string $value    Value or array of values
      * @return string
-     * @throws \ORM\Exceptions\NoConnection
-     * @throws \ORM\Exceptions\NotScalar
+     * @throws NoOperator
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
@@ -149,8 +150,12 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         } elseif ($operator === null && $value === null) {
             $expression = $column;
         } else {
-            if (!$value) {
+            if ($value === null) {
                 $value = $operator;
+                $operator = null;
+            }
+
+            if ($operator === null) {
                 if (is_array($value)) {
                     $operator = 'IN';
                 } else {
