@@ -109,7 +109,7 @@ class EntityManager
      */
     public function getOption($option)
     {
-        return @$this->options[$option];
+        return isset($this->options[$option]) ? $this->options[$option] : null;
     }
 
     /**
