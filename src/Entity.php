@@ -466,7 +466,7 @@ abstract class Entity implements \Serializable
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
             $oldValue = $this->__get($var);
-            $changed = @$this->data[$col] !== $value;
+            $changed = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
             $this->data[$col] = $value;
         }
 
@@ -600,7 +600,8 @@ abstract class Entity implements \Serializable
     {
         if (!empty($var)) {
             $col = static::getColumnName($var);
-            return @$this->data[$col] !== @$this->originalData[$col];
+            return (isset($this->data[$col]) ? $this->data[$col] : null) !==
+                   (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
         }
 
         ksort($this->data);
