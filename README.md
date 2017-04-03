@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/tflori/orm.svg?branch=master)](https://travis-ci.org/tflori/orm)
 [![Coverage Status](https://coveralls.io/repos/github/tflori/orm/badge.svg?branch=master)](https://coveralls.io/github/tflori/orm?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tflori/orm/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tflori/orm/?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/tflori/orm/v/stable.svg)](https://packagist.org/packages/tflori/orm) 
 [![Total Downloads](https://poser.pugx.org/tflori/orm/downloads.svg)](https://packagist.org/packages/tflori/orm) 
 [![License](https://poser.pugx.org/tflori/orm/license.svg)](https://packagist.org/packages/tflori/orm)
@@ -31,7 +32,9 @@ This implementation will have the following features:
   - ok some bit for sure (e.g. how to connect to your database?)
   - of course this is only possible if you setup your database as we think your database should look like. If not you
     should only have to setup the rules of your system and naming conventions.
-- simple to use, lightweight sources, fast
+- simple to use
+- lightweight sources
+- fast
 
 How to achieve this features? The main goal of Doctrine seems to abstract everything - at the end you should be able
 to replace the whole DBMS behind your app and switch from postgresql to sqlite. That requires not only a lot of
@@ -42,6 +45,11 @@ hand. This has two reasons:
 
 1. You can write much faster and efficient queries
 2. We don't need to write a lot of abstraction (more code; more bugs)
+
+This library will not fetch any mistake a developer can make. It aims to be a helper to store data in your database. Not
+to replace your database and your knowledge how to use this database. You can make a lot of errors - less than without
+this library but still a lot. When you make an error that is not catched (mostly we catch only mistakes that would
+cause a fatal error instead) you will get a `PDOException`.
 
 ## Setup
 

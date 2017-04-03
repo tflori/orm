@@ -4,9 +4,8 @@ namespace ORM\Test\Entity;
 
 use Mockery\Mock;
 use ORM\Entity;
-use ORM\EntityManager;
 use ORM\Exceptions\InvalidConfiguration;
-use ORM\Test\Entity\Examples\Relation;
+use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -81,7 +80,7 @@ class DataTest extends TestCase
 
     public function testCallsGetRelatedWhenThereIsARelationButNoValue()
     {
-        $entity = \Mockery::mock(Relation::class)->makePartial();
+        $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
         $entity->shouldReceive('getRelated')->with('studlyCaps')->once()->andReturn($related);
@@ -262,7 +261,8 @@ class DataTest extends TestCase
         ], $this->em, true);
     }
 
-    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":26:{a:1:{s:3:"foo";s:3:"bar";}}';
+    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":' .
+                          '46:{a:2:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}}}';
 
     public function testSerialization()
     {
@@ -287,6 +287,6 @@ class DataTest extends TestCase
 
         $entity->shouldReceive('onInit')->with(false)->once();
 
-        $entity->unserialize(serialize(['foo' => 'bar']));
+        $entity->unserialize(serialize([['foo' => 'bar'],[]]));
     }
 }

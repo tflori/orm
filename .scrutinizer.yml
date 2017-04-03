@@ -1,0 +1,21 @@
+checks:
+    php:
+      code_rating: true
+      duplication: false
+build:
+    tests:
+        override:
+            -
+                command: 'vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text'
+                coverage:
+                    file: 'clover.xml'
+                    format: 'clover'
+    environment:
+        php:
+            version: 7.1.0
+filter:
+    excluded_paths:
+        - tests/*
+        - docs/*
+        - vendor/*
+        - example.php

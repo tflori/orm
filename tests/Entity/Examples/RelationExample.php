@@ -4,7 +4,7 @@ namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
 
-class Relation extends Entity
+class RelationExample extends Entity
 {
     protected static $relations = [
         'studlyCaps' => [
@@ -16,12 +16,13 @@ class Relation extends Entity
             self::OPT_RELATION_CLASS => Psr0_StudlyCaps::class,
             self::OPT_RELATION_REFERENCE => ['psr0StudlyCaps' => 'id'],
         ],
-        'testEntities' => [
-            self::OPT_RELATION_CLASS => TestEntity::class,
+        'contactPhones' => [
+            self::OPT_RELATION_CLASS => ContactPhone::class,
             self::OPT_RELATION_OPPONENT => 'relation',
         ],
         'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
         'invalid' => ['many', StudlyCaps::class, 'opponent'], // many has to be omitted
         'mySnake' => ['one', Snake_Ucfirst::class, 'relation'],
+        'snake' => [Snake_Ucfirst::class, ['snakeId' => 'id']]
     ];
 }

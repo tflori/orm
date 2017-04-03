@@ -3,6 +3,8 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
+use ORM\Exception;
+use ORM\Exceptions\NoOperator;
 
 /**
  * Build a ansi sql query / select statement
@@ -33,7 +35,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     protected $alias = '';
 
     /** Columns to fetch (null is equal to ['*'])
-     * @var array */
+     * @var array|null */
     protected $columns = null;
 
     /** Joins get concatenated with space
@@ -108,14 +110,12 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $args = [$args];
         }
 
-        $entityManager = $this->entityManager ?: static::$defaultEntityManager;
-
         $parts = explode('?', $expression);
         $expression = '';
         while ($part = array_shift($parts)) {
             $expression .= $part;
             if (count($args)) {
-                $expression .= $entityManager->escapeValue(array_shift($args));
+                $expression .= $this->getEntityManager()->escapeValue(array_shift($args));
             } elseif (count($parts)) {
                 $expression .= '?';
             }
@@ -125,45 +125,65 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
+     * @return EntityManager
+     */
+    public function getEntityManager()
+    {
+        return $this->entityManager ?: static::$defaultEntityManager;
+    }
+
+    /**
      * Common implementation for creating a where condition
      *
      * @param string $column   Column or expression with placeholders
      * @param string $operator Operator or value if operator is omited
      * @param string $value    Value or array of values
      * @return string
-     * @throws \ORM\Exceptions\NoConnection
-     * @throws \ORM\Exceptions\NotScalar
+     * @throws NoOperator
      * @internal
      */
-    public function createWhereCondition($column, $operator = '', $value = '')
+    public function createWhereCondition($column, $operator = null, $value = null)
     {
         if (strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
-        } elseif (!$operator && !$value) {
+        } elseif ($operator === null && $value === null) {
             $expression = $column;
         } else {
-            if (!$value) {
+            if ($value === null) {
                 $value = $operator;
-                if (is_array($value)) {
-                    $operator = 'IN';
-                } else {
-                    $operator = '=';
-                }
+                $operator = null;
             }
 
-            $expression = $column . ' ' . $operator;
-
-            if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
-                $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
-            } else {
-                $expression .= ' ?';
-            }
+            $expression = $this->buildExpression($column, $value, $operator);
         }
 
         $whereCondition = $this->convertPlaceholders($expression, $value);
 
         return $whereCondition;
+    }
+
+    private function buildExpression($column, $value, $operator = null)
+    {
+        $operator = $operator ?: $this->getDefaultOperator($value);
+        $expression = $column . ' ' . $operator;
+
+        if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
+            $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+        } else {
+            $expression .= ' ?';
+        }
+
+        return $expression;
+    }
+
+    private function getDefaultOperator($value)
+    {
+        if (is_array($value)) {
+            return 'IN';
+        } else {
+            return '=';
+        }
     }
 
     /** {@inheritdoc} */
@@ -212,7 +232,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)
     {
         $join = $join . ' ' . $tableName
-              . ($alias ? ' AS ' . $alias : '');
+                . ($alias ? ' AS ' . $alias : '');
 
         if (preg_match('/^[A-Za-z_]+$/', $expression)) {
             $join .= ' USING (' . $expression . ')';
@@ -229,7 +249,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $join .= ' ON ' . $parenthesis->getExpression();
                 $this->joins[] = $join;
                 return $this;
-            }, $this, $this->entityManager);
+            }, $this);
         }
 
         return $this;
@@ -308,7 +328,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function limit($limit)
     {
-        $this->limit = (int)$limit;
+        $this->limit = (int) $limit;
 
         return $this;
     }
@@ -316,7 +336,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function offset($offset)
     {
-        $this->offset = (int)$offset;
+        $this->offset = (int) $offset;
 
         return $this;
     }
@@ -328,7 +348,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                . (!empty($this->modifier) ? implode(' ', $this->modifier) . ' ' : '')
                . ($this->columns ? implode(',', $this->columns) : '*')
                . ' FROM ' . $this->tableName . ($this->alias ? ' AS ' . $this->alias : '')
-               . (!empty($this->joins) ? ' ' . reset($this->joins) : '')
+               . (!empty($this->joins) ? ' ' . implode(' ', $this->joins) : '')
                . (!empty($this->where) ? ' WHERE ' . implode(' ', $this->where) : '')
                . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
                . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')

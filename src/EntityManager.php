@@ -194,6 +194,7 @@ class EntityManager
     {
         $this->map($entity, true);
 
+        /** @var EntityFetcher $fetcher */
         $fetcher = $this->fetch(get_class($entity));
         foreach ($entity->getPrimaryKey() as $var => $value) {
             $fetcher->where($var, $value);
@@ -239,7 +240,7 @@ class EntityManager
         }, array_values($data));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+                        '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
         $pdo = $this->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
@@ -306,8 +307,8 @@ class EntityManager
         }
 
         $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'SET ' . implode(',', $set) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'SET ' . implode(',', $set) . ' ' .
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $this->sync($entity, true);
@@ -337,7 +338,7 @@ class EntityManager
         }
 
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
+                        'WHERE ' . implode(' AND ', $where);
         $this->getConnection()->query($statement);
 
         $entity->setOriginalData([]);
@@ -437,24 +438,19 @@ class EntityManager
         switch (strtolower(gettype($value))) {
             case 'string':
                 return $this->getConnection()->quote($value);
-                break;
 
             case 'integer':
-                return (string)$value;
-                break;
+                return (string) $value;
 
             case 'double':
-                return (string)$value;
-                break;
+                return (string) $value;
 
             case 'boolean':
                 $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
                 return ($value) ? $this->options[$connectionType . 'True'] : $this->options[$connectionType . 'False'];
-                break;
 
             case 'null':
                 return 'NULL';
-                break;
 
             default:
                 throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
