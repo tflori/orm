@@ -466,7 +466,7 @@ abstract class Entity implements \Serializable
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
             $oldValue = $this->__get($var);
-            $changed = @$this->data[$col] !== $value;
+            $changed = !empty($this->data[$col]) && @$this->data[$col] !== $value;
             $this->data[$col] = $value;
         }
 
