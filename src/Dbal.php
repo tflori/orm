@@ -1,6 +1,7 @@
 <?php
 
 namespace ORM;
+
 use ORM\Dbal\Column;
 use ORM\Exceptions\NotScalar;
 use ORM\Exceptions\UnsupportedDriver;
