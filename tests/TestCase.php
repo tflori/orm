@@ -27,7 +27,7 @@ class TestCase extends MockeryTestCase
         $this->pdo->shouldReceive('query')->andReturnUsing(function ($query) {
             throw new \PDOException('Query failed by default (Query: ' . $query . ')');
         })->byDefault();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite')->byDefault();
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mssql')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
         $this->em = \Mockery::mock(EntityManager::class)->makePartial();

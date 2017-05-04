@@ -197,6 +197,7 @@ class DataModificationTest extends TestCase
      */
     public function testInsertStatement($entity, $statement)
     {
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast(1)->andReturn('mysql');
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -276,7 +277,7 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('foobar');
 
         self::expectException(UnsupportedDriver::class);
-        self::expectExceptionMessage('Auto incremented column for driver foobar is not supported');
+        self::expectExceptionMessage('Auto incremented column for this driver is not supported');
 
         $this->em->insert(new StudlyCaps(['foo' => 'bar']));
     }

@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Dbal\Other;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
@@ -18,22 +19,35 @@ use ORM\Exceptions\UnsupportedDriver;
 class EntityManager
 {
     const OPT_CONNECTION             = 'connection';
-    const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
-    const OPT_MYSQL_BOOLEAN_FALSE    = 'mysqlFalse';
-    const OPT_SQLITE_BOOLEAN_TRUE    = 'sqliteTrue';
-    const OPT_SQLITE_BOOLEAN_FASLE   = 'sqliteFalse';
-    const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
-    const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
-    const OPT_QUOTING_CHARACTER      = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
     const OPT_TABLE_NAME_TEMPLATE    = 'tableNameTemplate';
     const OPT_NAMING_SCHEME_TABLE    = 'namingSchemeTable';
     const OPT_NAMING_SCHEME_COLUMN   = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS  = 'namingSchemeMethods';
 
+    /** @deprecated */
+    const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
+    /** @deprecated */
+    const OPT_MYSQL_BOOLEAN_FALSE    = 'mysqlFalse';
+    /** @deprecated */
+    const OPT_SQLITE_BOOLEAN_TRUE    = 'sqliteTrue';
+    /** @deprecated */
+    const OPT_SQLITE_BOOLEAN_FASLE   = 'sqliteFalse';
+    /** @deprecated */
+    const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
+    /** @deprecated */
+    const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
+    /** @deprecated */
+    const OPT_QUOTING_CHARACTER      = 'quotingChar';
+    /** @deprecated */
+    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
+
     /** Connection to database
      * @var \PDO|callable|DbConfig */
     protected $connection;
+
+    /** The Database Abstraction Layer
+     * @var Dbal */
+    private $dbal;
 
     /** The Entity map
      * @var Entity[][] */
@@ -41,16 +55,7 @@ class EntityManager
 
     /** The options set for this instance
      * @var array */
-    protected $options = [
-        self::OPT_MYSQL_BOOLEAN_TRUE   => '1',
-        self::OPT_MYSQL_BOOLEAN_FALSE  => '0',
-        self::OPT_SQLITE_BOOLEAN_TRUE  => '1',
-        self::OPT_SQLITE_BOOLEAN_FASLE => '0',
-        self::OPT_PGSQL_BOOLEAN_TRUE   => 'true',
-        self::OPT_PGSQL_BOOLEAN_FALSE  => 'false',
-        self::OPT_QUOTING_CHARACTER    => '"',
-        self::OPT_IDENTIFIER_DIVIDER   => '.',
-    ];
+    protected $options = [];
 
     /**
      * Constructor
@@ -61,30 +66,7 @@ class EntityManager
     public function __construct($options = [])
     {
         foreach ($options as $option => $value) {
-            switch ($option) {
-                case self::OPT_CONNECTION:
-                    $this->setConnection($value);
-                    break;
-
-                case self::OPT_TABLE_NAME_TEMPLATE:
-                    Entity::setTableNameTemplate($value);
-                    break;
-
-                case self::OPT_NAMING_SCHEME_TABLE:
-                    Entity::setNamingSchemeTable($value);
-                    break;
-
-                case self::OPT_NAMING_SCHEME_COLUMN:
-                    Entity::setNamingSchemeColumn($value);
-                    break;
-
-                case self::OPT_NAMING_SCHEME_METHODS:
-                    Entity::setNamingSchemeMethods($value);
-                    break;
-
-                default:
-                    $this->setOption($option, $value);
-            }
+            $this->setOption($option, $value);
         }
     }
 
@@ -97,6 +79,28 @@ class EntityManager
      */
     public function setOption($option, $value)
     {
+        switch ($option) {
+            case self::OPT_CONNECTION:
+                $this->setConnection($value);
+                break;
+
+            case self::OPT_TABLE_NAME_TEMPLATE:
+                Entity::setTableNameTemplate($value);
+                break;
+
+            case self::OPT_NAMING_SCHEME_TABLE:
+                Entity::setNamingSchemeTable($value);
+                break;
+
+            case self::OPT_NAMING_SCHEME_COLUMN:
+                Entity::setNamingSchemeColumn($value);
+                break;
+
+            case self::OPT_NAMING_SCHEME_METHODS:
+                Entity::setNamingSchemeMethods($value);
+                break;
+        }
+
         $this->options[$option] = $value;
         return $this;
     }
@@ -219,59 +223,11 @@ class EntityManager
      * @param Entity $entity
      * @param bool   $useAutoIncrement
      * @return mixed
-     * @throws Exceptions\InvalidName
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoConnection
-     * @throws NoEntity
-     * @throws UnsupportedDriver
      * @internal
      */
     public function insert(Entity $entity, $useAutoIncrement = true)
     {
-        $data = $entity->getData();
-
-        $cols = array_map(function ($key) {
-            return $this->escapeIdentifier($key);
-        }, array_keys($data));
-
-        $values = array_map(function ($value) use ($entity) {
-            return $this->escapeValue($value);
-        }, array_values($data));
-
-        $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                        '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
-        $pdo = $this->getConnection();
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            switch ($driver) {
-                case 'sqlite':
-                    $pdo->query($statement);
-                    $id = $pdo->lastInsertId();
-                    break;
-
-                case 'mysql':
-                    $pdo->query($statement);
-                    $id = $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn();
-                    break;
-
-                case 'pgsql':
-                    $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-                    $result = $pdo->query($statement);
-                    $id = $result->fetchColumn();
-                    break;
-
-                default:
-                    throw new UnsupportedDriver('Auto incremented column for driver ' . $driver . ' is not supported');
-            }
-
-            return $id;
-        }
-
-        $pdo->query($statement);
-        $this->sync($entity, true);
-        return true;
+        return $this->getDbal()->insert($entity, $useAutoIncrement);
     }
 
     /**
@@ -425,36 +381,44 @@ class EntityManager
         return $fetcher->one();
     }
 
+    public function getDbal()
+    {
+        if (!$this->dbal) {
+            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
+            if (!class_exists($dbalClass)) {
+                $this->dbal = new Other($this);
+            } else {
+                $this->dbal = new $dbalClass($this);
+            }
+
+            // backward compatibility - deprecated
+            if (isset($this->options[$connectionType . 'True'])) {
+                $this->dbal->setBooleanTrue($this->options[$connectionType . 'True']);
+            }
+            if (isset($this->options[$connectionType . 'False'])) {
+                $this->dbal->setBooleanFalse($this->options[$connectionType . 'False']);
+            }
+            if (isset($this->options[self::OPT_QUOTING_CHARACTER])) {
+                $this->dbal->setQuotingCharacter($this->options[self::OPT_QUOTING_CHARACTER]);
+            }
+            if (isset($this->options[self::OPT_IDENTIFIER_DIVIDER])) {
+                $this->dbal->setIdentifierDivider($this->options[self::OPT_IDENTIFIER_DIVIDER]);
+            }
+        }
+
+        return $this->dbal;
+    }
+
     /**
      * Returns $value formatted to use in a sql statement.
      *
      * @param  mixed  $value      The variable that should be returned in SQL syntax
      * @return string
-     * @throws NoConnection
-     * @throws NotScalar
      */
     public function escapeValue($value)
     {
-        switch (strtolower(gettype($value))) {
-            case 'string':
-                return $this->getConnection()->quote($value);
-
-            case 'integer':
-                return (string) $value;
-
-            case 'double':
-                return (string) $value;
-
-            case 'boolean':
-                $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-                return ($value) ? $this->options[$connectionType . 'True'] : $this->options[$connectionType . 'False'];
-
-            case 'null':
-                return 'NULL';
-
-            default:
-                throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
-        }
+        return $this->getDbal()->escapeValue($value);
     }
 
     /**
@@ -465,8 +429,6 @@ class EntityManager
      */
     public function escapeIdentifier($identifier)
     {
-        $q = $this->options[self::OPT_QUOTING_CHARACTER];
-        $d = $this->options[self::OPT_IDENTIFIER_DIVIDER];
-        return $q . str_replace($d, $q . $d . $q, $identifier) . $q;
+        return $this->getDbal()->escapeIdentifier($identifier);
     }
 }

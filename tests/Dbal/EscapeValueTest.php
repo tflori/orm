@@ -1,12 +1,23 @@
 <?php
 
-namespace ORM\Test\EntityManager;
+namespace ORM\Test\Dbal;
 
+use ORM\Dbal;
 use ORM\Exceptions\NotScalar;
 use ORM\Test\TestCase;
 
 class EscapeValueTest extends TestCase
 {
+    /** @var Dbal */
+    protected $dbal;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->dbal = new Dbal\Other($this->em);
+    }
+
     public function testOnlyConvertsScalarData()
     {
         $array = ['this','is','not','scalar'];
@@ -14,7 +25,7 @@ class EscapeValueTest extends TestCase
         self::expectException(NotScalar::class);
         self::expectExceptionMessage('$value has to be scalar data type. array given');
 
-        $this->em->escapeValue($array);
+        $this->dbal->escapeValue($array);
     }
 
     public function provideScalarsWithoutStringAndBoolean()
@@ -34,7 +45,7 @@ class EscapeValueTest extends TestCase
      */
     public function testConvertsScalar($value, $expected)
     {
-        $result = $this->em->escapeValue($value);
+        $result = $this->dbal->escapeValue($value);
 
         self::assertSame($expected, $result);
     }
@@ -42,23 +53,17 @@ class EscapeValueTest extends TestCase
     public function provideBooleanDefaults()
     {
         return [
-            [true, 'mysql', '1'],
-            [false, 'mysql', '0'],
-            [true, 'sqlite', '1'],
-            [false, 'sqlite', '0'],
-            [true, 'pgsql', 'true'],
-            [false, 'pgsql', 'false'],
+            [true, '1'],
+            [false, '0'],
         ];
     }
 
     /**
      * @dataProvider provideBooleanDefaults
      */
-    public function testBooleanUseDefaults($value, $connectionType, $expected)
+    public function testBooleanUseDefaults($value, $expected)
     {
-        $this->pdo->shouldReceive('getAttribute')->once()->with(\PDO::ATTR_DRIVER_NAME)->andReturn($connectionType);
-
-        $result = $this->em->escapeValue($value);
+        $result = $this->dbal->escapeValue($value);
 
         self::assertSame($expected, $result);
     }
@@ -67,7 +72,7 @@ class EscapeValueTest extends TestCase
     {
         $this->pdo->shouldReceive('quote')->once()->with('foobar')->andReturn('\'buzzword\'');
 
-        $result = $this->em->escapeValue('foobar');
+        $result = $this->dbal->escapeValue('foobar');
 
         self::assertSame('\'buzzword\'', $result);
     }
