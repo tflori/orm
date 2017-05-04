@@ -205,7 +205,6 @@ class DataModificationTest extends TestCase
         $this->em->insert($entity);
     }
 
-
     public function testInsertReturnsTrue()
     {
         $entity = new Psr0_StudlyCaps(['id' => 42, 'foo' => 'bar']);
@@ -220,11 +219,26 @@ class DataModificationTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testDoesNotUseAutoIncrement()
+    public function provideDrivers()
+    {
+        return [
+            ['mysql'],
+            ['pgsql'],
+            ['sqlite'],
+            ['mssql']
+        ];
+    }
+
+    /**
+     * @dataProvider provideDrivers
+     */
+    public function testDoesNotUseAutoIncrement($driver)
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast()->once()
+            ->andReturn($driver);
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
                   ->andReturn(\Mockery::mock(\PDOStatement::class));
 
