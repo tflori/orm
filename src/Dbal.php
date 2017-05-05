@@ -163,6 +163,64 @@ abstract class Dbal
     }
 
     /**
+     * Update $entity in database
+     *
+     * @param Entity $entity
+     * @return bool
+     * @internal
+     */
+    public function update(Entity $entity)
+    {
+        $data = $entity->getData();
+        $primaryKey = $entity->getPrimaryKey();
+
+        $where = [];
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+            if (isset($data[$col])) {
+                unset($data[$col]);
+            }
+        }
+
+        $set = [];
+        foreach ($data as $col => $value) {
+            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+        }
+
+        $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
+                     'SET ' . implode(',', $set) . ' ' .
+                     'WHERE ' . implode(' AND ', $where);
+        $this->em->getConnection()->query($statement);
+
+        return true;
+    }
+
+    /**
+     * Delete $entity from database
+     *
+     * This method does not delete from the map - you can still receive the entity via fetch.
+     *
+     * @param Entity $entity
+     * @return bool
+     */
+    public function delete(Entity $entity)
+    {
+        $primaryKey = $entity->getPrimaryKey();
+        $where = [];
+        foreach ($primaryKey as $var => $value) {
+            $col = $entity::getColumnName($var);
+            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+        }
+
+        $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
+                     'WHERE ' . implode(' AND ', $where);
+        $this->em->getConnection()->query($statement);
+
+        return true;
+    }
+
+    /**
      * Build the insert statement for $entity
      *
      * @param Entity $entity

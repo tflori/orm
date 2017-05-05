@@ -235,38 +235,11 @@ class EntityManager
      *
      * @param Entity $entity
      * @return bool
-     * @throws Exceptions\InvalidName
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoConnection
-     * @throws NoEntity
-     * @throws NotScalar
      * @internal
      */
     public function update(Entity $entity)
     {
-        $data = $entity->getData();
-        $primaryKey = $entity->getPrimaryKey();
-
-        $where = [];
-        foreach ($primaryKey as $var => $value) {
-            $col = $entity::getColumnName($var);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
-            if (isset($data[$col])) {
-                unset($data[$col]);
-            }
-        }
-
-        $set = [];
-        foreach ($data as $col => $value) {
-            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
-        }
-
-        $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                        'SET ' . implode(',', $set) . ' ' .
-                        'WHERE ' . implode(' AND ', $where);
-        $this->getConnection()->query($statement);
-
+        $this->getDbal()->update($entity);
         $this->sync($entity, true);
         return true;
     }
@@ -278,25 +251,10 @@ class EntityManager
      *
      * @param Entity $entity
      * @return bool
-     * @throws Exceptions\InvalidName
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoConnection
-     * @throws NotScalar
      */
     public function delete(Entity $entity)
     {
-        $primaryKey = $entity->getPrimaryKey();
-        $where = [];
-        foreach ($primaryKey as $var => $value) {
-            $col = $entity::getColumnName($var);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
-        }
-
-        $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                        'WHERE ' . implode(' AND ', $where);
-        $this->getConnection()->query($statement);
-
+        $this->getDbal()->delete($entity);
         $entity->setOriginalData([]);
         return true;
     }
