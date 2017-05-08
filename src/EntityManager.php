@@ -147,7 +147,7 @@ class EntityManager
     }
 
     /**
-     * Get the pdo connection for $name.
+     * Get the pdo connection.
      *
      * @return \PDO
      * @throws NoConnection

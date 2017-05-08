@@ -24,6 +24,8 @@ abstract class Dbal
     protected static $booleanTrue = '1';
     protected static $booleanFalse = '0';
 
+    protected static $registeredTypes = [];
+
     public static function setQuotingCharacter($char)
     {
         static::$quotingCharacter = $char;
