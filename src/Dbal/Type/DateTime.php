@@ -4,11 +4,11 @@ namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Type;
 
-class Double extends Type
+class DateTime extends Type
 {
     protected static $dataTypes = [
-        'decimal',
-        'float',
-        'double',
+        'date',
+        'datetime',
+        'timestamp',
     ];
 }

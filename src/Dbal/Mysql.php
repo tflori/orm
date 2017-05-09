@@ -16,6 +16,26 @@ class Mysql extends Dbal
         'decimal' => Type\Double::class,
         'float' => Type\Double::class,
         'double' => Type\Double::class,
+
+        'varchar' => Type\VarChar::class,
+        'char' => Type\VarChar::class,
+
+        'text' => Type\Text::class,
+        'tinytext' => Type\Text::class,
+        'mediumtext' => Type\Text::class,
+        'longtext' => Type\Text::class,
+
+        'datetime' => Type\DateTime::class,
+        'date' => Type\DateTime::class,
+        'timestamp' => Type\DateTime::class,
+
+        'time' => Type\Time::class,
+
+        'enum' => Type\Enum::class,
+
+        'set' => Type\Set::class,
+
+        'json' => Type\Json::class,
     ];
 
     public function insert($entity, $useAutoIncrement = true)

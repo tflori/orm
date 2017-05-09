@@ -12,5 +12,5 @@ interface TypeInterface
      * @param int    $length
      * @return bool
      */
-    public static function isType($name, $type, $length = null);
+    public static function isType($name, $type);
 }

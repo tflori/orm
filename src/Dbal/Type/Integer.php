@@ -6,9 +6,7 @@ use ORM\Dbal\Type;
 
 class Integer extends Type
 {
-    /** The types that are integers
-     * @var string[] */
-    protected static $integerTypes = [
+    protected static $dataTypes = [
         'serial',
         'bigserial',
         'smallint',
@@ -18,9 +16,4 @@ class Integer extends Type
         'mediumint',
         'int',
     ];
-
-    public static function isType($name, $type, $length = null)
-    {
-        return in_array($type, self::$integerTypes);
-    }
 }

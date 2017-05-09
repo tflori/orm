@@ -3,8 +3,15 @@
 namespace ORM\Test\Dbal\Mysql;
 
 use ORM\Dbal\Mysql;
+use ORM\Dbal\Type\DateTime;
 use ORM\Dbal\Type\Double;
+use ORM\Dbal\Type\Enum;
 use ORM\Dbal\Type\Integer;
+use ORM\Dbal\Type\Json;
+use ORM\Dbal\Type\Set;
+use ORM\Dbal\Type\Text;
+use ORM\Dbal\Type\Time;
+use ORM\Dbal\Type\VarChar;
 use ORM\Test\TestCase;
 
 class DescribeTest extends TestCase
@@ -44,6 +51,26 @@ class DescribeTest extends TestCase
             ['decimal(5,2)', Double::class],
             ['float', Double::class],
             ['double', Double::class],
+
+            ['varchar(200)', VarChar::class],
+            ['char(5)', VarChar::class],
+
+            ['text', Text::class],
+            ['tinytext', Text::class],
+            ['mediumtext', Text::class],
+            ['longtext', Text::class],
+
+            ['datetime', DateTime::class],
+            ['date', DateTime::class],
+            ['timestamp', DateTime::class],
+
+            ['time', Time::class],
+
+            ['enum(\'a\',\'b\')', Enum::class],
+
+            ['set(\'a\',\'b\')', Set::class],
+
+            ['json', Json::class]
         ];
     }
 
