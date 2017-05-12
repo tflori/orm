@@ -3,15 +3,8 @@
 namespace ORM\Test\Dbal\Mysql;
 
 use ORM\Dbal\Mysql;
-use ORM\Dbal\Type\DateTime;
-use ORM\Dbal\Type\Double;
-use ORM\Dbal\Type\Enum;
-use ORM\Dbal\Type\Integer;
-use ORM\Dbal\Type\Json;
-use ORM\Dbal\Type\Set;
-use ORM\Dbal\Type\Text;
-use ORM\Dbal\Type\Time;
-use ORM\Dbal\Type\VarChar;
+use ORM\Dbal\Type;
+use ORM\Exception;
 use ORM\Test\TestCase;
 
 class DescribeTest extends TestCase
@@ -29,9 +22,12 @@ class DescribeTest extends TestCase
     public function testQueriesDescribeTable()
     {
         $this->pdo->shouldReceive('query')->with('DESCRIBE "db"."table"')->once()
-            ->andThrow(\PDOException::class, 'Table does not exist');
-        self::expectException(\PDOException::class);
-        self::expectExceptionMessage('Table does not exist');
+            ->andThrow(
+                \PDOException::class,
+                'SQLSTATE[42S02]: Base table or view not found: 1146 Table \'db.table\' doesn\'t exist'
+            );
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Unknown table db.table');
 
         $this->dbal->describe('db.table');
     }
@@ -39,38 +35,37 @@ class DescribeTest extends TestCase
     public function provideTypes()
     {
         return [
-            ['int(11)', Integer::class],
-            ['int(8)', Integer::class],
-            ['tinyint(1)', Integer::class],
-            ['tinyint(3)', Integer::class],
-            ['smallint(5)', Integer::class],
-            ['mediumint(8)', Integer::class],
-            ['bigint(20)', Integer::class],
-            ['bigint(20) unsigned', Integer::class],
+            ['int(11)', Type\Integer::class],
+            ['int(8)', Type\Integer::class],
+            ['tinyint(1)', Type\Integer::class],
+            ['tinyint(3)', Type\Integer::class],
+            ['smallint(5)', Type\Integer::class],
+            ['mediumint(8)', Type\Integer::class],
+            ['bigint(20)', Type\Integer::class],
+            ['bigint(20) unsigned', Type\Integer::class],
 
-            ['decimal(5,2)', Double::class],
-            ['float', Double::class],
-            ['double', Double::class],
+            ['decimal(5,2)', Type\Double::class],
+            ['float', Type\Double::class],
+            ['double', Type\Double::class],
 
-            ['varchar(200)', VarChar::class],
-            ['char(5)', VarChar::class],
+            ['varchar(200)', Type\VarChar::class],
+            ['char(5)', Type\VarChar::class],
 
-            ['text', Text::class],
-            ['tinytext', Text::class],
-            ['mediumtext', Text::class],
-            ['longtext', Text::class],
+            ['text', Type\Text::class],
+            ['tinytext', Type\Text::class],
+            ['mediumtext', Type\Text::class],
+            ['longtext', Type\Text::class],
 
-            ['datetime', DateTime::class],
-            ['date', DateTime::class],
-            ['timestamp', DateTime::class],
+            ['datetime', Type\DateTime::class],
+            ['date', Type\DateTime::class],
+            ['timestamp', Type\DateTime::class],
 
-            ['time', Time::class],
+            ['time', Type\Time::class],
+            ['enum(\'a\',\'b\')', Type\Enum::class],
+            ['set(\'a\',\'b\')', Type\Set::class],
+            ['json', Type\Json::class],
 
-            ['enum(\'a\',\'b\')', Enum::class],
-
-            ['set(\'a\',\'b\')', Set::class],
-
-            ['json', Json::class]
+            ['anything', Type\Text::class]
         ];
     }
 

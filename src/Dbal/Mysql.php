@@ -3,6 +3,7 @@
 namespace ORM\Dbal;
 
 use ORM\Dbal;
+use ORM\Exception;
 
 class Mysql extends Dbal
 {
@@ -30,11 +31,8 @@ class Mysql extends Dbal
         'timestamp' => Type\DateTime::class,
 
         'time' => Type\Time::class,
-
         'enum' => Type\Enum::class,
-
         'set' => Type\Set::class,
-
         'json' => Type\Json::class,
     ];
 
@@ -57,7 +55,12 @@ class Mysql extends Dbal
     {
         $cols = [];
 
-        $result = $this->em->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
+        try {
+            $result = $this->em->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
+        } catch (\PDOException $exception) {
+            throw new Exception('Unknown table ' . $table, 0, $exception);
+        }
+
         while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
             $type = $rawColumn['Type'];
 
@@ -66,7 +69,8 @@ class Mysql extends Dbal
                 $type = substr($type, 0, $p);
             }
 
-            $class  = static::$typeMapping[$type];
+            $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
+
             $cols[] = new Column(
                 $rawColumn['Field'],
                 new $class,
