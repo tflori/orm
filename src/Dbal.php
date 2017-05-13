@@ -245,4 +245,14 @@ abstract class Dbal
 
         return $statement;
     }
+
+    protected function normlizeType($type) {
+        $type = strtolower($type);
+
+        if (($p = strpos($type, '(')) !== false && $p > 0) {
+            $type = substr($type, 0, $p);
+        }
+
+        return $type;
+    }
 }

@@ -62,30 +62,15 @@ class Sqlite extends Dbal
 
         $cols = [];
         foreach ($rawColumns as $i => $rawColumn) {
-            $type = strtolower($rawColumn['type']);
-
-            // remove size for mapping
-            if (($p = strpos($type, '(')) !== false && $p > 0) {
-                $type = substr($type, 0, $p);
-            }
-
-            $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
+            $type = $this->normlizeType($rawColumn['type']);
+            $class = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
 
             $hasDefault = $rawColumn['dflt_value'] !== null;
 
-            if (!$hasDefault && $rawColumn['type'] === 'integer' && $rawColumn['pk'] === '1') {
-                $multiplePrimaryKey = false;
-                if ($i < count($rawColumns) - 1) {
-                    for ($j = $i+1; $j < count($rawColumns); $j++) {
-                        if ($rawColumns[$j]['pk'] !== '0') {
-                            $multiplePrimaryKey = true;
-                            break;
-                        }
-                    }
-                }
-                if (!$multiplePrimaryKey) {
-                    $hasDefault = true;
-                }
+            if (!$hasDefault && $rawColumn['type'] === 'integer' && $rawColumn['pk'] === '1' &&
+                !$this->hasMultiplePrimaryKey($rawColumns)
+            ) {
+                $hasDefault = true;
             }
 
             $cols[]     = new Column(
@@ -97,5 +82,12 @@ class Sqlite extends Dbal
         }
 
         return $cols;
+    }
+
+    protected function hasMultiplePrimaryKey($rawColumns)
+    {
+        return count(array_filter(array_map(function ($rawColumn) {
+            return $rawColumn['pk'];
+        }, $rawColumns))) > 1;
     }
 }

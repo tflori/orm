@@ -62,13 +62,7 @@ class Mysql extends Dbal
         }
 
         while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
-            $type = $rawColumn['Type'];
-
-            // remove size for mapping
-            if (($p = strpos($type, '(')) !== false && $p > 0) {
-                $type = substr($type, 0, $p);
-            }
-
+            $type = $this->normlizeType($rawColumn['Type']);
             $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
 
             $cols[] = new Column(
