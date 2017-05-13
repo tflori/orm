@@ -75,8 +75,7 @@ class DescribeTest extends TestCase
     public function testColumnTypes($type, $class)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with('DESCRIBE "db"."table"')->once()
-            ->andReturn($statement);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
         $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->twice()->andReturn([
             'Field' => 'a',
             'Type' => $type,
@@ -129,8 +128,7 @@ class DescribeTest extends TestCase
     public function testColumnData($data, $method, $expected)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with('DESCRIBE "db"."table"')->once()
-            ->andReturn($statement);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
         $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->twice()->andReturn($data, false);
 
         $cols = $this->dbal->describe('db.table');

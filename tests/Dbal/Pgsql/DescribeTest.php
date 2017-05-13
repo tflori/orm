@@ -28,7 +28,7 @@ class DescribeTest extends TestCase
             'FROM INFORMATION_SCHEMA.COLUMNS ' .
             'WHERE table_name = \'table\' AND table_schema = \'db\''
         )->once()->andReturn($statement);
-        $statement->shouldReceive('rowCount')->andReturn(0);
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)->andReturn([]);
         self::expectException(Exception::class);
         self::expectExceptionMessage('Unknown table db.table');
 
@@ -44,7 +44,7 @@ class DescribeTest extends TestCase
             'FROM INFORMATION_SCHEMA.COLUMNS ' .
             'WHERE table_name = \'table\' AND table_schema = \'public\''
         )->once()->andReturn($statement);
-        $statement->shouldReceive('rowCount')->andReturn(0);
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)->andReturn([]);
         self::expectException(Exception::class);
         self::expectExceptionMessage('Unknown table table');
 
@@ -87,71 +87,66 @@ class DescribeTest extends TestCase
     public function testColumnTypes($type, $class)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with(
-            'SELECT ' .
-                'column_name,column_default,data_type,is_nullable,character_maximum_length ' .
-            'FROM INFORMATION_SCHEMA.COLUMNS ' .
-            'WHERE table_name = \'table\' AND table_schema = \'db\''
-        )->once()->andReturn($statement);
-        $statement->shouldReceive('rowCount')->andReturn(1);
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->twice()->andReturn([
-            'column_name' => 'a',
-            'column_default' => null,
-            'data_type' => $type,
-            'is_nullable' => 'NO',
-            'character_maximum_length' => null,
-        ], false);
+        $this->pdo->shouldReceive('query')->once()->andReturn($statement);
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)->once()->andReturn([
+            [
+                'column_name' => 'a',
+                'column_default' => null,
+                'data_type' => $type,
+                'is_nullable' => 'NO',
+                'character_maximum_length' => null,
+            ]
+        ]);
 
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
         self::assertInstanceOf($class, $cols[0]->getType());
     }
-//
-//    public function provideColumnData()
-//    {
-//        return [
-//            [
-//                ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => ''],
-//                'getName', 'a'
-//            ],
-//            [
-//                [ 'Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => '' ],
-//                'hasDefault', true
-//            ],
-//            [
-//                [ 'Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => null,
-//                  'Extra' => 'auto_increment' ],
-//                'hasDefault', true
-//            ],
-//            [
-//                ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => null, 'Extra' => ''],
-//                'hasDefault', false
-//            ],
-//            [
-//                ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => ''],
-//                'isNullable', false
-//            ],
-//            [
-//                ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'YES', 'Key' => '', 'Default' => null, 'Extra' => ''],
-//                'isNullable', true
-//            ],
-//        ];
-//    }
-//
-//    /**
-//     * @dataProvider provideColumnData
-//     */
-//    public function testColumnData($data, $method, $expected)
-//    {
-//        $statement = \Mockery::mock(\PDOStatement::class);
-//        $this->pdo->shouldReceive('query')->with('DESCRIBE "db"."table"')->once()
-//            ->andReturn($statement);
-//        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->twice()->andReturn($data, false);
-//
-//        $cols = $this->dbal->describe('db.table');
-//
-//        self::assertSame(1, count($cols));
-//        self::assertSame($expected, call_user_func([$cols[0], $method]));
-//    }
+
+    public function provideColumnData()
+    {
+        return [
+            [
+                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                'getName', 'a'
+            ],
+            [
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                'hasDefault', true
+            ],
+            [
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO',
+                  'column_default' => 'nextval(anysequence)' ],
+                'hasDefault', true
+            ],
+            [
+                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => null ],
+                'hasDefault', false
+            ],
+            [
+                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                'isNullable', false
+            ],
+            [
+                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'YES', 'column_default' => null ],
+                'isNullable', true
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideColumnData
+     */
+    public function testColumnData($data, $method, $expected)
+    {
+        $statement = \Mockery::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)->once()->andReturn([$data]);
+
+        $cols = $this->dbal->describe('db.table');
+
+        self::assertSame(1, count($cols));
+        self::assertSame($expected, call_user_func([$cols[0], $method]));
+    }
 }

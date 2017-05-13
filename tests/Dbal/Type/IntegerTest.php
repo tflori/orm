@@ -10,7 +10,6 @@ class IntegerTest extends TestCase
     public function provideTypes()
     {
         return [
-            // postgres integer
             ['a', 'serial', true],
             ['b', 'bigserial', true],
             ['c', 'smallint', true],

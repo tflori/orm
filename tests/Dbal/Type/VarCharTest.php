@@ -11,7 +11,8 @@ class VarCharTest extends TestCase
     {
         return [
             // postgres integer
-            ['a', 'varchar', true],
+            ['a', 'varchar(20)', true],
+            ['a', 'VARCHAR(20)', true],
             ['b', 'character varying', true],
             ['c', 'char', true],
             ['z', 'anything', false],

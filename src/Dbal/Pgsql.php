@@ -60,13 +60,13 @@ class Pgsql extends Dbal
         $query->columns(['column_name', 'column_default', 'data_type', 'is_nullable', 'character_maximum_length']);
 
         $result = $this->em->getConnection()->query($query->getQuery());
-
-        if ($result->rowCount() === 0) {
+        $rawColumns = $result->fetchAll(PDO::FETCH_ASSOC);
+        if (count($rawColumns) === 0) {
             throw new Exception('Unknown table '  . $schemaTable);
         }
 
         $cols = [];
-        while ($rawColumn = $result->fetch(PDO::FETCH_ASSOC)) {
+        foreach ($rawColumns as $rawColumn) {
             $type = $rawColumn['data_type'];
             $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
 

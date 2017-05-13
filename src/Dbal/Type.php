@@ -10,6 +10,8 @@ abstract class Type implements TypeInterface
 
     public static function isType($name, $type)
     {
+        $type = strtolower($type);
+
         // remove size for mapping
         if (($p = strpos($type, '(')) !== false && $p > 0) {
             $type = substr($type, 0, $p);

@@ -2,17 +2,15 @@
 
 namespace ORM\Test\Dbal\Type;
 
-use ORM\Dbal\Type\Double;
+use ORM\Dbal\Type\Boolean;
 use ORM\Test\TestCase;
 
-class DoubleTest extends TestCase
+class BooleanTest extends TestCase
 {
     public function provideTypes()
     {
         return [
-            ['a', 'decimal', true],
-            ['c', 'float', true],
-            ['d', 'double', true],
+            ['a', 'boolean', true],
             ['z', 'anything', false],
         ];
     }
@@ -22,7 +20,7 @@ class DoubleTest extends TestCase
      */
     public function testIsType($name, $type, $expected)
     {
-        $result = Double::isType($name, $type);
+        $result = Boolean::isType($name, $type);
 
         self::assertSame($expected, $result);
     }
