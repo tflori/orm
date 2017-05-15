@@ -57,7 +57,10 @@ class Pgsql extends Dbal
 
         $query = new QueryBuilder('INFORMATION_SCHEMA.COLUMNS');
         $query->where('table_name', $table)->andWhere('table_schema', $schema);
-        $query->columns(['column_name', 'column_default', 'data_type', 'is_nullable', 'character_maximum_length']);
+        $query->columns([
+            'column_name', 'column_default', 'data_type', 'is_nullable', 'character_maximum_length',
+            'datetime_precision'
+        ]);
 
         $result = $this->em->getConnection()->query($query->getQuery());
         $rawColumns = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -67,17 +70,23 @@ class Pgsql extends Dbal
 
         $cols = [];
         foreach ($rawColumns as $rawColumn) {
-            $type = $rawColumn['data_type'];
-            $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
-
-            $cols[] = new Column(
-                $rawColumn['column_name'],
-                new $class,
-                $rawColumn['column_default'] !== null,
-                $rawColumn['is_nullable'] === 'YES'
-            );
+            $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
+            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;
+    }
+
+    protected function normalizeColumnDefinition($rawColumn)
+    {
+        $definition = [];
+        $definition['data_type'] = $rawColumn['data_type'];
+        $definition['column_name'] = $rawColumn['column_name'];
+        $definition['is_nullable'] = $rawColumn['is_nullable'] === 'YES';
+        $definition['column_default'] = $rawColumn['column_default'];
+        $definition['character_maximum_length'] = $rawColumn['character_maximum_length'];
+        $definition['datetime_precision'] = $rawColumn['datetime_precision'];
+
+        return $definition;
     }
 }

@@ -5,12 +5,12 @@ namespace ORM\Dbal;
 interface TypeInterface
 {
     /**
-     * Checks if $name and $type matches to this type
+     * Create this type from $columnDefinition.
      *
-     * @param string $name
-     * @param string $type
-     * @param int    $length
-     * @return bool
+     * Returns null when column definition does not match.
+     *
+     * @param $columnDefinition
+     * @return TypeInterface
      */
-    public static function isType($name, $type);
+    public static function fromDefinition($columnDefinition);
 }

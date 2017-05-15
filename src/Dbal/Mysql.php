@@ -53,26 +53,44 @@ class Mysql extends Dbal
 
     public function describe($table)
     {
-        $cols = [];
-
         try {
             $result = $this->em->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
         } catch (\PDOException $exception) {
             throw new Exception('Unknown table ' . $table, 0, $exception);
         }
 
+        $cols = [];
         while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
-            $type = $this->normlizeType($rawColumn['Type']);
-            $class  = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
-
-            $cols[] = new Column(
-                $rawColumn['Field'],
-                new $class,
-                $rawColumn['Default'] !== null || $rawColumn['Extra'] === 'auto_increment',
-                $rawColumn['Null'] === 'YES'
-            );
+            $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
+            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;
+    }
+
+    protected function normalizeColumnDefinition($rawColumn)
+    {
+        $definition = [];
+        $definition['data_type'] = $this->normalizeType($rawColumn['Type']);
+        $definition['column_name'] = $rawColumn['Field'];
+        $definition['is_nullable'] = $rawColumn['Null'] === 'YES';
+        $definition['column_default'] = $rawColumn['Default'] !== null ? $rawColumn['Default'] :
+            ($rawColumn['Extra'] === 'auto_increment' ? 'sequence(AUTO_INCREMENT)' : null);
+        $definition['character_maximum_length'] = null;
+        $definition['datetime_precision'] = null;
+
+        switch ($definition['data_type']) {
+            case 'varchar':
+            case 'char':
+                $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['Type']);
+                break;
+            case 'datetime':
+            case 'timestamp':
+            case 'time':
+                $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['Type']);
+                break;
+        }
+
+        return $definition;
     }
 }

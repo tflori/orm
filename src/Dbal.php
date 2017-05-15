@@ -3,6 +3,7 @@
 namespace ORM;
 
 use ORM\Dbal\Column;
+use ORM\Dbal\Type;
 use ORM\Exceptions\NotScalar;
 use ORM\Exceptions\UnsupportedDriver;
 
@@ -25,6 +26,7 @@ abstract class Dbal
     protected static $booleanFalse = '0';
 
     protected static $registeredTypes = [];
+    protected static $typeMapping = [];
 
     public static function setQuotingCharacter($char)
     {
@@ -246,7 +248,8 @@ abstract class Dbal
         return $statement;
     }
 
-    protected function normlizeType($type) {
+    protected function normalizeType($type)
+    {
         $type = strtolower($type);
 
         if (($p = strpos($type, '(')) !== false && $p > 0) {
@@ -254,5 +257,50 @@ abstract class Dbal
         }
 
         return $type;
+    }
+
+    protected function extractParenthesis($type)
+    {
+        if (preg_match('/\(([\d,]+)\)/', $type, $match)) {
+            return $match[1];
+        }
+
+        return null;
+    }
+
+    protected function getType($columnDefinition)
+    {
+        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
+            $class = static::$typeMapping[$columnDefinition['data_type']];
+
+            switch ($class) {
+                case Type\VarChar::class:
+                    return new Type\VarChar($columnDefinition['character_maximum_length']);
+                case Type\DateTime::class:
+                    return new Type\DateTime($columnDefinition['datetime_precision']);
+                case Type\Time::class:
+                    return new Type\Time($columnDefinition['datetime_precision']);
+                default:
+                    return new $class;
+            }
+        } else {
+            foreach (self::$registeredTypes as $class) {
+                if ($type = $class::fromDefinition($columnDefinition)) {
+                    return $type;
+                }
+            }
+
+            return new Type\Text();
+        }
+    }
+
+    protected function columnFactory($columnDefinition, $type)
+    {
+        return new Column(
+            $columnDefinition['column_name'],
+            $type,
+            $columnDefinition['column_default'] !== null,
+            $columnDefinition['is_nullable']
+        );
     }
 }

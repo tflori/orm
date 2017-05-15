@@ -24,7 +24,7 @@ class DescribeTest extends TestCase
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with(
             'SELECT ' .
-              'column_name,column_default,data_type,is_nullable,character_maximum_length ' .
+              'column_name,column_default,data_type,is_nullable,character_maximum_length,datetime_precision ' .
             'FROM INFORMATION_SCHEMA.COLUMNS ' .
             'WHERE table_name = \'table\' AND table_schema = \'db\''
         )->once()->andReturn($statement);
@@ -40,7 +40,7 @@ class DescribeTest extends TestCase
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with(
             'SELECT ' .
-              'column_name,column_default,data_type,is_nullable,character_maximum_length ' .
+              'column_name,column_default,data_type,is_nullable,character_maximum_length,datetime_precision ' .
             'FROM INFORMATION_SCHEMA.COLUMNS ' .
             'WHERE table_name = \'table\' AND table_schema = \'public\''
         )->once()->andReturn($statement);
@@ -95,6 +95,7 @@ class DescribeTest extends TestCase
                 'data_type' => $type,
                 'is_nullable' => 'NO',
                 'character_maximum_length' => null,
+                'datetime_precision' => null,
             ]
         ]);
 
@@ -108,28 +109,34 @@ class DescribeTest extends TestCase
     {
         return [
             [
-                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
+                  'character_maximum_length' => null, 'datetime_precision' => null ],
                 'getName', 'a'
             ],
             [
-                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
+                  'character_maximum_length' => null, 'datetime_precision' => null ],
                 'hasDefault', true
             ],
             [
                 [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO',
-                  'column_default' => 'nextval(anysequence)' ],
+                  'column_default' => 'nextval(anysequence)', 'character_maximum_length' => null,
+                  'datetime_precision' => null  ],
                 'hasDefault', true
             ],
             [
-                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => null ],
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => null,
+                  'character_maximum_length' => null, 'datetime_precision' => null ],
                 'hasDefault', false
             ],
             [
-                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0' ],
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
+                  'character_maximum_length' => null, 'datetime_precision' => null ],
                 'isNullable', false
             ],
             [
-                ['column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'YES', 'column_default' => null ],
+                [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'YES', 'column_default' => null,
+                  'character_maximum_length' => null, 'datetime_precision' => null ],
                 'isNullable', true
             ],
         ];

@@ -7,22 +7,8 @@ use ORM\Test\TestCase;
 
 class SetTest extends TestCase
 {
-    public function provideTypes()
+    public function testExists()
     {
-        return [
-            // postgres integer
-            ['a', 'set', true],
-            ['z', 'anything', false],
-        ];
-    }
-
-    /**
-     * @dataProvider provideTypes
-     */
-    public function testIsType($name, $type, $expected)
-    {
-        $result = Set::isType($name, $type);
-
-        self::assertSame($expected, $result);
+        self::assertTrue(class_exists(Set::class));
     }
 }

@@ -7,23 +7,8 @@ use ORM\Test\TestCase;
 
 class DoubleTest extends TestCase
 {
-    public function provideTypes()
+    public function testExists()
     {
-        return [
-            ['a', 'decimal', true],
-            ['c', 'float', true],
-            ['d', 'double', true],
-            ['z', 'anything', false],
-        ];
-    }
-
-    /**
-     * @dataProvider provideTypes
-     */
-    public function testIsType($name, $type, $expected)
-    {
-        $result = Double::isType($name, $type);
-
-        self::assertSame($expected, $result);
+        self::assertTrue(class_exists(Double::class));
     }
 }

@@ -60,25 +60,12 @@ class Sqlite extends Dbal
             throw new Exception('Unknown table '  . $table);
         }
 
+        $hasMultiplePrimaryKey = $this->hasMultiplePrimaryKey($rawColumns);
+
         $cols = [];
         foreach ($rawColumns as $i => $rawColumn) {
-            $type = $this->normlizeType($rawColumn['type']);
-            $class = isset(static::$typeMapping[$type]) ? static::$typeMapping[$type] : Dbal\Type\Text::class;
-
-            $hasDefault = $rawColumn['dflt_value'] !== null;
-
-            if (!$hasDefault && $rawColumn['type'] === 'integer' && $rawColumn['pk'] === '1' &&
-                !$this->hasMultiplePrimaryKey($rawColumns)
-            ) {
-                $hasDefault = true;
-            }
-
-            $cols[]     = new Column(
-                $rawColumn['name'],
-                new $class,
-                $hasDefault,
-                $rawColumn['notnull'] === '0'
-            );
+            $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
+            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;
@@ -89,5 +76,35 @@ class Sqlite extends Dbal
         return count(array_filter(array_map(function ($rawColumn) {
             return $rawColumn['pk'];
         }, $rawColumns))) > 1;
+    }
+
+    protected function normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey = false)
+    {
+        $definition = [];
+        $definition['data_type'] = $this->normalizeType($rawColumn['type']);
+        $definition['column_name'] = $rawColumn['name'];
+        $definition['is_nullable'] = $rawColumn['notnull'] === '0';
+        $definition['column_default'] = $rawColumn['dflt_value'];
+        $definition['character_maximum_length'] = null;
+        $definition['datetime_precision'] = null;
+
+        switch ($definition['data_type']) {
+            case 'varchar':
+            case 'char':
+                $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['type']);
+                break;
+            case 'datetime':
+            case 'timestamp':
+            case 'time':
+                $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
+                break;
+            case 'integer':
+                if (!$definition['column_default'] && $rawColumn['pk'] === '1' && !$hasMultiplePrimaryKey) {
+                    $definition['column_default'] = 'sequence(rowid)';
+                }
+                break;
+        }
+
+        return $definition;
     }
 }
