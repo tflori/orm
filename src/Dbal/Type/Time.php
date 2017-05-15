@@ -21,4 +21,9 @@ class Time extends Type
     {
         $this->precision = $precision;
     }
+
+    public static function factory($columnDefinition)
+    {
+        return new static($columnDefinition['datetime_precision']);
+    }
 }

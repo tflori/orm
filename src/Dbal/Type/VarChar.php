@@ -24,4 +24,9 @@ class VarChar extends Type
     {
         $this->maxLength = $maxLength;
     }
+
+    public static function factory($columnDefinition)
+    {
+        return new static($columnDefinition['character_maximum_length']);
+    }
 }

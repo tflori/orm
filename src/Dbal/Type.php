@@ -8,4 +8,9 @@ abstract class Type implements TypeInterface
     {
         return null;
     }
+
+    public static function factory($columnDefinition)
+    {
+        return new static;
+    }
 }

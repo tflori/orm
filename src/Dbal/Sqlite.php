@@ -65,7 +65,7 @@ class Sqlite extends Dbal
         $cols = [];
         foreach ($rawColumns as $i => $rawColumn) {
             $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
-            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
+            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;

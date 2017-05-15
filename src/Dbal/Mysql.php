@@ -62,7 +62,7 @@ class Mysql extends Dbal
         $cols = [];
         while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
             $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
-            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
+            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;

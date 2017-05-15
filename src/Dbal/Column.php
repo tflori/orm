@@ -32,6 +32,14 @@ class Column
         $this->isNullable = $isNullable;
     }
 
+    public static function factory($columnDefinition, $type)
+    {
+        $name = $columnDefinition['column_name'];
+        $hasDefault = $columnDefinition['column_default'] !== null;
+        $isNullable = $columnDefinition['is_nullable'];
+        return new static($name, $type, $hasDefault, $isNullable);
+    }
+
     /**
      * @return string
      */

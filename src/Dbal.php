@@ -271,34 +271,15 @@ abstract class Dbal
     protected function getType($columnDefinition)
     {
         if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            $class = static::$typeMapping[$columnDefinition['data_type']];
-
-            switch ($class) {
-                case Type\VarChar::class:
-                    return new Type\VarChar($columnDefinition['character_maximum_length']);
-                case Type\DateTime::class:
-                    return new Type\DateTime($columnDefinition['datetime_precision']);
-                case Type\Time::class:
-                    return new Type\Time($columnDefinition['datetime_precision']);
-                default:
-                    return new $class;
-            }
+            return (static::$typeMapping[$columnDefinition['data_type']])::factory($columnDefinition);
         } else {
-            foreach (self::$registeredTypes as $class) {
+//            foreach (self::$registeredTypes as $class) {
 //                if ($type = $class::fromDefinition($columnDefinition)) {
 //                    return $type;
 //                }
-            }
+//            }
 
             return new Type\Text();
         }
-    }
-
-    protected function columnFactory($columnDefinition, $type)
-    {
-        $name = $columnDefinition['column_name'];
-        $hasDefault = $columnDefinition['column_default'] !== null;
-        $isNullable = $columnDefinition['is_nullable'];
-        return new Column($name, $type, $hasDefault, $isNullable);
     }
 }

@@ -71,7 +71,7 @@ class Pgsql extends Dbal
         $cols = [];
         foreach ($rawColumns as $rawColumn) {
             $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
-            $cols[] = $this->columnFactory($columnDefinition, $this->getType($columnDefinition));
+            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
         }
 
         return $cols;
