@@ -285,9 +285,9 @@ abstract class Dbal
             }
         } else {
             foreach (self::$registeredTypes as $class) {
-                if ($type = $class::fromDefinition($columnDefinition)) {
-                    return $type;
-                }
+//                if ($type = $class::fromDefinition($columnDefinition)) {
+//                    return $type;
+//                }
             }
 
             return new Type\Text();
@@ -296,11 +296,9 @@ abstract class Dbal
 
     protected function columnFactory($columnDefinition, $type)
     {
-        return new Column(
-            $columnDefinition['column_name'],
-            $type,
-            $columnDefinition['column_default'] !== null,
-            $columnDefinition['is_nullable']
-        );
+        $name = $columnDefinition['column_name'];
+        $hasDefault = $columnDefinition['column_default'] !== null;
+        $isNullable = $columnDefinition['is_nullable'];
+        return new Column($name, $type, $hasDefault, $isNullable);
     }
 }

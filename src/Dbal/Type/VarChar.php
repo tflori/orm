@@ -12,4 +12,16 @@ class VarChar extends Type
         'character varying',
         'character',
     ];
+
+    protected $maxLength;
+
+    /**
+     * VarChar constructor.
+     *
+     * @param int $maxLength
+     */
+    public function __construct($maxLength = null)
+    {
+        $this->maxLength = $maxLength;
+    }
 }

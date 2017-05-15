@@ -11,4 +11,16 @@ class DateTime extends Type
         'datetime',
         'timestamp',
     ];
+
+    protected $precision;
+
+    /**
+     * DateTime constructor.
+     *
+     * @param int $precision
+     */
+    public function __construct($precision = null)
+    {
+        $this->precision = $precision;
+    }
 }
