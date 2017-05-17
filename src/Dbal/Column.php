@@ -7,7 +7,7 @@ class Column
     /** @var string */
     protected $name;
 
-    /** @var Type */
+    /** @var TypeInterface */
     protected $type;
 
     /** @var bool */
