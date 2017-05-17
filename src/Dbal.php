@@ -27,7 +27,6 @@ abstract class Dbal
     protected static $booleanFalse = '0';
 
     protected static $registeredTypes = [];
-    protected static $typeMapping = [];
 
     /**
      * Dbal constructor.
@@ -278,16 +277,12 @@ abstract class Dbal
 
     protected function getType($columnDefinition)
     {
-        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            return call_user_func([static::$typeMapping[$columnDefinition['data_type']], 'factory'], $columnDefinition);
-        } else {
-            foreach (self::$registeredTypes as $class) {
-                if ($type = $class::fromDefinition($columnDefinition)) {
-                    return $type;
-                }
+        foreach (self::$registeredTypes as $class) {
+            if ($type = $class::fromDefinition($columnDefinition)) {
+                return $type;
             }
-
-            return new Type\Text();
         }
+
+        return new Type\Text();
     }
 }

@@ -93,4 +93,15 @@ class Mysql extends Dbal
 
         return $definition;
     }
+
+    protected function getType($columnDefinition)
+    {
+        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
+            return call_user_func([static::$typeMapping[$columnDefinition['data_type']], 'factory'], $columnDefinition);
+        }
+
+        return parent::getType($columnDefinition);
+    }
+
+
 }
