@@ -20,11 +20,11 @@ class Column
      * Column constructor.
      *
      * @param string $name
-     * @param Type   $type
-     * @param bool   $hasDefault
-     * @param bool   $isNullable
+     * @param TypeInterface $type
+     * @param bool $hasDefault
+     * @param bool $isNullable
      */
-    public function __construct($name, Type $type, $hasDefault, $isNullable)
+    public function __construct($name, TypeInterface $type, $hasDefault, $isNullable)
     {
         $this->name = $name;
         $this->type = $type;

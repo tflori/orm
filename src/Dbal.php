@@ -283,9 +283,6 @@ abstract class Dbal
         } else {
             foreach (self::$registeredTypes as $class) {
                 if ($type = $class::fromDefinition($columnDefinition)) {
-                    if (!$type instanceof TypeInterface) {
-                        throw new Exception('Returned object does not implement TypeInterface');
-                    }
                     return $type;
                 }
             }

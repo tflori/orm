@@ -118,8 +118,7 @@ class PointTest extends TestCase
         \ORM\Dbal::registerType($point);
         $point->shouldReceive('fromDefinition')->once()->andReturn($this);
 
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('Returned object does not implement TypeInterface');
+        self::expectException(\TypeError::class);
 
         $cols = $this->dbal->describe('db.table');
     }
