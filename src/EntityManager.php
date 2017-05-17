@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Dbal\Column;
 use ORM\Dbal\Other;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
@@ -56,6 +57,10 @@ class EntityManager
     /** The options set for this instance
      * @var array */
     protected $options = [];
+
+    /** Already fetched column descriptions
+     * @var Column[][] */
+    protected $descriptions = [];
 
     /**
      * Constructor
@@ -373,6 +378,7 @@ class EntityManager
      *
      * @param  mixed  $value      The variable that should be returned in SQL syntax
      * @return string
+     * @codeCoverageIgnore This is just a proxy
      */
     public function escapeValue($value)
     {
@@ -384,9 +390,24 @@ class EntityManager
      *
      * @param string $identifier Identifier to quote
      * @return string
+     * @codeCoverageIgnore This is just a proxy
      */
     public function escapeIdentifier($identifier)
     {
         return $this->getDbal()->escapeIdentifier($identifier);
+    }
+
+    /**
+     * Returns an array of columns from $table.
+     *
+     * @param string $table
+     * @return Dbal\Column[]
+     */
+    public function describe($table)
+    {
+        if (!isset($this->descriptions[$table])) {
+            $this->descriptions[$table] = $this->getDbal()->describe($table);
+        }
+        return $this->descriptions[$table];
     }
 }

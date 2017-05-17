@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Dbal\Column;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidRelation;
@@ -104,6 +105,11 @@ abstract class Entity implements \Serializable
      * @internal
      * @var \ReflectionClass[] */
     protected static $reflections = [];
+
+    /** The fetched column descriptions for the table.
+     * @internal
+     * @var Column[][] */
+    protected static $descriptions;
 
     /**
      * Get the table name
@@ -333,6 +339,18 @@ abstract class Entity implements \Serializable
     public static function isAutoIncremented()
     {
         return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
+    }
+
+    /**
+     * Get an array of Columns for this table.
+     *
+     * @param EntityManager $em
+     * @return mixed
+     * @codeCoverageIgnore This is just a proxy
+     */
+    public static function describe(EntityManager $em)
+    {
+        return $em->describe(static::getTableName());
     }
 
     /**

@@ -71,6 +71,7 @@ class OptionsTest extends TestCase
     public function testSetsStaticsFromDbal($option, $static, $value)
     {
         $this->em->setOption($option, $value);
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->once()
             ->andReturn('sqlite');
 

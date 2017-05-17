@@ -237,6 +237,7 @@ class DataModificationTest extends TestCase
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast()->once()
             ->andReturn($driver);
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
@@ -249,6 +250,7 @@ class DataModificationTest extends TestCase
 
     public function testInsertReturnsAutoIncrementSqlite()
     {
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
             ->andReturn(\Mockery::mock(\PDOStatement::class));
@@ -275,6 +277,7 @@ class DataModificationTest extends TestCase
 
     public function testInsertReturnsAutoIncrementPgsql()
     {
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('pgsql');
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES .* RETURNING id$/')->once()
@@ -288,6 +291,7 @@ class DataModificationTest extends TestCase
 
     public function testThrowsForUnsupportedDriverWithAutoincrement()
     {
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('foobar');
 
         self::expectException(UnsupportedDriver::class);

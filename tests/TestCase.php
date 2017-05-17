@@ -4,6 +4,7 @@ namespace ORM\Test;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\Mock;
+use ORM\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\TestEntity;
@@ -15,6 +16,9 @@ class TestCase extends MockeryTestCase
 
     /** @var \PDO|Mock */
     protected $pdo;
+
+    /** @var Dbal\Mysql|Mock */
+    protected $dbal;
 
     protected function setUp()
     {
@@ -32,6 +36,9 @@ class TestCase extends MockeryTestCase
 
         $this->em = \Mockery::mock(EntityManager::class)->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
+
+        $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();
+        $this->em->shouldReceive('getDbal')->andReturn($this->dbal)->byDefault();
 
         QueryBuilder::$defaultEntityManager = $this->em;
     }

@@ -4,6 +4,7 @@ namespace ORM;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Type;
+use ORM\Dbal\TypeInterface;
 use ORM\Exceptions\NotScalar;
 use ORM\Exceptions\UnsupportedDriver;
 
@@ -27,58 +28,6 @@ abstract class Dbal
 
     protected static $registeredTypes = [];
     protected static $typeMapping = [];
-
-    public static function setQuotingCharacter($char)
-    {
-        static::$quotingCharacter = $char;
-    }
-
-    public static function setIdentifierDivider($divider)
-    {
-        static::$identifierDivider = $divider;
-    }
-
-    public static function setBooleanTrue($true)
-    {
-        static::$booleanTrue = $true;
-    }
-
-    public static function setBooleanFalse($false)
-    {
-        static::$booleanFalse = $false;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getQuotingCharacter()
-    {
-        return static::$quotingCharacter;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getIdentifierDivider()
-    {
-        return static::$identifierDivider;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getBooleanTrue()
-    {
-        return static::$booleanTrue;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getBooleanFalse()
-    {
-        return static::$booleanFalse;
-    }
 
     /**
      * Dbal constructor.
@@ -224,6 +173,65 @@ abstract class Dbal
         return true;
     }
 
+    public static function registerType($type)
+    {
+        if (!in_array($type, static::$registeredTypes)) {
+            array_unshift(static::$registeredTypes, $type);
+        }
+    }
+
+    public static function setQuotingCharacter($char)
+    {
+        static::$quotingCharacter = $char;
+    }
+
+    public static function setIdentifierDivider($divider)
+    {
+        static::$identifierDivider = $divider;
+    }
+
+    public static function setBooleanTrue($true)
+    {
+        static::$booleanTrue = $true;
+    }
+
+    public static function setBooleanFalse($false)
+    {
+        static::$booleanFalse = $false;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getQuotingCharacter()
+    {
+        return static::$quotingCharacter;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getIdentifierDivider()
+    {
+        return static::$identifierDivider;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getBooleanTrue()
+    {
+        return static::$booleanTrue;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getBooleanFalse()
+    {
+        return static::$booleanFalse;
+    }
+
     /**
      * Build the insert statement for $entity
      *
@@ -271,13 +279,16 @@ abstract class Dbal
     protected function getType($columnDefinition)
     {
         if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            return (static::$typeMapping[$columnDefinition['data_type']])::factory($columnDefinition);
+            return call_user_func([static::$typeMapping[$columnDefinition['data_type']], 'factory'], $columnDefinition);
         } else {
-//            foreach (self::$registeredTypes as $class) {
-//                if ($type = $class::fromDefinition($columnDefinition)) {
-//                    return $type;
-//                }
-//            }
+            foreach (self::$registeredTypes as $class) {
+                if ($type = $class::fromDefinition($columnDefinition)) {
+                    if (!$type instanceof TypeInterface) {
+                        throw new Exception('Returned object does not implement TypeInterface');
+                    }
+                    return $type;
+                }
+            }
 
             return new Type\Text();
         }
