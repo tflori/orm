@@ -117,6 +117,4 @@ class Mysql extends Dbal
 
         return parent::getType($columnDefinition);
     }
-
-
 }
