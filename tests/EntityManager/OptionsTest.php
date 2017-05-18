@@ -2,12 +2,24 @@
 
 namespace ORM\Test\EntityManager;
 
+use ORM\Dbal\Dbal;
 use ORM\EntityManager;
 use ORM\Test\Entity\Examples\TestEntity;
 use ORM\Test\TestCase;
 
 class OptionsTest extends TestCase
 {
+    public function tearDown()
+    {
+        parent::tearDown();
+
+        Dbal::setIdentifierDivider('.');
+        Dbal::setQuotingCharacter('"');
+        Dbal::setBooleanFalse('0');
+        Dbal::setBooleanTrue('1');
+    }
+
+
     public function provideOptions()
     {
         return [
@@ -40,6 +52,32 @@ class OptionsTest extends TestCase
         $this->em->setOption($option, $value);
 
         self::assertSame($value, $this->em->getOption($option));
+    }
+
+
+    public function provideDbalStatics()
+    {
+        return [
+            [EntityManager::OPT_IDENTIFIER_DIVIDER, 'identifierDivider', '.'],
+            [EntityManager::OPT_QUOTING_CHARACTER, 'quotingCharacter', '`'],
+            [EntityManager::OPT_SQLITE_BOOLEAN_FASLE, 'booleanFalse', "'no'"],
+            [EntityManager::OPT_SQLITE_BOOLEAN_TRUE, 'booleanTrue', "'yes'"]
+        ];
+    }
+
+    /**
+     * @dataProvider provideDbalStatics
+     */
+    public function testSetsStaticsFromDbal($option, $static, $value)
+    {
+        $this->em->setOption($option, $value);
+        $this->em->shouldReceive('getDbal')->passthru();
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->once()
+            ->andReturn('sqlite');
+
+        $dbal = $this->em->getDbal();
+
+        self::assertSame($value, call_user_func([$dbal, 'get' . ucfirst($static)]));
     }
 
     public function testSetsConnectionOnConstruct()

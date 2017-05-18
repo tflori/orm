@@ -258,53 +258,33 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** {@inheritdoc} */
     public function join($tableName, $expression = '', $alias = '', $args = [])
     {
-        return $this->createJoin(
-            'JOIN',
-            $tableName,
-            is_string($expression) ? $expression : '',
-            $alias,
-            $args,
-            is_bool($expression) ? $expression : false
-        );
+        $empty      = is_bool($expression) ? $expression : false;
+        $expression = is_string($expression) ? $expression : '';
+        return $this->createJoin('JOIN', $tableName, $expression, $alias, $args, $empty);
     }
 
     /** {@inheritdoc} */
     public function leftJoin($tableName, $expression = '', $alias = '', $args = [])
     {
-        return $this->createJoin(
-            'LEFT JOIN',
-            $tableName,
-            is_string($expression) ? $expression : '',
-            $alias,
-            $args,
-            is_bool($expression) ? $expression : false
-        );
+        $empty      = is_bool($expression) ? $expression : false;
+        $expression = is_string($expression) ? $expression : '';
+        return $this->createJoin('LEFT JOIN', $tableName, $expression, $alias, $args, $empty);
     }
 
     /** {@inheritdoc} */
     public function rightJoin($tableName, $expression = '', $alias = '', $args = [])
     {
-        return $this->createJoin(
-            'RIGHT JOIN',
-            $tableName,
-            is_string($expression) ? $expression : '',
-            $alias,
-            $args,
-            is_bool($expression) ? $expression : false
-        );
+        $empty      = is_bool($expression) ? $expression : false;
+        $expression = is_string($expression) ? $expression : '';
+        return $this->createJoin('RIGHT JOIN', $tableName, $expression, $alias, $args, $empty);
     }
 
     /** {@inheritdoc} */
     public function fullJoin($tableName, $expression = '', $alias = '', $args = [])
     {
-        return $this->createJoin(
-            'FULL JOIN',
-            $tableName,
-            is_string($expression) ? $expression : '',
-            $alias,
-            $args,
-            is_bool($expression) ? $expression : true
-        );
+        $empty      = is_bool($expression) ? $expression : false;
+        $expression = is_string($expression) ? $expression : '';
+        return $this->createJoin('FULL JOIN', $tableName, $expression, $alias, $args, $empty);
     }
 
     /** {@inheritdoc} */

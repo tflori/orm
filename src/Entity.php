@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Dbal\Column;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidRelation;
@@ -188,16 +189,16 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $colName = $var;
 
+            $namingScheme = static::getNamingSchemeColumn();
+
             if (static::$columnPrefix &&
-                strpos(
-                    $colName,
-                    self::forceNamingScheme(static::$columnPrefix, static::getNamingSchemeColumn())
-                ) !== 0) {
+                strpos($colName, self::forceNamingScheme(static::$columnPrefix, $namingScheme)) !== 0
+            ) {
                 $colName = static::$columnPrefix . $colName;
             }
 
             self::$calculatedColumnNames[static::class][$var] =
-                self::forceNamingScheme($colName, static::getNamingSchemeColumn());
+                self::forceNamingScheme($colName, $namingScheme);
         }
 
         return self::$calculatedColumnNames[static::class][$var];
@@ -333,6 +334,18 @@ abstract class Entity implements \Serializable
     public static function isAutoIncremented()
     {
         return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
+    }
+
+    /**
+     * Get an array of Columns for this table.
+     *
+     * @param EntityManager $entityManager
+     * @return Column[]
+     * @codeCoverageIgnore This is just a proxy
+     */
+    public static function describe(EntityManager $entityManager)
+    {
+        return $entityManager->describe(static::getTableName());
     }
 
     /**

@@ -44,34 +44,21 @@ abstract class Relation
             $relDef = self::convertShort($name, $relDef);
         }
 
-        if (isset($relDef[Entity::OPT_RELATION_REFERENCE]) && !isset($relDef[Entity::OPT_RELATION_TABLE])) {
-            return new Owner(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_REFERENCE]
-            );
-        } elseif (isset($relDef[Entity::OPT_RELATION_TABLE])) {
-            return new ManyToMany(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_REFERENCE],
-                $relDef[Entity::OPT_RELATION_OPPONENT],
-                $relDef[Entity::OPT_RELATION_TABLE]
-            );
-        } elseif (!isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ||
-                  $relDef[Entity::OPT_RELATION_CARDINALITY] === self::CARDINALITY_MANY
-        ) {
-            return new OneToMany(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_OPPONENT]
-            );
+        $class = isset($relDef[Entity::OPT_RELATION_CLASS]) ? $relDef[Entity::OPT_RELATION_CLASS] : null;
+        $reference = isset($relDef[Entity::OPT_RELATION_REFERENCE]) ? $relDef[Entity::OPT_RELATION_REFERENCE] : null;
+        $table = isset($relDef[Entity::OPT_RELATION_TABLE]) ? $relDef[Entity::OPT_RELATION_TABLE] : null;
+        $opponent = isset($relDef[Entity::OPT_RELATION_OPPONENT]) ? $relDef[Entity::OPT_RELATION_OPPONENT] : null;
+        $cardinality = isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ?
+            $relDef[Entity::OPT_RELATION_CARDINALITY] : null;
+
+        if ($reference && !isset($table)) {
+            return new Owner($name, $class, $reference);
+        } elseif ($table) {
+            return new ManyToMany($name, $class, $reference, $opponent, $table);
+        } elseif (!$cardinality || $cardinality === self::CARDINALITY_MANY) {
+            return new OneToMany($name, $class, $opponent);
         } else {
-            return new OneToOne(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_OPPONENT]
-            );
+            return new OneToOne($name, $class, $opponent);
         }
     }
 
