@@ -44,17 +44,18 @@ abstract class Relation
             $relDef = self::convertShort($name, $relDef);
         }
 
-        $class = $relDef[Entity::OPT_RELATION_CLASS];
-        $reference = $relDef[Entity::OPT_RELATION_REFERENCE];
-        $table = $relDef[Entity::OPT_RELATION_TABLE];
-        $opponent = $relDef[Entity::OPT_RELATION_OPPONENT];
-        $cardinality = $relDef[Entity::OPT_RELATION_CARDINALITY];
+        $class = isset($relDef[Entity::OPT_RELATION_CLASS]) ? $relDef[Entity::OPT_RELATION_CLASS] : null;
+        $reference = isset($relDef[Entity::OPT_RELATION_REFERENCE]) ? $relDef[Entity::OPT_RELATION_REFERENCE] : null;
+        $table = isset($relDef[Entity::OPT_RELATION_TABLE]) ? $relDef[Entity::OPT_RELATION_TABLE] : null;
+        $opponent = isset($relDef[Entity::OPT_RELATION_OPPONENT]) ? $relDef[Entity::OPT_RELATION_OPPONENT] : null;
+        $cardinality = isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ?
+            $relDef[Entity::OPT_RELATION_CARDINALITY] : null;
 
-        if (isset($reference) && !isset($table)) {
+        if ($reference && !isset($table)) {
             return new Owner($name, $class, $reference);
-        } elseif (isset($table)) {
+        } elseif ($table) {
             return new ManyToMany($name, $class, $reference, $opponent, $table);
-        } elseif (!isset($cardinality) || $cardinality === self::CARDINALITY_MANY) {
+        } elseif (!$cardinality || $cardinality === self::CARDINALITY_MANY) {
             return new OneToMany($name, $class, $opponent);
         } else {
             return new OneToOne($name, $class, $opponent);
