@@ -100,7 +100,7 @@ abstract class Dbal
      *
      * @param Entity $entity
      * @param bool   $useAutoIncrement
-     * @return bool|int
+     * @return mixed
      * @throws UnsupportedDriver
      */
     public function insert($entity, $useAutoIncrement = true)

@@ -129,7 +129,7 @@ class EntityManager
      *
      * When it is not a PDO instance the connection get established on first use.
      *
-     * @param \PDO|callable|DbConfig|array $connection A configuration for (or a) PDO instance
+     * @param mixed $connection A configuration for (or a) PDO instance
      * @throws InvalidConfiguration
      */
     public function setConnection($connection)

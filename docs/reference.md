@@ -649,7 +649,7 @@ Executes fromDefinition of each registered Type
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean|integer
+): mixed
 ```
 
 ##### Inserts $entity and returns the new ID for autoincrement or true
@@ -658,7 +658,7 @@ public function insert(
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean|integer**
+ **Returns**: this method returns **mixed**
 <br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
 
 ##### Parameters
@@ -3011,7 +3011,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 #### ORM\EntityManager::setConnection
 
 ```php?start_inline=true
-public function setConnection( \PDO $connection )
+public function setConnection( $connection )
 ```
 
 ##### Add connection after instantiation
@@ -3029,7 +3029,7 @@ When it is not a PDO instance the connection get established on first use.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$connection` | **\PDO &#124; callable &#124; DbConfig &#124; array**  | A configuration for (or a) PDO instance |
+| `$connection` | **mixed**  | A configuration for (or a) PDO instance |
 
 
 
@@ -3890,7 +3890,7 @@ Executes fromDefinition of each registered Type
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean|integer
+): mixed
 ```
 
 ##### Inserts $entity and returns the new ID for autoincrement or true
@@ -3899,7 +3899,7 @@ public function insert(
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean|integer**
+ **Returns**: this method returns **mixed**
 <br />
 
 ##### Parameters
@@ -6059,7 +6059,7 @@ Executes fromDefinition of each registered Type
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean|integer
+): mixed
 ```
 
 ##### Inserts $entity and returns the new ID for autoincrement or true
@@ -6068,7 +6068,7 @@ public function insert(
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean|integer**
+ **Returns**: this method returns **mixed**
 <br />
 
 ##### Parameters
@@ -8180,7 +8180,7 @@ protected function hasMultiplePrimaryKey( array $rawColumns ): boolean
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean|integer
+): mixed
 ```
 
 ##### Inserts $entity and returns the new ID for autoincrement or true
@@ -8189,7 +8189,7 @@ public function insert(
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean|integer**
+ **Returns**: this method returns **mixed**
 <br />
 
 ##### Parameters

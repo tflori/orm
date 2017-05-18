@@ -111,15 +111,4 @@ class PointTest extends TestCase
 
         self::assertSame($point, $cols[0]->getType());
     }
-
-    public function testThrowsWhenNoTypeIsReturned()
-    {
-        $point = \Mockery::mock(new Point());
-        \ORM\Dbal::registerType($point);
-        $point->shouldReceive('fromDefinition')->once()->andReturn($this);
-
-        self::expectException(\TypeError::class);
-
-        $cols = $this->dbal->describe('db.table');
-    }
 }
