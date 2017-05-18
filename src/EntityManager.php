@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Column;
 use ORM\Dbal\Other;
 use ORM\Exceptions\IncompletePrimaryKey;

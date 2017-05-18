@@ -189,16 +189,16 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $colName = $var;
 
+            $namingScheme = static::getNamingSchemeColumn();
+
             if (static::$columnPrefix &&
-                strpos(
-                    $colName,
-                    self::forceNamingScheme(static::$columnPrefix, static::getNamingSchemeColumn())
-                ) !== 0) {
+                strpos($colName, self::forceNamingScheme(static::$columnPrefix, $namingScheme)) !== 0
+            ) {
                 $colName = static::$columnPrefix . $colName;
             }
 
             self::$calculatedColumnNames[static::class][$var] =
-                self::forceNamingScheme($colName, static::getNamingSchemeColumn());
+                self::forceNamingScheme($colName, $namingScheme);
         }
 
         return self::$calculatedColumnNames[static::class][$var];

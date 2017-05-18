@@ -2,7 +2,6 @@
 
 namespace ORM\Dbal;
 
-use ORM\Dbal;
 use ORM\Exception;
 use ORM\QueryBuilder\QueryBuilder;
 use PDO;

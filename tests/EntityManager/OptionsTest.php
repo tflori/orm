@@ -2,7 +2,7 @@
 
 namespace ORM\Test\EntityManager;
 
-use ORM\Dbal;
+use ORM\Dbal\Dbal;
 use ORM\EntityManager;
 use ORM\Test\Entity\Examples\TestEntity;
 use ORM\Test\TestCase;

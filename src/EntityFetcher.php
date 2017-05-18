@@ -171,14 +171,7 @@ class EntityFetcher extends QueryBuilder
             $tableName = $class;
         }
 
-        return parent::createJoin(
-            $join,
-            $tableName,
-            $expression,
-            $alias,
-            $args,
-            $empty
-        );
+        return parent::createJoin($join, $tableName, $expression, $alias, $args, $empty);
     }
 
     /**

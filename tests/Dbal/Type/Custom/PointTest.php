@@ -2,10 +2,9 @@
 
 namespace ORM\Test\Dbal\Type\Custom;
 
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Mysql;
 use ORM\Dbal\Type\Integer;
-use ORM\Dbal\Type\Text;
-use ORM\Exception;
 use ORM\Test\TestCase;
 
 class PointTest extends TestCase
@@ -34,36 +33,36 @@ class PointTest extends TestCase
     public function tearDown()
     {
         parent::tearDown();
-        Dbal::resetRegisteredTypes();
+        CustomDbal::resetRegisteredTypes();
     }
 
     public function testRegister()
     {
-        \ORM\Dbal::registerType(Point::class);
+        Dbal::registerType(Point::class);
 
-        self::assertSame([Point::class], Dbal::getRegisteredTypes());
+        self::assertSame([Point::class], CustomDbal::getRegisteredTypes());
     }
 
     public function testRegisterUniqueTypes()
     {
-        \ORM\Dbal::registerType(Point::class);
-        \ORM\Dbal::registerType(Point::class);
+        Dbal::registerType(Point::class);
+        Dbal::registerType(Point::class);
 
-        self::assertSame([Point::class], Dbal::getRegisteredTypes());
+        self::assertSame([Point::class], CustomDbal::getRegisteredTypes());
     }
 
     public function testAllowsInstances()
     {
         $point = new Point();
-        \ORM\Dbal::registerType($point);
+        Dbal::registerType($point);
 
-        self::assertSame([$point], Dbal::getRegisteredTypes());
+        self::assertSame([$point], CustomDbal::getRegisteredTypes());
     }
 
     public function testExecutesFromDefinitionForUnknownTypes()
     {
         $point = \Mockery::mock(Point::class);
-        \ORM\Dbal::registerType($point);
+        Dbal::registerType($point);
         $point->shouldReceive('fromDefinition')->once()->with([
             'data_type' => 'point',
             'column_name' => 'another_point',
@@ -78,9 +77,9 @@ class PointTest extends TestCase
 
     public function testExecutesFromDefinitionFromNextType()
     {
-        \ORM\Dbal::registerType(Integer::class);
+        Dbal::registerType(Integer::class);
         $point = \Mockery::mock(new Point());
-        \ORM\Dbal::registerType($point);
+        Dbal::registerType($point);
 
         $point->shouldReceive('fromDefinition')->once()->andReturn(null);
 
@@ -91,8 +90,8 @@ class PointTest extends TestCase
     {
         $int = \Mockery::mock(new Integer());
         $point = \Mockery::mock(new Point());
-        \ORM\Dbal::registerType($int);
-        \ORM\Dbal::registerType($point);
+        Dbal::registerType($int);
+        Dbal::registerType($point);
 
         $point->shouldReceive('fromDefinition')->globally()->once()->ordered();
         $int->shouldReceive('fromDefinition')->globally()->once()->ordered();
@@ -103,7 +102,7 @@ class PointTest extends TestCase
     public function testReturnsTheReturnedType()
     {
         $point = \Mockery::mock(new Point());
-        \ORM\Dbal::registerType($point);
+        Dbal::registerType($point);
 
         $point->shouldReceive('fromDefinition')->once()->andReturnSelf();
 

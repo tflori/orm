@@ -2,7 +2,9 @@
 
 namespace ORM\Test\Dbal\Type\Custom;
 
-class Dbal extends \ORM\Dbal
+use ORM\Dbal\Dbal;
+
+class CustomDbal extends Dbal
 {
     public static function getRegisteredTypes()
     {

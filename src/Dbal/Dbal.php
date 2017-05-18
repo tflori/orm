@@ -1,10 +1,9 @@
 <?php
 
-namespace ORM;
+namespace ORM\Dbal;
 
-use ORM\Dbal\Column;
-use ORM\Dbal\Type;
-use ORM\Dbal\TypeInterface;
+use ORM\Entity;
+use ORM\EntityManager;
 use ORM\Exceptions\NotScalar;
 use ORM\Exceptions\UnsupportedDriver;
 

@@ -44,34 +44,20 @@ abstract class Relation
             $relDef = self::convertShort($name, $relDef);
         }
 
-        if (isset($relDef[Entity::OPT_RELATION_REFERENCE]) && !isset($relDef[Entity::OPT_RELATION_TABLE])) {
-            return new Owner(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_REFERENCE]
-            );
-        } elseif (isset($relDef[Entity::OPT_RELATION_TABLE])) {
-            return new ManyToMany(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_REFERENCE],
-                $relDef[Entity::OPT_RELATION_OPPONENT],
-                $relDef[Entity::OPT_RELATION_TABLE]
-            );
-        } elseif (!isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ||
-                  $relDef[Entity::OPT_RELATION_CARDINALITY] === self::CARDINALITY_MANY
-        ) {
-            return new OneToMany(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_OPPONENT]
-            );
+        $class = $relDef[Entity::OPT_RELATION_CLASS];
+        $reference = $relDef[Entity::OPT_RELATION_REFERENCE];
+        $table = $relDef[Entity::OPT_RELATION_TABLE];
+        $opponent = $relDef[Entity::OPT_RELATION_OPPONENT];
+        $cardinality = $relDef[Entity::OPT_RELATION_CARDINALITY];
+
+        if (isset($reference) && !isset($table)) {
+            return new Owner($name, $class, $reference);
+        } elseif (isset($table)) {
+            return new ManyToMany($name, $class, $reference, $opponent, $table);
+        } elseif (!isset($cardinality) || $cardinality === self::CARDINALITY_MANY) {
+            return new OneToMany($name, $class, $opponent);
         } else {
-            return new OneToOne(
-                $name,
-                $relDef[Entity::OPT_RELATION_CLASS],
-                $relDef[Entity::OPT_RELATION_OPPONENT]
-            );
+            return new OneToOne($name, $class, $opponent);
         }
     }
 
