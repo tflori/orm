@@ -2,6 +2,11 @@
 
 namespace ORM\Dbal;
 
+/**
+ * Interface TypeInterface
+ *
+ * @package ORM\Dbal
+ */
 interface TypeInterface
 {
     /**

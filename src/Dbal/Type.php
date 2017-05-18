@@ -2,6 +2,12 @@
 
 namespace ORM\Dbal;
 
+/**
+ * Base class for data types
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 abstract class Type implements TypeInterface
 {
     /**
@@ -13,6 +19,15 @@ abstract class Type implements TypeInterface
         return null;
     }
 
+    /**
+     * Returns a new Type object
+     *
+     * This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+     *
+     * @param array $columnDefinition
+     * @internal
+     * @return static
+     */
     public static function factory($columnDefinition)
     {
         return new static;

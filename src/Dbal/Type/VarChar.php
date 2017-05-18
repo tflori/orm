@@ -4,15 +4,17 @@ namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Type;
 
+/**
+ * String data type
+ *
+ * With and without max / fixed length
+ *
+ * @package ORM\Dbal\Type
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class VarChar extends Type
 {
-    protected static $dataTypes = [
-        'varchar',
-        'char',
-        'character varying',
-        'character',
-    ];
-
+    /** @var int */
     protected $maxLength;
 
     /**
@@ -22,7 +24,7 @@ class VarChar extends Type
      */
     public function __construct($maxLength = null)
     {
-        $this->maxLength = $maxLength;
+        $this->maxLength = (int)$maxLength;
     }
 
     public static function factory($columnDefinition)

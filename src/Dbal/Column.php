@@ -2,6 +2,12 @@
 
 namespace ORM\Dbal;
 
+/**
+ * Describes a column of a database table
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Column
 {
     /** @var string */
@@ -32,11 +38,18 @@ class Column
         $this->isNullable = $isNullable;
     }
 
-    public static function factory($columnDefinition, $type)
+    /**
+     * Returns a new column with params from $columnDefinition
+     *
+     * @param array $columnDefinition
+     * @param TypeInterface $type
+     * @return static
+     */
+    public static function factory($columnDefinition, TypeInterface $type)
     {
         $name = $columnDefinition['column_name'];
         $hasDefault = $columnDefinition['column_default'] !== null;
-        $isNullable = $columnDefinition['is_nullable'];
+        $isNullable = $columnDefinition['is_nullable'] === true || $columnDefinition['is_nullable'] === 'YES';
         return new static($name, $type, $hasDefault, $isNullable);
     }
 

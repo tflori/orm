@@ -5,6 +5,12 @@ namespace ORM\Dbal;
 use ORM\Dbal;
 use ORM\Exception;
 
+/**
+ * Database abstraction for MySQL databases
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Mysql extends Dbal
 {
     protected static $typeMapping = [
@@ -68,6 +74,15 @@ class Mysql extends Dbal
         return $cols;
     }
 
+    /**
+     * Normalize a column definition
+     *
+     * The column definition from "DESCRIBE <table>" is to special as useful. Here we normalize it to a more
+     * ANSI-SQL style.
+     *
+     * @param array $rawColumn
+     * @return array
+     */
     protected function normalizeColumnDefinition($rawColumn)
     {
         $definition = [];

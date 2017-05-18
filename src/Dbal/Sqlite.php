@@ -5,6 +5,12 @@ namespace ORM\Dbal;
 use ORM\Dbal;
 use ORM\Exception;
 
+/**
+ * Database abstraction for SQLite databases
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Sqlite extends Dbal
 {
     protected static $typeMapping = [
@@ -62,15 +68,20 @@ class Sqlite extends Dbal
 
         $hasMultiplePrimaryKey = $this->hasMultiplePrimaryKey($rawColumns);
 
-        $cols = [];
-        foreach ($rawColumns as $i => $rawColumn) {
+        $cols = array_map(function ($rawColumn) use ($hasMultiplePrimaryKey) {
             $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
-            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
-        }
+            return Column::factory($columnDefinition, $this->getType($columnDefinition));
+        }, $rawColumns);
 
         return $cols;
     }
 
+    /**
+     * Checks $rawColumns for a multiple primary key
+     *
+     * @param array $rawColumns
+     * @return bool
+     */
     protected function hasMultiplePrimaryKey($rawColumns)
     {
         return count(array_filter(array_map(function ($rawColumn) {
@@ -78,6 +89,15 @@ class Sqlite extends Dbal
         }, $rawColumns))) > 1;
     }
 
+    /**
+     * Normalize a column definition
+     *
+     * The column definition from "PRAGMA table_info(<table>)" is to special as useful. Here we normalize it to a more
+     * ANSI-SQL style.
+     *
+     * @param array $rawColumn
+     * @return array
+     */
     protected function normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey = false)
     {
         $definition = [];

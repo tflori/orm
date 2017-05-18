@@ -9,9 +9,7 @@ use ORM\Exceptions\NotScalar;
 use ORM\Exceptions\UnsupportedDriver;
 
 /**
- * Class Dbal
- *
- * This is the base class for the database abstraction layer.
+ * Base class for database abstraction
  *
  * @package ORM
  * @author  Thomas Flori <thflori@gmail.com>
@@ -20,13 +18,17 @@ abstract class Dbal
 {
     /** @var EntityManager */
     protected $em;
-
-    protected static $quotingCharacter = '"';
-    protected static $identifierDivider = '.';
-    protected static $booleanTrue = '1';
-    protected static $booleanFalse = '0';
-
+    /** @var string[] */
     protected static $registeredTypes = [];
+
+    /** @var string */
+    protected static $quotingCharacter = '"';
+    /** @var string */
+    protected static $identifierDivider = '.';
+    /** @var string */
+    protected static $booleanTrue = '1';
+    /** @var string */
+    protected static $booleanFalse = '0';
 
     /**
      * Dbal constructor.
@@ -54,7 +56,7 @@ abstract class Dbal
     /**
      * Returns $value formatted to use in a sql statement.
      *
-     * @param  mixed  $value      The variable that should be returned in SQL syntax
+     * @param  mixed  $value The variable that should be returned in SQL syntax
      * @return string
      * @throws NotScalar
      */
@@ -84,7 +86,7 @@ abstract class Dbal
     /**
      * Describe a table
      *
-     * @param $table
+     * @param string $table
      * @return Column[]
      * @throws UnsupportedDriver
      */
@@ -172,6 +174,11 @@ abstract class Dbal
         return true;
     }
 
+    /**
+     * Register $type for describe
+     *
+     * @param string $type The full qualified class name
+     */
     public static function registerType($type)
     {
         if (!in_array($type, static::$registeredTypes)) {
@@ -179,21 +186,33 @@ abstract class Dbal
         }
     }
 
+    /**
+     * @param string $char
+     */
     public static function setQuotingCharacter($char)
     {
         static::$quotingCharacter = $char;
     }
 
+    /**
+     * @param string $divider
+     */
     public static function setIdentifierDivider($divider)
     {
         static::$identifierDivider = $divider;
     }
 
+    /**
+     * @param string $true
+     */
     public static function setBooleanTrue($true)
     {
         static::$booleanTrue = $true;
     }
 
+    /**
+     * @param string $false
+     */
     public static function setBooleanFalse($false)
     {
         static::$booleanFalse = $false;
@@ -255,6 +274,14 @@ abstract class Dbal
         return $statement;
     }
 
+    /**
+     * Normalize $type
+     *
+     * The type returned by mysql is for example VARCHAR(20) - this function converts it to varchar
+     *
+     * @param string $type
+     * @return string
+     */
     protected function normalizeType($type)
     {
         $type = strtolower($type);
@@ -266,6 +293,12 @@ abstract class Dbal
         return $type;
     }
 
+    /**
+     * Extract content from parenthesis in $type
+     *
+     * @param string $type
+     * @return string
+     */
     protected function extractParenthesis($type)
     {
         if (preg_match('/\(([\d,]+)\)/', $type, $match)) {
@@ -275,6 +308,14 @@ abstract class Dbal
         return null;
     }
 
+    /**
+     * Get the type for $columnDefinition
+     *
+     * Executes fromDefinition of each registered Type
+     *
+     * @param array $columnDefinition
+     * @return TypeInterface
+     */
     protected function getType($columnDefinition)
     {
         foreach (self::$registeredTypes as $class) {

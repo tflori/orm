@@ -7,6 +7,12 @@ use ORM\Exception;
 use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 
+/**
+ * Database abstraction for PostgreSQL databases
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Pgsql extends Dbal
 {
     protected static $typeMapping = [
@@ -68,26 +74,11 @@ class Pgsql extends Dbal
             throw new Exception('Unknown table '  . $schemaTable);
         }
 
-        $cols = [];
-        foreach ($rawColumns as $rawColumn) {
-            $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
-            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
-        }
+        $cols = array_map(function ($columnDefinition) {
+            return Column::factory($columnDefinition, $this->getType($columnDefinition));
+        }, $rawColumns);
 
         return $cols;
-    }
-
-    protected function normalizeColumnDefinition($rawColumn)
-    {
-        $definition = [];
-        $definition['data_type'] = $rawColumn['data_type'];
-        $definition['column_name'] = $rawColumn['column_name'];
-        $definition['is_nullable'] = $rawColumn['is_nullable'] === 'YES';
-        $definition['column_default'] = $rawColumn['column_default'];
-        $definition['character_maximum_length'] = $rawColumn['character_maximum_length'];
-        $definition['datetime_precision'] = $rawColumn['datetime_precision'];
-
-        return $definition;
     }
 
     protected function getType($columnDefinition)

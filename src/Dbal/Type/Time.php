@@ -4,12 +4,15 @@ namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Type;
 
+/**
+ * Time data type
+ *
+ * @package ORM\Dbal\Type
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Time extends Type
 {
-    protected static $dataTypes = [
-        'time'
-    ];
-
+    /** @var int */
     protected $precision;
 
     /**
@@ -19,7 +22,7 @@ class Time extends Type
      */
     public function __construct($precision = null)
     {
-        $this->precision = $precision;
+        $this->precision = (int)$precision;
     }
 
     public static function factory($columnDefinition)

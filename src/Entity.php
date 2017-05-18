@@ -106,11 +106,6 @@ abstract class Entity implements \Serializable
      * @var \ReflectionClass[] */
     protected static $reflections = [];
 
-    /** The fetched column descriptions for the table.
-     * @internal
-     * @var Column[][] */
-    protected static $descriptions;
-
     /**
      * Get the table name
      *
@@ -344,13 +339,13 @@ abstract class Entity implements \Serializable
     /**
      * Get an array of Columns for this table.
      *
-     * @param EntityManager $em
-     * @return mixed
+     * @param EntityManager $entityManager
+     * @return Column[]
      * @codeCoverageIgnore This is just a proxy
      */
-    public static function describe(EntityManager $em)
+    public static function describe(EntityManager $entityManager)
     {
-        return $em->describe(static::getTableName());
+        return $entityManager->describe(static::getTableName());
     }
 
     /**
