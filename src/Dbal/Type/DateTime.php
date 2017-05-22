@@ -13,6 +13,8 @@ use ORM\Dbal\Type;
  */
 class DateTime extends Type
 {
+    const DATE_TIME_REGEX = '/\d{4}-\d{2}-\d{2}( |T)\d{2}:\d{2}:\d{2}((\+|-)\d{1,2}:?\d{2})?/';
+
     /** @var int */
     protected $precision;
 
@@ -33,6 +35,14 @@ class DateTime extends Type
 
     public function validate($value)
     {
-        // TODO: Implement validate() method.
+        if ($value instanceof \DateTime) {
+            return true;
+        }
+
+        if (is_string($value) && preg_match(self::DATE_TIME_REGEX, $value)) {
+            return true;
+        }
+
+        return false;
     }
 }
