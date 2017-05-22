@@ -12,4 +12,8 @@ use ORM\Dbal\Type;
  */
 class Double extends Type
 {
+    public function validate($value)
+    {
+        // TODO: Implement validate() method.
+    }
 }

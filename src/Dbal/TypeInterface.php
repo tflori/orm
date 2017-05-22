@@ -10,12 +10,25 @@ namespace ORM\Dbal;
 interface TypeInterface
 {
     /**
-     * Create this type from $columnDefinition.
-     *
-     * Returns null when column definition does not match.
-     *
-     * @param $columnDefinition
-     * @return TypeInterface
+     * @param Dbal $dbal
+     * @param array $columnDefinition
+     * @return mixed
      */
-    public static function fromDefinition($columnDefinition);
+    public static function factory(Dbal $dbal, array $columnDefinition);
+
+    /**
+     * Check if this type fits to $columnDefinition.
+     *
+     * @param array $columnDefinition
+     * @return boolean
+     */
+    public static function fits(array $columnDefinition);
+
+    /**
+     * Check if $value is valid for this type.
+     *
+     * @param mixed $value
+     * @return boolean
+     */
+    public function validate($value);
 }

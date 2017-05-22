@@ -12,4 +12,8 @@ use ORM\Dbal\Type;
  */
 class Integer extends Type
 {
+    public function validate($value)
+    {
+        // TODO: Implement validate() method.
+    }
 }

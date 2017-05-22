@@ -39,6 +39,9 @@ class Pgsql extends Dbal
         'boolean' => Type\Boolean::class,
     ];
 
+    protected static $booleanTrue = 'true';
+    protected static $booleanFalse = 'false';
+
     public function insert($entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
@@ -83,7 +86,7 @@ class Pgsql extends Dbal
     protected function getType($columnDefinition)
     {
         if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            return call_user_func([static::$typeMapping[$columnDefinition['data_type']], 'factory'], $columnDefinition);
+            return call_user_func([static::$typeMapping[$columnDefinition['data_type']], 'factory'], $this, $columnDefinition);
         }
 
         return parent::getType($columnDefinition);

@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal\Type;
 
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Type;
 
 /**
@@ -25,8 +26,13 @@ class Time extends Type
         $this->precision = (int)$precision;
     }
 
-    public static function factory($columnDefinition)
+    public static function factory(Dbal $dbal, array $columnDefinition)
     {
         return new static($columnDefinition['datetime_precision']);
+    }
+
+    public function validate($value)
+    {
+        // TODO: Implement validate() method.
     }
 }

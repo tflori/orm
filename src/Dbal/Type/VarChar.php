@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal\Type;
 
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Type;
 
 /**
@@ -27,8 +28,13 @@ class VarChar extends Type
         $this->maxLength = (int)$maxLength;
     }
 
-    public static function factory($columnDefinition)
+    public static function factory(Dbal $dbal, array $columnDefinition)
     {
         return new static($columnDefinition['character_maximum_length']);
+    }
+
+    public function validate($value)
+    {
+        // TODO: Implement validate() method.
     }
 }

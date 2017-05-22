@@ -63,14 +63,14 @@ class PointTest extends TestCase
     {
         $point = \Mockery::mock(Point::class);
         Dbal::registerType($point);
-        $point->shouldReceive('fromDefinition')->once()->with([
+        $point->shouldReceive('fits')->once()->with([
             'data_type' => 'point',
             'column_name' => 'another_point',
             'is_nullable' => true,
             'column_default' => null,
             'character_maximum_length' => null,
             'datetime_precision' => null,
-        ])->andReturn(null);
+        ])->andReturn(false);
 
         $cols = $this->dbal->describe('db.table');
     }
@@ -81,7 +81,7 @@ class PointTest extends TestCase
         $point = \Mockery::mock(new Point());
         Dbal::registerType($point);
 
-        $point->shouldReceive('fromDefinition')->once()->andReturn(null);
+        $point->shouldReceive('fits')->once()->andReturn(null);
 
         $cols = $this->dbal->describe('db.table');
     }
@@ -93,8 +93,8 @@ class PointTest extends TestCase
         Dbal::registerType($int);
         Dbal::registerType($point);
 
-        $point->shouldReceive('fromDefinition')->globally()->once()->ordered();
-        $int->shouldReceive('fromDefinition')->globally()->once()->ordered();
+        $point->shouldReceive('fits')->globally()->once()->ordered()->andReturn(false);
+        $int->shouldReceive('fits')->globally()->once()->ordered()->andReturn(false);
 
         $cols = $this->dbal->describe('db.table');
     }
@@ -104,7 +104,8 @@ class PointTest extends TestCase
         $point = \Mockery::mock(new Point());
         Dbal::registerType($point);
 
-        $point->shouldReceive('fromDefinition')->once()->andReturnSelf();
+        $point->shouldReceive('fits')->once()->andReturn(true);
+        $point->shouldReceive('factory')->once()->andReturnSelf();
 
         $cols = $this->dbal->describe('db.table');
 
