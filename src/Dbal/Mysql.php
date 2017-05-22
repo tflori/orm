@@ -111,11 +111,8 @@ class Mysql extends Dbal
     protected function getType($columnDefinition)
     {
         if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            return call_user_func(
-                [static::$typeMapping[$columnDefinition['data_type']], 'factory'],
-                $this,
-                $columnDefinition
-            );
+            $factory = [static::$typeMapping[$columnDefinition['data_type']], 'factory'];
+            return call_user_func($factory, $this, $columnDefinition);
         }
 
         return parent::getType($columnDefinition);
