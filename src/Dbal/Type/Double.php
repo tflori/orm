@@ -14,6 +14,14 @@ class Double extends Type
 {
     public function validate($value)
     {
-        // TODO: Implement validate() method.
+        if (is_int($value) || is_double($value)) {
+            return true;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return true;
+        }
+
+        return false;
     }
 }

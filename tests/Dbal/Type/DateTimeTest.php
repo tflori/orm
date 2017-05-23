@@ -12,24 +12,67 @@ class DateTimeTest extends TestCase
         self::assertTrue(class_exists(DateTime::class));
     }
 
-    public function provideValues()
+    public function provideValuesWithTime()
     {
+        $dt = \DateTime::createFromFormat('U.u', microtime(true))
+            ->setTimezone(new \DateTimeZone('UTC'));
+
         return [
-            [new \DateTime(), true],
-            ['2016-03-23 15:22:11', true],
-            [date('c'), true],
+            [$dt, true],
+            [$dt->format('Y-m-d H:i:s'), true],
+            [$dt->format('c'), true],
+            [$dt->format('Y-m-d\TH:i:s.u\Z'), true],
+
+            // valid but no time
+            ['+01234-01-01', false],
+            ['-01234-01-01', false],
 
             ['NOW()', false],
             ['23rd of June \'84 5pm', false],
+            [$dt->format('r'), false],
         ];
     }
 
     /**
-     * @dataProvider provideValues
+     * @dataProvider provideValuesWithTime
      */
-    public function testValidate($value, $expected)
+    public function testValidateWithTime($value, $expected)
     {
-        $type = new DateTime(3);
+        $type = new DateTime(3, false);
+
+        $result = $type->validate($value);
+
+        self::assertSame($expected, $result);
+    }
+
+    public function provideValuesWithoutTime()
+    {
+        $dt = \DateTime::createFromFormat('U.u', microtime(true))
+            ->setTimezone(new \DateTimeZone('UTC'));
+
+        return [
+            [$dt, true],
+            ['+01234-01-01', true],
+            ['-01234-01-01', true],
+            ['1984-01-21', true],
+
+            // valid but with time
+            [$dt->format('Y-m-d H:i:s'), true],
+            [$dt->format('c'), true],
+            [$dt->format('Y-m-d\TH:i:s.u\Z'), true],
+
+            ['NOW()', false],
+            ['23rd of June \'84 5pm', false],
+            [$dt->format('r'), false],
+        ];
+    }
+
+    /**
+     * @dataProvider provideValuesWithoutTime
+     */
+    public function testValidateWithoutTime($value, $expected)
+    {
+        $type = new DateTime(3, true);
 
         $result = $type->validate($value);
 

@@ -13,24 +13,36 @@ use ORM\Dbal\Type;
  */
 class DateTime extends Type
 {
-    const DATE_TIME_REGEX = '/\d{4}-\d{2}-\d{2}( |T)\d{2}:\d{2}:\d{2}((\+|-)\d{1,2}:?\d{2})?/';
+    const DATE_REGEX = '(\+|-)?\d{4,}-\d{2}-\d{2}';
+    const TIME_REGEX = '( |T)\d{2}:\d{2}:\d{2}(\.\d{1,6})?';
+    const ZONE_REGEX = '((\+|-)\d{1,2}(:?\d{2})?|Z)?';
 
     /** @var int */
     protected $precision;
 
+    /** @var string */
+    protected $regex;
+
     /**
      * DateTime constructor.
      *
-     * @param int $precision
+     * @param int  $precision
+     * @param bool $dateOnly
      */
-    public function __construct($precision = null)
+    public function __construct($precision = null, $dateOnly = false)
     {
         $this->precision = (int)$precision;
+        $this->regex = $dateOnly ?
+            '/^' . self::DATE_REGEX . '(' . self::TIME_REGEX . self::ZONE_REGEX . ')?$/' :
+            '/^' . self::DATE_REGEX . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
 
     public static function factory(Dbal $dbal, array $columnDefinition)
     {
-        return new static($columnDefinition['datetime_precision']);
+        return new static(
+            $columnDefinition['datetime_precision'],
+            strpos($columnDefinition['data_type'], 'time') === false
+        );
     }
 
     public function validate($value)
@@ -39,7 +51,7 @@ class DateTime extends Type
             return true;
         }
 
-        if (is_string($value) && preg_match(self::DATE_TIME_REGEX, $value)) {
+        if (is_string($value) && preg_match($this->regex, $value)) {
             return true;
         }
 
