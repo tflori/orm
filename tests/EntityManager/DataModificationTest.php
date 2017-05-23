@@ -306,7 +306,7 @@ class DataModificationTest extends TestCase
             [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = 42'],
             [
                 new StudlyCaps(['id' => '42', 'foo' => 'bar']),
-                'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = \'42\''
+                'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = 42'
             ],
             [
                 new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'stn_col1' => 'abc']),
@@ -345,7 +345,7 @@ class DataModificationTest extends TestCase
     {
         return [
             [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'DELETE FROM "studly_caps" WHERE "id" = 42'],
-            [new StudlyCaps(['id' => '42']), 'DELETE FROM "studly_caps" WHERE "id" = \'42\'']
+            [new StudlyCaps(['id' => '42']), 'DELETE FROM "studly_caps" WHERE "id" = 42']
         ];
     }
 

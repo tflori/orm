@@ -63,6 +63,9 @@ abstract class Dbal
     {
         switch (strtolower(gettype($value))) {
             case 'string':
+                if (is_numeric($value)) {
+                    return $value;
+                }
                 return $this->em->getConnection()->quote($value);
 
             case 'integer':

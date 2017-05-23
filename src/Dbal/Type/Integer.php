@@ -10,10 +10,6 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Integer extends Type
+class Integer extends Double
 {
-    public function validate($value)
-    {
-        // TODO: Implement validate() method.
-    }
 }
