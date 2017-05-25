@@ -63,9 +63,6 @@ abstract class Dbal
     {
         switch (strtolower(gettype($value))) {
             case 'string':
-                if (is_numeric($value)) {
-                    return $value;
-                }
                 return $this->em->getConnection()->quote($value);
 
             case 'integer':
@@ -303,7 +300,7 @@ abstract class Dbal
      */
     protected function extractParenthesis($type)
     {
-        if (preg_match('/\(([\d,]+)\)/', $type, $match)) {
+        if (preg_match('/\((.+)\)/', $type, $match)) {
             return $match[1];
         }
 

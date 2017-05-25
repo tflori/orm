@@ -15,14 +15,13 @@ use PDO;
 class Pgsql extends Dbal
 {
     protected static $typeMapping = [
-        'integer' => Type\Integer::class,
-        'smallint' => Type\Integer::class,
-        'bigint' => Type\Integer::class,
-
-        'numeric' => Type\Double::class,
-        'real' => Type\Double::class,
-        'double precision' => Type\Double::class,
-        'money' => Type\Double::class,
+        'integer' => Type\Number::class,
+        'smallint' => Type\Number::class,
+        'bigint' => Type\Number::class,
+        'numeric' => Type\Number::class,
+        'real' => Type\Number::class,
+        'double precision' => Type\Number::class,
+        'money' => Type\Number::class,
 
         'character varying' => Type\VarChar::class,
         'character' => Type\VarChar::class,

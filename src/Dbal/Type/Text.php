@@ -12,10 +12,10 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Text extends Type
+class Text extends VarChar
 {
-    public function validate($value)
+    public function __construct()
     {
-        // TODO: Implement validate() method.
+        parent::__construct(null);
     }
 }

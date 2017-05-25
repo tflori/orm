@@ -35,6 +35,18 @@ class VarChar extends Type
 
     public function validate($value)
     {
-        // TODO: Implement validate() method.
+        if (is_string($value) && ($this->maxLength === 0 || mb_strlen($value) <= $this->maxLength)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxLength()
+    {
+        return $this->maxLength;
     }
 }

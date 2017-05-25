@@ -109,19 +109,18 @@ class DescribeTest extends TestCase
     public function provideTypes()
     {
         return [
-            ['integer', Type\Integer::class],
-            ['int', Type\Integer::class],
-            ['INTEGER', Type\Integer::class],
-            ['INT', Type\Integer::class],
-
-            ['numeric', Type\Double::class],
-            ['real', Type\Double::class],
-            ['double', Type\Double::class],
-            ['decimal', Type\Double::class],
-            ['NUMERIC', Type\Double::class],
-            ['REAL', Type\Double::class],
-            ['DOUBLE', Type\Double::class],
-            ['DECIMAL', Type\Double::class],
+            ['integer', Type\Number::class],
+            ['int', Type\Number::class],
+            ['INTEGER', Type\Number::class],
+            ['INT', Type\Number::class],
+            ['numeric', Type\Number::class],
+            ['real', Type\Number::class],
+            ['double', Type\Number::class],
+            ['decimal', Type\Number::class],
+            ['NUMERIC', Type\Number::class],
+            ['REAL', Type\Number::class],
+            ['DOUBLE', Type\Number::class],
+            ['DECIMAL', Type\Number::class],
 
             ['varchar(20)', Type\VarChar::class],
             ['character(5)', Type\VarChar::class],

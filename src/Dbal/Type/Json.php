@@ -14,6 +14,10 @@ class Json extends Type
 {
     public function validate($value)
     {
-        // TODO: Implement validate() method.
+        if (is_string($value) && ($value === 'null' || json_decode($value) !== null)) {
+            return true;
+        }
+
+        return false;
     }
 }

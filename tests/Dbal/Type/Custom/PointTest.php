@@ -4,7 +4,7 @@ namespace ORM\Test\Dbal\Type\Custom;
 
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Mysql;
-use ORM\Dbal\Type\Integer;
+use ORM\Dbal\Type\Number;
 use ORM\Test\TestCase;
 
 class PointTest extends TestCase
@@ -77,7 +77,7 @@ class PointTest extends TestCase
 
     public function testExecutesFromDefinitionFromNextType()
     {
-        Dbal::registerType(Integer::class);
+        Dbal::registerType(Number::class);
         $point = \Mockery::mock(new Point());
         Dbal::registerType($point);
 
@@ -88,7 +88,7 @@ class PointTest extends TestCase
 
     public function testExecutesLastRegisteredFirst()
     {
-        $int = \Mockery::mock(new Integer());
+        $int = \Mockery::mock(new Number());
         $point = \Mockery::mock(new Point());
         Dbal::registerType($int);
         Dbal::registerType($point);

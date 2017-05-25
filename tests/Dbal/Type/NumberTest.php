@@ -2,14 +2,14 @@
 
 namespace ORM\Test\Dbal\Type;
 
-use ORM\Dbal\Type\Double;
+use ORM\Dbal\Type\Number;
 use ORM\Test\TestCase;
 
-class DoubleTest extends TestCase
+class NumberTest extends TestCase
 {
     public function testExists()
     {
-        self::assertTrue(class_exists(Double::class));
+        self::assertTrue(class_exists(Number::class));
     }
 
     public function provideValues()
@@ -34,7 +34,7 @@ class DoubleTest extends TestCase
      */
     public function testValidate($value, $expected)
     {
-        $type = new Double();
+        $type = new Number();
 
         $result = $type->validate($value);
 

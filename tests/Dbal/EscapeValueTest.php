@@ -81,6 +81,6 @@ class EscapeValueTest extends TestCase
     {
         $result = $this->dbal->escapeValue('1.1234567890123456');
 
-        self::assertSame('1.1234567890123456', $result);
+        self::assertSame('\'1.1234567890123456\'', $result);
     }
 }

@@ -11,28 +11,20 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Time extends Type
+class Time extends DateTime
 {
-    /** @var int */
-    protected $precision;
-
-    /**
-     * DateTime constructor.
-     *
-     * @param int $precision
-     */
     public function __construct($precision = null)
     {
-        $this->precision = (int)$precision;
-    }
-
-    public static function factory(Dbal $dbal, array $columnDefinition)
-    {
-        return new static($columnDefinition['datetime_precision']);
+        parent::__construct($precision);
+        $this->regex = '/^' . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
 
     public function validate($value)
     {
-        // TODO: Implement validate() method.
+        if (is_string($value) && preg_match($this->regex, $value)) {
+            return true;
+        }
+
+        return false;
     }
 }

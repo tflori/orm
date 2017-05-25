@@ -13,14 +13,13 @@ use ORM\Exception;
 class Sqlite extends Dbal
 {
     protected static $typeMapping = [
-        'integer' => Type\Integer::class,
-        'int' => Type\Integer::class,
-
-        'double' => Type\Double::class,
-        'real' => Type\Double::class,
-        'float' => Type\Double::class,
-        'numeric' => Type\Double::class,
-        'decimal' => Type\Double::class,
+        'integer' => Type\Number::class,
+        'int' => Type\Number::class,
+        'double' => Type\Number::class,
+        'real' => Type\Number::class,
+        'float' => Type\Number::class,
+        'numeric' => Type\Number::class,
+        'decimal' => Type\Number::class,
 
         'varchar' => Type\VarChar::class,
         'character' => Type\VarChar::class,

@@ -5,7 +5,7 @@ namespace ORM\Test\Dbal\Validator;
 use Mockery\Mock;
 use ORM\Dbal\Column;
 use ORM\Dbal\Type\Boolean;
-use ORM\Dbal\Type\Integer;
+use ORM\Dbal\Type\Number;
 use ORM\Dbal\Type\VarChar;
 use ORM\Exception;
 use ORM\Test\TestCase;
@@ -39,7 +39,7 @@ class ValidateTest extends TestCase
     public function testAllowsNullValues()
     {
         /** @var Mock|Integer $type */
-        $type = \Mockery::mock(Integer::class);
+        $type = \Mockery::mock(Number::class);
         $validator = new Validator([
             new Column('colA', $type, false, true)
         ]);
@@ -53,7 +53,7 @@ class ValidateTest extends TestCase
     public function testAllowsNullWithDefault()
     {
         /** @var Mock|Integer $type */
-        $type = \Mockery::mock(Integer::class);
+        $type = \Mockery::mock(Number::class);
         $validator = new Validator([
             new Column('colA', $type, true, false)
         ]);
@@ -67,7 +67,7 @@ class ValidateTest extends TestCase
     public function testReturnsNotNullable()
     {
         /** @var Mock|Integer $type */
-        $type = \Mockery::mock(Integer::class);
+        $type = \Mockery::mock(Number::class);
         $validator = new Validator([
             new Column('colA', $type, false, false)
         ]);

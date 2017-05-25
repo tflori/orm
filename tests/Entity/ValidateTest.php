@@ -4,6 +4,7 @@ namespace ORM\Test\Entity;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Type\Integer;
+use ORM\Dbal\Type\Number;
 use ORM\Dbal\Type\VarChar;
 use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
@@ -23,7 +24,7 @@ class ValidateTest extends TestCase
     {
         parent::setUpBeforeClass();
 
-        self::$columnId = new Column('id', \Mockery::mock(Integer::class), true, false);
+        self::$columnId = new Column('id', \Mockery::mock(Number::class), true, false);
         self::$columnTitle = new Column('title', \Mockery::mock(VarChar::class), false, false);
         self::$columnIntroText = new Column('intro_text', \Mockery::mock(VarChar::class), false, true);
     }

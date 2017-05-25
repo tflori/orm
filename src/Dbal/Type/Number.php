@@ -10,7 +10,7 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Double extends Type
+class Number extends Type
 {
     public function validate($value)
     {

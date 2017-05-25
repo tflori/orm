@@ -13,15 +13,14 @@ use ORM\Exception;
 class Mysql extends Dbal
 {
     protected static $typeMapping = [
-        'tinyint' => Type\Integer::class,
-        'smallint' => Type\Integer::class,
-        'mediumint' => Type\Integer::class,
-        'int' => Type\Integer::class,
-        'bigint' => Type\Integer::class,
-
-        'decimal' => Type\Double::class,
-        'float' => Type\Double::class,
-        'double' => Type\Double::class,
+        'tinyint' => Type\Number::class,
+        'smallint' => Type\Number::class,
+        'mediumint' => Type\Number::class,
+        'int' => Type\Number::class,
+        'bigint' => Type\Number::class,
+        'decimal' => Type\Number::class,
+        'float' => Type\Number::class,
+        'double' => Type\Number::class,
 
         'varchar' => Type\VarChar::class,
         'char' => Type\VarChar::class,
@@ -102,6 +101,10 @@ class Mysql extends Dbal
             case 'timestamp':
             case 'time':
                 $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['Type']);
+                break;
+            case 'set':
+            case 'enum':
+                $definition['enumeration_values'] = $this->extractParenthesis($rawColumn['Type']);
                 break;
         }
 

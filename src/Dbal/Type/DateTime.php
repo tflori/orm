@@ -14,7 +14,7 @@ use ORM\Dbal\Type;
 class DateTime extends Type
 {
     const DATE_REGEX = '(\+|-)?\d{4,}-\d{2}-\d{2}';
-    const TIME_REGEX = '( |T)\d{2}:\d{2}:\d{2}(\.\d{1,6})?';
+    const TIME_REGEX = '\d{2}:\d{2}:\d{2}(\.\d{1,6})?';
     const ZONE_REGEX = '((\+|-)\d{1,2}(:?\d{2})?|Z)?';
 
     /** @var int */
@@ -33,8 +33,8 @@ class DateTime extends Type
     {
         $this->precision = (int)$precision;
         $this->regex = $dateOnly ?
-            '/^' . self::DATE_REGEX . '(' . self::TIME_REGEX . self::ZONE_REGEX . ')?$/' :
-            '/^' . self::DATE_REGEX . self::TIME_REGEX . self::ZONE_REGEX . '$/';
+            '/^' . self::DATE_REGEX . '([ T]' . self::TIME_REGEX . self::ZONE_REGEX . ')?$/' :
+            '/^' . self::DATE_REGEX . '[ T]' . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
 
     public static function factory(Dbal $dbal, array $columnDefinition)
@@ -56,5 +56,13 @@ class DateTime extends Type
         }
 
         return false;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrecision()
+    {
+        return $this->precision;
     }
 }
