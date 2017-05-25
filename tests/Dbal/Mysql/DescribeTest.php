@@ -35,18 +35,17 @@ class DescribeTest extends TestCase
     public function provideTypes()
     {
         return [
-            ['int(11)', Type\Integer::class],
-            ['int(8)', Type\Integer::class],
-            ['tinyint(1)', Type\Integer::class],
-            ['tinyint(3)', Type\Integer::class],
-            ['smallint(5)', Type\Integer::class],
-            ['mediumint(8)', Type\Integer::class],
-            ['bigint(20)', Type\Integer::class],
-            ['bigint(20) unsigned', Type\Integer::class],
-
-            ['decimal(5,2)', Type\Double::class],
-            ['float', Type\Double::class],
-            ['double', Type\Double::class],
+            ['int(11)', Type\Number::class],
+            ['int(8)', Type\Number::class],
+            ['tinyint(1)', Type\Number::class],
+            ['tinyint(3)', Type\Number::class],
+            ['smallint(5)', Type\Number::class],
+            ['mediumint(8)', Type\Number::class],
+            ['bigint(20)', Type\Number::class],
+            ['bigint(20) unsigned', Type\Number::class],
+            ['decimal(5,2)', Type\Number::class],
+            ['float', Type\Number::class],
+            ['double', Type\Number::class],
 
             ['varchar(200)', Type\VarChar::class],
             ['char(5)', Type\VarChar::class],
@@ -56,10 +55,13 @@ class DescribeTest extends TestCase
             ['mediumtext', Type\Text::class],
             ['longtext', Type\Text::class],
 
+            ['datetime(3)', Type\DateTime::class],
             ['datetime', Type\DateTime::class],
             ['date', Type\DateTime::class],
+            ['timestamp(3)', Type\DateTime::class],
             ['timestamp', Type\DateTime::class],
 
+            ['time(3)', Type\Time::class],
             ['time', Type\Time::class],
             ['enum(\'a\',\'b\')', Type\Enum::class],
             ['set(\'a\',\'b\')', Type\Set::class],
@@ -135,5 +137,47 @@ class DescribeTest extends TestCase
 
         self::assertSame(1, count($cols));
         self::assertSame($expected, call_user_func([$cols[0], $method]));
+    }
+
+    public function provideColumnTypeData()
+    {
+        return [
+            ['varchar(200)', 'getMaxLength', 200],
+            ['char(5)', 'getMaxLength', 5],
+
+            ['datetime(3)', 'getPrecision', 3],
+            ['datetime', 'getPrecision', 0],
+            ['date', 'getPrecision', 0],
+            ['timestamp(3)', 'getPrecision', 3],
+            ['timestamp', 'getPrecision', 0],
+            ['time(3)', 'getPrecision', 3],
+            ['time', 'getPrecision', 0],
+
+            ['set(\'a\',\'b\')', 'getAllowedValues', ['a', 'b']],
+            ['enum(\'a\',\'b\')', 'getAllowedValues', ['a', 'b']],
+        ];
+    }
+
+    /**
+     * @dataProvider provideColumnTypeData
+     */
+    public function testColumnTypeData($type, $getter, $expected)
+    {
+        $statement = \Mockery::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->twice()->andReturn([
+            'Field' => 'a',
+            'Type' => $type,
+            'Null' => 'NO',
+            'Key' => '',
+            'Default' => null,
+            'Extra' => ''
+        ], false);
+
+        $cols = $this->dbal->describe('db.table');
+
+        $result = call_user_func([$cols[0]->getType(), $getter]);
+
+        self::assertSame($expected, $result);
     }
 }

@@ -9,6 +9,8 @@ use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
+use ORM\Dbal\Validator\Error;
+use ORM\Dbal\Validator;
 
 /**
  * Definition of an entity
@@ -105,6 +107,10 @@ abstract class Entity implements \Serializable
      * @internal
      * @var \ReflectionClass[] */
     protected static $reflections = [];
+
+    /** Validators for Entities
+     * @var Validator[] */
+    protected static $validators = [];
 
     /**
      * Get the table name
@@ -227,6 +233,66 @@ abstract class Entity implements \Serializable
         }
 
         return $relDef;
+    }
+
+    /**
+     * Initialize the validator for this Entity.
+     *
+     * @param EntityManager $entityManager
+     */
+    public static function initValidator(EntityManager $entityManager)
+    {
+        if (isset(self::$validators[static::class])) {
+            return;
+        }
+
+        self::$validators[static::class] = new Validator(static::describe($entityManager));
+    }
+
+    /**
+     * Check if the validator is initialized.
+     *
+     * @return bool
+     */
+    public static function validatorIsInitialized()
+    {
+        return isset(self::$validators[static::class]);
+    }
+
+    /**
+     * Validate $value for $field.
+     *
+     * @param string $field
+     * @param mixed $value
+     * @return bool|Error
+     * @throws Exception
+     */
+    public static function validate($field, $value)
+    {
+        if (!isset(self::$validators[static::class])) {
+            throw new Exception('Validator not initialized yet');
+        }
+
+        $validator = self::$validators[static::class];
+
+        return $validator->validate(static::getColumnName($field), $value);
+    }
+
+    /**
+     * Validate $fields.
+     *
+     * $fields has to be an array of $field => $value
+     *
+     * @param array $fields
+     * @return array
+     */
+    public static function validateArray(array $fields)
+    {
+        $result = $fields;
+        foreach ($result as $field => &$value) {
+            $value = static::validate($field, $value);
+        }
+        return $result;
     }
 
     /**

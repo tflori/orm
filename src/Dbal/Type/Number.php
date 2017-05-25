@@ -5,16 +5,20 @@ namespace ORM\Dbal\Type;
 use ORM\Dbal\Type;
 
 /**
- * Json data type
+ * Float, double and decimal data type
  *
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Json extends Type
+class Number extends Type
 {
     public function validate($value)
     {
-        if (is_string($value) && ($value === 'null' || json_decode($value) !== null)) {
+        if (is_int($value) || is_double($value)) {
+            return true;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
             return true;
         }
 

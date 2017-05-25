@@ -11,4 +11,26 @@ class TextTest extends TestCase
     {
         self::assertTrue(class_exists(Text::class));
     }
+
+    public function provideValues()
+    {
+        return [
+            ['unlimited string length', true],
+            [(string)42, true],
+
+            [42, false], // only string accepted
+        ];
+    }
+
+    /**
+     * @dataProvider provideValues
+     */
+    public function testValidate($value, $expected)
+    {
+        $type = new Text();
+
+        $result = $type->validate($value);
+
+        self::assertSame($expected, $result);
+    }
 }

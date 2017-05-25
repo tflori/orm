@@ -12,6 +12,10 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Text extends Type
+class Text extends VarChar
 {
+    public function __construct()
+    {
+        parent::__construct(null);
+    }
 }

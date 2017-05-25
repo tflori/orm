@@ -11,4 +11,30 @@ class VarCharTest extends TestCase
     {
         self::assertTrue(class_exists(VarChar::class));
     }
+
+    public function provideValues()
+    {
+        return [
+            ['The answer is 42', 16, true],
+            ['Short value', 16, true],
+            ['unlimited string length', 0, true],
+            ['utf8 chars like äöü', 19, true],
+            [(string)42, 0, true],
+
+            ['This value is too long', 21, false],
+            [42, 0, false], // only string accepted
+        ];
+    }
+
+    /**
+     * @dataProvider provideValues
+     */
+    public function testValidate($value, $maxLen, $expected)
+    {
+        $type = new VarChar($maxLen);
+
+        $result = $type->validate($value);
+
+        self::assertSame($expected, $result);
+    }
 }

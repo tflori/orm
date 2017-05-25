@@ -300,7 +300,7 @@ abstract class Dbal
      */
     protected function extractParenthesis($type)
     {
-        if (preg_match('/\(([\d,]+)\)/', $type, $match)) {
+        if (preg_match('/\((.+)\)/', $type, $match)) {
             return $match[1];
         }
 
@@ -318,8 +318,8 @@ abstract class Dbal
     protected function getType($columnDefinition)
     {
         foreach (self::$registeredTypes as $class) {
-            if ($type = $class::fromDefinition($columnDefinition)) {
-                return $type;
+            if (call_user_func([$class, 'fits'], $columnDefinition)) {
+                return call_user_func([$class, 'factory'], $this, $columnDefinition);
             }
         }
 

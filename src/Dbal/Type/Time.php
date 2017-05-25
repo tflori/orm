@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal\Type;
 
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Type;
 
 /**
@@ -10,23 +11,20 @@ use ORM\Dbal\Type;
  * @package ORM\Dbal\Type
  * @author  Thomas Flori <thflori@gmail.com>
  */
-class Time extends Type
+class Time extends DateTime
 {
-    /** @var int */
-    protected $precision;
-
-    /**
-     * DateTime constructor.
-     *
-     * @param int $precision
-     */
     public function __construct($precision = null)
     {
-        $this->precision = (int)$precision;
+        parent::__construct($precision);
+        $this->regex = '/^' . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
 
-    public static function factory($columnDefinition)
+    public function validate($value)
     {
-        return new static($columnDefinition['datetime_precision']);
+        if (is_string($value) && preg_match($this->regex, $value)) {
+            return true;
+        }
+
+        return false;
     }
 }

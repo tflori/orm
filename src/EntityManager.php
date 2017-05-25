@@ -402,7 +402,7 @@ class EntityManager
      * Returns an array of columns from $table.
      *
      * @param string $table
-     * @return Dbal\Column[]
+     * @return Column[]
      */
     public function describe($table)
     {
