@@ -16,7 +16,7 @@ use ORM\Exceptions\UnsupportedDriver;
 abstract class Dbal
 {
     /** @var EntityManager */
-    protected $em;
+    protected $entityManager;
     /** @var string[] */
     protected static $registeredTypes = [];
 
@@ -36,7 +36,7 @@ abstract class Dbal
      */
     public function __construct(EntityManager $entityManager)
     {
-        $this->em = $entityManager;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -63,7 +63,7 @@ abstract class Dbal
     {
         switch (strtolower(gettype($value))) {
             case 'string':
-                return $this->em->getConnection()->quote($value);
+                return $this->entityManager->getConnection()->quote($value);
 
             case 'integer':
                 return (string) $value;
@@ -110,8 +110,8 @@ abstract class Dbal
             throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
         }
 
-        $this->em->getConnection()->query($statement);
-        $this->em->sync($entity, true);
+        $this->entityManager->getConnection()->query($statement);
+        $this->entityManager->sync($entity, true);
         return true;
     }
 
@@ -144,7 +144,7 @@ abstract class Dbal
         $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'SET ' . implode(',', $set) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
-        $this->em->getConnection()->query($statement);
+        $this->entityManager->getConnection()->query($statement);
 
         return true;
     }
@@ -168,7 +168,7 @@ abstract class Dbal
 
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
-        $this->em->getConnection()->query($statement);
+        $this->entityManager->getConnection()->query($statement);
 
         return true;
     }

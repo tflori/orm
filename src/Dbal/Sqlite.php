@@ -37,7 +37,7 @@ class Sqlite extends Dbal
     public function insert($entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
-        $pdo = $this->em->getConnection();
+        $pdo = $this->entityManager->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $pdo->query($statement);
@@ -45,7 +45,7 @@ class Sqlite extends Dbal
         }
 
         $pdo->query($statement);
-        $this->em->sync($entity, true);
+        $this->entityManager->sync($entity, true);
         return true;
     }
 
@@ -55,7 +55,7 @@ class Sqlite extends Dbal
         list($schema, $table) = count($table) === 2 ? $table : [null, $table[0]];
         $schema = $schema !== null ? $this->escapeIdentifier($schema) . '.' : '';
 
-        $result = $this->em->getConnection()->query(
+        $result = $this->entityManager->getConnection()->query(
             'PRAGMA ' . $schema . 'table_info(' . $this->escapeIdentifier($table) . ')'
         );
         $rawColumns = $result->fetchAll(\PDO::FETCH_ASSOC);

@@ -43,7 +43,7 @@ class Mysql extends Dbal
     public function insert($entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
-        $pdo = $this->em->getConnection();
+        $pdo = $this->entityManager->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $pdo->query($statement);
@@ -51,14 +51,14 @@ class Mysql extends Dbal
         }
 
         $pdo->query($statement);
-        $this->em->sync($entity, true);
+        $this->entityManager->sync($entity, true);
         return true;
     }
 
     public function describe($table)
     {
         try {
-            $result = $this->em->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
+            $result = $this->entityManager->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
         } catch (\PDOException $exception) {
             throw new Exception('Unknown table ' . $table, 0, $exception);
         }

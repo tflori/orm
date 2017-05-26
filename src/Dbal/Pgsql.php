@@ -44,7 +44,7 @@ class Pgsql extends Dbal
     public function insert($entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
-        $pdo = $this->em->getConnection();
+        $pdo = $this->entityManager->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
@@ -53,7 +53,7 @@ class Pgsql extends Dbal
         }
 
         $pdo->query($statement);
-        $this->em->sync($entity, true);
+        $this->entityManager->sync($entity, true);
         return true;
     }
 
@@ -62,14 +62,14 @@ class Pgsql extends Dbal
         $table = explode(static::$identifierDivider, $schemaTable);
         list($schema, $table) = count($table) === 2 ? $table : ['public', $table[0]];
 
-        $query = new QueryBuilder('INFORMATION_SCHEMA.COLUMNS');
+        $query = new QueryBuilder('INFORMATION_SCHEMA.COLUMNS', '', $this->entityManager);
         $query->where('table_name', $table)->andWhere('table_schema', $schema);
         $query->columns([
             'column_name', 'column_default', 'data_type', 'is_nullable', 'character_maximum_length',
             'datetime_precision'
         ]);
 
-        $result = $this->em->getConnection()->query($query->getQuery());
+        $result = $this->entityManager->getConnection()->query($query->getQuery());
         $rawColumns = $result->fetchAll(PDO::FETCH_ASSOC);
         if (count($rawColumns) === 0) {
             throw new Exception('Unknown table '  . $schemaTable);
