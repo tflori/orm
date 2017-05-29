@@ -67,6 +67,15 @@ class EntityManager
      * @var Column[][] */
     protected $descriptions = [];
 
+    /** Mapping for EntityManager instances
+     * @var EntityManager[][] */
+    protected static $emMapping = [
+        'byClass' => [],
+        'byNameSpace' => [],
+        'byParent' => [],
+        'last' => null,
+    ];
+
     /**
      * Constructor
      *
@@ -78,6 +87,104 @@ class EntityManager
         foreach ($options as $option => $value) {
             $this->setOption($option, $value);
         }
+
+        self::$emMapping['last'] = $this;
+    }
+
+    /**
+     * Get an instance of the EntityManager.
+     *
+     * If no class is given it gets $class from backtrace.
+     *
+     * It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+     * EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
+     *
+     * @param string $class
+     * @return EntityManager
+     */
+    public static function getInstance($class = null)
+    {
+        if (!$class) {
+            $trace = debug_backtrace();
+            if (empty($trace[1]['class'])) {
+                return self::$emMapping['last'];
+            }
+            $class = $trace[1]['class'];
+        }
+
+        if (!isset(self::$emMapping['byClass'][$class])) {
+            if (!($em = self::getInstanceByNameSpace($class)) && !($em = self::getInstanceByParent($class))) {
+                $em = self::$emMapping['last'];
+            }
+
+            self::$emMapping['byClass'][$class] = $em;
+        }
+
+        return self::$emMapping['byClass'][$class];
+    }
+
+    /**
+     * Get the instance by NameSpace mapping
+     *
+     * @param $class
+     * @return EntityManager
+     */
+    private static function getInstanceByNameSpace($class)
+    {
+        foreach (self::$emMapping['byNameSpace'] as $nameSpace => $em) {
+            if (substr($class, 0, strlen($nameSpace)) === $nameSpace) {
+                return $em;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the instance by Parent class mapping
+     *
+     * @param $class
+     * @return EntityManager
+     */
+    private static function getInstanceByParent($class)
+    {
+        // we don't need a reflection when we don't have mapping byParent
+        if (empty(self::$emMapping['byParent'])) {
+            return null;
+        }
+
+        $reflection = new \ReflectionClass($class);
+        foreach (self::$emMapping['byParent'] as $parentClass => $em) {
+            if ($reflection->isSubclassOf($parentClass)) {
+                return $em;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Define $this EntityManager as the default EntityManager for $nameSpace
+     *
+     * @param $nameSpace
+     * @return self
+     */
+    public function defineForNamespace($nameSpace)
+    {
+        self::$emMapping['byNameSpace'][$nameSpace] = $this;
+        return $this;
+    }
+
+    /**
+     * Define $this EntityManager as the default EntityManager for subClasses of $class
+     *
+     * @param $class
+     * @return self
+     */
+    public function defineForParent($class)
+    {
+        self::$emMapping['byParent'][$class] = $this;
+        return $this;
     }
 
     /**

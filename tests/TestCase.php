@@ -34,7 +34,7 @@ class TestCase extends MockeryTestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mssql')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
-        $this->em = \Mockery::mock(EntityManager::class)->makePartial();
+        $this->em = \Mockery::mock(EntityManager::class, [])->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
 
         $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();

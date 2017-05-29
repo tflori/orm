@@ -114,9 +114,4 @@ class Mysql extends Dbal
 
         return $definition;
     }
-
-    public function getTypeClass($dataType)
-    {
-        return isset(static::$typeMapping[$dataType]) ? static::$typeMapping[$dataType] : null;
-    }
 }

@@ -101,18 +101,6 @@ class DataTest extends TestCase
         $mock->another_var = 'foobar';
     }
 
-    public function testDoesNotAllowToChangeNamingSchemeAfterUsage()
-    {
-        TestEntity::setNamingSchemeMethods('snake_lower');
-        $entity = new Snake_Ucfirst();
-        $entity->anotherVar = 'foobar';
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
-
-        TestEntity::setNamingSchemeMethods('camelCase');
-    }
-
     public function testGetsInitialDataOverConstructor()
     {
         $studlyCaps = new StudlyCaps([

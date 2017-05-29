@@ -90,16 +90,6 @@ class TableNameTest extends TestCase
         self::assertSame($expected, $tableName);
     }
 
-    public function testDoesNotAllowToChangeNamingThemeAfterUsage()
-    {
-        StudlyCaps::getTableName();
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
-
-        Entity::setNamingSchemeTable('UPPER');
-    }
-
     public function testThrowsForIllegalTemplates()
     {
         Entity::setTableNameTemplate('%foobar%');
@@ -153,15 +143,5 @@ class TableNameTest extends TestCase
         $tableName = $class::getTableName();
 
         self::assertSame($expected, $tableName);
-    }
-
-    public function testDoesNotAllowToChangeTableNameTemplateAfterUsage()
-    {
-        StudlyCaps::getTableName();
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Template can not be changed afterwards');
-
-        Entity::setTableNameTemplate('%namespace%');
     }
 }

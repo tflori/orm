@@ -42,20 +42,10 @@ class ColumnNameTest extends TestCase
         self::assertSame($expected, $colName);
     }
 
-    public function testDoesNotAllowToChangeNamingSchemeColumnAfterUsage()
-    {
-        StudlyCaps::getColumnName('someVar');
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
-
-        TestEntity::setNamingSchemeColumn('snake_case');
-    }
-
     public function testStoresTheNames()
     {
         TestEntity::setNamingSchemeColumn('snake_lower');
-        $colNameBefore                  = StudlyCaps::getColumnName('StudlyCaps');
+        $colNameBefore = StudlyCaps::getColumnName('StudlyCaps');
         TestEntity::resetNamingUsed();
         TestEntity::setNamingSchemeColumn('StudlyCaps');
 
@@ -87,8 +77,7 @@ class ColumnNameTest extends TestCase
      */
     public function testDoesNotTouchColumnNames($namingScheme, $name)
     {
-        TestEntity::setNamingSchemeColumn($namingScheme);
-        $colName                        = StaticTableName::getColumnName($name);
+        $colName = StaticTableName::getColumnName($name);
 
         $second = StaticTableName::getColumnName($colName);
 

@@ -5,6 +5,13 @@ namespace ORM;
 use ORM\Exceptions\InvalidConfiguration;
 use ReflectionClass;
 
+/**
+ * Namer is for naming errors, columns, tables and methods
+ *
+ * Namer is an artificial word and is more a name giver. We just don't wanted to write so much.
+ *
+ * @package ORM
+ */
 class Namer
 {
     /** The template to use to calculate the table name.
@@ -23,6 +30,11 @@ class Namer
      * @var string */
     protected $methodNameScheme = 'camelCase';
 
+    /**
+     * Namer constructor.
+     *
+     * @param array $options
+     */
     public function __construct($options = [])
     {
         foreach ($options as $option => $value) {
@@ -30,6 +42,13 @@ class Namer
         }
     }
 
+    /**
+     * Set $option to $value
+     *
+     * @param string $option
+     * @param mixed $value
+     * @return self
+     */
     public function setOption($option, $value)
     {
         switch ($option) {
@@ -49,8 +68,18 @@ class Namer
                 $this->methodNameScheme = $value;
                 break;
         }
+
+        return $this;
     }
 
+    /**
+     * Get the table name for $reflection
+     *
+     * @param ReflectionClass $reflection
+     * @param null $template
+     * @param null $namingScheme
+     * @return string
+     */
     public function getTableName(ReflectionClass $reflection, $template = null, $namingScheme = null)
     {
         if ($template === null) {
@@ -66,6 +95,38 @@ class Namer
             'namespace' => explode('\\', $reflection->getNamespaceName()),
             'name' => preg_split('/[\\\\_]+/', $reflection->getName()),
         ]);
+
+        return $this->forceNamingScheme($name, $namingScheme);
+    }
+
+    /**
+     * Get the column name with $namingScheme or default naming scheme
+     *
+     * @param $field
+     * @param null $namingScheme
+     * @return string
+     */
+    public function getColumnName($field, $namingScheme = null)
+    {
+        if (!$namingScheme) {
+            $namingScheme = $this->columnNameScheme;
+        }
+
+        return $this->forceNamingScheme($field, $namingScheme);
+    }
+
+    /**
+     * Get the column name with $namingScheme or default naming scheme
+     *
+     * @param $name
+     * @param null $namingScheme
+     * @return string
+     */
+    public function getMethodName($name, $namingScheme = null)
+    {
+        if (!$namingScheme) {
+            $namingScheme = $this->methodNameScheme;
+        }
 
         return $this->forceNamingScheme($name, $namingScheme);
     }
@@ -140,7 +201,7 @@ class Namer
      * @return string
      * @throws InvalidConfiguration
      */
-    protected function forceNamingScheme($name, $namingScheme)
+    public function forceNamingScheme($name, $namingScheme)
     {
         $words = explode('_', preg_replace(
             '/([a-z0-9])([A-Z])/',

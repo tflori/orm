@@ -43,11 +43,11 @@ abstract class Entity implements \Serializable
 
     /** The naming scheme to use for column names.
      * @var string */
-    protected static $namingSchemeColumn = 'snake_lower';
+    protected static $namingSchemeColumn;
 
     /** The naming scheme to use for method names.
      * @var string */
-    protected static $namingSchemeMethods = 'camelCase';
+    protected static $namingSchemeMethods;
 
     /** Whether or not the naming got used
      * @var bool */
@@ -131,12 +131,10 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $reflection = self::getReflection();
 
-            $template = new Namer();
-            $tableName = $template->getTableName(
-                $reflection,
-                static::getTableNameTemplate(),
-                static::getNamingSchemeTable()
-            );
+            $em = EntityManager::getInstance(static::class);
+            $tnt = static::$tableNameTemplate;
+            $nst = static::$namingSchemeTable;
+            $tableName = $em->getNamer()->getTableName($reflection, $tnt, $nst);
 
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
@@ -171,16 +169,15 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $colName = $field;
 
-            $namingScheme = static::getNamingSchemeColumn();
+            $em = EntityManager::getInstance(static::class);
+            $namer = $em->getNamer();
 
-            if (static::$columnPrefix &&
-                strpos($colName, self::forceNamingScheme(static::$columnPrefix, $namingScheme)) !== 0
-            ) {
+            if (static::$columnPrefix && strpos($colName, static::$columnPrefix) !== 0) {
                 $colName = static::$columnPrefix . $colName;
             }
 
             self::$calculatedColumnNames[static::class][$field] =
-                self::forceNamingScheme($colName, $namingScheme);
+                $namer->getColumnName($colName, static::$namingSchemeColumn);
         }
 
         return self::$calculatedColumnNames[static::class][$field];
@@ -272,90 +269,6 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * @return string
-     */
-    public static function getTableNameTemplate()
-    {
-        return static::$tableNameTemplate;
-    }
-
-    /**
-     * @param string $tableNameTemplate
-     * @throws InvalidConfiguration
-     */
-    public static function setTableNameTemplate($tableNameTemplate)
-    {
-        if (static::$namingUsed) {
-            throw new InvalidConfiguration('Template can not be changed afterwards');
-        }
-
-        static::$tableNameTemplate = $tableNameTemplate;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getNamingSchemeTable()
-    {
-        return static::$namingSchemeTable;
-    }
-
-    /**
-     * @param string $namingSchemeTable
-     * @throws InvalidConfiguration
-     */
-    public static function setNamingSchemeTable($namingSchemeTable)
-    {
-        if (static::$namingUsed) {
-            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
-        }
-
-        static::$namingSchemeTable = $namingSchemeTable;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getNamingSchemeColumn()
-    {
-        return static::$namingSchemeColumn;
-    }
-
-    /**
-     * @param string $namingSchemeColumn
-     * @throws InvalidConfiguration
-     */
-    public static function setNamingSchemeColumn($namingSchemeColumn)
-    {
-        if (static::$namingUsed) {
-            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
-        }
-
-        static::$namingSchemeColumn = $namingSchemeColumn;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getNamingSchemeMethods()
-    {
-        return static::$namingSchemeMethods;
-    }
-
-    /**
-     * @param string $namingSchemeMethods
-     * @throws InvalidConfiguration
-     */
-    public static function setNamingSchemeMethods($namingSchemeMethods)
-    {
-        if (static::$namingUsed) {
-            throw new InvalidConfiguration('Naming scheme can not be changed afterwards');
-        }
-
-        static::$namingSchemeMethods = $namingSchemeMethods;
-    }
-
-    /**
      * Get the primary key vars
      *
      * The primary key can consist of multiple columns. You should configure the vars that are translated to these
@@ -388,67 +301,6 @@ abstract class Entity implements \Serializable
     public static function describe(EntityManager $entityManager)
     {
         return $entityManager->describe(static::getTableName());
-    }
-
-    /**
-     * Enforce $namingScheme to $name
-     *
-     * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
-     * and UPPER.
-     *
-     * @param string $name         The name of the var / column
-     * @param string $namingScheme The naming scheme to use
-     * @return string
-     * @throws InvalidConfiguration
-     */
-    protected static function forceNamingScheme($name, $namingScheme)
-    {
-        $words = explode('_', preg_replace(
-            '/([a-z0-9])([A-Z])/',
-            '$1_$2',
-            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($d) {
-                return ($d[1] ? $d[1] . '_' : '') . $d[2] . '_' . $d[3];
-            }, $name)
-        ));
-
-        switch ($namingScheme) {
-            case 'snake_case':
-                $newName = implode('_', $words);
-                break;
-
-            case 'snake_lower':
-                $newName = implode('_', array_map('strtolower', $words));
-                break;
-
-            case 'SNAKE_UPPER':
-                $newName = implode('_', array_map('strtoupper', $words));
-                break;
-
-            case 'Snake_Ucfirst':
-                $newName = implode('_', array_map('ucfirst', $words));
-                break;
-
-            case 'camelCase':
-                $newName = lcfirst(implode('', array_map('ucfirst', array_map('strtolower', $words))));
-                break;
-
-            case 'StudlyCaps':
-                $newName = implode('', array_map('ucfirst', array_map('strtolower', $words)));
-                break;
-
-            case 'lower':
-                $newName = implode('', array_map('strtolower', $words));
-                break;
-
-            case 'UPPER':
-                $newName = implode('', array_map('strtoupper', $words));
-                break;
-
-            default:
-                throw new InvalidConfiguration('Naming scheme ' . $namingScheme . ' unknown');
-        }
-
-        return $newName;
     }
 
     /**
@@ -512,8 +364,8 @@ abstract class Entity implements \Serializable
     {
         $col = $this->getColumnName($var);
 
-        static::$namingUsed = true;
-        $setter = self::forceNamingScheme('set' . ucfirst($var), static::getNamingSchemeMethods());
+        $em = $this->entityManager ?: EntityManager::getInstance(static::class);
+        $setter = $em->getNamer()->getMethodName('set' . ucfirst($var), self::$namingSchemeMethods);
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
             $oldValue = $this->__get($var);
             $md5OldData = md5(serialize($this->data));
@@ -543,7 +395,8 @@ abstract class Entity implements \Serializable
      */
     public function __get($var)
     {
-        $getter = self::forceNamingScheme('get' . ucfirst($var), static::getNamingSchemeMethods());
+        $em = $this->entityManager ?: EntityManager::getInstance(static::class);
+        $getter = $em->getNamer()->getMethodName('get' . ucfirst($var), self::$namingSchemeMethods);
         if (method_exists($this, $getter) && is_callable([$this, $getter])) {
             return $this->$getter();
         } else {
@@ -893,5 +746,88 @@ abstract class Entity implements \Serializable
     {
         list($this->data, $this->relatedObjects) = unserialize($serialized);
         $this->onInit(false);
+    }
+
+
+    // DEPRECATED stuff
+
+    /**
+     * @return string
+     * @deprecated use getOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function getTableNameTemplate()
+    {
+        return static::$tableNameTemplate;
+    }
+
+    /**
+     * @param string $tableNameTemplate
+     * @deprecated use setOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function setTableNameTemplate($tableNameTemplate)
+    {
+        static::$tableNameTemplate = $tableNameTemplate;
+    }
+
+    /**
+     * @return string
+     * @deprecated use getOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function getNamingSchemeTable()
+    {
+        return static::$namingSchemeTable;
+    }
+
+    /**
+     * @param string $namingSchemeTable
+     * @deprecated use setOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function setNamingSchemeTable($namingSchemeTable)
+    {
+        static::$namingSchemeTable = $namingSchemeTable;
+    }
+
+    /**
+     * @return string
+     * @deprecated use getOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function getNamingSchemeColumn()
+    {
+        return static::$namingSchemeColumn;
+    }
+
+    /**
+     * @param string $namingSchemeColumn
+     * @deprecated use setOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function setNamingSchemeColumn($namingSchemeColumn)
+    {
+        static::$namingSchemeColumn = $namingSchemeColumn;
+    }
+
+    /**
+     * @return string
+     * @deprecated use getOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function getNamingSchemeMethods()
+    {
+        return static::$namingSchemeMethods;
+    }
+
+    /**
+     * @param string $namingSchemeMethods
+     * @deprecated use setOption from EntityManager
+     * @codeCoverageIgnore deprecated
+     */
+    public static function setNamingSchemeMethods($namingSchemeMethods)
+    {
+        static::$namingSchemeMethods = $namingSchemeMethods;
     }
 }
