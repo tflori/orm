@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type;
 
+use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Type\Boolean;
 use ORM\Test\TestCase;
 
@@ -47,6 +48,10 @@ class BooleanTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+//        if ($expected === false) {
+//            self::assertInstanceOf(NotValid::class, $result);
+//        } else {
+            self::assertSame($expected, $result);
+//        }
     }
 }

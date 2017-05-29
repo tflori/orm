@@ -76,19 +76,12 @@ class Pgsql extends Dbal
         }
 
         $cols = array_map(function ($columnDefinition) {
-            return Column::factory($columnDefinition, $this->getType($columnDefinition));
+            if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
+                $columnDefinition['type'] = static::$typeMapping[$columnDefinition['data_type']];
+            }
+            return new Column($this, $columnDefinition);
         }, $rawColumns);
 
-        return $cols;
-    }
-
-    protected function getType($columnDefinition)
-    {
-        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            $factory = [static::$typeMapping[$columnDefinition['data_type']], 'factory'];
-            return call_user_func($factory, $this, $columnDefinition);
-        }
-
-        return parent::getType($columnDefinition);
+        return new Table($cols);
     }
 }

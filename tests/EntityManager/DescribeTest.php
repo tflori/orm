@@ -3,29 +3,42 @@
 namespace ORM\Test\EntityManager;
 
 use ORM\Dbal\Column;
-use ORM\Dbal\Type\Number;
+use ORM\Dbal\Table;
 use ORM\Test\TestCase;
 
 class DescribeTest extends TestCase
 {
+    /** @var Table */
+    protected $table;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->table = new Table([new Column($this->dbal, [
+            'column_name' => 'id',
+            'data_type' => 'int',
+            'column_default' => 'sequence(AUTO_INCREMENT)',
+            'is_nullable' => false
+        ])]);
+    }
+
     public function testCallsDescribeFromDbal()
     {
-        $column = new Column('id', new Number(), true, false);
-        $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn([$column]);
+        $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn($this->table);
 
         $description = $this->em->describe('db.table');
 
-        self::assertSame([$column], $description);
+        self::assertSame($this->table, $description);
     }
 
     public function testRemembersPreviousCalls()
     {
-        $column = new Column('id', new Number(), true, false);
-        $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn([$column]);
+        $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn($this->table);
         $this->em->describe('db.table');
 
         $description = $this->em->describe('db.table');
 
-        self::assertSame([$column], $description);
+        self::assertSame($this->table, $description);
     }
 }

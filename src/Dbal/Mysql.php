@@ -65,11 +65,10 @@ class Mysql extends Dbal
 
         $cols = [];
         while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
-            $columnDefinition = $this->normalizeColumnDefinition($rawColumn);
-            $cols[] = Column::factory($columnDefinition, $this->getType($columnDefinition));
+            $cols[] = new Column($this, $this->normalizeColumnDefinition($rawColumn));
         }
 
-        return $cols;
+        return new Table($cols);
     }
 
     /**
@@ -84,7 +83,12 @@ class Mysql extends Dbal
     protected function normalizeColumnDefinition($rawColumn)
     {
         $definition = [];
+
         $definition['data_type'] = $this->normalizeType($rawColumn['Type']);
+        if (isset(static::$typeMapping[$definition['data_type']])) {
+            $definition['type'] = static::$typeMapping[$definition['data_type']];
+        }
+
         $definition['column_name'] = $rawColumn['Field'];
         $definition['is_nullable'] = $rawColumn['Null'] === 'YES';
         $definition['column_default'] = $rawColumn['Default'] !== null ? $rawColumn['Default'] :
@@ -111,13 +115,8 @@ class Mysql extends Dbal
         return $definition;
     }
 
-    protected function getType($columnDefinition)
+    public function getTypeClass($dataType)
     {
-        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            $factory = [static::$typeMapping[$columnDefinition['data_type']], 'factory'];
-            return call_user_func($factory, $this, $columnDefinition);
-        }
-
-        return parent::getType($columnDefinition);
+        return isset(static::$typeMapping[$dataType]) ? static::$typeMapping[$dataType] : null;
     }
 }

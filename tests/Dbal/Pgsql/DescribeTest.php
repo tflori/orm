@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Pgsql;
 
+use ORM\Dbal\Column;
 use ORM\Dbal\Pgsql;
 use ORM\Dbal\Type;
 use ORM\Exception;
@@ -98,6 +99,7 @@ class DescribeTest extends TestCase
             ]
         ]);
 
+        /** @var Column[] $cols */
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
@@ -110,7 +112,7 @@ class DescribeTest extends TestCase
             [
                 [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
                   'character_maximum_length' => null, 'datetime_precision' => null ],
-                'getName', 'a'
+                'name', 'a'
             ],
             [
                 [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
@@ -131,12 +133,12 @@ class DescribeTest extends TestCase
             [
                 [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'NO', 'column_default' => '0',
                   'character_maximum_length' => null, 'datetime_precision' => null ],
-                'isNullable', false
+                'nullable', false
             ],
             [
                 [ 'column_name' => 'a', 'data_type' => 'int', 'is_nullable' => 'YES', 'column_default' => null,
                   'character_maximum_length' => null, 'datetime_precision' => null ],
-                'isNullable', true
+                'nullable', true
             ],
         ];
     }
@@ -150,9 +152,14 @@ class DescribeTest extends TestCase
         $this->pdo->shouldReceive('query')->andReturn($statement);
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)->once()->andReturn([$data]);
 
+        /** @var Column[] $cols */
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
-        self::assertSame($expected, call_user_func([$cols[0], $method]));
+        if (!is_callable([$cols[0], $method])) {
+            self::assertSame($expected, $cols[0]->$method);
+        } else {
+            self::assertSame($expected, call_user_func([$cols[0], $method]));
+        }
     }
 }

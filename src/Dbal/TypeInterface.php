@@ -28,7 +28,7 @@ interface TypeInterface
      * Check if $value is valid for this type.
      *
      * @param mixed $value
-     * @return boolean
+     * @return boolean|Error
      */
     public function validate($value);
 }

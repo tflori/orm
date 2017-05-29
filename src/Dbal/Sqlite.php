@@ -68,10 +68,10 @@ class Sqlite extends Dbal
 
         $cols = array_map(function ($rawColumn) use ($hasMultiplePrimaryKey) {
             $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
-            return Column::factory($columnDefinition, $this->getType($columnDefinition));
+            return new Column($this, $columnDefinition);
         }, $rawColumns);
 
-        return $cols;
+        return new Table($cols);
     }
 
     /**
@@ -99,7 +99,12 @@ class Sqlite extends Dbal
     protected function normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey = false)
     {
         $definition = [];
+
         $definition['data_type'] = $this->normalizeType($rawColumn['type']);
+        if (isset(static::$typeMapping[$definition['data_type']])) {
+            $definition['type'] = static::$typeMapping[$definition['data_type']];
+        }
+
         $definition['column_name'] = $rawColumn['name'];
         $definition['is_nullable'] = $rawColumn['notnull'] === '0';
         $definition['column_default'] = $rawColumn['dflt_value'];
@@ -124,15 +129,5 @@ class Sqlite extends Dbal
         }
 
         return $definition;
-    }
-
-    protected function getType($columnDefinition)
-    {
-        if (isset(static::$typeMapping[$columnDefinition['data_type']])) {
-            $factory = [static::$typeMapping[$columnDefinition['data_type']], 'factory'];
-            return call_user_func($factory, $this, $columnDefinition);
-        }
-
-        return parent::getType($columnDefinition);
     }
 }

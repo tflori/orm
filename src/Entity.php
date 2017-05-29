@@ -9,8 +9,8 @@ use ORM\Exceptions\InvalidRelation;
 use ORM\Exceptions\InvalidName;
 use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
-use ORM\Dbal\Validator\Error;
-use ORM\Dbal\Validator;
+use ORM\Dbal\Error;
+use ORM\Dbal\Table;
 
 /**
  * Definition of an entity
@@ -35,11 +35,11 @@ abstract class Entity implements \Serializable
 
     /** The template to use to calculate the table name.
      * @var string */
-    protected static $tableNameTemplate = '%short%';
+    protected static $tableNameTemplate;
 
     /** The naming scheme to use for table names.
      * @var string */
-    protected static $namingSchemeTable = 'snake_lower';
+    protected static $namingSchemeTable;
 
     /** The naming scheme to use for column names.
      * @var string */
@@ -108,9 +108,9 @@ abstract class Entity implements \Serializable
      * @var \ReflectionClass[] */
     protected static $reflections = [];
 
-    /** Validators for Entities
-     * @var Validator[] */
-    protected static $validators = [];
+    /** Fetched table descriptions
+     * @var Table[] */
+    protected static $tableDescriptions = [];
 
     /**
      * Get the table name
@@ -131,69 +131,45 @@ abstract class Entity implements \Serializable
             static::$namingUsed = true;
             $reflection = self::getReflection();
 
-            $tableName = preg_replace_callback('/%([a-z]+)(\[(-?\d+)(\*)?\])?%/', function ($match) use ($reflection) {
-                switch ($match[1]) {
-                    case 'short':
-                        $words = [$reflection->getShortName()];
-                        break;
-
-                    case 'namespace':
-                        $words = explode('\\', $reflection->getNamespaceName());
-                        break;
-
-                    case 'name':
-                        $words = preg_split('/[\\\\_]+/', $reflection->getName());
-                        break;
-
-                    default:
-                        throw new InvalidConfiguration(
-                            'Template invalid: Placeholder %' . $match[1] . '% is not allowed'
-                        );
-                }
-
-                if (!isset($match[2])) {
-                    return implode('_', $words);
-                }
-                $from = $match[3][0] === '-' ? count($words) - substr($match[3], 1) : $match[3];
-                if (isset($words[$from])) {
-                    return !isset($match[4]) ?
-                        $words[$from] : implode('_', array_slice($words, $from));
-                }
-                return '';
-            }, static::getTableNameTemplate());
+            $template = new Namer();
+            $tableName = $template->getTableName(
+                $reflection,
+                static::getTableNameTemplate(),
+                static::getNamingSchemeTable()
+            );
 
             if (empty($tableName)) {
                 throw new InvalidName('Table name can not be empty');
             }
-            self::$calculatedTableNames[static::class] =
-                self::forceNamingScheme($tableName, static::getNamingSchemeTable());
+
+            self::$calculatedTableNames[static::class] = $tableName;
         }
 
         return self::$calculatedTableNames[static::class];
     }
 
     /**
-     * Get the column name of $name
+     * Get the column name of $field
      *
      * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
      * to $namingSchemeColumn.
      *
-     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
+     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
      * the same as getColumnName($name).
      *
-     * @param string $var
+     * @param string $field
      * @return string
      * @throws InvalidConfiguration
      */
-    public static function getColumnName($var)
+    public static function getColumnName($field)
     {
-        if (isset(static::$columnAliases[$var])) {
-            return static::$columnAliases[$var];
+        if (isset(static::$columnAliases[$field])) {
+            return static::$columnAliases[$field];
         }
 
-        if (!isset(self::$calculatedColumnNames[static::class][$var])) {
+        if (!isset(self::$calculatedColumnNames[static::class][$field])) {
             static::$namingUsed = true;
-            $colName = $var;
+            $colName = $field;
 
             $namingScheme = static::getNamingSchemeColumn();
 
@@ -203,11 +179,11 @@ abstract class Entity implements \Serializable
                 $colName = static::$columnPrefix . $colName;
             }
 
-            self::$calculatedColumnNames[static::class][$var] =
+            self::$calculatedColumnNames[static::class][$field] =
                 self::forceNamingScheme($colName, $namingScheme);
         }
 
-        return self::$calculatedColumnNames[static::class][$var];
+        return self::$calculatedColumnNames[static::class][$field];
     }
 
     /**
@@ -242,11 +218,11 @@ abstract class Entity implements \Serializable
      */
     public static function initValidator(EntityManager $entityManager)
     {
-        if (isset(self::$validators[static::class])) {
+        if (isset(self::$tableDescriptions[static::class])) {
             return;
         }
 
-        self::$validators[static::class] = new Validator(static::describe($entityManager));
+        self::$tableDescriptions[static::class] = static::describe($entityManager);
     }
 
     /**
@@ -256,7 +232,7 @@ abstract class Entity implements \Serializable
      */
     public static function validatorIsInitialized()
     {
-        return isset(self::$validators[static::class]);
+        return isset(self::$tableDescriptions[static::class]);
     }
 
     /**
@@ -269,13 +245,13 @@ abstract class Entity implements \Serializable
      */
     public static function validate($field, $value)
     {
-        if (!isset(self::$validators[static::class])) {
+        if (!isset(self::$tableDescriptions[static::class])) {
             throw new Exception('Validator not initialized yet');
         }
 
-        $validator = self::$validators[static::class];
+        $table = self::$tableDescriptions[static::class];
 
-        return $validator->validate(static::getColumnName($field), $value);
+        return $table->validate(static::getColumnName($field), $value);
     }
 
     /**

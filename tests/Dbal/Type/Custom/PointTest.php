@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type\Custom;
 
+use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Mysql;
 use ORM\Dbal\Type\Number;
@@ -33,36 +34,36 @@ class PointTest extends TestCase
     public function tearDown()
     {
         parent::tearDown();
-        CustomDbal::resetRegisteredTypes();
+        CustomColumn::resetRegisteredTypes();
     }
 
     public function testRegister()
     {
-        Dbal::registerType(Point::class);
+        Column::registerType(Point::class);
 
-        self::assertSame([Point::class], CustomDbal::getRegisteredTypes());
+        self::assertSame([Point::class], CustomColumn::getRegisteredTypes());
     }
 
     public function testRegisterUniqueTypes()
     {
-        Dbal::registerType(Point::class);
-        Dbal::registerType(Point::class);
+        Column::registerType(Point::class);
+        Column::registerType(Point::class);
 
-        self::assertSame([Point::class], CustomDbal::getRegisteredTypes());
+        self::assertSame([Point::class], CustomColumn::getRegisteredTypes());
     }
 
     public function testAllowsInstances()
     {
         $point = new Point();
-        Dbal::registerType($point);
+        Column::registerType($point);
 
-        self::assertSame([$point], CustomDbal::getRegisteredTypes());
+        self::assertSame([$point], CustomColumn::getRegisteredTypes());
     }
 
     public function testExecutesFromDefinitionForUnknownTypes()
     {
         $point = \Mockery::mock(Point::class);
-        Dbal::registerType($point);
+        Column::registerType($point);
         $point->shouldReceive('fits')->once()->with([
             'data_type' => 'point',
             'column_name' => 'another_point',
@@ -73,36 +74,39 @@ class PointTest extends TestCase
         ])->andReturn(false);
 
         $cols = $this->dbal->describe('db.table');
+        $cols[0]->getType();
     }
 
     public function testExecutesFromDefinitionFromNextType()
     {
-        Dbal::registerType(Number::class);
+        Column::registerType(Number::class);
         $point = \Mockery::mock(new Point());
-        Dbal::registerType($point);
+        Column::registerType($point);
 
         $point->shouldReceive('fits')->once()->andReturn(null);
 
         $cols = $this->dbal->describe('db.table');
+        $cols[0]->getType();
     }
 
     public function testExecutesLastRegisteredFirst()
     {
         $int = \Mockery::mock(new Number());
         $point = \Mockery::mock(new Point());
-        Dbal::registerType($int);
-        Dbal::registerType($point);
+        Column::registerType($int);
+        Column::registerType($point);
 
         $point->shouldReceive('fits')->globally()->once()->ordered()->andReturn(false);
         $int->shouldReceive('fits')->globally()->once()->ordered()->andReturn(false);
 
         $cols = $this->dbal->describe('db.table');
+        $cols[0]->getType();
     }
 
     public function testReturnsTheReturnedType()
     {
         $point = \Mockery::mock(new Point());
-        Dbal::registerType($point);
+        Column::registerType($point);
 
         $point->shouldReceive('fits')->once()->andReturn(true);
         $point->shouldReceive('factory')->once()->andReturnSelf();

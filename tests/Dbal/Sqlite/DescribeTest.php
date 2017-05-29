@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Sqlite;
 
+use ORM\Dbal\Column;
 use ORM\Dbal\Sqlite;
 use ORM\Dbal\Type;
 use ORM\Exception;
@@ -48,7 +49,7 @@ class DescribeTest extends TestCase
         return [
             [
                 ['cid' => 0, 'name' => 'a', 'type' => 'integer', 'notnull' => '0', 'pk' => '0', 'dflt_value' => null],
-                'getName', 'a'
+                'name', 'a'
             ],
             [
                 ['cid' => 0, 'name' => 'a', 'type' => 'integer', 'notnull' => '0', 'pk' => '0', 'dflt_value' => '0'],
@@ -64,11 +65,11 @@ class DescribeTest extends TestCase
             ],
             [
                 ['cid' => 0, 'name' => 'a', 'type' => 'integer', 'notnull' => '1', 'pk' => '0', 'dflt_value' => '0'],
-                'isNullable', false
+                'nullable', false
             ],
             [
                 ['cid' => 0, 'name' => 'a', 'type' => 'integer', 'notnull' => '0', 'pk' => '0', 'dflt_value' => null],
-                'isNullable', true
+                'nullable', true
             ],
         ];
     }
@@ -85,7 +86,11 @@ class DescribeTest extends TestCase
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
-        self::assertSame($expected, call_user_func([$cols[0], $method]));
+        if (!is_callable([$cols[0], $method])) {
+            self::assertSame($expected, $cols[0]->$method);
+        } else {
+            self::assertSame($expected, call_user_func([$cols[0], $method]));
+        }
     }
 
     public function testMultiplePrimaryKeyHasNoDefault()

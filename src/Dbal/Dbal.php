@@ -17,9 +17,9 @@ abstract class Dbal
 {
     /** @var EntityManager */
     protected $entityManager;
-    /** @var string[] */
-    protected static $registeredTypes = [];
 
+    /** @var array */
+    protected static $typeMapping = [];
     /** @var string */
     protected static $quotingCharacter = '"';
     /** @var string */
@@ -86,7 +86,7 @@ abstract class Dbal
      * Describe a table
      *
      * @param string $table
-     * @return Column[]
+     * @return Table|Column[]
      * @throws UnsupportedDriver
      */
     public function describe($table)
@@ -171,18 +171,6 @@ abstract class Dbal
         $this->entityManager->getConnection()->query($statement);
 
         return true;
-    }
-
-    /**
-     * Register $type for describe
-     *
-     * @param string $type The full qualified class name
-     */
-    public static function registerType($type)
-    {
-        if (!in_array($type, static::$registeredTypes)) {
-            array_unshift(static::$registeredTypes, $type);
-        }
     }
 
     /**
@@ -305,24 +293,5 @@ abstract class Dbal
         }
 
         return null;
-    }
-
-    /**
-     * Get the type for $columnDefinition
-     *
-     * Executes fromDefinition of each registered Type
-     *
-     * @param array $columnDefinition
-     * @return TypeInterface
-     */
-    protected function getType($columnDefinition)
-    {
-        foreach (self::$registeredTypes as $class) {
-            if (call_user_func([$class, 'fits'], $columnDefinition)) {
-                return call_user_func([$class, 'factory'], $this, $columnDefinition);
-            }
-        }
-
-        return new Type\Text();
     }
 }

@@ -3,9 +3,12 @@
 namespace ORM\Test\Entity;
 
 use ORM\Dbal\Column;
+use ORM\Dbal\Mysql;
+use ORM\Dbal\Table;
 use ORM\Dbal\Type\Integer;
 use ORM\Dbal\Type\Number;
 use ORM\Dbal\Type\VarChar;
+use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
@@ -24,15 +27,29 @@ class ValidateTest extends TestCase
     {
         parent::setUpBeforeClass();
 
-        self::$columnId = new Column('id', \Mockery::mock(Number::class), true, false);
-        self::$columnTitle = new Column('title', \Mockery::mock(VarChar::class), false, false);
-        self::$columnIntroText = new Column('intro_text', \Mockery::mock(VarChar::class), false, true);
+        $dbal = new Mysql(new EntityManager());
+
+        self::$columnId = \Mockery::mock(Column::class, [$dbal, [
+            'column_name' => 'id',
+            'column_default' => 'sequence(AUTO_INCREMENT)',
+            'is_nullable' => false
+        ]])->makePartial();
+        self::$columnTitle = \Mockery::mock(Column::class, [$dbal, [
+            'column_name' => 'title',
+            'column_default' => null,
+            'is_nullable' => false
+        ]])->makePartial();
+        self::$columnIntroText = \Mockery::mock(Column::class, [$dbal, [
+            'column_name' => 'intro_text',
+            'column_default' => null,
+            'is_nullable' => true
+        ]])->makePartial();
     }
 
     public function testInitValidatorWithoutStaticDescription()
     {
         $articleDescription = [self::$columnId, self::$columnTitle, self::$columnIntroText];
-        $this->em->shouldReceive('describe')->with('article')->once()->andReturn($articleDescription);
+        $this->em->shouldReceive('describe')->with('article')->once()->andReturn(new Table($articleDescription));
 
         Article::initValidator($this->em);
     }
@@ -69,7 +86,7 @@ class ValidateTest extends TestCase
      */
     public function testValidateUsesValidator()
     {
-        self::$columnTitle->getType()->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
+        self::$columnTitle->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
 
         Article::validate('title', 'Hello World!');
     }
@@ -87,7 +104,7 @@ class ValidateTest extends TestCase
      */
     public function testConvertsFieldNamesToColumns()
     {
-        self::$columnIntroText->getType()->shouldReceive('validate')
+        self::$columnIntroText->shouldReceive('validate')
             ->with('This is just a test article.')->once()->andReturn(true);
 
         Article::validate('introText', 'This is just a test article.');
@@ -106,8 +123,8 @@ class ValidateTest extends TestCase
      */
     public function testValidateArray()
     {
-        self::$columnTitle->getType()->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
-        self::$columnIntroText->getType()->shouldReceive('validate')
+        self::$columnTitle->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
+        self::$columnIntroText->shouldReceive('validate')
             ->with('This is just a test article.')->once()->andReturn(true);
 
         $result = Article::validateArray([

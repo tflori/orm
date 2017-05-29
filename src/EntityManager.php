@@ -49,7 +49,11 @@ class EntityManager
 
     /** The Database Abstraction Layer
      * @var Dbal */
-    private $dbal;
+    protected $dbal;
+
+    /** The Namer instance
+     * @var Namer */
+    protected $namer;
 
     /** The Entity map
      * @var Entity[][] */
@@ -185,6 +189,55 @@ class EntityManager
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Get the Datbase Abstraction Layer
+     *
+     * @return Dbal
+     */
+    public function getDbal()
+    {
+        if (!$this->dbal) {
+            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
+            if (!class_exists($dbalClass)) {
+                $this->dbal = new Other($this);
+            } else {
+                $this->dbal = new $dbalClass($this);
+            }
+
+            // backward compatibility - deprecated
+            if (isset($this->options[$connectionType . 'True'])) {
+                $this->dbal->setBooleanTrue($this->options[$connectionType . 'True']);
+            }
+            if (isset($this->options[$connectionType . 'False'])) {
+                $this->dbal->setBooleanFalse($this->options[$connectionType . 'False']);
+            }
+            if (isset($this->options[self::OPT_QUOTING_CHARACTER])) {
+                $this->dbal->setQuotingCharacter($this->options[self::OPT_QUOTING_CHARACTER]);
+            }
+            if (isset($this->options[self::OPT_IDENTIFIER_DIVIDER])) {
+                $this->dbal->setIdentifierDivider($this->options[self::OPT_IDENTIFIER_DIVIDER]);
+            }
+        }
+
+        return $this->dbal;
+    }
+
+    /**
+     * Get the Namer instance
+     *
+     * @return Namer
+     * @codeCoverageIgnore trivial code...
+     */
+    public function getNamer()
+    {
+        if (!$this->namer) {
+            $this->namer = new Namer($this->options);
+        }
+
+        return $this->namer;
     }
 
     /**
@@ -343,35 +396,6 @@ class EntityManager
         }
 
         return $fetcher->one();
-    }
-
-    public function getDbal()
-    {
-        if (!$this->dbal) {
-            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
-            if (!class_exists($dbalClass)) {
-                $this->dbal = new Other($this);
-            } else {
-                $this->dbal = new $dbalClass($this);
-            }
-
-            // backward compatibility - deprecated
-            if (isset($this->options[$connectionType . 'True'])) {
-                $this->dbal->setBooleanTrue($this->options[$connectionType . 'True']);
-            }
-            if (isset($this->options[$connectionType . 'False'])) {
-                $this->dbal->setBooleanFalse($this->options[$connectionType . 'False']);
-            }
-            if (isset($this->options[self::OPT_QUOTING_CHARACTER])) {
-                $this->dbal->setQuotingCharacter($this->options[self::OPT_QUOTING_CHARACTER]);
-            }
-            if (isset($this->options[self::OPT_IDENTIFIER_DIVIDER])) {
-                $this->dbal->setIdentifierDivider($this->options[self::OPT_IDENTIFIER_DIVIDER]);
-            }
-        }
-
-        return $this->dbal;
     }
 
     /**
