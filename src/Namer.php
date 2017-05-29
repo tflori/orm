@@ -93,8 +93,8 @@ class Namer
         $name = $this->substitute($template, [
             'short' => $reflection->getShortName(),
             'namespace' => explode('\\', $reflection->getNamespaceName()),
-            'name' => preg_split('/[\\\\_]+/', $reflection->getName()),
-        ]);
+            'name' => preg_split('/[\\\\_]+/', $reflection->name),
+        ], '_');
 
         return $this->forceNamingScheme($name, $namingScheme);
     }
@@ -141,7 +141,7 @@ class Namer
      * @param string $arrayGlue
      * @return string
      */
-    public function substitute($template, $values = [], $arrayGlue = '_')
+    public function substitute($template, $values = [], $arrayGlue = ', ')
     {
         return preg_replace_callback(
             '/%(.*?)%/',
@@ -151,40 +151,7 @@ class Namer
                     return '%';
                 }
 
-                $var = trim($match[1]);
-
-                if (preg_match('/\[(-?\d+\*?)\]$/', $var, $arrayAccessor)) {
-                    $var = substr($var, 0, strpos($var, '['));
-                    $arrayAccessor = $arrayAccessor[1];
-                }
-
-                // throw when the variable is unknown
-                if (!array_key_exists($var, $values)) {
-                    throw new InvalidConfiguration(
-                        'Template invalid: Placeholder %' . $match[1] . '% is not allowed'
-                    );
-                }
-
-                if (is_scalar($values[$var]) || is_null($values[$var])) {
-                    return (string)$values[$var];
-                }
-
-                // otherwise we assume it is an array
-                $array = $values[$var];
-
-                if (isset($arrayAccessor[0])) {
-                    $from = $arrayAccessor[0] === '-' ?
-                        count($array) - abs($arrayAccessor) : (int)$arrayAccessor;
-
-                    if ($from >= count($array)) {
-                        return '';
-                    }
-
-                    $array = substr($arrayAccessor, -1) === '*' ?
-                        array_slice($array, $from) : [$array[$from]];
-                }
-
-                return implode($arrayGlue, $array);
+                return $this->getValue(trim($match[1]), $values, $arrayGlue);
             },
             $template
         );
@@ -249,5 +216,42 @@ class Namer
         }
 
         return $newName;
+    }
+
+    protected function getValue($var, $values, $arrayGlue)
+    {
+        $placeholder = '%' . $var . '%';
+        if (preg_match('/\[(-?\d+\*?)\]$/', $var, $arrayAccessor)) {
+            $var = substr($var, 0, strpos($var, '['));
+            $arrayAccessor = $arrayAccessor[1];
+        }
+
+        // throw when the variable is unknown
+        if (!array_key_exists($var, $values)) {
+            throw new InvalidConfiguration(
+                'Template invalid: Placeholder ' . $placeholder . ' is not allowed'
+            );
+        }
+
+        if (is_scalar($values[$var]) || is_null($values[$var])) {
+            return (string)$values[$var];
+        }
+
+        // otherwise we assume it is an array
+        $array = $values[$var];
+
+        if (isset($arrayAccessor[0])) {
+            $from = $arrayAccessor[0] === '-' ?
+                count($array) - abs($arrayAccessor) : (int)$arrayAccessor;
+
+            if ($from >= count($array)) {
+                return '';
+            }
+
+            $array = substr($arrayAccessor, -1) === '*' ?
+                array_slice($array, $from) : [$array[$from]];
+        }
+
+        return implode($arrayGlue, $array);
     }
 }

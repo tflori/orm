@@ -9,7 +9,7 @@ namespace ORM\Dbal;
  * @author  Thomas Flori <thflori@gmail.com>
  *
  * @property string name
- * @property type Type
+ * @property Type type
  * @property mixed default
  * @property bool nullable
  */

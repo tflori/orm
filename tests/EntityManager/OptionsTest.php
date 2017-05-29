@@ -89,26 +89,4 @@ class OptionsTest extends TestCase
             EntityManager::OPT_CONNECTION => 'something'
         ]);
     }
-
-    public function provideEntityStatics()
-    {
-        return [
-            [EntityManager::OPT_TABLE_NAME_TEMPLATE, 'tableNameTemplate', '%namespace%'],
-            [EntityManager::OPT_NAMING_SCHEME_TABLE, 'namingSchemeTable', 'StudlyCaps'],
-            [EntityManager::OPT_NAMING_SCHEME_COLUMN, 'namingSchemeColumn', 'StudlyCaps'],
-            [EntityManager::OPT_NAMING_SCHEME_METHODS, 'namingSchemeMethods', 'snake_case'],
-        ];
-    }
-
-    /**
-     * @dataProvider provideEntityStatics
-     */
-    public function testSetsEntityStaticsOnConstruct($option, $static, $value)
-    {
-        $em = new EntityManager([
-            $option => $value
-        ]);
-
-        self::assertSame($value, call_user_func([TestEntity::class, 'get' . ucfirst($static)]));
-    }
 }

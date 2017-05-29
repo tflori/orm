@@ -68,7 +68,7 @@ class EntityManager
     protected $descriptions = [];
 
     /** Mapping for EntityManager instances
-     * @var EntityManager[][] */
+     * @var EntityManager[string]|EntityManager[string][string] */
     protected static $emMapping = [
         'byClass' => [],
         'byNameSpace' => [],
@@ -104,7 +104,7 @@ class EntityManager
      */
     public static function getInstance($class = null)
     {
-        if (!$class) {
+        if (empty($class)) {
             $trace = debug_backtrace();
             if (empty($trace[1]['class'])) {
                 return self::$emMapping['last'];
@@ -199,22 +199,6 @@ class EntityManager
         switch ($option) {
             case self::OPT_CONNECTION:
                 $this->setConnection($value);
-                break;
-
-            case self::OPT_TABLE_NAME_TEMPLATE:
-                Entity::setTableNameTemplate($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_TABLE:
-                Entity::setNamingSchemeTable($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_COLUMN:
-                Entity::setNamingSchemeColumn($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_METHODS:
-                Entity::setNamingSchemeMethods($value);
                 break;
         }
 

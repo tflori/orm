@@ -38,7 +38,7 @@ abstract class Error
             [
                 'value' => (string)$value,
                 'column' => $column->name,
-                'type' => get_class($column->type)
+                'type' => get_class($column->getType())
             ]
         );
 
