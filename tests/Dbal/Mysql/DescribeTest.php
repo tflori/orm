@@ -90,7 +90,7 @@ class DescribeTest extends TestCase
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
-        self::assertInstanceOf($class, $cols[0]->getType());
+        self::assertInstanceOf($class, $cols[0]->type);
     }
 
     public function provideColumnData()

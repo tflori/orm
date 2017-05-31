@@ -25,6 +25,10 @@ class EntityManager
     const OPT_NAMING_SCHEME_TABLE    = 'namingSchemeTable';
     const OPT_NAMING_SCHEME_COLUMN   = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS  = 'namingSchemeMethods';
+    const OPT_QUOTING_CHARACTER      = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE           = 'true';
+    const OPT_BOOLEAN_FALSE          = 'false';
 
     /** @deprecated */
     const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
@@ -38,10 +42,6 @@ class EntityManager
     const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
-    /** @deprecated */
-    const OPT_QUOTING_CHARACTER      = 'quotingChar';
-    /** @deprecated */
-    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
 
     /** Connection to database
      * @var \PDO|callable|DbConfig */
@@ -291,25 +291,21 @@ class EntityManager
     {
         if (!$this->dbal) {
             $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+            $options = $this->options;
+            // backward compatibility - deprecated
+            if (isset($options[$connectionType . 'True']) && !isset($options[self::OPT_BOOLEAN_TRUE])) {
+                $options[self::OPT_BOOLEAN_TRUE] = $options[$connectionType . 'True'];
+            }
+            if (isset($options[$connectionType . 'False']) && !isset($options[self::OPT_BOOLEAN_FALSE])) {
+                $options[self::OPT_BOOLEAN_FALSE] = $options[$connectionType . 'False'];
+            }
+
             $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
             if (!class_exists($dbalClass)) {
                 $this->dbal = new Other($this);
             } else {
-                $this->dbal = new $dbalClass($this);
-            }
-
-            // backward compatibility - deprecated
-            if (isset($this->options[$connectionType . 'True'])) {
-                $this->dbal->setBooleanTrue($this->options[$connectionType . 'True']);
-            }
-            if (isset($this->options[$connectionType . 'False'])) {
-                $this->dbal->setBooleanFalse($this->options[$connectionType . 'False']);
-            }
-            if (isset($this->options[self::OPT_QUOTING_CHARACTER])) {
-                $this->dbal->setQuotingCharacter($this->options[self::OPT_QUOTING_CHARACTER]);
-            }
-            if (isset($this->options[self::OPT_IDENTIFIER_DIVIDER])) {
-                $this->dbal->setIdentifierDivider($this->options[self::OPT_IDENTIFIER_DIVIDER]);
+                $this->dbal = new $dbalClass($this, $options);
             }
         }
 

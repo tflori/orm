@@ -3,6 +3,7 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error;
 use ORM\Dbal\Type;
 
 /**
@@ -55,7 +56,13 @@ class DateTime extends Type
             return true;
         }
 
-        return false;
+        $error = new Error(
+            'NO_DATETIME',
+            '%value% is not a valid date or date time expression'
+        );
+        $error->addParams(['value' => (string)$value]);
+
+        return $error;
     }
 
     /**

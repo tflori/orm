@@ -2,6 +2,8 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\Error\NotValid;
+
 /**
  * Describes a column of a database table
  *
@@ -28,6 +30,23 @@ class Column
         if (!in_array($type, static::$registeredTypes)) {
             array_unshift(static::$registeredTypes, $type);
         }
+    }
+
+    /**
+     * Get the registered type for $columnDefinition
+     *
+     * @param array $columnDefinition
+     * @return string
+     */
+    protected static function getRegisteredType(array $columnDefinition)
+    {
+        foreach (self::$registeredTypes as $class) {
+            if (call_user_func([$class, 'fits'], $columnDefinition)) {
+                return $class;
+            }
+        }
+
+        return null;
     }
 
     /** @var array */
@@ -67,7 +86,17 @@ class Column
             return new Error\NotNullable($this);
         }
 
-        return $this->getType()->validate($value);
+        $valid = $this->getType()->validate($value);
+
+        if ($valid === false) {
+            return new NotValid($this, new Error());
+        }
+
+        if ($valid instanceof Error) {
+            return new NotValid($this, $valid);
+        }
+
+        return true;
     }
 
     public function __get($name)
@@ -98,19 +127,14 @@ class Column
     public function getType()
     {
         if (!$this->type) {
-            $class = null;
-
-            if (isset($this->columnDefinition['type']) && class_exists($this->columnDefinition['type'])) {
+            if (!isset($this->columnDefinition['type'])) {
+                $class = self::getRegisteredType($this->columnDefinition);
+            } else {
                 $class = $this->columnDefinition['type'];
             }
 
-            if (!$class) {
-                foreach (self::$registeredTypes as $c) {
-                    if (call_user_func([$c, 'fits'], $this->columnDefinition)) {
-                        $class = $c;
-                    }
-                }
-                $class = $class ?: Type\Text::class;
+            if ($class === null || !is_callable([$class, 'factory'])) {
+                $class = Type\Text::class;
             }
 
             $this->type = call_user_func([$class, 'factory'], $this->dbal, $this->columnDefinition);

@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type;
 
+use ORM\Dbal\Error;
 use ORM\Dbal\Type\DateTime;
 use ORM\Test\TestCase;
 
@@ -24,12 +25,12 @@ class DateTimeTest extends TestCase
             [$dt->format('Y-m-d\TH:i:s.u\Z'), true],
 
             // valid but no time
-            ['+01234-01-01', false],
-            ['-01234-01-01', false],
+            ['+01234-01-01', '+01234-01-01 is not a valid date or date time expression'],
+            ['-01234-01-01', '-01234-01-01 is not a valid date or date time expression'],
 
-            ['NOW()', false],
-            ['23rd of June \'84 5pm', false],
-            [$dt->format('r'), false],
+            ['NOW()', 'NOW() is not a valid date or date time expression'],
+            ['23rd of June \'84 5pm', '23rd of June \'84 5pm is not a valid date or date time expression'],
+            [$dt->format('r'), $dt->format('r') . ' is not a valid date or date time expression'],
         ];
     }
 
@@ -42,7 +43,12 @@ class DateTimeTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+        if ($expected !== true) {
+            self::assertInstanceOf(Error::class, $result);
+            self::assertSame($expected, $result->getMessage());
+        } else {
+            self::assertTrue($result);
+        }
     }
 
     public function provideValuesWithoutTime()
@@ -61,9 +67,9 @@ class DateTimeTest extends TestCase
             [$dt->format('c'), true],
             [$dt->format('Y-m-d\TH:i:s.u\Z'), true],
 
-            ['NOW()', false],
-            ['23rd of June \'84 5pm', false],
-            [$dt->format('r'), false],
+            ['NOW()', 'NOW() is not a valid date or date time expression'],
+            ['23rd of June \'84 5pm', '23rd of June \'84 5pm is not a valid date or date time expression'],
+            [$dt->format('r'), $dt->format('r') . ' is not a valid date or date time expression'],
         ];
     }
 
@@ -76,6 +82,11 @@ class DateTimeTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+        if ($expected !== true) {
+            self::assertInstanceOf(Error::class, $result);
+            self::assertSame($expected, $result->getMessage());
+        } else {
+            self::assertTrue($result);
+        }
     }
 }

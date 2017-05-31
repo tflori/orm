@@ -15,28 +15,54 @@ use ORM\Exceptions\UnsupportedDriver;
  */
 abstract class Dbal
 {
-    /** @var EntityManager */
-    protected $entityManager;
-
     /** @var array */
     protected static $typeMapping = [];
+
+    /** @var EntityManager */
+    protected $entityManager;
     /** @var string */
-    protected static $quotingCharacter = '"';
+    protected $quotingCharacter = '"';
     /** @var string */
-    protected static $identifierDivider = '.';
+    protected $identifierDivider = '.';
     /** @var string */
-    protected static $booleanTrue = '1';
+    protected $booleanTrue = '1';
     /** @var string */
-    protected static $booleanFalse = '0';
+    protected $booleanFalse = '0';
 
     /**
      * Dbal constructor.
      *
      * @param EntityManager $entityManager
      */
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManager $entityManager, $options = [])
     {
         $this->entityManager = $entityManager;
+
+        foreach ($options as $option => $value) {
+            $this->setOption($option, $value);
+        }
+    }
+
+    public function setOption($option, $value)
+    {
+        switch ($option) {
+            case EntityManager::OPT_IDENTIFIER_DIVIDER:
+                $this->identifierDivider = $value;
+                break;
+
+            case EntityManager::OPT_QUOTING_CHARACTER:
+                $this->quotingCharacter = $value;
+                break;
+
+            case EntityManager::OPT_BOOLEAN_TRUE:
+                $this->booleanTrue = $value;
+                break;
+
+            case EntityManager::OPT_BOOLEAN_FALSE:
+                $this->booleanFalse = $value;
+                break;
+        }
+        return $this;
     }
 
     /**
@@ -47,8 +73,8 @@ abstract class Dbal
      */
     public function escapeIdentifier($identifier)
     {
-        $q = static::$quotingCharacter;
-        $d = static::$identifierDivider;
+        $q = $this->quotingCharacter;
+        $d = $this->identifierDivider;
         return $q . str_replace($d, $q . $d . $q, $identifier) . $q;
     }
 
@@ -61,7 +87,12 @@ abstract class Dbal
      */
     public function escapeValue($value)
     {
-        switch (strtolower(gettype($value))) {
+        $type = gettype($value);
+        if ($type === 'object') {
+            $type = get_class($value);
+        }
+
+        switch ($type) {
             case 'string':
                 return $this->entityManager->getConnection()->quote($value);
 
@@ -71,11 +102,15 @@ abstract class Dbal
             case 'double':
                 return (string) $value;
 
-            case 'null':
+            case 'NULL':
                 return 'NULL';
 
             case 'boolean':
-                return ($value) ? static::$booleanTrue : static::$booleanFalse;
+                return ($value) ? $this->booleanTrue : $this->booleanFalse;
+
+            case 'DateTime':
+                $value->setTimezone(new \DateTimeZone('UTC'));
+                return $value->format('Y-m-d\TH:i:s.u\Z');
 
             default:
                 throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
@@ -171,70 +206,6 @@ abstract class Dbal
         $this->entityManager->getConnection()->query($statement);
 
         return true;
-    }
-
-    /**
-     * @param string $char
-     */
-    public static function setQuotingCharacter($char)
-    {
-        static::$quotingCharacter = $char;
-    }
-
-    /**
-     * @param string $divider
-     */
-    public static function setIdentifierDivider($divider)
-    {
-        static::$identifierDivider = $divider;
-    }
-
-    /**
-     * @param string $true
-     */
-    public static function setBooleanTrue($true)
-    {
-        static::$booleanTrue = $true;
-    }
-
-    /**
-     * @param string $false
-     */
-    public static function setBooleanFalse($false)
-    {
-        static::$booleanFalse = $false;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getQuotingCharacter()
-    {
-        return static::$quotingCharacter;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getIdentifierDivider()
-    {
-        return static::$identifierDivider;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getBooleanTrue()
-    {
-        return static::$booleanTrue;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getBooleanFalse()
-    {
-        return static::$booleanFalse;
     }
 
     /**

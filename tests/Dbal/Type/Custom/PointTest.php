@@ -112,7 +112,8 @@ class PointTest extends TestCase
         $point->shouldReceive('factory')->once()->andReturnSelf();
 
         $cols = $this->dbal->describe('db.table');
+        $type = $cols[0]->getType();
 
-        self::assertSame($point, $cols[0]->getType());
+        self::assertSame($point, $type);
     }
 }

@@ -28,6 +28,24 @@ class NamerTest extends TestCase
         self::assertSame($namer->getTableName($reflection, '%name%', 'snake_lower'), $result);
     }
 
+    public function testDefaultColumnNamingScheme()
+    {
+        $namer = new Namer();
+
+        $result = $namer->getColumnName('someVar');
+
+        self::assertSame($namer->getColumnName('someVar', 'snake_lower'), $result);
+    }
+
+    public function testDefaultMethodNamingScheme()
+    {
+        $namer = new Namer();
+
+        $result = $namer->getMethodName('get_some_var');
+
+        self::assertSame($namer->getMethodName('get_some_var', 'camelCase'), $result);
+    }
+
     public function testTableNameTemplateOption()
     {
         $namer = new Namer([
@@ -50,6 +68,28 @@ class NamerTest extends TestCase
         $result = $namer->getTableName($reflection, '%name%');
 
         self::assertSame($namer->getTableName($reflection, '%name%', 'StudlyCaps'), $result);
+    }
+
+    public function testColumnNamingSchemeOption()
+    {
+        $namer = new Namer([
+            EntityManager::OPT_NAMING_SCHEME_COLUMN => 'StudlyCaps'
+        ]);
+
+        $result = $namer->getColumnName('some_var');
+
+        self::assertSame($namer->getColumnName('some_var', 'StudlyCaps'), $result);
+    }
+
+    public function testMethodNamingSchemeOption()
+    {
+        $namer = new Namer([
+            EntityManager::OPT_NAMING_SCHEME_METHODS => 'snake_lower'
+        ]);
+
+        $result = $namer->getMethodName('getSomeVar');
+
+        self::assertSame($namer->getMethodName('getSomeVar', 'snake_lower'), $result);
     }
 
     public function testSubstituteEscaping()

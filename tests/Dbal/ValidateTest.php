@@ -4,6 +4,7 @@ namespace ORM\Test\Dbal;
 
 use Mockery\Mock;
 use ORM\Dbal\Column;
+use ORM\Dbal\Error;
 use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Type\Number;
 use ORM\Exception;
@@ -107,11 +108,28 @@ class ValidateTest extends TestCase
         $this->column->shouldReceive('getType')->andReturn($this->type);
 
         $this->type->shouldReceive('validate')->with(true)->once()->andReturn(
-            new NotValid($this->column, 'y', 'NO_BOOLEAN', '%value% is not a boolean')
+            new Error()
         );
 
         $result = $this->column->validate('y');
 
         self::assertInstanceOf(\ORM\Dbal\Error\NotValid::class, $result);
+    }
+
+    public function testReturnsNotValidOnFalse()
+    {
+        $this->column = \Mockery::mock(Column::class, [$this->dbal, [
+            'column_name' => 'colA',
+            'column_default' => null,
+            'is_nullable' => false
+        ]])->makePartial();
+        $this->column->shouldReceive('getType')->andReturn($this->type);
+
+        $this->type->shouldReceive('validate')->with(true)->once()->andReturn(false);
+
+        $result = $this->column->validate('y');
+
+        self::assertInstanceOf(\ORM\Dbal\Error\NotValid::class, $result);
+        self::assertSame('UNKNOWN', $result->getPrevious()->getCode());
     }
 }

@@ -10,8 +10,25 @@ class NotValid extends Error
     const ERROR_CODE = 'NOT_VALID';
 
     /** @var string */
-    protected $code = self::ERROR_CODE;
+    protected $message = 'Value not valid for %column% (Caused by: %previous%)';
 
-    /** @var string */
-    protected $message = 'Value not valid for this column';
+    /** @var Error */
+    protected $previous;
+
+    public function __construct(Column $column, Error $previous)
+    {
+        parent::__construct();
+
+        $this->previous = $previous;
+        $this->params['column'] = $column->name;
+        $this->params['previous'] = $previous->getMessage();
+    }
+
+    /**
+     * @return Error
+     */
+    public function getPrevious()
+    {
+        return $this->previous;
+    }
 }

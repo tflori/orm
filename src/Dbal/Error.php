@@ -3,47 +3,54 @@
 namespace ORM\Dbal;
 
 use ORM\Dbal\Column;
+use ORM\EntityManager;
 use ORM\Namer;
 
-abstract class Error
+class Error
 {
     const ERROR_CODE = 'UNKNOWN';
 
-    /** @var string */
-    protected $code = self::ERROR_CODE;
+    /** @var string[] */
+    protected $params = [
+        'code' => self::ERROR_CODE
+    ];
 
     /** @var string */
-    protected $message = '%value% is not valid for column %column% from type %type%';
-
-    /** @var mixed */
-    protected $value;
-
-    /** @var Column */
-    public $column;
+    protected $message = 'ERROR(%code%) occurred';
 
     /**
      * Error constructor.
-     *
-     * @param Column $column
+     * @param null $code
+     * @param null $message
      */
-    public function __construct(Column $column, $value = null, $code = null, $message = null)
+    public function __construct($code = null, $message = null)
     {
-        $this->column = $column;
-        $this->value = $value;
-        $this->code = static::ERROR_CODE;
+        // set code from concrete class
+        $this->params['code'] = static::ERROR_CODE;
 
-        $template = new Namer();
-        $this->message = $template->substitute(
-            $message ? $message : $this->message,
-            [
-                'value' => (string)$value,
-                'column' => $column->name,
-                'type' => get_class($column->getType())
-            ]
-        );
-
-        if ($code) {
-            $this->code = $code;
+        // overwrite message from params
+        if ($message) {
+            $this->message = $message;
         }
+
+        // overwrite code from params
+        if ($code) {
+            $this->params['code'] = $code;
+        }
+    }
+
+    public function addParams($params)
+    {
+        $this->params = array_merge($this->params, $params);
+    }
+
+    public function getMessage()
+    {
+        return EntityManager::getInstance()->getNamer()->substitute($this->message, $this->params);
+    }
+
+    public function getCode()
+    {
+        return $this->params['code'];
     }
 }

@@ -51,7 +51,7 @@ class Sqlite extends Dbal
 
     public function describe($schemaTable)
     {
-        $table = explode(static::$identifierDivider, $schemaTable);
+        $table = explode($this->identifierDivider, $schemaTable);
         list($schema, $table) = count($table) === 2 ? $table : [null, $table[0]];
         $schema = $schema !== null ? $this->escapeIdentifier($schema) . '.' : '';
 
