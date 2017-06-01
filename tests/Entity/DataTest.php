@@ -9,7 +9,7 @@ use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase

@@ -51,7 +51,7 @@ class ValidateTest extends TestCase
         $articleDescription = [self::$columnId, self::$columnTitle, self::$columnIntroText];
         $this->em->shouldReceive('describe')->with('article')->once()->andReturn(new Table($articleDescription));
 
-        Article::initValidator($this->em);
+        Article::initValidator();
     }
 
     /**

@@ -6,7 +6,7 @@ use ORM\Exceptions\InvalidConfiguration;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class ColumnNameTest extends TestCase
@@ -46,7 +46,6 @@ class ColumnNameTest extends TestCase
     {
         TestEntity::setNamingSchemeColumn('snake_lower');
         $colNameBefore = StudlyCaps::getColumnName('StudlyCaps');
-        TestEntity::resetNamingUsed();
         TestEntity::setNamingSchemeColumn('StudlyCaps');
 
         $colName = StudlyCaps::getColumnName('StudlyCaps');

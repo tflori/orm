@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Entity;
 
+use ORM\EntityManager;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\InvalidRelation;
@@ -187,12 +188,11 @@ class RelationsTest extends TestCase
         self::assertSame($table, $relationDefinition->getTable());
     }
 
-    public function testFetchRequiresEntityManager()
+    public function testGetsEntityManagerViaGetInstance()
     {
-        $entity = new Article();
-
-        self::expectException(NoEntityManager::class);
-        self::expectExceptionMessage('No entity manager given');
+        $entity = new Article(['id' => 42]);
+        $em = EntityManager::getInstance(Article::class);
+        $em->shouldReceive('fetch')->with(Category::class)->once()->passthru();
 
         $entity->fetch('categories');
     }
@@ -221,7 +221,7 @@ class RelationsTest extends TestCase
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
-        $entity->shouldReceive('fetch')->with($relation, null, true)->once()->andReturn($related);
+        $entity->shouldReceive('fetch')->with($relation, true)->once()->andReturn($related);
 
         $result = $entity->getRelated($relation);
 
@@ -235,7 +235,7 @@ class RelationsTest extends TestCase
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
-        $entity->shouldReceive('fetch')->with($relation, null, true)->once()->andReturn($related);
+        $entity->shouldReceive('fetch')->with($relation, true)->once()->andReturn($related);
         $entity->getRelated($relation);
 
         $result = $entity->getRelated($relation);
@@ -250,7 +250,7 @@ class RelationsTest extends TestCase
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
-        $entity->shouldReceive('fetch')->with($relation, null, true)->twice()->andReturn($related);
+        $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn($related);
         $entity->getRelated($relation);
 
         $result = $entity->getRelated($relation, true);
@@ -265,7 +265,7 @@ class RelationsTest extends TestCase
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
-        $entity->shouldReceive('fetch')->with($relation, null, true)->twice()->andReturn(null, $related);
+        $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn(null, $related);
         $entity->getRelated($relation);
 
         $result = $entity->getRelated($relation);
@@ -409,16 +409,6 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', []);
     }
 
-    public function testAddRelatedRequiresEntityManager()
-    {
-        $entity = new Article(['id' => 42]);
-
-        self::expectException(NoEntityManager::class);
-        self::expectExceptionMessage('No entity manager given');
-
-        $entity->addRelated('categories', [new Category(['id' => 23])]);
-    }
-
     public function testAddRelatedAllowsToPassEntityManager()
     {
         $article = new Article(['id' => 42]);
@@ -427,7 +417,7 @@ class RelationsTest extends TestCase
                   ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
                   ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
 
-        $article->addRelated('categories', [$category], $this->em);
+        $article->addRelated('categories', [$category]);
     }
 
     public function testDeleteRelatedDeletesTheAssociation()
@@ -502,16 +492,6 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', []);
     }
 
-    public function testDeleteRelatedRequiresEntityManager()
-    {
-        $entity = new Article(['id' => 42]);
-
-        self::expectException(NoEntityManager::class);
-        self::expectExceptionMessage('No entity manager given');
-
-        $entity->deleteRelated('categories', [new Category(['id' => 23])]);
-    }
-
     public function testDeleteRelatedAllowsToPassEntityManager()
     {
         $article = new Article(['id' => 42]);
@@ -521,7 +501,7 @@ class RelationsTest extends TestCase
                          'AND ("category_id" = 23)')
                   ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
 
-        $article->deleteRelated('categories', [$category], $this->em);
+        $article->deleteRelated('categories', [$category]);
     }
 
     public function testSerializeSavesRelated()

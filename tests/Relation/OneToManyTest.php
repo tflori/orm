@@ -62,7 +62,7 @@ class OneToManyTest extends TestCase
         $fetcher->shouldReceive('where')->with('relationId', 42)->once()->passthru();
         $fetcher->shouldReceive('all')->with()->once()->andReturn($related);
 
-        $result = $entity->fetch('contactPhones', null, true);
+        $result = $entity->fetch('contactPhones', true);
 
         self::assertSame($related, $result);
     }

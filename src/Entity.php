@@ -11,6 +11,7 @@ use ORM\Exceptions\NoEntityManager;
 use ORM\Exceptions\UndefinedRelation;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
+use ORM\EntityManager as EM;
 
 /**
  * Definition of an entity
@@ -49,10 +50,6 @@ abstract class Entity implements \Serializable
      * @var string */
     protected static $namingSchemeMethods;
 
-    /** Whether or not the naming got used
-     * @var bool */
-    protected static $namingUsed = false;
-
     /** Fixed table name (ignore other settings)
      * @var string */
     protected static $tableName;
@@ -77,22 +74,6 @@ abstract class Entity implements \Serializable
      * @var array */
     protected static $relations = [];
 
-    /** The current data of a row.
-     * @var mixed[] */
-    protected $data = [];
-
-    /** The original data of the row.
-     * @var mixed[] */
-    protected $originalData = [];
-
-    /** The entity manager from which this entity got created
-     * @var EntityManager*/
-    protected $entityManager;
-
-    /** Related objects for getRelated
-     * @var array */
-    protected $relatedObjects = [];
-
     /** Calculated table names.
      * @internal
      * @var string[] */
@@ -112,38 +93,56 @@ abstract class Entity implements \Serializable
      * @var Table[] */
     protected static $tableDescriptions = [];
 
+    /** The current data of a row.
+     * @var mixed[] */
+    protected $data = [];
+
+    /** The original data of the row.
+     * @var mixed[] */
+    protected $originalData = [];
+
+    /** The entity manager from which this entity got created
+     * @var EM */
+    protected $entityManager;
+
+    /** Related objects for getRelated
+     * @var array */
+    protected $relatedObjects = [];
+
     /**
-     * Get the table name
+     * Constructor
      *
-     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
-     * $tableName.
+     * It calls ::onInit() after initializing $data and $originalData.
      *
-     * @return string
-     * @throws InvalidName|InvalidConfiguration
+     * @param mixed[] $data The current data
+     * @param EM $entityManager The EntityManager that created this entity
+     * @param bool $fromDatabase Whether or not the data comes from database
      */
-    public static function getTableName()
+    final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
     {
-        if (static::$tableName) {
-            return static::$tableName;
+        if ($fromDatabase) {
+            $this->originalData = $data;
+        }
+        $this->data = array_merge($this->data, $data);
+        $this->entityManager = $entityManager ?: EM::getInstance(static::class);
+        $this->onInit(!$fromDatabase);
+    }
+
+    /**
+     * Get a description for this table.
+     *
+     * @return Table|Column[]
+     * @codeCoverageIgnore This is just a proxy
+     */
+    public static function describe()
+    {
+        if (!isset(self::$tableDescriptions[static::class])) {
+            $em = EM::getInstance(static::class);
+
+            self::$tableDescriptions[static::class] = $em->describe(static::getTableName());
         }
 
-        if (!isset(self::$calculatedTableNames[static::class])) {
-            static::$namingUsed = true;
-            $reflection = self::getReflection();
-
-            $em = EntityManager::getInstance(static::class);
-            $tnt = static::$tableNameTemplate;
-            $nst = static::$namingSchemeTable;
-            $tableName = $em->getNamer()->getTableName($reflection, $tnt, $nst);
-
-            if (empty($tableName)) {
-                throw new InvalidName('Table name can not be empty');
-            }
-
-            self::$calculatedTableNames[static::class] = $tableName;
-        }
-
-        return self::$calculatedTableNames[static::class];
+        return self::$tableDescriptions[static::class];
     }
 
     /**
@@ -166,10 +165,9 @@ abstract class Entity implements \Serializable
         }
 
         if (!isset(self::$calculatedColumnNames[static::class][$field])) {
-            static::$namingUsed = true;
             $colName = $field;
 
-            $em = EntityManager::getInstance(static::class);
+            $em = EM::getInstance(static::class);
             $namer = $em->getNamer();
 
             if (static::$columnPrefix && strpos($colName, static::$columnPrefix) !== 0) {
@@ -181,6 +179,32 @@ abstract class Entity implements \Serializable
         }
 
         return self::$calculatedColumnNames[static::class][$field];
+    }
+
+    /**
+     * Get the primary key vars
+     *
+     * The primary key can consist of multiple columns. You should configure the vars that are translated to these
+     * columns.
+     *
+     * @return array
+     */
+    public static function getPrimaryKeyVars()
+    {
+        return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
+    }
+
+    /**
+     * Get reflection of the entity
+     *
+     * @return \ReflectionClass
+     */
+    protected static function getReflection()
+    {
+        if (!isset(self::$reflections[static::class])) {
+            self::$reflections[static::class] = new \ReflectionClass(static::class);
+        }
+        return self::$reflections[static::class];
     }
 
     /**
@@ -209,46 +233,54 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Initialize the validator for this Entity.
+     * Get the table name
      *
-     * @param EntityManager $entityManager
+     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
+     * $tableName.
+     *
+     * @return string
+     * @throws InvalidName|InvalidConfiguration
      */
-    public static function initValidator(EntityManager $entityManager)
+    public static function getTableName()
     {
-        if (isset(self::$tableDescriptions[static::class])) {
-            return;
+        if (static::$tableName) {
+            return static::$tableName;
         }
 
-        self::$tableDescriptions[static::class] = static::describe($entityManager);
+        if (!isset(self::$calculatedTableNames[static::class])) {
+            $reflection = self::getReflection();
+
+            $em = EM::getInstance(static::class);
+            $tnt = static::$tableNameTemplate;
+            $nst = static::$namingSchemeTable;
+            $tableName = $em->getNamer()->getTableName($reflection, $tnt, $nst);
+
+            if (empty($tableName)) {
+                throw new InvalidName('Table name can not be empty');
+            }
+
+            self::$calculatedTableNames[static::class] = $tableName;
+        }
+
+        return self::$calculatedTableNames[static::class];
     }
 
     /**
-     * Check if the validator is initialized.
+     * Initialize the validator for this Entity.
+     */
+    public static function initValidator()
+    {
+        static::describe();
+    }
+
+    /**
+     * Check if the table has a auto increment column.
      *
      * @return bool
      */
-    public static function validatorIsInitialized()
+    public static function isAutoIncremented()
     {
-        return isset(self::$tableDescriptions[static::class]);
-    }
-
-    /**
-     * Validate $value for $field.
-     *
-     * @param string $field
-     * @param mixed $value
-     * @return bool|Error
-     * @throws Exception
-     */
-    public static function validate($field, $value)
-    {
-        if (!isset(self::$tableDescriptions[static::class])) {
-            throw new Exception('Validator not initialized yet');
-        }
-
-        $table = self::$tableDescriptions[static::class];
-
-        return $table->validate(static::getColumnName($field), $value);
+        return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
     }
 
     /**
@@ -269,80 +301,81 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get the primary key vars
+     * Validate $value for $field.
      *
-     * The primary key can consist of multiple columns. You should configure the vars that are translated to these
-     * columns.
-     *
-     * @return array
+     * @param string $field
+     * @param mixed $value
+     * @return bool|Error
+     * @throws Exception
      */
-    public static function getPrimaryKeyVars()
+    public static function validate($field, $value)
     {
-        return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
+        if (!static::validatorIsInitialized()) {
+            throw new Exception('Validator not initialized yet');
+        }
+
+        return self::$tableDescriptions[static::class]->validate(static::getColumnName($field), $value);
     }
 
     /**
-     * Check if the table has a auto increment column.
+     * Check if the validator is initialized.
      *
      * @return bool
      */
-    public static function isAutoIncremented()
+    public static function validatorIsInitialized()
     {
-        return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
+        return isset(self::$tableDescriptions[static::class]);
     }
 
     /**
-     * Get an array of Columns for this table.
+     * Empty event handler
      *
-     * @param EntityManager $entityManager
-     * @return Column[]
-     * @codeCoverageIgnore This is just a proxy
+     * Get called when the entity get initialized.
+     *
+     * @param bool $new Whether or not the entity is new or from database
      */
-    public static function describe(EntityManager $entityManager)
+    public function onInit($new)
     {
-        return $entityManager->describe(static::getTableName());
     }
 
     /**
-     * Get reflection of the entity
-     *
-     * @return \ReflectionClass
-     */
-    protected static function getReflection()
-    {
-        if (!isset(self::$reflections[static::class])) {
-            self::$reflections[static::class] = new \ReflectionClass(static::class);
-        }
-        return self::$reflections[static::class];
-    }
-
-    /**
-     * Constructor
-     *
-     * It calls ::onInit() after initializing $data and $originalData.
-     *
-     * @param mixed[]       $data          The current data
-     * @param EntityManager $entityManager The EntityManager that created this entity
-     * @param bool          $fromDatabase  Whether or not the data comes from database
-     */
-    final public function __construct(array $data = [], EntityManager $entityManager = null, $fromDatabase = false)
-    {
-        if ($fromDatabase) {
-            $this->originalData = $data;
-        }
-        $this->data = array_merge($this->data, $data);
-        $this->entityManager = $entityManager;
-        $this->onInit(!$fromDatabase);
-    }
-
-    /**
-     * @param EntityManager $entityManager
+     * @param EM $entityManager
      * @return self
      */
-    public function setEntityManager(EntityManager $entityManager)
+    public function setEntityManager(EM $entityManager)
     {
         $this->entityManager = $entityManager;
         return $this;
+    }
+
+    /**
+     * Get the value from $var
+     *
+     * If there is a custom getter this method get called instead.
+     *
+     * @param string $var The variable to get
+     * @return mixed|null
+     * @throws IncompletePrimaryKey
+     * @throws InvalidConfiguration
+     * @link https://tflori.github.io/orm/entities.html Working with entities
+     */
+    public function __get($var)
+    {
+        $em = EM::getInstance(static::class);
+        $getter = $em->getNamer()->getMethodName('get' . ucfirst($var), self::$namingSchemeMethods);
+
+        if (method_exists($this, $getter) && is_callable([$this, $getter])) {
+            return $this->$getter();
+        } else {
+            $col = static::getColumnName($var);
+            $result = isset($this->data[$col]) ? $this->data[$col] : null;
+
+            if (!$result && isset(static::$relations[$var]) && isset($this->entityManager)) {
+                return $this->getRelated($var);
+            }
+
+            return $result;
+        }
     }
 
     /**
@@ -364,8 +397,9 @@ abstract class Entity implements \Serializable
     {
         $col = $this->getColumnName($var);
 
-        $em = $this->entityManager ?: EntityManager::getInstance(static::class);
+        $em = EM::getInstance(static::class);
         $setter = $em->getNamer()->getMethodName('set' . ucfirst($var), self::$namingSchemeMethods);
+
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
             $oldValue = $this->__get($var);
             $md5OldData = md5(serialize($this->data));
@@ -383,32 +417,16 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get the value from $var
+     * Empty event handler
      *
-     * If there is a custom getter this method get called instead.
+     * Get called when something is changed with magic setter.
      *
-     * @param string $var The variable to get
-     * @return mixed|null
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @link https://tflori.github.io/orm/entities.html Working with entities
+     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param mixed  $oldValue The old value of the variable
+     * @param mixed  $value The new value of the variable
      */
-    public function __get($var)
+    public function onChange($var, $oldValue, $value)
     {
-        $em = $this->entityManager ?: EntityManager::getInstance(static::class);
-        $getter = $em->getNamer()->getMethodName('get' . ucfirst($var), self::$namingSchemeMethods);
-        if (method_exists($this, $getter) && is_callable([$this, $getter])) {
-            return $this->$getter();
-        } else {
-            $col = static::getColumnName($var);
-            $result = isset($this->data[$col]) ? $this->data[$col] : null;
-
-            if (!$result && isset(static::$relations[$var]) && isset($this->entityManager)) {
-                return $this->getRelated($var);
-            }
-
-            return $result;
-        }
     }
 
     /**
@@ -430,7 +448,7 @@ abstract class Entity implements \Serializable
     public function getRelated($relation, $refresh = false)
     {
         if ($refresh || !isset($this->relatedObjects[$relation])) {
-            $this->relatedObjects[$relation] = $this->fetch($relation, null, true);
+            $this->relatedObjects[$relation] = $this->fetch($relation, true);
         }
 
         return $this->relatedObjects[$relation];
@@ -462,18 +480,20 @@ abstract class Entity implements \Serializable
      *
      * @param string        $relation
      * @param Entity[]      $entities
-     * @param EntityManager $entityManager
      * @throws NoEntityManager
      */
-    public function addRelated($relation, array $entities, EntityManager $entityManager = null)
+    public function addRelated($relation, array $entities)
     {
-        $entityManager = $entityManager ?: $this->entityManager;
-
-        if (!$entityManager) {
-            throw new NoEntityManager('No entity manager given');
+        // @codeCoverageIgnoreStart
+        if (func_num_args() === 3 && func_get_arg(2) instanceof EM) {
+            trigger_error(
+                'Passing EntityManager to addRelated is deprecated. Use ->setEntityManager() to overwrite',
+                E_USER_DEPRECATED
+            );
         }
+        // @codeCoverageIgnoreEnd
 
-        $this::getRelation($relation)->addRelated($this, $entities, $entityManager);
+        $this::getRelation($relation)->addRelated($this, $entities, $this->entityManager);
     }
 
     /**
@@ -483,39 +503,20 @@ abstract class Entity implements \Serializable
      *
      * @param string        $relation
      * @param Entity[]      $entities
-     * @param EntityManager $entityManager
      * @throws NoEntityManager
      */
-    public function deleteRelated($relation, $entities, EntityManager $entityManager = null)
+    public function deleteRelated($relation, $entities)
     {
-        $entityManager = $entityManager ?: $this->entityManager;
-
-        if (!$entityManager) {
-            throw new NoEntityManager('No entity manager given');
+        // @codeCoverageIgnoreStart
+        if (func_num_args() === 3 && func_get_arg(2) instanceof EM) {
+            trigger_error(
+                'Passing EntityManager to deleteRelated is deprecated. Use ->setEntityManager() to overwrite',
+                E_USER_DEPRECATED
+            );
         }
+        // @codeCoverageIgnoreEnd
 
-        $this::getRelation($relation)->deleteRelated($this, $entities, $entityManager);
-    }
-
-    /**
-     * Checks if entity or $var got changed
-     *
-     * @param string $var Check only this variable or all variables
-     * @return bool
-     * @throws InvalidConfiguration
-     */
-    public function isDirty($var = null)
-    {
-        if (!empty($var)) {
-            $col = static::getColumnName($var);
-            return (isset($this->data[$col]) ? $this->data[$col] : null) !==
-                   (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
-        }
-
-        ksort($this->data);
-        ksort($this->originalData);
-
-        return serialize($this->data) !== serialize($this->originalData);
+        $this::getRelation($relation)->deleteRelated($this, $entities, $this->entityManager);
     }
 
     /**
@@ -540,9 +541,8 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Save the entity to $entityManager
+     * Save the entity to EntityManager
      *
-     * @param EntityManager $entityManager
      * @return Entity
      * @throws Exceptions\NoConnection
      * @throws Exceptions\NoEntity
@@ -553,31 +553,34 @@ abstract class Entity implements \Serializable
      * @throws InvalidName
      * @throws NoEntityManager
      */
-    public function save(EntityManager $entityManager = null)
+    public function save()
     {
-        $entityManager = $entityManager ?: $this->entityManager;
-
-        if (!$entityManager) {
-            throw new NoEntityManager('No entity manager given');
+        // @codeCoverageIgnoreStart
+        if (func_num_args() === 1 && func_get_arg(0) instanceof EM) {
+            trigger_error(
+                'Passing EntityManager to save is deprecated. Use ->setEntityManager() to overwrite',
+                E_USER_DEPRECATED
+            );
         }
+        // @codeCoverageIgnoreEnd
 
         $inserted = false;
         $updated = false;
 
         try {
             // this may throw if the primary key is auto incremented but we using this to omit duplicated code
-            if (!$entityManager->sync($this)) {
-                $entityManager->insert($this, false);
+            if (!$this->entityManager->sync($this)) {
+                $this->entityManager->insert($this, false);
                 $inserted = true;
             } elseif ($this->isDirty()) {
                 $this->preUpdate();
-                $entityManager->update($this);
+                $this->entityManager->update($this);
                 $updated = true;
             }
         } catch (IncompletePrimaryKey $e) {
             if (static::isAutoIncremented()) {
                 $this->prePersist();
-                $id = $entityManager->insert($this);
+                $id = $this->entityManager->insert($this);
                 $this->data[static::getColumnName(static::getPrimaryKeyVars()[0])] = $id;
                 $inserted = true;
             } else {
@@ -588,10 +591,70 @@ abstract class Entity implements \Serializable
         if ($inserted || $updated) {
             $inserted && $this->postPersist();
             $updated && $this->postUpdate();
-            $entityManager->sync($this, true);
+            $this->entityManager->sync($this, true);
         }
 
         return $this;
+    }
+
+    /**
+     * Checks if entity or $var got changed
+     *
+     * @param string $var Check only this variable or all variables
+     * @return bool
+     * @throws InvalidConfiguration
+     */
+    public function isDirty($var = null)
+    {
+        if (!empty($var)) {
+            $col = static::getColumnName($var);
+            return (isset($this->data[$col]) ? $this->data[$col] : null) !==
+                   (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
+        }
+
+        ksort($this->data);
+        ksort($this->originalData);
+
+        return serialize($this->data) !== serialize($this->originalData);
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get updated in database.
+     */
+    public function preUpdate()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called before the entity get inserted in database.
+     */
+    public function prePersist()
+    {
+    }
+
+
+    // DEPRECATED stuff
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got inserted in database.
+     */
+    public function postPersist()
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called after the entity got updated in database.
+     */
+    public function postUpdate()
+    {
     }
 
     /**
@@ -602,25 +665,28 @@ abstract class Entity implements \Serializable
      * It will throw an error for non owner when the key is incomplete.
      *
      * @param string        $relation      The relation to fetch
-     * @param EntityManager $entityManager The EntityManager to use
      * @param bool          $getAll
      * @return Entity|Entity[]|EntityFetcher
      * @throws NoEntityManager
      */
-    public function fetch($relation, EntityManager $entityManager = null, $getAll = false)
+    public function fetch($relation, $getAll = false)
     {
-        $entityManager = $entityManager ?: $this->entityManager;
-
-        if (!$entityManager) {
-            throw new NoEntityManager('No entity manager given');
+        // @codeCoverageIgnoreStart
+        if (func_num_args() === 3 && ($getAll instanceof EM || $getAll === null)) {
+            $getAll = func_get_arg(2);
+            trigger_error(
+                'Passing EntityManager to fetch is deprecated. Use ->setEntityManager() to overwrite',
+                E_USER_DEPRECATED
+            );
         }
+        // @codeCoverageIgnoreEnd
 
         $relation = $this::getRelation($relation);
 
         if ($getAll) {
-            return $relation->fetchAll($this, $entityManager);
+            return $relation->fetchAll($this, $this->entityManager);
         } else {
-            return $relation->fetch($this, $entityManager);
+            return $relation->fetch($this, $this->entityManager);
         }
     }
 
@@ -666,66 +732,6 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Empty event handler
-     *
-     * Get called when something is changed with magic setter.
-     *
-     * @param string $var The variable that got changed.merge(node.inheritedProperties)
-     * @param mixed  $oldValue The old value of the variable
-     * @param mixed  $value The new value of the variable
-     */
-    public function onChange($var, $oldValue, $value)
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called when the entity get initialized.
-     *
-     * @param bool $new Whether or not the entity is new or from database
-     */
-    public function onInit($new)
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called before the entity get inserted in database.
-     */
-    public function prePersist()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called after the entity got inserted in database.
-     */
-    public function postPersist()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called before the entity get updated in database.
-     */
-    public function preUpdate()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called after the entity got updated in database.
-     */
-    public function postUpdate()
-    {
-    }
-
-    /**
      * String representation of data
      *
      * @link http://php.net/manual/en/serializable.serialize.php
@@ -745,11 +751,9 @@ abstract class Entity implements \Serializable
     public function unserialize($serialized)
     {
         list($this->data, $this->relatedObjects) = unserialize($serialized);
+        $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
     }
-
-
-    // DEPRECATED stuff
 
     /**
      * @return string

@@ -7,7 +7,7 @@ use Mockery\Mock;
 use ORM\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\Dbal\TestEntityManager;
 
 class TestCase extends MockeryTestCase
 {
@@ -24,6 +24,8 @@ class TestCase extends MockeryTestCase
     {
         parent::setUp();
         TestEntity::resetStaticsForTest();
+        TestEntityManager::resetStaticsForTest();
+
         $this->pdo = \Mockery::mock(\PDO::class);
         $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
             return '\'' . addslashes($var) . '\'';

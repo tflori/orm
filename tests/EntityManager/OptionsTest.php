@@ -5,7 +5,7 @@ namespace ORM\Test\EntityManager;
 use ORM\Dbal\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class OptionsTest extends TestCase
