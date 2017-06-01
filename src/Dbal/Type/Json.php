@@ -2,6 +2,8 @@
 
 namespace ORM\Dbal\Type;
 
+use ORM\Dbal\Error;
+use ORM\Dbal\Error\InvalidJson;
 use ORM\Dbal\Type;
 
 /**
@@ -14,10 +16,10 @@ class Json extends Type
 {
     public function validate($value)
     {
-        if (is_string($value) && ($value === 'null' || json_decode($value) !== null)) {
-            return true;
+        if (!is_string($value) || $value !== 'null' && json_decode($value) === null) {
+            return new InvalidJson([ 'value' => (string)$value ]);
         }
 
-        return false;
+        return true;
     }
 }

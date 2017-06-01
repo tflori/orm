@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal\Type;
 
+use ORM\Dbal\Error\NoNumber;
 use ORM\Dbal\Type;
 
 /**
@@ -14,14 +15,10 @@ class Number extends Type
 {
     public function validate($value)
     {
-        if (is_int($value) || is_double($value)) {
-            return true;
+        if (!is_int($value) && !is_double($value) && (!is_string($value) || !is_numeric($value))) {
+            return new NoNumber([ 'value' => (string)$value ]);
         }
 
-        if (is_string($value) && is_numeric($value)) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 }

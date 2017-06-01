@@ -3,6 +3,8 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\NotAllowed;
 use ORM\Dbal\Type;
 
 /**
@@ -38,11 +40,13 @@ class Enum extends Type
 
     public function validate($value)
     {
-        if (is_string($value) && in_array($value, $this->allowedValues)) {
-            return true;
+        if (!is_string($value)) {
+            return new NoString([ 'type' => 'enum' ]);
+        } elseif (!in_array($value, $this->allowedValues)) {
+            return new NotAllowed([ 'value' => $value, 'type' => 'enum' ]);
         }
 
-        return false;
+        return true;
     }
 
     /**

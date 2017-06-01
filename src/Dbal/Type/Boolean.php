@@ -4,8 +4,7 @@ namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
-use ORM\Dbal\Error;
-use ORM\Dbal\Error\NotValid;
+use ORM\Dbal\Error\NoBoolean;
 use ORM\Dbal\Type;
 
 /**
@@ -42,27 +41,21 @@ class Boolean extends Type
 
     public function validate($value)
     {
-        if (is_bool($value)) {
-            return true;
+        if (!is_bool($value)) {
+            // convert int to string
+            if (is_int($value)) {
+                $value = (string)$value;
+            }
+
+            if (!is_string($value) ||
+                ($value !== $this->getBoolean(true) && $value !== $this->getBoolean(false))
+            ) {
+                // value is not boolean, not int and (not string OR string value for boolean)
+                return new NoBoolean([ 'value' => (string)$value ]);
+            }
         }
 
-        if (is_int($value)) {
-            $value = (string)$value;
-        }
-
-        if (is_string($value) &&
-            ($value === $this->getBoolean(true) || $value === $this->getBoolean(false))
-        ) {
-            return true;
-        }
-
-        $error = new Error(
-            'NOT_BOOLEAN',
-            '%value% can not be converted to boolean'
-        );
-        $error->addParams(['value' => (string)$value]);
-
-        return $error;
+        return true;
     }
 
     protected function getBoolean($bool)

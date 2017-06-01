@@ -3,7 +3,7 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
-use ORM\Dbal\Error;
+use ORM\Dbal\Error\NoDateTime;
 use ORM\Dbal\Type;
 
 /**
@@ -48,21 +48,11 @@ class DateTime extends Type
 
     public function validate($value)
     {
-        if ($value instanceof \DateTime) {
-            return true;
+        if (!$value instanceof \DateTime && (!is_string($value) || !preg_match($this->regex, $value))) {
+            return new NoDateTime([ 'value' => (string)$value ]);
         }
 
-        if (is_string($value) && preg_match($this->regex, $value)) {
-            return true;
-        }
-
-        $error = new Error(
-            'NO_DATETIME',
-            '%value% is not a valid date or date time expression'
-        );
-        $error->addParams(['value' => (string)$value]);
-
-        return $error;
+        return true;
     }
 
     /**

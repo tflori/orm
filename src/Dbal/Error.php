@@ -20,10 +20,11 @@ class Error
 
     /**
      * Error constructor.
+     * @param array $params
      * @param null $code
      * @param null $message
      */
-    public function __construct($code = null, $message = null)
+    public function __construct(array $params = [], $code = null, $message = null)
     {
         // set code from concrete class
         $this->params['code'] = static::ERROR_CODE;
@@ -37,6 +38,8 @@ class Error
         if ($code) {
             $this->params['code'] = $code;
         }
+
+        $this->addParams($params);
     }
 
     public function addParams($params)

@@ -3,6 +3,8 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\TooLong;
 use ORM\Dbal\Type;
 
 /**
@@ -17,6 +19,9 @@ class VarChar extends Type
 {
     /** @var int */
     protected $maxLength;
+
+    /** @var string */
+    protected $type = 'varchar';
 
     /**
      * VarChar constructor.
@@ -35,11 +40,13 @@ class VarChar extends Type
 
     public function validate($value)
     {
-        if (is_string($value) && ($this->maxLength === 0 || mb_strlen($value) <= $this->maxLength)) {
-            return true;
+        if (!is_string($value)) {
+            return new NoString([ 'type' => $this->type ]);
+        } elseif ($this->maxLength !== 0 && mb_strlen($value) > $this->maxLength) {
+            return new TooLong([ 'value' => $value, 'max' => $this->maxLength ]);
         }
 
-        return false;
+        return true;
     }
 
     /**
