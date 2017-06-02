@@ -74,16 +74,6 @@ abstract class Entity implements \Serializable
      * @var array */
     protected static $relations = [];
 
-    /** Calculated table names.
-     * @internal
-     * @var string[] */
-    protected static $calculatedTableNames = [];
-
-    /** Calculated column names.
-     * @internal
-     * @var string[][] */
-    protected static $calculatedColumnNames = [];
-
     /** The reflections of the classes.
      * @internal
      * @var \ReflectionClass[] */
@@ -164,21 +154,8 @@ abstract class Entity implements \Serializable
             return static::$columnAliases[$field];
         }
 
-        if (!isset(self::$calculatedColumnNames[static::class][$field])) {
-            $colName = $field;
-
-            $em = EM::getInstance(static::class);
-            $namer = $em->getNamer();
-
-            if (static::$columnPrefix && strpos($colName, static::$columnPrefix) !== 0) {
-                $colName = static::$columnPrefix . $colName;
-            }
-
-            self::$calculatedColumnNames[static::class][$field] =
-                $namer->getColumnName($colName, static::$namingSchemeColumn);
-        }
-
-        return self::$calculatedColumnNames[static::class][$field];
+        return EM::getInstance(static::class)->getNamer()
+            ->getColumnName(static::class, $field, static::$columnPrefix, static::$namingSchemeColumn);
     }
 
     /**
@@ -192,19 +169,6 @@ abstract class Entity implements \Serializable
     public static function getPrimaryKeyVars()
     {
         return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
-    }
-
-    /**
-     * Get reflection of the entity
-     *
-     * @return \ReflectionClass
-     */
-    protected static function getReflection()
-    {
-        if (!isset(self::$reflections[static::class])) {
-            self::$reflections[static::class] = new \ReflectionClass(static::class);
-        }
-        return self::$reflections[static::class];
     }
 
     /**
@@ -247,22 +211,8 @@ abstract class Entity implements \Serializable
             return static::$tableName;
         }
 
-        if (!isset(self::$calculatedTableNames[static::class])) {
-            $reflection = self::getReflection();
-
-            $em = EM::getInstance(static::class);
-            $tnt = static::$tableNameTemplate;
-            $nst = static::$namingSchemeTable;
-            $tableName = $em->getNamer()->getTableName($reflection, $tnt, $nst);
-
-            if (empty($tableName)) {
-                throw new InvalidName('Table name can not be empty');
-            }
-
-            self::$calculatedTableNames[static::class] = $tableName;
-        }
-
-        return self::$calculatedTableNames[static::class];
+        return EM::getInstance(static::class)->getNamer()
+            ->getTableName(static::class, static::$tableNameTemplate, static::$namingSchemeTable);
     }
 
     /**

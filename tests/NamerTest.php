@@ -11,30 +11,28 @@ class NamerTest extends TestCase
     public function testDefaultTableNameTemplate()
     {
         $namer = new Namer();
-        $reflection = new \ReflectionClass(Article::class);
 
-        $result = $namer->getTableName($reflection);
+        $result = $namer->getTableName(Article::class);
 
-        self::assertSame($namer->getTableName($reflection, '%short%'), $result);
+        self::assertSame($namer->getTableName(Article::class, '%short%'), $result);
     }
 
     public function testDefaultTableNamingScheme()
     {
         $namer = new Namer();
-        $reflection = new \ReflectionClass(Article::class);
 
-        $result = $namer->getTableName($reflection, '%name%');
+        $result = $namer->getTableName(Article::class, '%name%');
 
-        self::assertSame($namer->getTableName($reflection, '%name%', 'snake_lower'), $result);
+        self::assertSame($namer->getTableName(Article::class, '%name%', 'snake_lower'), $result);
     }
 
     public function testDefaultColumnNamingScheme()
     {
         $namer = new Namer();
 
-        $result = $namer->getColumnName('someVar');
+        $result = $namer->getColumnName(Article::class, 'someVar');
 
-        self::assertSame($namer->getColumnName('someVar', 'snake_lower'), $result);
+        self::assertSame($namer->getColumnName(Article::class, 'someVar', 'snake_lower'), $result);
     }
 
     public function testDefaultMethodNamingScheme()
@@ -51,11 +49,10 @@ class NamerTest extends TestCase
         $namer = new Namer([
             EntityManager::OPT_TABLE_NAME_TEMPLATE => '%name%'
         ]);
-        $reflection = new \ReflectionClass(Article::class);
 
-        $result = $namer->getTableName($reflection);
+        $result = $namer->getTableName(Article::class);
 
-        self::assertSame($namer->getTableName($reflection, '%name%'), $result);
+        self::assertSame($namer->getTableName(Article::class, '%name%'), $result);
     }
 
     public function testTableNamingSchemeOption()
@@ -63,11 +60,10 @@ class NamerTest extends TestCase
         $namer = new Namer([
             EntityManager::OPT_NAMING_SCHEME_TABLE => 'StudlyCaps'
         ]);
-        $reflection = new \ReflectionClass(Article::class);
 
-        $result = $namer->getTableName($reflection, '%name%');
+        $result = $namer->getTableName(Article::class, '%name%');
 
-        self::assertSame($namer->getTableName($reflection, '%name%', 'StudlyCaps'), $result);
+        self::assertSame($namer->getTableName(Article::class, '%name%', 'StudlyCaps'), $result);
     }
 
     public function testColumnNamingSchemeOption()
@@ -76,9 +72,9 @@ class NamerTest extends TestCase
             EntityManager::OPT_NAMING_SCHEME_COLUMN => 'StudlyCaps'
         ]);
 
-        $result = $namer->getColumnName('some_var');
+        $result = $namer->getColumnName(Article::class, 'some_var');
 
-        self::assertSame($namer->getColumnName('some_var', 'StudlyCaps'), $result);
+        self::assertSame($namer->getColumnName(Article::class, 'some_var', null, 'StudlyCaps'), $result);
     }
 
     public function testMethodNamingSchemeOption()

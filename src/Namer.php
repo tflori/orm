@@ -3,6 +3,7 @@
 namespace ORM;
 
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exceptions\InvalidName;
 use ReflectionClass;
 
 /**
@@ -21,6 +22,12 @@ class Namer
     /** The naming scheme to use for table names.
      * @var string */
     protected $tableNameScheme = 'snake_lower';
+
+    /** @var string[] */
+    protected $tableNames = [];
+
+    /** @var string[][] */
+    protected $columnNames = [];
 
     /** The naming scheme to use for column names.
      * @var string */
@@ -75,44 +82,67 @@ class Namer
     /**
      * Get the table name for $reflection
      *
-     * @param ReflectionClass $reflection
-     * @param null $template
-     * @param null $namingScheme
+     * @param string $class
+     * @param string $template
+     * @param string $namingScheme
      * @return string
+     * @throws InvalidName
      */
-    public function getTableName(ReflectionClass $reflection, $template = null, $namingScheme = null)
+    public function getTableName($class, $template = null, $namingScheme = null)
     {
-        if ($template === null) {
-            $template = $this->tableNameTemplate;
+        if (!isset($this->tableNames[$class])) {
+            if ($template === null) {
+                $template = $this->tableNameTemplate;
+            }
+
+            if ($namingScheme === null) {
+                $namingScheme = $this->tableNameScheme;
+            }
+
+            $reflection = new ReflectionClass($class);
+
+            $name = $this->substitute($template, [
+                    'short'     => $reflection->getShortName(),
+                    'namespace' => explode('\\', $reflection->getNamespaceName()),
+                    'name'      => preg_split('/[\\\\_]+/', $reflection->name),
+                ], '_');
+
+            if (empty($name)) {
+                throw new InvalidName('Table name can not be empty');
+            }
+
+            $this->tableNames[$class] = $this->forceNamingScheme($name, $namingScheme);
         }
 
-        if ($namingScheme === null) {
-            $namingScheme = $this->tableNameScheme;
-        }
-
-        $name = $this->substitute($template, [
-            'short' => $reflection->getShortName(),
-            'namespace' => explode('\\', $reflection->getNamespaceName()),
-            'name' => preg_split('/[\\\\_]+/', $reflection->name),
-        ], '_');
-
-        return $this->forceNamingScheme($name, $namingScheme);
+        return $this->tableNames[$class];
     }
 
     /**
      * Get the column name with $namingScheme or default naming scheme
      *
-     * @param $field
-     * @param null $namingScheme
+     * @param        $class
+     * @param string $field
+     * @param string $prefix
+     * @param string $namingScheme
      * @return string
      */
-    public function getColumnName($field, $namingScheme = null)
+    public function getColumnName($class, $field, $prefix = null, $namingScheme = null)
     {
-        if (!$namingScheme) {
-            $namingScheme = $this->columnNameScheme;
+        if (!isset($this->columnNames[$class][$field])) {
+            if (!$namingScheme) {
+                $namingScheme = $this->columnNameScheme;
+            }
+
+            $name = $this->forceNamingScheme($field, $namingScheme);
+
+            if ($prefix !== null && strpos($name, $prefix) !== 0) {
+                $name = $prefix . $name;
+            }
+
+            $this->columnNames[$class][$field] = $name;
         }
 
-        return $this->forceNamingScheme($field, $namingScheme);
+        return $this->columnNames[$class][$field];
     }
 
     /**
