@@ -248,6 +248,15 @@ class Namer
         return $newName;
     }
 
+    /**
+     * Get the value for $var from $values using $arrayGlue
+     *
+     * @param string $var The key for $values
+     * @param array $values
+     * @param string $arrayGlue
+     * @return string
+     * @throws InvalidConfiguration
+     */
     protected function getValue($var, $values, $arrayGlue)
     {
         $placeholder = '%' . $var . '%';

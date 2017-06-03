@@ -37,6 +37,21 @@ class ValidateTest extends TestCase
         $validator->validate('id', 23);
     }
 
+    public function testPassesValidateFromCol()
+    {
+        $this->column = \Mockery::mock(Column::class, [$this->dbal, [
+            'column_name' => 'colA',
+            'column_default' => null,
+            'is_nullable' => true
+        ]])->makePartial();
+        $table = new Table([$this->column]);
+        $this->column->shouldReceive('validate')->with('value')->once()->andReturn('return');
+
+        $result = $table->validate('colA', 'value');
+
+        self::assertSame('return', $result);
+    }
+
     public function testAllowsNullValues()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [

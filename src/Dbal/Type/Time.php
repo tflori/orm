@@ -19,6 +19,12 @@ class Time extends DateTime
         $this->regex = '/^' . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!is_string($value) || !preg_match($this->regex, $value)) {

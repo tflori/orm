@@ -15,6 +15,12 @@ class NotValid extends Error
     /** @var Error */
     protected $previous;
 
+    /**
+     * NotValid constructor
+     *
+     * @param Column $column The column that got a not valid error
+     * @param Error  $previous The error from validate
+     */
     public function __construct(Column $column, Error $previous)
     {
         parent::__construct();
@@ -25,6 +31,8 @@ class NotValid extends Error
     }
 
     /**
+     * Get the error that caused this error
+     *
      * @return Error
      */
     public function getPrevious()

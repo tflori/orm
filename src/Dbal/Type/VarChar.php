@@ -3,6 +3,7 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error;
 use ORM\Dbal\Error\NoString;
 use ORM\Dbal\Error\TooLong;
 use ORM\Dbal\Type;
@@ -24,7 +25,7 @@ class VarChar extends Type
     protected $type = 'varchar';
 
     /**
-     * VarChar constructor.
+     * VarChar constructor
      *
      * @param int $maxLength
      */
@@ -38,6 +39,12 @@ class VarChar extends Type
         return new static($columnDefinition['character_maximum_length']);
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!is_string($value)) {

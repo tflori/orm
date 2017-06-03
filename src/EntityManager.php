@@ -5,6 +5,7 @@ namespace ORM;
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Column;
 use ORM\Dbal\Other;
+use ORM\Dbal\Table;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
@@ -64,7 +65,7 @@ class EntityManager
     protected $options = [];
 
     /** Already fetched column descriptions
-     * @var Column[][] */
+     * @var Table[]|Column[][] */
     protected $descriptions = [];
 
     /** Mapping for EntityManager instances
@@ -513,7 +514,7 @@ class EntityManager
      * Returns an array of columns from $table.
      *
      * @param string $table
-     * @return Column[]
+     * @return Column[]|Table
      */
     public function describe($table)
     {

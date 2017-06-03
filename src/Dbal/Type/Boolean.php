@@ -4,6 +4,7 @@ namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error;
 use ORM\Dbal\Error\NoBoolean;
 use ORM\Dbal\Type;
 
@@ -15,17 +16,11 @@ use ORM\Dbal\Type;
  */
 class Boolean extends Type
 {
-    /** @var string */
-    protected $true;
-
-    /** @var string */
-    protected $false;
-
     /** @var Dbal */
     protected $dbal;
 
     /**
-     * Boolean constructor.
+     * Boolean constructor
      *
      * @param Dbal   $dbal
      */
@@ -39,6 +34,12 @@ class Boolean extends Type
         return new static($dbal);
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!is_bool($value)) {
@@ -58,6 +59,12 @@ class Boolean extends Type
         return true;
     }
 
+    /**
+     * Get the string representation for boolean
+     *
+     * @param bool $bool
+     * @return string
+     */
     protected function getBoolean($bool)
     {
         $quoted = $this->dbal->escapeValue($bool);

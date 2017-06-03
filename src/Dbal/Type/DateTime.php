@@ -3,6 +3,7 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error;
 use ORM\Dbal\Error\NoDateTime;
 use ORM\Dbal\Type;
 
@@ -25,7 +26,7 @@ class DateTime extends Type
     protected $regex;
 
     /**
-     * DateTime constructor.
+     * DateTime constructor
      *
      * @param int  $precision
      * @param bool $dateOnly
@@ -46,6 +47,12 @@ class DateTime extends Type
         );
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!$value instanceof \DateTime && (!is_string($value) || !preg_match($this->regex, $value))) {

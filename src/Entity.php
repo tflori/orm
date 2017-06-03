@@ -70,6 +70,14 @@ abstract class Entity implements \Serializable
      * @var bool */
     protected static $autoIncrement = true;
 
+    /** Whether or not the validator for this class is enabled.
+     * @var bool */
+    protected static $enableValidator = false;
+
+    /** Whether or not the validator for a class got enabled during runtime.
+     * @var bool[] */
+    protected static $enabledValidators = [];
+
     /** Relation definitions
      * @var array */
     protected static $relations = [];
@@ -78,10 +86,6 @@ abstract class Entity implements \Serializable
      * @internal
      * @var \ReflectionClass[] */
     protected static $reflections = [];
-
-    /** Fetched table descriptions
-     * @var Table[] */
-    protected static $tableDescriptions = [];
 
     /** The current data of a row.
      * @var mixed[] */
@@ -126,13 +130,7 @@ abstract class Entity implements \Serializable
      */
     public static function describe()
     {
-        if (!isset(self::$tableDescriptions[static::class])) {
-            $em = EM::getInstance(static::class);
-
-            self::$tableDescriptions[static::class] = $em->describe(static::getTableName());
-        }
-
-        return self::$tableDescriptions[static::class];
+        return EM::getInstance(static::class)->describe(static::getTableName());
     }
 
     /**
@@ -216,15 +214,7 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Initialize the validator for this Entity.
-     */
-    public static function initValidator()
-    {
-        static::describe();
-    }
-
-    /**
-     * Check if the table has a auto increment column.
+     * Check if the table has a auto increment column
      *
      * @return bool
      */
@@ -234,7 +224,51 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Validate $fields.
+     * Check if the validator is enabled
+     *
+     * @return bool
+     */
+    public static function isValidatorEnabled()
+    {
+        return isset(self::$enabledValidators[static::class]) ?
+            self::$enabledValidators[static::class] : static::$enableValidator;
+    }
+
+    /**
+     * Enable validator
+     *
+     * @param bool $enable
+     */
+    public static function enableValidator($enable = true)
+    {
+        self::$enabledValidators[static::class] = $enable;
+    }
+
+    /**
+     * Disable validator
+     *
+     * @param bool $disable
+     */
+    public static function disableValidator($disable = true)
+    {
+        self::$enabledValidators[static::class] = !$disable;
+    }
+
+    /**
+     * Validate $value for $field
+     *
+     * @param string $field
+     * @param mixed $value
+     * @return bool|Error
+     * @throws Exception
+     */
+    public static function validate($field, $value)
+    {
+        return static::describe()->validate(static::getColumnName($field), $value);
+    }
+
+    /**
+     * Validate $fields
      *
      * $fields has to be an array of $field => $value
      *
@@ -248,44 +282,6 @@ abstract class Entity implements \Serializable
             $value = static::validate($field, $value);
         }
         return $result;
-    }
-
-    /**
-     * Validate $value for $field.
-     *
-     * @param string $field
-     * @param mixed $value
-     * @return bool|Error
-     * @throws Exception
-     */
-    public static function validate($field, $value)
-    {
-        if (!static::validatorIsInitialized()) {
-            throw new Exception('Validator not initialized yet');
-        }
-
-        return self::$tableDescriptions[static::class]->validate(static::getColumnName($field), $value);
-    }
-
-    /**
-     * Check if the validator is initialized.
-     *
-     * @return bool
-     */
-    public static function validatorIsInitialized()
-    {
-        return isset(self::$tableDescriptions[static::class]);
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called when the entity get initialized.
-     *
-     * @param bool $new Whether or not the entity is new or from database
-     */
-    public function onInit($new)
-    {
     }
 
     /**
@@ -364,19 +360,6 @@ abstract class Entity implements \Serializable
         if ($changed) {
             $this->onChange($var, $oldValue, $this->__get($var));
         }
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called when something is changed with magic setter.
-     *
-     * @param string $var The variable that got changed.merge(node.inheritedProperties)
-     * @param mixed  $oldValue The old value of the variable
-     * @param mixed  $value The new value of the variable
-     */
-    public function onChange($var, $oldValue, $value)
-    {
     }
 
     /**
@@ -566,6 +549,30 @@ abstract class Entity implements \Serializable
         ksort($this->originalData);
 
         return serialize($this->data) !== serialize($this->originalData);
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called when something is changed with magic setter.
+     *
+     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param mixed  $oldValue The old value of the variable
+     * @param mixed  $value The new value of the variable
+     */
+    public function onChange($var, $oldValue, $value)
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
+     * Get called when the entity get initialized.
+     *
+     * @param bool $new Whether or not the entity is new or from database
+     */
+    public function onInit($new)
+    {
     }
 
     /**

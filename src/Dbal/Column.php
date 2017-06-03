@@ -76,6 +76,12 @@ class Column
         $this->columnDefinition = $columnDefinition;
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if ($value === null) {
@@ -99,6 +105,12 @@ class Column
         return true;
     }
 
+    /**
+     * Get attributes from column
+     *
+     * @param string $name
+     * @return mixed
+     */
     public function __get($name)
     {
         switch ($name) {
@@ -116,12 +128,19 @@ class Column
         }
     }
 
+    /**
+     * Check if default value is given
+     *
+     * @return bool
+     */
     public function hasDefault()
     {
         return $this->default !== null;
     }
 
     /**
+     * Determine and return the type
+     *
      * @return Type
      */
     public function getType()

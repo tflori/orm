@@ -8,12 +8,12 @@ permalink: /reference.html
 
 ### ORM
 
-* [Dbal](#ormdbal)
 * [DbConfig](#ormdbconfig)
 * [Entity](#ormentity)
 * [EntityFetcher](#ormentityfetcher)
 * [EntityManager](#ormentitymanager)
 * [Exception](#ormexception)
+* [Namer](#ormnamer)
 * [Relation](#ormrelation)
 
 
@@ -36,22 +36,38 @@ permalink: /reference.html
 ### ORM\Dbal
 
 * [Column](#ormdbalcolumn)
+* [Dbal](#ormdbaldbal)
+* [Error](#ormdbalerror)
 * [Mysql](#ormdbalmysql)
 * [Other](#ormdbalother)
 * [Pgsql](#ormdbalpgsql)
 * [Sqlite](#ormdbalsqlite)
+* [Table](#ormdbaltable)
 * [Type](#ormdbaltype)
 * [TypeInterface](#ormdbaltypeinterface)
+
+
+### ORM\Dbal\Error
+
+* [InvalidJson](#ormdbalerrorinvalidjson)
+* [NoBoolean](#ormdbalerrornoboolean)
+* [NoDateTime](#ormdbalerrornodatetime)
+* [NoNumber](#ormdbalerrornonumber)
+* [NoString](#ormdbalerrornostring)
+* [NotAllowed](#ormdbalerrornotallowed)
+* [NoTime](#ormdbalerrornotime)
+* [NotNullable](#ormdbalerrornotnullable)
+* [NotValid](#ormdbalerrornotvalid)
+* [TooLong](#ormdbalerrortoolong)
 
 
 ### ORM\Dbal\Type
 
 * [Boolean](#ormdbaltypeboolean)
 * [DateTime](#ormdbaltypedatetime)
-* [Double](#ormdbaltypedouble)
 * [Enum](#ormdbaltypeenum)
-* [Integer](#ormdbaltypeinteger)
 * [Json](#ormdbaltypejson)
+* [Number](#ormdbaltypenumber)
 * [Set](#ormdbaltypeset)
 * [Text](#ormdbaltypetext)
 * [Time](#ormdbaltypetime)
@@ -88,6 +104,140 @@ permalink: /reference.html
 
 
 
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$dbal` | ** \ ORM \ Dbal \ Dbal** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaltypeboolean__construct) Boolean constructor
+* [factory](#ormdbaltypebooleanfactory) Returns a new Type object
+* [fits](#ormdbaltypebooleanfits) Check if this type fits to $columnDefinition
+* [getBoolean](#ormdbaltypebooleangetboolean) Get the string representation for boolean
+* [validate](#ormdbaltypebooleanvalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\Boolean::__construct
+
+```php?start_inline=true
+public function __construct( \ORM\Dbal\Dbal $dbal ): Boolean
+```
+
+##### Boolean constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+
+
+
+#### ORM\Dbal\Type\Boolean::factory
+
+```php?start_inline=true
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
+```
+
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Boolean::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Boolean::getBoolean
+
+```php?start_inline=true
+protected function getBoolean( boolean $bool ): string
+```
+
+##### Get the string representation for boolean
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **boolean**  |  |
+
+
+
+#### ORM\Dbal\Type\Boolean::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
 
 
 
@@ -108,7 +258,9 @@ permalink: /reference.html
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** |  |
+| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
+| **protected** | `$columnDefinition` | **array** |  |
+| **protected** | `$dbal` | **Dbal** |  |
 | **protected** | `$type` | **TypeInterface** |  |
 | **protected** | `$hasDefault` | **boolean** |  |
 | **protected** | `$isNullable` | **boolean** |  |
@@ -118,18 +270,18 @@ permalink: /reference.html
 #### Methods
 
 * [__construct](#ormdbalcolumn__construct) Column constructor.
-* [factory](#ormdbalcolumnfactory) Returns a new column with params from $columnDefinition
-* [getName](#ormdbalcolumngetname) 
-* [getType](#ormdbalcolumngettype) 
-* [hasDefault](#ormdbalcolumnhasdefault) 
-* [isNullable](#ormdbalcolumnisnullable) 
+* [__get](#ormdbalcolumn__get) Get attributes from column
+* [getRegisteredType](#ormdbalcolumngetregisteredtype) Get the registered type for $columnDefinition
+* [getType](#ormdbalcolumngettype) Determine and return the type
+* [hasDefault](#ormdbalcolumnhasdefault) Check if default value is given
+* [registerType](#ormdbalcolumnregistertype) Register $type for describe
+* [validate](#ormdbalcolumnvalidate) Check if $value is valid for this type
 
 #### ORM\Dbal\Column::__construct
 
 ```php?start_inline=true
 public function __construct(
-    string $name, \ORM\Dbal\TypeInterface $type, boolean $hasDefault, 
-    boolean $isNullable
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): Column
 ```
 
@@ -145,29 +297,48 @@ public function __construct(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$type` | **TypeInterface**  |  |
-| `$hasDefault` | **boolean**  |  |
-| `$isNullable` | **boolean**  |  |
+| `$dbal` | **Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
 
 
 
-#### ORM\Dbal\Column::factory
+#### ORM\Dbal\Column::__get
 
 ```php?start_inline=true
-public static function factory(
-    array $columnDefinition, \ORM\Dbal\TypeInterface $type
-): static
+public function __get( string $name ): mixed
 ```
 
-##### Returns a new column with params from $columnDefinition
+##### Get attributes from column
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+
+
+
+#### ORM\Dbal\Column::getRegisteredType
+
+```php?start_inline=true
+protected static function getRegisteredType( array $columnDefinition ): string
+```
+
+##### Get the registered type for $columnDefinition
 
 
 
 **Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+<br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **string**
 <br />
 
 ##### Parameters
@@ -175,23 +346,6 @@ public static function factory(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$columnDefinition` | **array**  |  |
-| `$type` | **TypeInterface**  |  |
-
-
-
-#### ORM\Dbal\Column::getName
-
-```php?start_inline=true
-public function getName(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
 
 
 
@@ -201,6 +355,7 @@ public function getName(): string
 public function getType(): \ORM\Dbal\Type
 ```
 
+##### Determine and return the type
 
 
 
@@ -217,6 +372,7 @@ public function getType(): \ORM\Dbal\Type
 public function hasDefault(): boolean
 ```
 
+##### Check if default value is given
 
 
 
@@ -227,473 +383,7 @@ public function hasDefault(): boolean
 
 
 
-#### ORM\Dbal\Column::isNullable
-
-```php?start_inline=true
-public function isNullable(): boolean
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-
-
-
-
----
-
-### ORM\Dbal\Type\DateTime
-
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
-
-
-#### Date and datetime data type
-
-
-
-
-
-
-#### Properties
-
-| Visibility | Name | Type | Description                           |
-|------------|------|------|---------------------------------------|
-| **protected** | `$precision` | **integer** |  |
-
-
-
-#### Methods
-
-* [__construct](#ormdbaltypedatetime__construct) DateTime constructor.
-* [factory](#ormdbaltypedatetimefactory) 
-* [fromDefinition](#ormdbaltypedatetimefromdefinition) Create this type from $columnDefinition.
-
-#### ORM\Dbal\Type\DateTime::__construct
-
-```php?start_inline=true
-public function __construct( integer $precision = null ): DateTime
-```
-
-##### DateTime constructor.
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$precision` | **integer**  |  |
-
-
-
-#### ORM\Dbal\Type\DateTime::factory
-
-```php?start_inline=true
-public static function factory( $columnDefinition )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinition` |   |  |
-
-
-
-#### ORM\Dbal\Type\DateTime::fromDefinition
-
-```php?start_inline=true
-public static function fromDefinition(
-    $columnDefinitoin
-): \ORM\Dbal\TypeInterface
-```
-
-##### Create this type from $columnDefinition.
-
-Returns null when column definition does not match.
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinitoin` |   |  |
-
-
-
-
-
----
-
-### ORM\Dbal
-
-
-
-#### Base class for database abstraction
-
-
-
-
-
-
-#### Properties
-
-| Visibility | Name | Type | Description                           |
-|------------|------|------|---------------------------------------|
-| **protected** | `$em` | **EntityManager** |  |
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
-| **protected static** | `$quotingCharacter` | **string** |  |
-| **protected static** | `$identifierDivider` | **string** |  |
-| **protected static** | `$booleanTrue` | **string** |  |
-| **protected static** | `$booleanFalse` | **string** |  |
-
-
-
-#### Methods
-
-* [__construct](#ormdbal__construct) Dbal constructor.
-* [buildInsertStatement](#ormdbalbuildinsertstatement) Build the insert statement for $entity
-* [delete](#ormdbaldelete) Delete $entity from database
-* [describe](#ormdbaldescribe) Describe a table
-* [escapeIdentifier](#ormdbalescapeidentifier) Returns $identifier quoted for use in a sql statement
-* [escapeValue](#ormdbalescapevalue) Returns $value formatted to use in a sql statement.
-* [extractParenthesis](#ormdbalextractparenthesis) Extract content from parenthesis in $type
-* [getBooleanFalse](#ormdbalgetbooleanfalse) 
-* [getBooleanTrue](#ormdbalgetbooleantrue) 
-* [getIdentifierDivider](#ormdbalgetidentifierdivider) 
-* [getQuotingCharacter](#ormdbalgetquotingcharacter) 
-* [getType](#ormdbalgettype) Get the type for $columnDefinition
-* [insert](#ormdbalinsert) Inserts $entity and returns the new ID for autoincrement or true
-* [normalizeType](#ormdbalnormalizetype) Normalize $type
-* [registerType](#ormdbalregistertype) Register $type for describe
-* [setBooleanFalse](#ormdbalsetbooleanfalse) 
-* [setBooleanTrue](#ormdbalsetbooleantrue) 
-* [setIdentifierDivider](#ormdbalsetidentifierdivider) 
-* [setQuotingCharacter](#ormdbalsetquotingcharacter) 
-
-#### ORM\Dbal::__construct
-
-```php?start_inline=true
-public function __construct( \ORM\EntityManager $entityManager ): Dbal
-```
-
-##### Dbal constructor.
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$entityManager` | **EntityManager**  |  |
-
-
-
-#### ORM\Dbal::buildInsertStatement
-
-```php?start_inline=true
-protected function buildInsertStatement( \ORM\Entity $entity ): string
-```
-
-##### Build the insert statement for $entity
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$entity` | **Entity**  |  |
-
-
-
-#### ORM\Dbal::delete
-
-```php?start_inline=true
-public function delete( \ORM\Entity $entity ): boolean
-```
-
-##### Delete $entity from database
-
-This method does not delete from the map - you can still receive the entity via fetch.
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$entity` | **Entity**  |  |
-
-
-
-#### ORM\Dbal::describe
-
-```php?start_inline=true
-public function describe( string $table ): array<\ORM\Dbal\Column>
-```
-
-##### Describe a table
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
-<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$table` | **string**  |  |
-
-
-
-#### ORM\Dbal::escapeIdentifier
-
-```php?start_inline=true
-public function escapeIdentifier( string $identifier ): string
-```
-
-##### Returns $identifier quoted for use in a sql statement
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$identifier` | **string**  | Identifier to quote |
-
-
-
-#### ORM\Dbal::escapeValue
-
-```php?start_inline=true
-public function escapeValue( $value ): string
-```
-
-##### Returns $value formatted to use in a sql statement.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
-
-
-
-#### ORM\Dbal::extractParenthesis
-
-```php?start_inline=true
-protected function extractParenthesis( string $type ): string
-```
-
-##### Extract content from parenthesis in $type
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$type` | **string**  |  |
-
-
-
-#### ORM\Dbal::getBooleanFalse
-
-```php?start_inline=true
-public static function getBooleanFalse(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal::getBooleanTrue
-
-```php?start_inline=true
-public static function getBooleanTrue(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal::getIdentifierDivider
-
-```php?start_inline=true
-public static function getIdentifierDivider(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal::getQuotingCharacter
-
-```php?start_inline=true
-public static function getQuotingCharacter(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal::getType
-
-```php?start_inline=true
-protected function getType( array $columnDefinition ): \ORM\Dbal\TypeInterface
-```
-
-##### Get the type for $columnDefinition
-
-Executes fromDefinition of each registered Type
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinition` | **array**  |  |
-
-
-
-#### ORM\Dbal::insert
-
-```php?start_inline=true
-public function insert(
-    \ORM\Entity $entity, boolean $useAutoIncrement = true
-): mixed
-```
-
-##### Inserts $entity and returns the new ID for autoincrement or true
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **mixed**
-<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$entity` | **Entity**  |  |
-| `$useAutoIncrement` | **boolean**  |  |
-
-
-
-#### ORM\Dbal::normalizeType
-
-```php?start_inline=true
-protected function normalizeType( string $type ): string
-```
-
-##### Normalize $type
-
-The type returned by mysql is for example VARCHAR(20) - this function converts it to varchar
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$type` | **string**  |  |
-
-
-
-#### ORM\Dbal::registerType
+#### ORM\Dbal\Column::registerType
 
 ```php?start_inline=true
 public static function registerType( string $type )
@@ -716,17 +406,83 @@ public static function registerType( string $type )
 
 
 
-#### ORM\Dbal::setBooleanFalse
+#### ORM\Dbal\Column::validate
 
 ```php?start_inline=true
-public static function setBooleanFalse( string $false )
+public function validate( $value ): boolean|\ORM\Dbal\Error
 ```
 
+##### Check if $value is valid for this type
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Type\DateTime
+
+**Extends:** [ORM\Dbal\Type](#ormdbaltype)
+
+
+#### Date and datetime data type
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| DATE_REGEX | `'(\+|-)?\d{4,}-\d{2}-\d{2}'` |
+| TIME_REGEX | `'\d{2}:\d{2}:\d{2}(\.\d{1,6})?'` |
+| ZONE_REGEX | `'((\+|-)\d{1,2}(:?\d{2})?|Z)?'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$precision` | **integer** |  |
+| **protected** | `$regex` | **string** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaltypedatetime__construct) DateTime constructor
+* [factory](#ormdbaltypedatetimefactory) Returns a new Type object
+* [fits](#ormdbaltypedatetimefits) Check if this type fits to $columnDefinition
+* [getPrecision](#ormdbaltypedatetimegetprecision) 
+* [validate](#ormdbaltypedatetimevalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\DateTime::__construct
+
+```php?start_inline=true
+public function __construct(
+    integer $precision = null, boolean $dateOnly = false
+): DateTime
+```
+
+##### DateTime constructor
+
+
+
+**Visibility:** this method is **public**.
 <br />
 
 
@@ -734,21 +490,155 @@ public static function setBooleanFalse( string $false )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$false` | **string**  |  |
+| `$precision` | **integer**  |  |
+| `$dateOnly` | **boolean**  |  |
 
 
 
-#### ORM\Dbal::setBooleanTrue
+#### ORM\Dbal\Type\DateTime::factory
 
 ```php?start_inline=true
-public static function setBooleanTrue( string $true )
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
 ```
 
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\DateTime::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\DateTime::getPrecision
+
+```php?start_inline=true
+public function getPrecision(): integer
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\Dbal\Type\DateTime::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Dbal
+
+
+
+#### Base class for database abstraction
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
+| **protected** | `$booleanFalse` | **string** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaldbal__construct) Dbal constructor.
+* [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
+* [delete](#ormdbaldbaldelete) Delete $entity from database
+* [describe](#ormdbaldbaldescribe) Describe a table
+* [escapeIdentifier](#ormdbaldbalescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
+* [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
+* [insert](#ormdbaldbalinsert) Inserts $entity and returns the new ID for autoincrement or true
+* [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
+* [setOption](#ormdbaldbalsetoption) Set $option to $value
+
+#### ORM\Dbal\Dbal::__construct
+
+```php?start_inline=true
+public function __construct(
+    \ORM\EntityManager $entityManager, $options = array()
+): Dbal
+```
+
+##### Dbal constructor.
+
+
+
+**Visibility:** this method is **public**.
 <br />
 
 
@@ -756,51 +646,221 @@ public static function setBooleanTrue( string $true )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$true` | **string**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+| `$options` |   |  |
 
 
 
-#### ORM\Dbal::setIdentifierDivider
+#### ORM\Dbal\Dbal::buildInsertStatement
 
 ```php?start_inline=true
-public static function setIdentifierDivider( string $divider )
+protected function buildInsertStatement( \ORM\Entity $entity ): string
 ```
 
+##### Build the insert statement for $entity
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **protected**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$divider` | **string**  |  |
+| `$entity` | **\ORM\Entity**  |  |
 
 
 
-#### ORM\Dbal::setQuotingCharacter
+#### ORM\Dbal\Dbal::delete
 
 ```php?start_inline=true
-public static function setQuotingCharacter( string $char )
+public function delete( \ORM\Entity $entity ): boolean
 ```
 
+##### Delete $entity from database
 
+This method does not delete from the map - you can still receive the entity via fetch.
 
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$char` | **string**  |  |
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Dbal::describe
+
+```php?start_inline=true
+public function describe(
+    string $table
+): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+```
+
+##### Describe a table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
+<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  |  |
+
+
+
+#### ORM\Dbal\Dbal::escapeIdentifier
+
+```php?start_inline=true
+public function escapeIdentifier( string $identifier ): string
+```
+
+##### Returns $identifier quoted for use in a sql statement
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Dbal\Dbal::escapeValue
+
+```php?start_inline=true
+public function escapeValue( $value ): string
+```
+
+##### Returns $value formatted to use in a sql statement.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
+
+
+
+#### ORM\Dbal\Dbal::extractParenthesis
+
+```php?start_inline=true
+protected function extractParenthesis( string $type ): string
+```
+
+##### Extract content from parenthesis in $type
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Dbal::insert
+
+```php?start_inline=true
+public function insert(
+    \ORM\Entity $entity, boolean $useAutoIncrement = true
+): mixed
+```
+
+##### Inserts $entity and returns the new ID for autoincrement or true
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$useAutoIncrement` | **boolean**  |  |
+
+
+
+#### ORM\Dbal\Dbal::normalizeType
+
+```php?start_inline=true
+protected function normalizeType( string $type ): string
+```
+
+##### Normalize $type
+
+The type returned by mysql is for example VARCHAR(20) - this function converts it to varchar
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Dbal::setOption
+
+```php?start_inline=true
+public function setOption( string $option, $value ): Dbal
+```
+
+##### Set $option to $value
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Dbal**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  |  |
+| `$value` | **mixed**  |  |
 
 
 
@@ -898,23 +958,6 @@ public function getDsn(): string
 
 ---
 
-### ORM\Dbal\Type\Double
-
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
-
-
-#### Float, double and decimal data type
-
-
-
-
-
-
-
-
-
----
-
 ### ORM\Entity
 
 
@@ -953,12 +996,13 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
 | **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
 | **protected static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
-| **protected static** | `$namingUsed` | **boolean** | Whether or not the naming got used |
 | **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
 | **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$enableValidator` | **boolean** | Whether or not the validator for this class is enabled. |
+| **protected static** | `$enabledValidators` | **array&lt;boolean>** | Whether or not the validator for a class got enabled during runtime. |
 | **protected static** | `$relations` | **array** | Relation definitions |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
@@ -974,22 +1018,23 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__set](#ormentity__set) Set $var to $value
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
-* [describe](#ormentitydescribe) Get an array of Columns for this table.
+* [describe](#ormentitydescribe) Get a description for this table.
+* [disableValidator](#ormentitydisablevalidator) Disable validator
+* [enableValidator](#ormentityenablevalidator) Enable validator
 * [fetch](#ormentityfetch) Fetches related objects
-* [forceNamingScheme](#ormentityforcenamingscheme) Enforce $namingScheme to $name
-* [getColumnName](#ormentitygetcolumnname) Get the column name of $name
+* [getColumnName](#ormentitygetcolumnname) Get the column name of $field
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
 * [getNamingSchemeTable](#ormentitygetnamingschemetable) 
 * [getPrimaryKey](#ormentitygetprimarykey) Get the primary key
 * [getPrimaryKeyVars](#ormentitygetprimarykeyvars) Get the primary key vars
-* [getReflection](#ormentitygetreflection) Get reflection of the entity
 * [getRelated](#ormentitygetrelated) Get related objects
 * [getRelation](#ormentitygetrelation) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
-* [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column.
+* [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column
 * [isDirty](#ormentityisdirty) Checks if entity or $var got changed
+* [isValidatorEnabled](#ormentityisvalidatorenabled) Check if the validator is enabled
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
 * [postPersist](#ormentitypostpersist) Empty event handler
@@ -997,7 +1042,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [prePersist](#ormentityprepersist) Empty event handler
 * [preUpdate](#ormentitypreupdate) Empty event handler
 * [reset](#ormentityreset) Resets the entity or $var to original data
-* [save](#ormentitysave) Save the entity to $entityManager
+* [save](#ormentitysave) Save the entity to EntityManager
 * [serialize](#ormentityserialize) String representation of data
 * [setEntityManager](#ormentitysetentitymanager) 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
@@ -1006,6 +1051,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setRelated](#ormentitysetrelated) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
+* [validate](#ormentityvalidate) Validate $value for $field
+* [validateArray](#ormentityvalidatearray) Validate $fields
 
 #### ORM\Entity::__construct
 
@@ -1096,8 +1143,7 @@ The onChange event is called after something got changed.
 
 ```php?start_inline=true
 public function addRelated(
-    string $relation, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager = null
+    string $relation, array<\ORM\Entity> $entities
 )
 ```
 
@@ -1117,7 +1163,6 @@ This method does not take care about already existing relations and will fail ha
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
-| `$entityManager` | **EntityManager**  |  |
 
 
 
@@ -1125,8 +1170,7 @@ This method does not take care about already existing relations and will fail ha
 
 ```php?start_inline=true
 public function deleteRelated(
-    string $relation, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager = null
+    string $relation, array<\ORM\Entity> $entities
 )
 ```
 
@@ -1144,33 +1188,70 @@ This method is only for many-to-many relations.
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
-| `$entityManager` | **EntityManager**  |  |
 
 
 
 #### ORM\Entity::describe
 
 ```php?start_inline=true
-public static function describe(
-    \ORM\EntityManager $entityManager
-): array<\ORM\Dbal\Column>
+public static function describe(): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
-##### Get an array of Columns for this table.
+##### Get a description for this table.
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
+ **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
 <br />
+
+
+
+#### ORM\Entity::disableValidator
+
+```php?start_inline=true
+public static function disableValidator( boolean $disable = true )
+```
+
+##### Disable validator
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entityManager` | **EntityManager**  |  |
+| `$disable` | **boolean**  |  |
+
+
+
+#### ORM\Entity::enableValidator
+
+```php?start_inline=true
+public static function enableValidator( boolean $enable = true )
+```
+
+##### Enable validator
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$enable` | **boolean**  |  |
 
 
 
@@ -1178,8 +1259,7 @@ public static function describe(
 
 ```php?start_inline=true
 public function fetch(
-    string $relation, \ORM\EntityManager $entityManager = null, 
-    boolean $getAll = false
+    string $relation, boolean $getAll = false
 ): \ORM\Entity|array<\ORM\Entity>|\ORM\EntityFetcher
 ```
 
@@ -1199,51 +1279,22 @@ It will throw an error for non owner when the key is incomplete.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$relation` | **string**  | The relation to fetch |
-| `$entityManager` | **EntityManager**  | The EntityManager to use |
 | `$getAll` | **boolean**  |  |
-
-
-
-#### ORM\Entity::forceNamingScheme
-
-```php?start_inline=true
-protected static function forceNamingScheme(
-    string $name, string $namingScheme
-): string
-```
-
-##### Enforce $namingScheme to $name
-
-Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
-and UPPER.
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$name` | **string**  | The name of the var / column |
-| `$namingScheme` | **string**  | The naming scheme to use |
 
 
 
 #### ORM\Entity::getColumnName
 
 ```php?start_inline=true
-public static function getColumnName( string $var ): string
+public static function getColumnName( string $field ): string
 ```
 
-##### Get the column name of $name
+##### Get the column name of $field
 
 The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
 to $namingSchemeColumn.
 
-**ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to exactly
+**ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
 the same as getColumnName($name).
 
 **Static:** this method is **static**.
@@ -1256,7 +1307,7 @@ the same as getColumnName($name).
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  |  |
+| `$field` | **string**  |  |
 
 
 
@@ -1269,7 +1320,8 @@ public static function getNamingSchemeColumn(): string
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
@@ -1286,7 +1338,8 @@ public static function getNamingSchemeMethods(): string
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
@@ -1303,7 +1356,8 @@ public static function getNamingSchemeTable(): string
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
@@ -1343,24 +1397,6 @@ columns.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **array**
-<br />
-
-
-
-#### ORM\Entity::getReflection
-
-```php?start_inline=true
-protected static function getReflection(): \ReflectionClass
-```
-
-##### Get reflection of the entity
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **\ReflectionClass**
 <br />
 
 
@@ -1442,7 +1478,8 @@ public static function getTableNameTemplate(): string
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
@@ -1456,7 +1493,7 @@ public static function getTableNameTemplate(): string
 public static function isAutoIncremented(): boolean
 ```
 
-##### Check if the table has a auto increment column.
+##### Check if the table has a auto increment column
 
 
 
@@ -1488,6 +1525,24 @@ public function isDirty( string $var = null ): boolean
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$var` | **string**  | Check only this variable or all variables |
+
+
+
+#### ORM\Entity::isValidatorEnabled
+
+```php?start_inline=true
+public static function isValidatorEnabled(): boolean
+```
+
+##### Check if the validator is enabled
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -1626,10 +1681,10 @@ public function reset( string $var = null )
 #### ORM\Entity::save
 
 ```php?start_inline=true
-public function save( \ORM\EntityManager $entityManager = null ): \ORM\Entity
+public function save(): \ORM\Entity
 ```
 
-##### Save the entity to $entityManager
+##### Save the entity to EntityManager
 
 
 
@@ -1637,12 +1692,6 @@ public function save( \ORM\EntityManager $entityManager = null ): \ORM\Entity
 <br />
  **Returns**: this method returns **\ORM\Entity**
 <br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\NoEntityManager**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$entityManager` | **EntityManager**  |  |
 
 
 
@@ -1698,10 +1747,11 @@ public static function setNamingSchemeColumn( string $namingSchemeColumn )
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -1720,10 +1770,11 @@ public static function setNamingSchemeMethods( string $namingSchemeMethods )
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -1742,10 +1793,11 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -1787,10 +1839,11 @@ public static function setTableNameTemplate( string $tableNameTemplate )
 
 
 
-**Static:** this method is **static**.
+**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
+<br />**Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -1825,6 +1878,57 @@ public function unserialize( string $serialized )
 **See Also:**
 
 * [http://php.net/manual/en/serializable.unserialize.php](http://php.net/manual/en/serializable.unserialize.php)
+
+#### ORM\Entity::validate
+
+```php?start_inline=true
+public static function validate(
+    string $field, $value
+): boolean|\ORM\Dbal\Error
+```
+
+##### Validate $value for $field
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />**Throws:** this method may throw **\ORM\Exception**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$field` | **string**  |  |
+| `$value` | **mixed**  |  |
+
+
+
+#### ORM\Entity::validateArray
+
+```php?start_inline=true
+public static function validateArray( array $fields ): array
+```
+
+##### Validate $fields
+
+$fields has to be an array of $field => $value
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fields` | **array**  |  |
+
+
 
 
 
@@ -1889,7 +1993,7 @@ Supported:
 * [column](#ormentityfetchercolumn) Add $column
 * [columns](#ormentityfetchercolumns) Set $columns
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
-* [count](#ormentityfetchercount) 
+* [count](#ormentityfetchercount) Get the count of the resulting items
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) 
@@ -2143,15 +2247,17 @@ $translateCols is true (default).
 #### ORM\EntityFetcher::count
 
 ```php?start_inline=true
-public function count()
+public function count(): integer
 ```
 
+##### Get the count of the resulting items
 
 
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **integer**
+<br />
 
 
 
@@ -2742,14 +2848,16 @@ where('name = ?', ['John Doe'])
 | OPT_NAMING_SCHEME_TABLE | `'namingSchemeTable'` |
 | OPT_NAMING_SCHEME_COLUMN | `'namingSchemeColumn'` |
 | OPT_NAMING_SCHEME_METHODS | `'namingSchemeMethods'` |
+| OPT_QUOTING_CHARACTER | `'quotingChar'` |
+| OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
+| OPT_BOOLEAN_TRUE | `'true'` |
+| OPT_BOOLEAN_FALSE | `'false'` |
 | OPT_MYSQL_BOOLEAN_TRUE | `'mysqlTrue'` |
 | OPT_MYSQL_BOOLEAN_FALSE | `'mysqlFalse'` |
 | OPT_SQLITE_BOOLEAN_TRUE | `'sqliteTrue'` |
 | OPT_SQLITE_BOOLEAN_FASLE | `'sqliteFalse'` |
 | OPT_PGSQL_BOOLEAN_TRUE | `'pgsqlTrue'` |
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
-| OPT_QUOTING_CHARACTER | `'quotingChar'` |
-| OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
 
 
 #### Properties
@@ -2757,23 +2865,31 @@ where('name = ?', ['John Doe'])
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$connection` | ** \ PDO &#124; callable &#124; DbConfig** | Connection to database |
-| **private** | `$dbal` | **Dbal** | The Database Abstraction Layer |
+| **protected** | `$dbal` | **Dbal \ Dbal** | The Database Abstraction Layer |
+| **protected** | `$namer` | **Namer** | The Namer instance |
 | **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
 | **protected** | `$options` | **array** | The options set for this instance |
-| **protected** | `$descriptions` | **array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
+| **protected** | `$descriptions` | **array&lt;Dbal \ Table> &#124; array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
+| **protected static** | `$emMapping` | **EntityManager[string] &#124; EntityManager[string][string]** | Mapping for EntityManager instances |
 
 
 
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
+* [defineForNamespace](#ormentitymanagerdefinefornamespace) Define $this EntityManager as the default EntityManager for $nameSpace
+* [defineForParent](#ormentitymanagerdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormentitymanagerdelete) Delete $entity from database
 * [describe](#ormentitymanagerdescribe) Returns an array of columns from $table.
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection.
-* [getDbal](#ormentitymanagergetdbal) 
+* [getDbal](#ormentitymanagergetdbal) Get the Datbase Abstraction Layer
+* [getInstance](#ormentitymanagergetinstance) Get an instance of the EntityManager.
+* [getInstanceByNameSpace](#ormentitymanagergetinstancebynamespace) Get the instance by NameSpace mapping
+* [getInstanceByParent](#ormentitymanagergetinstancebyparent) Get the instance by Parent class mapping
+* [getNamer](#ormentitymanagergetnamer) Get the Namer instance
 * [getOption](#ormentitymanagergetoption) Get $option
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
@@ -2799,6 +2915,52 @@ public function __construct( array $options = array() ): EntityManager
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$options` | **array**  | Options for the new EntityManager |
+
+
+
+#### ORM\EntityManager::defineForNamespace
+
+```php?start_inline=true
+public function defineForNamespace( $nameSpace ): EntityManager
+```
+
+##### Define $this EntityManager as the default EntityManager for $nameSpace
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$nameSpace` |   |  |
+
+
+
+#### ORM\EntityManager::defineForParent
+
+```php?start_inline=true
+public function defineForParent( $class ): EntityManager
+```
+
+##### Define $this EntityManager as the default EntityManager for subClasses of $class
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
 
 
 
@@ -2828,7 +2990,9 @@ This method does not delete from the map - you can still receive the entity via 
 #### ORM\EntityManager::describe
 
 ```php?start_inline=true
-public function describe( string $table ): array<\ORM\Dbal\Column>
+public function describe(
+    string $table
+): array<\ORM\Dbal\Column>|\ORM\Dbal\Table
 ```
 
 ##### Returns an array of columns from $table.
@@ -2837,7 +3001,7 @@ public function describe( string $table ): array<\ORM\Dbal\Column>
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
+ **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;|\ORM\Dbal\Table**
 <br />
 
 ##### Parameters
@@ -2944,15 +3108,109 @@ public function getConnection(): \PDO
 #### ORM\EntityManager::getDbal
 
 ```php?start_inline=true
-public function getDbal()
+public function getDbal(): \ORM\Dbal\Dbal
 ```
 
+##### Get the Datbase Abstraction Layer
 
 
 
 **Visibility:** this method is **public**.
 <br />
+ **Returns**: this method returns **\ORM\Dbal\Dbal**
+<br />
 
+
+
+#### ORM\EntityManager::getInstance
+
+```php?start_inline=true
+public static function getInstance( string $class = null ): \ORM\EntityManager
+```
+
+##### Get an instance of the EntityManager.
+
+If no class is given it gets $class from backtrace.
+
+It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+
+
+
+#### ORM\EntityManager::getInstanceByNameSpace
+
+```php?start_inline=true
+private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
+```
+
+##### Get the instance by NameSpace mapping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\EntityManager::getInstanceByParent
+
+```php?start_inline=true
+private static function getInstanceByParent( $class ): \ORM\EntityManager
+```
+
+##### Get the instance by Parent class mapping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\EntityManager::getNamer
+
+```php?start_inline=true
+public function getNamer(): \ORM\Namer
+```
+
+##### Get the Namer instance
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Namer**
+<br />
 
 
 
@@ -3097,6 +3355,250 @@ If $reset is true it also calls reset() on $entity.
 
 
 
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$allowedValues` | **array&lt;string>** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaltypeenum__construct) Set constructor
+* [factory](#ormdbaltypeenumfactory) Returns a new Type object
+* [fits](#ormdbaltypeenumfits) Check if this type fits to $columnDefinition
+* [getAllowedValues](#ormdbaltypeenumgetallowedvalues) 
+* [validate](#ormdbaltypeenumvalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\Enum::__construct
+
+```php?start_inline=true
+public function __construct( array<string> $allowedValues = null ): Enum
+```
+
+##### Set constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$allowedValues` | **array&lt;string>**  |  |
+
+
+
+#### ORM\Dbal\Type\Enum::factory
+
+```php?start_inline=true
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
+```
+
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Enum::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Enum::getAllowedValues
+
+```php?start_inline=true
+public function getAllowedValues(): array<string>
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,string&gt;**
+<br />
+
+
+
+#### ORM\Dbal\Type\Enum::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Error
+
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'UNKNOWN'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbalerror__construct) Error constructor
+* [addParams](#ormdbalerroraddparams) Add message parameters
+* [getCode](#ormdbalerrorgetcode) 
+* [getMessage](#ormdbalerrorgetmessage) Build and return message
+
+#### ORM\Dbal\Error::__construct
+
+```php?start_inline=true
+public function __construct(
+    array $params = array(), null $code = null, null $message = null
+): Error
+```
+
+##### Error constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$params` | **array**  |  |
+| `$code` | **null**  |  |
+| `$message` | **null**  |  |
+
+
+
+#### ORM\Dbal\Error::addParams
+
+```php?start_inline=true
+public function addParams( array<string> $params )
+```
+
+##### Add message parameters
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$params` | **array&lt;string>**  |  |
+
+
+
+#### ORM\Dbal\Error::getCode
+
+```php?start_inline=true
+public function getCode(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Error::getMessage
+
+```php?start_inline=true
+public function getMessage(): string
+```
+
+##### Build and return message
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
 
 
 
@@ -3135,23 +3637,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Dbal\Type\Integer
-
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
-
-
-#### Integer (of any size) data type
-
-
-
-
-
-
-
-
-
----
-
 ### ORM\Exceptions\InvalidConfiguration
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -3162,6 +3647,35 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+---
+
+### ORM\Dbal\Error\InvalidJson
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'INVALID_JSON'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -3211,6 +3725,87 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+#### Methods
+
+* [factory](#ormdbaltypejsonfactory) Returns a new Type object
+* [fits](#ormdbaltypejsonfits) Check if this type fits to $columnDefinition
+* [validate](#ormdbaltypejsonvalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\Json::factory
+
+```php?start_inline=true
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
+```
+
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Json::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Json::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
 
 
 
@@ -3587,7 +4182,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 ### ORM\Dbal\Mysql
 
-**Extends:** [ORM\Dbal](#ormdbal)
+**Extends:** [ORM\Dbal\Dbal](#ormdbaldbal)
 
 
 #### Database abstraction for MySQL databases
@@ -3601,13 +4196,12 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
-| **protected static** | `$quotingCharacter` | **string** |  |
-| **protected static** | `$identifierDivider` | **string** |  |
-| **protected static** | `$booleanTrue` | **string** |  |
-| **protected static** | `$booleanFalse` | **string** |  |
-| **protected static** | `$typeMapping` |  |  |
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
+| **protected** | `$booleanFalse` | **string** |  |
 
 
 
@@ -3620,24 +4214,17 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [escapeIdentifier](#ormdbalmysqlescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
-* [getBooleanFalse](#ormdbalmysqlgetbooleanfalse) 
-* [getBooleanTrue](#ormdbalmysqlgetbooleantrue) 
-* [getIdentifierDivider](#ormdbalmysqlgetidentifierdivider) 
-* [getQuotingCharacter](#ormdbalmysqlgetquotingcharacter) 
-* [getType](#ormdbalmysqlgettype) Get the type for $columnDefinition
 * [insert](#ormdbalmysqlinsert) Inserts $entity and returns the new ID for autoincrement or true
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
-* [registerType](#ormdbalmysqlregistertype) Register $type for describe
-* [setBooleanFalse](#ormdbalmysqlsetbooleanfalse) 
-* [setBooleanTrue](#ormdbalmysqlsetbooleantrue) 
-* [setIdentifierDivider](#ormdbalmysqlsetidentifierdivider) 
-* [setQuotingCharacter](#ormdbalmysqlsetquotingcharacter) 
+* [setOption](#ormdbalmysqlsetoption) Set $option to $value
 
 #### ORM\Dbal\Mysql::__construct
 
 ```php?start_inline=true
-public function __construct( \ORM\EntityManager $entityManager ): Dbal
+public function __construct(
+    \ORM\EntityManager $entityManager, $options = array()
+): Dbal
 ```
 
 ##### Dbal constructor.
@@ -3653,6 +4240,7 @@ public function __construct( \ORM\EntityManager $entityManager ): Dbal
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
+| `$options` |   |  |
 
 
 
@@ -3705,7 +4293,9 @@ This method does not delete from the map - you can still receive the entity via 
 #### ORM\Dbal\Mysql::describe
 
 ```php?start_inline=true
-public function describe( string $table ): array<\ORM\Dbal\Column>
+public function describe(
+    string $table
+): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -3714,7 +4304,7 @@ public function describe( string $table ): array<\ORM\Dbal\Column>
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
+ **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
 <br />
 
 ##### Parameters
@@ -3794,97 +4384,6 @@ protected function extractParenthesis( string $type ): string
 
 
 
-#### ORM\Dbal\Mysql::getBooleanFalse
-
-```php?start_inline=true
-public static function getBooleanFalse(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Mysql::getBooleanTrue
-
-```php?start_inline=true
-public static function getBooleanTrue(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Mysql::getIdentifierDivider
-
-```php?start_inline=true
-public static function getIdentifierDivider(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Mysql::getQuotingCharacter
-
-```php?start_inline=true
-public static function getQuotingCharacter(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Mysql::getType
-
-```php?start_inline=true
-protected function getType( array $columnDefinition ): \ORM\Dbal\TypeInterface
-```
-
-##### Get the type for $columnDefinition
-
-Executes fromDefinition of each registered Type
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinition` | **array**  |  |
-
-
-
 #### ORM\Dbal\Mysql::insert
 
 ```php?start_inline=true
@@ -3958,18 +4457,80 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 
 
 
-#### ORM\Dbal\Mysql::registerType
+#### ORM\Dbal\Mysql::setOption
 
 ```php?start_inline=true
-public static function registerType( string $type )
+public function setOption( string $option, $value ): Dbal
 ```
 
-##### Register $type for describe
+##### Set $option to $value
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Mysql**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  |  |
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Namer
+
+
+
+#### Namer is for naming errors, columns, tables and methods
+
+Namer is an artificial word and is more a name giver. We just don't wanted to write so much.
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
+| **protected** | `$tableNameScheme` | **string** | The naming scheme to use for table names. |
+| **protected** | `$tableNames` | **array&lt;string>** |  |
+| **protected** | `$columnNames` | **array&lt;string[]>** |  |
+| **protected** | `$columnNameScheme` | **string** | The naming scheme to use for column names. |
+| **protected** | `$methodNameScheme` | **string** | The naming scheme used for method names. |
+
+
+
+#### Methods
+
+* [__construct](#ormnamer__construct) Namer constructor.
+* [forceNamingScheme](#ormnamerforcenamingscheme) Enforce $namingScheme to $name
+* [getColumnName](#ormnamergetcolumnname) Get the column name with $namingScheme or default naming scheme
+* [getMethodName](#ormnamergetmethodname) Get the column name with $namingScheme or default naming scheme
+* [getTableName](#ormnamergettablename) Get the table name for $reflection
+* [getValue](#ormnamergetvalue) Get the value for $var from $values using $arrayGlue
+* [setOption](#ormnamersetoption) Set $option to $value
+* [substitute](#ormnamersubstitute) Substitute a $template with $values
+
+#### ORM\Namer::__construct
+
+```php?start_inline=true
+public function __construct( array $options = array() ): Namer
+```
+
+##### Namer constructor.
+
+
+
+**Visibility:** this method is **public**.
 <br />
 
 
@@ -3977,96 +4538,219 @@ public static function registerType( string $type )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$type` | **string**  | The full qualified class name |
+| `$options` | **array**  |  |
 
 
 
-#### ORM\Dbal\Mysql::setBooleanFalse
+#### ORM\Namer::forceNamingScheme
 
 ```php?start_inline=true
-public static function setBooleanFalse( string $false )
+public function forceNamingScheme( string $name, string $namingScheme ): string
 ```
 
+##### Enforce $namingScheme to $name
 
+Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
+and UPPER.
 
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$false` | **string**  |  |
+| `$name` | **string**  | The name of the var / column |
+| `$namingScheme` | **string**  | The naming scheme to use |
 
 
 
-#### ORM\Dbal\Mysql::setBooleanTrue
+#### ORM\Namer::getColumnName
 
 ```php?start_inline=true
-public static function setBooleanTrue( string $true )
+public function getColumnName(
+    $class, string $field, string $prefix = null, string $namingScheme = null
+): string
 ```
 
+##### Get the column name with $namingScheme or default naming scheme
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$true` | **string**  |  |
+| `$class` |   |  |
+| `$field` | **string**  |  |
+| `$prefix` | **string**  |  |
+| `$namingScheme` | **string**  |  |
 
 
 
-#### ORM\Dbal\Mysql::setIdentifierDivider
+#### ORM\Namer::getMethodName
 
 ```php?start_inline=true
-public static function setIdentifierDivider( string $divider )
+public function getMethodName( $name, null $namingScheme = null ): string
 ```
 
+##### Get the column name with $namingScheme or default naming scheme
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$divider` | **string**  |  |
+| `$name` |   |  |
+| `$namingScheme` | **null**  |  |
 
 
 
-#### ORM\Dbal\Mysql::setQuotingCharacter
+#### ORM\Namer::getTableName
 
 ```php?start_inline=true
-public static function setQuotingCharacter( string $char )
+public function getTableName(
+    string $class, string $template = null, string $namingScheme = null
+): string
 ```
 
+##### Get the table name for $reflection
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$char` | **string**  |  |
+| `$class` | **string**  |  |
+| `$template` | **string**  |  |
+| `$namingScheme` | **string**  |  |
 
+
+
+#### ORM\Namer::getValue
+
+```php?start_inline=true
+protected function getValue(
+    string $var, array $values, string $arrayGlue
+): string
+```
+
+##### Get the value for $var from $values using $arrayGlue
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$var` | **string**  | The key for $values |
+| `$values` | **array**  |  |
+| `$arrayGlue` | **string**  |  |
+
+
+
+#### ORM\Namer::setOption
+
+```php?start_inline=true
+public function setOption( string $option, $value ): Namer
+```
+
+##### Set $option to $value
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Namer**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  |  |
+| `$value` | **mixed**  |  |
+
+
+
+#### ORM\Namer::substitute
+
+```php?start_inline=true
+public function substitute(
+    string $template, array $values = array(), string $arrayGlue = ', '
+): string
+```
+
+##### Substitute a $template with $values
+
+$values is a key value pair array. The value should be a string or an array o
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$template` | **string**  |  |
+| `$values` | **array**  |  |
+| `$arrayGlue` | **string**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Error\NoBoolean
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NO_BOOLEAN'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -4083,6 +4767,35 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+---
+
+### ORM\Dbal\Error\NoDateTime
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NO_DATETIME'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -4122,6 +4835,35 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
+### ORM\Dbal\Error\NoNumber
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NO_NUMBER'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+
+
+
+
+---
+
 ### ORM\Exceptions\NoOperator
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -4133,6 +4875,93 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+---
+
+### ORM\Dbal\Error\NoString
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NO_STRING'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+
+
+
+
+---
+
+### ORM\Dbal\Error\NotAllowed
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NOT_ALLOWED'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+
+
+
+
+---
+
+### ORM\Dbal\Error\NoTime
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NO_TIME'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -4155,6 +4984,120 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
+### ORM\Dbal\Error\NotNullable
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NOT_NULLABLE'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbalerrornotnullable__construct) Error constructor
+* [addParams](#ormdbalerrornotnullableaddparams) Add message parameters
+* [getCode](#ormdbalerrornotnullablegetcode) 
+* [getMessage](#ormdbalerrornotnullablegetmessage) Build and return message
+
+#### ORM\Dbal\Error\NotNullable::__construct
+
+```php?start_inline=true
+public function __construct( \ORM\Dbal\Column $column ): NotNullable
+```
+
+##### Error constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **\ORM\Dbal\Column**  |  |
+
+
+
+#### ORM\Dbal\Error\NotNullable::addParams
+
+```php?start_inline=true
+public function addParams( array<string> $params )
+```
+
+##### Add message parameters
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$params` | **array&lt;string>**  |  |
+
+
+
+#### ORM\Dbal\Error\NotNullable::getCode
+
+```php?start_inline=true
+public function getCode(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Error\NotNullable::getMessage
+
+```php?start_inline=true
+public function getMessage(): string
+```
+
+##### Build and return message
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+
+
+---
+
 ### ORM\Exceptions\NotScalar
 
 **Extends:** [ORM\Exception](#ormexception)
@@ -4164,6 +5107,240 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
+
+
+
+
+
+---
+
+### ORM\Dbal\Error\NotValid
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'NOT_VALID'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
+| **protected** | `$previous` | ** \ ORM \ Dbal \ Error** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbalerrornotvalid__construct) NotValid constructor
+* [addParams](#ormdbalerrornotvalidaddparams) Add message parameters
+* [getCode](#ormdbalerrornotvalidgetcode) 
+* [getMessage](#ormdbalerrornotvalidgetmessage) Build and return message
+* [getPrevious](#ormdbalerrornotvalidgetprevious) Get the error that caused this error
+
+#### ORM\Dbal\Error\NotValid::__construct
+
+```php?start_inline=true
+public function __construct(
+    \ORM\Dbal\Column $column, \ORM\Dbal\Error $previous
+): NotValid
+```
+
+##### NotValid constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **\ORM\Dbal\Column**  | The column that got a not valid error |
+| `$previous` | **\ORM\Dbal\Error**  | The error from validate |
+
+
+
+#### ORM\Dbal\Error\NotValid::addParams
+
+```php?start_inline=true
+public function addParams( array<string> $params )
+```
+
+##### Add message parameters
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$params` | **array&lt;string>**  |  |
+
+
+
+#### ORM\Dbal\Error\NotValid::getCode
+
+```php?start_inline=true
+public function getCode(): string
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Error\NotValid::getMessage
+
+```php?start_inline=true
+public function getMessage(): string
+```
+
+##### Build and return message
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Error\NotValid::getPrevious
+
+```php?start_inline=true
+public function getPrevious(): \ORM\Dbal\Error
+```
+
+##### Get the error that caused this error
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Dbal\Error**
+<br />
+
+
+
+
+
+---
+
+### ORM\Dbal\Type\Number
+
+**Extends:** [ORM\Dbal\Type](#ormdbaltype)
+
+
+#### Float, double and decimal data type
+
+
+
+
+
+
+
+
+#### Methods
+
+* [factory](#ormdbaltypenumberfactory) Returns a new Type object
+* [fits](#ormdbaltypenumberfits) Check if this type fits to $columnDefinition
+* [validate](#ormdbaltypenumbervalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\Number::factory
+
+```php?start_inline=true
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
+```
+
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Number::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Number::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
 
 
 
@@ -4869,7 +6046,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 ### ORM\Dbal\Other
 
-**Extends:** [ORM\Dbal](#ormdbal)
+**Extends:** [ORM\Dbal\Dbal](#ormdbaldbal)
 
 
 #### Database abstraction for other databases
@@ -4883,12 +6060,12 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
-| **protected static** | `$quotingCharacter` | **string** |  |
-| **protected static** | `$identifierDivider` | **string** |  |
-| **protected static** | `$booleanTrue` | **string** |  |
-| **protected static** | `$booleanFalse` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
+| **protected** | `$booleanFalse` | **string** |  |
 
 
 
@@ -5757,7 +6934,7 @@ where('name = ?', ['John Doe'])
 
 ### ORM\Dbal\Pgsql
 
-**Extends:** [ORM\Dbal](#ormdbal)
+**Extends:** [ORM\Dbal\Dbal](#ormdbaldbal)
 
 
 #### Database abstraction for PostgreSQL databases
@@ -5771,13 +6948,12 @@ where('name = ?', ['John Doe'])
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
-| **protected static** | `$quotingCharacter` | **string** |  |
-| **protected static** | `$identifierDivider` | **string** |  |
-| **protected static** | `$booleanTrue` | **string** |  |
-| **protected static** | `$booleanFalse` | **string** |  |
-| **protected static** | `$typeMapping` |  |  |
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
+| **protected** | `$booleanFalse` | **string** |  |
 
 
 
@@ -5790,23 +6966,16 @@ where('name = ?', ['John Doe'])
 * [escapeIdentifier](#ormdbalpgsqlescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
-* [getBooleanFalse](#ormdbalpgsqlgetbooleanfalse) 
-* [getBooleanTrue](#ormdbalpgsqlgetbooleantrue) 
-* [getIdentifierDivider](#ormdbalpgsqlgetidentifierdivider) 
-* [getQuotingCharacter](#ormdbalpgsqlgetquotingcharacter) 
-* [getType](#ormdbalpgsqlgettype) Get the type for $columnDefinition
 * [insert](#ormdbalpgsqlinsert) Inserts $entity and returns the new ID for autoincrement or true
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
-* [registerType](#ormdbalpgsqlregistertype) Register $type for describe
-* [setBooleanFalse](#ormdbalpgsqlsetbooleanfalse) 
-* [setBooleanTrue](#ormdbalpgsqlsetbooleantrue) 
-* [setIdentifierDivider](#ormdbalpgsqlsetidentifierdivider) 
-* [setQuotingCharacter](#ormdbalpgsqlsetquotingcharacter) 
+* [setOption](#ormdbalpgsqlsetoption) Set $option to $value
 
 #### ORM\Dbal\Pgsql::__construct
 
 ```php?start_inline=true
-public function __construct( \ORM\EntityManager $entityManager ): Dbal
+public function __construct(
+    \ORM\EntityManager $entityManager, $options = array()
+): Dbal
 ```
 
 ##### Dbal constructor.
@@ -5822,6 +6991,7 @@ public function __construct( \ORM\EntityManager $entityManager ): Dbal
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
+| `$options` |   |  |
 
 
 
@@ -5874,7 +7044,9 @@ This method does not delete from the map - you can still receive the entity via 
 #### ORM\Dbal\Pgsql::describe
 
 ```php?start_inline=true
-public function describe( $schemaTable ): array<\ORM\Dbal\Column>
+public function describe(
+    $schemaTable
+): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -5883,7 +7055,7 @@ public function describe( $schemaTable ): array<\ORM\Dbal\Column>
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
+ **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
 <br />
 
 ##### Parameters
@@ -5963,97 +7135,6 @@ protected function extractParenthesis( string $type ): string
 
 
 
-#### ORM\Dbal\Pgsql::getBooleanFalse
-
-```php?start_inline=true
-public static function getBooleanFalse(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Pgsql::getBooleanTrue
-
-```php?start_inline=true
-public static function getBooleanTrue(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Pgsql::getIdentifierDivider
-
-```php?start_inline=true
-public static function getIdentifierDivider(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Pgsql::getQuotingCharacter
-
-```php?start_inline=true
-public static function getQuotingCharacter(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Pgsql::getType
-
-```php?start_inline=true
-protected function getType( array $columnDefinition ): \ORM\Dbal\TypeInterface
-```
-
-##### Get the type for $columnDefinition
-
-Executes fromDefinition of each registered Type
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinition` | **array**  |  |
-
-
-
 #### ORM\Dbal\Pgsql::insert
 
 ```php?start_inline=true
@@ -6103,114 +7184,27 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 
 
 
-#### ORM\Dbal\Pgsql::registerType
+#### ORM\Dbal\Pgsql::setOption
 
 ```php?start_inline=true
-public static function registerType( string $type )
+public function setOption( string $option, $value ): Dbal
 ```
 
-##### Register $type for describe
+##### Set $option to $value
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **Pgsql**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$type` | **string**  | The full qualified class name |
-
-
-
-#### ORM\Dbal\Pgsql::setBooleanFalse
-
-```php?start_inline=true
-public static function setBooleanFalse( string $false )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$false` | **string**  |  |
-
-
-
-#### ORM\Dbal\Pgsql::setBooleanTrue
-
-```php?start_inline=true
-public static function setBooleanTrue( string $true )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$true` | **string**  |  |
-
-
-
-#### ORM\Dbal\Pgsql::setIdentifierDivider
-
-```php?start_inline=true
-public static function setIdentifierDivider( string $divider )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$divider` | **string**  |  |
-
-
-
-#### ORM\Dbal\Pgsql::setQuotingCharacter
-
-```php?start_inline=true
-public static function setQuotingCharacter( string $char )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$char` | **string**  |  |
+| `$option` | **string**  |  |
+| `$value` | **mixed**  |  |
 
 
 
@@ -7836,7 +8830,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 ### ORM\Dbal\Type\Set
 
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
+**Extends:** [ORM\Dbal\Type\Enum](#ormdbaltypeenum)
 
 
 #### Set data type
@@ -7846,6 +8840,134 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 
 
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$allowedValues` | **array&lt;string>** |  |
+| **protected** | `$type` |  |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaltypeset__construct) Set constructor
+* [factory](#ormdbaltypesetfactory) Returns a new Type object
+* [fits](#ormdbaltypesetfits) Check if this type fits to $columnDefinition
+* [getAllowedValues](#ormdbaltypesetgetallowedvalues) 
+* [validate](#ormdbaltypesetvalidate) Check if $value is valid for this type
+
+#### ORM\Dbal\Type\Set::__construct
+
+```php?start_inline=true
+public function __construct( array<string> $allowedValues = null ): Enum
+```
+
+##### Set constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$allowedValues` | **array&lt;string>**  |  |
+
+
+
+#### ORM\Dbal\Type\Set::factory
+
+```php?start_inline=true
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
+```
+
+##### Returns a new Type object
+
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Set::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\Set::getAllowedValues
+
+```php?start_inline=true
+public function getAllowedValues(): array<string>
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,string&gt;**
+<br />
+
+
+
+#### ORM\Dbal\Type\Set::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
 
 
 
@@ -7853,7 +8975,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 ### ORM\Dbal\Sqlite
 
-**Extends:** [ORM\Dbal](#ormdbal)
+**Extends:** [ORM\Dbal\Dbal](#ormdbaldbal)
 
 
 #### Database abstraction for SQLite databases
@@ -7867,13 +8989,12 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
-| **protected static** | `$quotingCharacter` | **string** |  |
-| **protected static** | `$identifierDivider` | **string** |  |
-| **protected static** | `$booleanTrue` | **string** |  |
-| **protected static** | `$booleanFalse` | **string** |  |
-| **protected static** | `$typeMapping` |  |  |
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
+| **protected** | `$booleanFalse` | **string** |  |
 
 
 
@@ -7886,25 +9007,18 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [escapeIdentifier](#ormdbalsqliteescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
-* [getBooleanFalse](#ormdbalsqlitegetbooleanfalse) 
-* [getBooleanTrue](#ormdbalsqlitegetbooleantrue) 
-* [getIdentifierDivider](#ormdbalsqlitegetidentifierdivider) 
-* [getQuotingCharacter](#ormdbalsqlitegetquotingcharacter) 
-* [getType](#ormdbalsqlitegettype) Get the type for $columnDefinition
 * [hasMultiplePrimaryKey](#ormdbalsqlitehasmultipleprimarykey) Checks $rawColumns for a multiple primary key
 * [insert](#ormdbalsqliteinsert) Inserts $entity and returns the new ID for autoincrement or true
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
-* [registerType](#ormdbalsqliteregistertype) Register $type for describe
-* [setBooleanFalse](#ormdbalsqlitesetbooleanfalse) 
-* [setBooleanTrue](#ormdbalsqlitesetbooleantrue) 
-* [setIdentifierDivider](#ormdbalsqlitesetidentifierdivider) 
-* [setQuotingCharacter](#ormdbalsqlitesetquotingcharacter) 
+* [setOption](#ormdbalsqlitesetoption) Set $option to $value
 
 #### ORM\Dbal\Sqlite::__construct
 
 ```php?start_inline=true
-public function __construct( \ORM\EntityManager $entityManager ): Dbal
+public function __construct(
+    \ORM\EntityManager $entityManager, $options = array()
+): Dbal
 ```
 
 ##### Dbal constructor.
@@ -7920,6 +9034,7 @@ public function __construct( \ORM\EntityManager $entityManager ): Dbal
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
+| `$options` |   |  |
 
 
 
@@ -7972,7 +9087,9 @@ This method does not delete from the map - you can still receive the entity via 
 #### ORM\Dbal\Sqlite::describe
 
 ```php?start_inline=true
-public function describe( $schemaTable ): array<\ORM\Dbal\Column>
+public function describe(
+    $schemaTable
+): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -7981,7 +9098,7 @@ public function describe( $schemaTable ): array<\ORM\Dbal\Column>
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;**
+ **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
 <br />
 
 ##### Parameters
@@ -8058,97 +9175,6 @@ protected function extractParenthesis( string $type ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
-
-
-
-#### ORM\Dbal\Sqlite::getBooleanFalse
-
-```php?start_inline=true
-public static function getBooleanFalse(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Sqlite::getBooleanTrue
-
-```php?start_inline=true
-public static function getBooleanTrue(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Sqlite::getIdentifierDivider
-
-```php?start_inline=true
-public static function getIdentifierDivider(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Sqlite::getQuotingCharacter
-
-```php?start_inline=true
-public static function getQuotingCharacter(): string
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Sqlite::getType
-
-```php?start_inline=true
-protected function getType( array $columnDefinition ): \ORM\Dbal\TypeInterface
-```
-
-##### Get the type for $columnDefinition
-
-Executes fromDefinition of each registered Type
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$columnDefinition` | **array**  |  |
 
 
 
@@ -8251,18 +9277,71 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 
 
 
-#### ORM\Dbal\Sqlite::registerType
+#### ORM\Dbal\Sqlite::setOption
 
 ```php?start_inline=true
-public static function registerType( string $type )
+public function setOption( string $option, $value ): Dbal
 ```
 
-##### Register $type for describe
+##### Set $option to $value
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **Sqlite**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  |  |
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Table
+
+**Extends:** [](#)
+
+
+#### Table is basically an array of Columns
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$columns` | **array&lt;Column>** | The columns from this table |
+
+
+
+#### Methods
+
+* [__construct](#ormdbaltable__construct) Table constructor.
+* [getColumn](#ormdbaltablegetcolumn) Get the Column object for $col
+* [validate](#ormdbaltablevalidate) Validate $value for column $col.
+
+#### ORM\Dbal\Table::__construct
+
+```php?start_inline=true
+public function __construct( array<\ORM\Dbal\Column> $columns ): Table
+```
+
+##### Table constructor.
+
+
+
+**Visibility:** this method is **public**.
 <br />
 
 
@@ -8270,95 +9349,54 @@ public static function registerType( string $type )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$type` | **string**  | The full qualified class name |
+| `$columns` | **array&lt;Column>**  |  |
 
 
 
-#### ORM\Dbal\Sqlite::setBooleanFalse
+#### ORM\Dbal\Table::getColumn
 
 ```php?start_inline=true
-public static function setBooleanFalse( string $false )
+public function getColumn( string $col ): \ORM\Dbal\Column
 ```
 
+##### Get the Column object for $col
 
 
 
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **\ORM\Dbal\Column**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$false` | **string**  |  |
+| `$col` | **string**  |  |
 
 
 
-#### ORM\Dbal\Sqlite::setBooleanTrue
+#### ORM\Dbal\Table::validate
 
 ```php?start_inline=true
-public static function setBooleanTrue( string $true )
+public function validate( string $col, $value ): boolean|\ORM\Dbal\Error
 ```
 
+##### Validate $value for column $col.
 
+Returns an array with at least
 
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
+**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />**Throws:** this method may throw **\ORM\Exception**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$true` | **string**  |  |
-
-
-
-#### ORM\Dbal\Sqlite::setIdentifierDivider
-
-```php?start_inline=true
-public static function setIdentifierDivider( string $divider )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$divider` | **string**  |  |
-
-
-
-#### ORM\Dbal\Sqlite::setQuotingCharacter
-
-```php?start_inline=true
-public static function setQuotingCharacter( string $char )
-```
-
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$char` | **string**  |  |
+| `$col` | **string**  |  |
+| `$value` | **mixed**  |  |
 
 
 
@@ -8368,7 +9406,7 @@ public static function setQuotingCharacter( string $char )
 
 ### ORM\Dbal\Type\Text
 
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
+**Extends:** [ORM\Dbal\Type\VarChar](#ormdbaltypevarchar)
 
 
 #### Text data type
@@ -8378,6 +9416,13 @@ This is also the base type for any other data type
 
 
 
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$maxLength` | **integer** |  |
+| **protected** | `$type` | **string** |  |
+
 
 
 
@@ -8385,7 +9430,7 @@ This is also the base type for any other data type
 
 ### ORM\Dbal\Type\Time
 
-**Extends:** [ORM\Dbal\Type](#ormdbaltype)
+**Extends:** [ORM\Dbal\Type\DateTime](#ormdbaltypedatetime)
 
 
 #### Time data type
@@ -8400,14 +9445,17 @@ This is also the base type for any other data type
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$precision` | **integer** |  |
+| **protected** | `$regex` | **string** |  |
 
 
 
 #### Methods
 
-* [__construct](#ormdbaltypetime__construct) DateTime constructor.
-* [factory](#ormdbaltypetimefactory) 
-* [fromDefinition](#ormdbaltypetimefromdefinition) Create this type from $columnDefinition.
+* [__construct](#ormdbaltypetime__construct) DateTime constructor
+* [factory](#ormdbaltypetimefactory) Returns a new Type object
+* [fits](#ormdbaltypetimefits) Check if this type fits to $columnDefinition
+* [getPrecision](#ormdbaltypetimegetprecision) 
+* [validate](#ormdbaltypetimevalidate) Check if $value is valid for this type
 
 #### ORM\Dbal\Type\Time::__construct
 
@@ -8415,7 +9463,7 @@ This is also the base type for any other data type
 public function __construct( integer $precision = null ): Time
 ```
 
-##### DateTime constructor.
+##### DateTime constructor
 
 
 
@@ -8434,49 +9482,120 @@ public function __construct( integer $precision = null ): Time
 #### ORM\Dbal\Type\Time::factory
 
 ```php?start_inline=true
-public static function factory( $columnDefinition )
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
 ```
 
+##### Returns a new Type object
 
-
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **static**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinition` |   |  |
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
 
 
 
-#### ORM\Dbal\Type\Time::fromDefinition
+#### ORM\Dbal\Type\Time::fits
 
 ```php?start_inline=true
-public static function fromDefinition(
-    $columnDefinitoin
-): \ORM\Dbal\TypeInterface
+public static function fits( array $columnDefinition ): boolean
 ```
 
-##### Create this type from $columnDefinition.
+##### Check if this type fits to $columnDefinition
 
-Returns null when column definition does not match.
+
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinitoin` |   |  |
+| `$columnDefinition` | **array**  |  |
 
+
+
+#### ORM\Dbal\Type\Time::getPrecision
+
+```php?start_inline=true
+public function getPrecision(): integer
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\Dbal\Type\Time::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\Dbal\Error\TooLong
+
+**Extends:** [ORM\Dbal\Error](#ormdbalerror)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| ERROR_CODE | `'TOO_LONG'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$params` | **array&lt;string>** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8499,31 +9618,57 @@ Returns null when column definition does not match.
 
 #### Methods
 
-* [fromDefinition](#ormdbaltypefromdefinition) Create this type from $columnDefinition.
+* [factory](#ormdbaltypefactory) Returns a new Type object
+* [fits](#ormdbaltypefits) Check if this type fits to $columnDefinition
 
-#### ORM\Dbal\Type::fromDefinition
+#### ORM\Dbal\Type::factory
 
 ```php?start_inline=true
-public static function fromDefinition(
-    $columnDefinitoin
-): \ORM\Dbal\TypeInterface
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
 ```
 
-##### Create this type from $columnDefinition.
+##### Returns a new Type object
 
-Returns null when column definition does not match.
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinitoin` |   |  |
+| `$dbal` | **Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
 
 
 
@@ -8546,31 +9691,81 @@ Returns null when column definition does not match.
 
 #### Methods
 
-* [fromDefinition](#ormdbaltypeinterfacefromdefinition) Create this type from $columnDefinition.
+* [factory](#ormdbaltypeinterfacefactory) Create Type class for given $dbal and $columnDefinition
+* [fits](#ormdbaltypeinterfacefits) Check if this type fits to $columnDefinition
+* [validate](#ormdbaltypeinterfacevalidate) Check if $value is valid for this type
 
-#### ORM\Dbal\TypeInterface::fromDefinition
+#### ORM\Dbal\TypeInterface::factory
 
 ```php?start_inline=true
-public static function fromDefinition(
-    $columnDefinition
-): \ORM\Dbal\TypeInterface
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): \ORM\Dbal\Type
 ```
 
-##### Create this type from $columnDefinition.
+##### Create Type class for given $dbal and $columnDefinition
 
-Returns null when column definition does not match.
+
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
+ **Returns**: this method returns **\ORM\Dbal\Type**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinition` |   |  |
+| `$dbal` | **Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\TypeInterface::fits
+
+```php?start_inline=true
+public static function fits( array $columnDefinition ): boolean
+```
+
+##### Check if this type fits to $columnDefinition
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\TypeInterface::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
 
 
 
@@ -8629,14 +9824,17 @@ With and without max / fixed length
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$maxLength` | **integer** |  |
+| **protected** | `$type` | **string** |  |
 
 
 
 #### Methods
 
-* [__construct](#ormdbaltypevarchar__construct) VarChar constructor.
-* [factory](#ormdbaltypevarcharfactory) 
-* [fromDefinition](#ormdbaltypevarcharfromdefinition) Create this type from $columnDefinition.
+* [__construct](#ormdbaltypevarchar__construct) VarChar constructor
+* [factory](#ormdbaltypevarcharfactory) Returns a new Type object
+* [fits](#ormdbaltypevarcharfits) Check if this type fits to $columnDefinition
+* [getMaxLength](#ormdbaltypevarchargetmaxlength) 
+* [validate](#ormdbaltypevarcharvalidate) Check if $value is valid for this type
 
 #### ORM\Dbal\Type\VarChar::__construct
 
@@ -8644,7 +9842,7 @@ With and without max / fixed length
 public function __construct( integer $maxLength = null ): VarChar
 ```
 
-##### VarChar constructor.
+##### VarChar constructor
 
 
 
@@ -8663,48 +9861,90 @@ public function __construct( integer $maxLength = null ): VarChar
 #### ORM\Dbal\Type\VarChar::factory
 
 ```php?start_inline=true
-public static function factory( $columnDefinition )
+public static function factory(
+    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+): static
 ```
 
+##### Returns a new Type object
 
-
+This method is only for types covered by mapping. Use fromDefinition instead for custom types.
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **static**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinition` |   |  |
+| `$dbal` | **\ORM\Dbal\Dbal**  |  |
+| `$columnDefinition` | **array**  |  |
 
 
 
-#### ORM\Dbal\Type\VarChar::fromDefinition
+#### ORM\Dbal\Type\VarChar::fits
 
 ```php?start_inline=true
-public static function fromDefinition(
-    $columnDefinitoin
-): \ORM\Dbal\TypeInterface
+public static function fits( array $columnDefinition ): boolean
 ```
 
-##### Create this type from $columnDefinition.
+##### Check if this type fits to $columnDefinition
 
-Returns null when column definition does not match.
+
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Dbal\TypeInterface**
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columnDefinitoin` |   |  |
+| `$columnDefinition` | **array**  |  |
+
+
+
+#### ORM\Dbal\Type\VarChar::getMaxLength
+
+```php?start_inline=true
+public function getMaxLength(): integer
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\Dbal\Type\VarChar::validate
+
+```php?start_inline=true
+public function validate( $value ): boolean|\ORM\Dbal\Error
+```
+
+##### Check if $value is valid for this type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|\ORM\Dbal\Error**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  |  |
 
 
 

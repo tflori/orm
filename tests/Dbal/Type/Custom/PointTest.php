@@ -60,7 +60,7 @@ class PointTest extends TestCase
         self::assertSame([$point], CustomColumn::getRegisteredTypes());
     }
 
-    public function testExecutesFromDefinitionForUnknownTypes()
+    public function testExecutesFitsForUnknownTypes()
     {
         $point = \Mockery::mock(Point::class);
         Column::registerType($point);
@@ -77,7 +77,7 @@ class PointTest extends TestCase
         $cols[0]->getType();
     }
 
-    public function testExecutesFromDefinitionFromNextType()
+    public function testExecutesFitsFromNextType()
     {
         Column::registerType(Number::class);
         $point = \Mockery::mock(new Point());

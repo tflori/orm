@@ -14,15 +14,6 @@ abstract class Type implements TypeInterface
      * {@inheritdoc}
      * @codeCoverageIgnore void method for types covered by mapping
      */
-    public static function fromDefinition($columnDefinitoin)
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @codeCoverageIgnore void method for types covered by mapping
-     */
     public static function fits(array $columnDefinition)
     {
         return false;

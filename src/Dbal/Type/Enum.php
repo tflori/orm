@@ -3,6 +3,7 @@
 namespace ORM\Dbal\Type;
 
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Error;
 use ORM\Dbal\Error\NoString;
 use ORM\Dbal\Error\NotAllowed;
 use ORM\Dbal\Type;
@@ -19,9 +20,9 @@ class Enum extends Type
     protected $allowedValues = null;
 
     /**
-     * Set constructor.
+     * Set constructor
      *
-     * @param \string[] $allowedValues
+     * @param string[] $allowedValues
      */
     public function __construct(array $allowedValues = null)
     {
@@ -38,6 +39,12 @@ class Enum extends Type
         return new static($allowedValues);
     }
 
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!is_string($value)) {
@@ -50,7 +57,7 @@ class Enum extends Type
     }
 
     /**
-     * @return \string[]
+     * @return string[]
      */
     public function getAllowedValues()
     {

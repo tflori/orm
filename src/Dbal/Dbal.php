@@ -43,6 +43,13 @@ abstract class Dbal
         }
     }
 
+    /**
+     * Set $option to $value
+     *
+     * @param string $option
+     * @param mixed $value
+     * @return self
+     */
     public function setOption($option, $value)
     {
         switch ($option) {

@@ -14,6 +14,12 @@ use ORM\Dbal\Type;
  */
 class Json extends Type
 {
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
         if (!is_string($value) || $value !== 'null' && json_decode($value) === null) {

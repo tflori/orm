@@ -20,13 +20,16 @@ class TestCase extends MockeryTestCase
     /** @var Dbal\Mysql|Mock */
     protected $dbal;
 
+    /** @var Mock[] */
+    protected $mocks = [];
+
     protected function setUp()
     {
         parent::setUp();
         TestEntity::resetStaticsForTest();
         TestEntityManager::resetStaticsForTest();
 
-        $this->pdo = \Mockery::mock(\PDO::class);
+        $this->mocks['pdo'] = $this->pdo = \Mockery::mock(\PDO::class);
         $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
             return '\'' . addslashes($var) . '\'';
         })->byDefault();
@@ -36,10 +39,10 @@ class TestCase extends MockeryTestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mssql')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
-        $this->em = \Mockery::mock(EntityManager::class, [])->makePartial();
+        $this->mocks['em'] = $this->em = \Mockery::mock(EntityManager::class, [])->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
 
-        $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();
+        $this->mocks['dbal'] = $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();
         $this->em->shouldReceive('getDbal')->andReturn($this->dbal)->byDefault();
 
         QueryBuilder::$defaultEntityManager = $this->em;
