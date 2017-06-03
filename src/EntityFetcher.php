@@ -281,6 +281,11 @@ class EntityFetcher extends QueryBuilder
         return $result;
     }
 
+    /**
+     * Get the count of the resulting items
+     *
+     * @return int
+     */
     public function count()
     {
         // set the columns and reset after get query

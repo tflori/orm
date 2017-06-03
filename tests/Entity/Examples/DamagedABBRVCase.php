@@ -2,6 +2,8 @@
 
 namespace ORM\Test\Entity\Examples;
 
+use ORM\Test\TestEntity;
+
 class DamagedABBRVCase extends TestEntity
 {
     protected static $relations = [

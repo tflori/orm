@@ -2,8 +2,9 @@
 
 namespace ORM\Dbal\Type;
 
-use ORM\Dbal\Dbal;
-use ORM\Dbal\Type;
+use ORM\Dbal\Error;
+use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\NotAllowed;
 
 /**
  * Set data type
@@ -13,15 +14,27 @@ use ORM\Dbal\Type;
  */
 class Set extends Enum
 {
+    protected $type = 'set';
+
+    /**
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
+     */
     public function validate($value)
     {
-        if (is_string($value)) {
+        if (!is_string($value)) {
+            return new NoString([ 'type' => 'set' ]);
+        } else {
             $values = explode(',', $value);
-            if (count(array_diff($values, $this->allowedValues)) === 0) {
-                return true;
+            foreach ($values as $value) {
+                if (!in_array($value, $this->allowedValues)) {
+                    return new NotAllowed([ 'value' => $value, 'type' => 'set' ]);
+                }
             }
         }
 
-        return false;
+        return true;
     }
 }

@@ -90,7 +90,7 @@ class DescribeTest extends TestCase
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
-        self::assertInstanceOf($class, $cols[0]->getType());
+        self::assertInstanceOf($class, $cols[0]->type);
     }
 
     public function provideColumnData()
@@ -98,7 +98,7 @@ class DescribeTest extends TestCase
         return [
             [
                 ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => ''],
-                'getName', 'a'
+                'name', 'a'
             ],
             [
                 [ 'Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => '' ],
@@ -115,11 +115,11 @@ class DescribeTest extends TestCase
             ],
             [
                 ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'NO', 'Key' => '', 'Default' => '0', 'Extra' => ''],
-                'isNullable', false
+                'nullable', false
             ],
             [
                 ['Field' => 'a', 'Type' => 'int(11)', 'Null' => 'YES', 'Key' => '', 'Default' => null, 'Extra' => ''],
-                'isNullable', true
+                'nullable', true
             ],
         ];
     }
@@ -136,7 +136,11 @@ class DescribeTest extends TestCase
         $cols = $this->dbal->describe('db.table');
 
         self::assertSame(1, count($cols));
-        self::assertSame($expected, call_user_func([$cols[0], $method]));
+        if (!is_callable([$cols[0], $method])) {
+            self::assertSame($expected, $cols[0]->$method);
+        } else {
+            self::assertSame($expected, call_user_func([$cols[0], $method]));
+        }
     }
 
     public function provideColumnTypeData()

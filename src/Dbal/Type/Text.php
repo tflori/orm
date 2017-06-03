@@ -2,8 +2,6 @@
 
 namespace ORM\Dbal\Type;
 
-use ORM\Dbal\Type;
-
 /**
  * Text data type
  *
@@ -14,8 +12,5 @@ use ORM\Dbal\Type;
  */
 class Text extends VarChar
 {
-    public function __construct()
-    {
-        parent::__construct(null);
-    }
+    protected $type = 'text';
 }

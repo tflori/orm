@@ -9,7 +9,7 @@ use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase
@@ -80,6 +80,7 @@ class DataTest extends TestCase
 
     public function testCallsGetRelatedWhenThereIsARelationButNoValue()
     {
+        /** @var Entity|Mock $entity */
         $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
@@ -98,18 +99,6 @@ class DataTest extends TestCase
         $mock->shouldReceive('get_another_var')->atLeast()->once();
 
         $mock->another_var = 'foobar';
-    }
-
-    public function testDoesNotAllowToChangeNamingSchemeAfterUsage()
-    {
-        TestEntity::setNamingSchemeMethods('snake_lower');
-        $entity = new Snake_Ucfirst();
-        $entity->anotherVar = 'foobar';
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
-
-        TestEntity::setNamingSchemeMethods('camelCase');
     }
 
     public function testGetsInitialDataOverConstructor()

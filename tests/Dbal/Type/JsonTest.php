@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type;
 
+use ORM\Dbal\Error;
 use ORM\Dbal\Type\Json;
 use ORM\Test\TestCase;
 
@@ -23,9 +24,9 @@ class JsonTest extends TestCase
             [json_encode(false), true],
             [json_encode(['a','b','c']), true],
 
-            [42, false],
-            ['{\'key\':\'value\'}', false], // json allows only double quotes
-            ['undefined', false], // no valid json
+            [42, '42 is not a valid JSON string'],
+            ['{\'key\':\'value\'}', '{\'key\':\'value\'} is not a valid JSON string'], // json allows only double quotes
+            ['undefined', 'undefined is not a valid JSON string'], // no valid json
         ];
     }
 
@@ -38,6 +39,11 @@ class JsonTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+        if ($expected !== true) {
+            self::assertInstanceOf(Error::class, $result);
+            self::assertSame($expected, $result->getMessage());
+        } else {
+            self::assertTrue($result);
+        }
     }
 }

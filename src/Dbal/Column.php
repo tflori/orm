@@ -2,16 +2,58 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\Error\NotValid;
+
 /**
  * Describes a column of a database table
  *
  * @package ORM\Dbal
  * @author  Thomas Flori <thflori@gmail.com>
+ *
+ * @property string name
+ * @property Type type
+ * @property mixed default
+ * @property bool nullable
  */
 class Column
 {
-    /** @var string */
-    protected $name;
+    /** @var string[] */
+    protected static $registeredTypes = [];
+
+    /**
+     * Register $type for describe
+     *
+     * @param string $type The full qualified class name
+     */
+    public static function registerType($type)
+    {
+        if (!in_array($type, static::$registeredTypes)) {
+            array_unshift(static::$registeredTypes, $type);
+        }
+    }
+
+    /**
+     * Get the registered type for $columnDefinition
+     *
+     * @param array $columnDefinition
+     * @return string
+     */
+    protected static function getRegisteredType(array $columnDefinition)
+    {
+        foreach (self::$registeredTypes as $class) {
+            if (call_user_func([$class, 'fits'], $columnDefinition)) {
+                return $class;
+            }
+        }
+
+        return null;
+    }
+
+    /** @var array */
+    protected $columnDefinition;
+
+    /** @var Dbal */
+    protected $dbal;
 
     /** @var TypeInterface */
     protected $type;
@@ -25,63 +67,98 @@ class Column
     /**
      * Column constructor.
      *
-     * @param string $name
-     * @param TypeInterface $type
-     * @param bool $hasDefault
-     * @param bool $isNullable
-     */
-    public function __construct($name, TypeInterface $type, $hasDefault, $isNullable)
-    {
-        $this->name = $name;
-        $this->type = $type;
-        $this->hasDefault = $hasDefault;
-        $this->isNullable = $isNullable;
-    }
-
-    /**
-     * Returns a new column with params from $columnDefinition
-     *
+     * @param Dbal  $dbal
      * @param array $columnDefinition
-     * @param TypeInterface $type
-     * @return static
      */
-    public static function factory($columnDefinition, TypeInterface $type)
+    public function __construct(Dbal $dbal, array $columnDefinition)
     {
-        $name = $columnDefinition['column_name'];
-        $hasDefault = $columnDefinition['column_default'] !== null;
-        $isNullable = $columnDefinition['is_nullable'] === true || $columnDefinition['is_nullable'] === 'YES';
-        return new static($name, $type, $hasDefault, $isNullable);
+        $this->dbal = $dbal;
+        $this->columnDefinition = $columnDefinition;
     }
 
     /**
-     * @return string
+     * Check if $value is valid for this type
+     *
+     * @param mixed $value
+     * @return boolean|Error
      */
-    public function getName()
+    public function validate($value)
     {
-        return $this->name;
+        if ($value === null) {
+            if ($this->nullable || $this->hasDefault()) {
+                return true;
+            }
+
+            return new Error\NotNullable($this);
+        }
+
+        $valid = $this->getType()->validate($value);
+
+        if ($valid === false) {
+            return new NotValid($this, new Error());
+        }
+
+        if ($valid instanceof Error) {
+            return new NotValid($this, $valid);
+        }
+
+        return true;
     }
 
     /**
-     * @return Type
+     * Get attributes from column
+     *
+     * @param string $name
+     * @return mixed
      */
-    public function getType()
+    public function __get($name)
     {
-        return $this->type;
+        switch ($name) {
+            case 'name':
+                return $this->columnDefinition['column_name'];
+            case 'type':
+                return $this->getType();
+            case 'default':
+                return $this->columnDefinition['column_default'];
+            case 'nullable':
+                return $this->columnDefinition['is_nullable'] === true ||
+                       $this->columnDefinition['is_nullable'] === 'YES';
+            default:
+                return isset($this->columnDefinition[$name]) ? $this->columnDefinition[$name] : null;
+        }
     }
 
     /**
+     * Check if default value is given
+     *
      * @return bool
      */
     public function hasDefault()
     {
-        return $this->hasDefault;
+        return $this->default !== null;
     }
 
     /**
-     * @return bool
+     * Determine and return the type
+     *
+     * @return Type
      */
-    public function isNullable()
+    public function getType()
     {
-        return $this->isNullable;
+        if (!$this->type) {
+            if (!isset($this->columnDefinition['type'])) {
+                $class = self::getRegisteredType($this->columnDefinition);
+            } else {
+                $class = $this->columnDefinition['type'];
+            }
+
+            if ($class === null || !is_callable([$class, 'factory'])) {
+                $class = Type\Text::class;
+            }
+
+            $this->type = call_user_func([$class, 'factory'], $this->dbal, $this->columnDefinition);
+        }
+
+        return $this->type;
     }
 }

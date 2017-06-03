@@ -5,6 +5,7 @@ namespace ORM;
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Column;
 use ORM\Dbal\Other;
+use ORM\Dbal\Table;
 use ORM\Exceptions\IncompletePrimaryKey;
 use ORM\Exceptions\InvalidConfiguration;
 use ORM\Exceptions\NoConnection;
@@ -25,6 +26,10 @@ class EntityManager
     const OPT_NAMING_SCHEME_TABLE    = 'namingSchemeTable';
     const OPT_NAMING_SCHEME_COLUMN   = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS  = 'namingSchemeMethods';
+    const OPT_QUOTING_CHARACTER      = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE           = 'true';
+    const OPT_BOOLEAN_FALSE          = 'false';
 
     /** @deprecated */
     const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
@@ -38,10 +43,6 @@ class EntityManager
     const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
-    /** @deprecated */
-    const OPT_QUOTING_CHARACTER      = 'quotingChar';
-    /** @deprecated */
-    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
 
     /** Connection to database
      * @var \PDO|callable|DbConfig */
@@ -49,7 +50,11 @@ class EntityManager
 
     /** The Database Abstraction Layer
      * @var Dbal */
-    private $dbal;
+    protected $dbal;
+
+    /** The Namer instance
+     * @var Namer */
+    protected $namer;
 
     /** The Entity map
      * @var Entity[][] */
@@ -60,8 +65,17 @@ class EntityManager
     protected $options = [];
 
     /** Already fetched column descriptions
-     * @var Column[][] */
+     * @var Table[]|Column[][] */
     protected $descriptions = [];
+
+    /** Mapping for EntityManager instances
+     * @var EntityManager[string]|EntityManager[string][string] */
+    protected static $emMapping = [
+        'byClass' => [],
+        'byNameSpace' => [],
+        'byParent' => [],
+        'last' => null,
+    ];
 
     /**
      * Constructor
@@ -74,6 +88,104 @@ class EntityManager
         foreach ($options as $option => $value) {
             $this->setOption($option, $value);
         }
+
+        self::$emMapping['last'] = $this;
+    }
+
+    /**
+     * Get an instance of the EntityManager.
+     *
+     * If no class is given it gets $class from backtrace.
+     *
+     * It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+     * EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
+     *
+     * @param string $class
+     * @return EntityManager
+     */
+    public static function getInstance($class = null)
+    {
+        if (empty($class)) {
+            $trace = debug_backtrace();
+            if (empty($trace[1]['class'])) {
+                return self::$emMapping['last'];
+            }
+            $class = $trace[1]['class'];
+        }
+
+        if (!isset(self::$emMapping['byClass'][$class])) {
+            if (!($em = self::getInstanceByParent($class)) && !($em = self::getInstanceByNameSpace($class))) {
+                $em = self::$emMapping['last'];
+            }
+
+            self::$emMapping['byClass'][$class] = $em;
+        }
+
+        return self::$emMapping['byClass'][$class];
+    }
+
+    /**
+     * Get the instance by NameSpace mapping
+     *
+     * @param $class
+     * @return EntityManager
+     */
+    private static function getInstanceByNameSpace($class)
+    {
+        foreach (self::$emMapping['byNameSpace'] as $nameSpace => $em) {
+            if (substr($class, 0, strlen($nameSpace)) === $nameSpace) {
+                return $em;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the instance by Parent class mapping
+     *
+     * @param $class
+     * @return EntityManager
+     */
+    private static function getInstanceByParent($class)
+    {
+        // we don't need a reflection when we don't have mapping byParent
+        if (empty(self::$emMapping['byParent'])) {
+            return null;
+        }
+
+        $reflection = new \ReflectionClass($class);
+        foreach (self::$emMapping['byParent'] as $parentClass => $em) {
+            if ($reflection->isSubclassOf($parentClass)) {
+                return $em;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Define $this EntityManager as the default EntityManager for $nameSpace
+     *
+     * @param $nameSpace
+     * @return self
+     */
+    public function defineForNamespace($nameSpace)
+    {
+        self::$emMapping['byNameSpace'][$nameSpace] = $this;
+        return $this;
+    }
+
+    /**
+     * Define $this EntityManager as the default EntityManager for subClasses of $class
+     *
+     * @param $class
+     * @return self
+     */
+    public function defineForParent($class)
+    {
+        self::$emMapping['byParent'][$class] = $this;
+        return $this;
     }
 
     /**
@@ -88,22 +200,6 @@ class EntityManager
         switch ($option) {
             case self::OPT_CONNECTION:
                 $this->setConnection($value);
-                break;
-
-            case self::OPT_TABLE_NAME_TEMPLATE:
-                Entity::setTableNameTemplate($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_TABLE:
-                Entity::setNamingSchemeTable($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_COLUMN:
-                Entity::setNamingSchemeColumn($value);
-                break;
-
-            case self::OPT_NAMING_SCHEME_METHODS:
-                Entity::setNamingSchemeMethods($value);
                 break;
         }
 
@@ -185,6 +281,51 @@ class EntityManager
         }
 
         return $this->connection;
+    }
+
+    /**
+     * Get the Datbase Abstraction Layer
+     *
+     * @return Dbal
+     */
+    public function getDbal()
+    {
+        if (!$this->dbal) {
+            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+            $options = $this->options;
+            // backward compatibility - deprecated
+            if (isset($options[$connectionType . 'True']) && !isset($options[self::OPT_BOOLEAN_TRUE])) {
+                $options[self::OPT_BOOLEAN_TRUE] = $options[$connectionType . 'True'];
+            }
+            if (isset($options[$connectionType . 'False']) && !isset($options[self::OPT_BOOLEAN_FALSE])) {
+                $options[self::OPT_BOOLEAN_FALSE] = $options[$connectionType . 'False'];
+            }
+
+            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
+            if (!class_exists($dbalClass)) {
+                $this->dbal = new Other($this);
+            } else {
+                $this->dbal = new $dbalClass($this, $options);
+            }
+        }
+
+        return $this->dbal;
+    }
+
+    /**
+     * Get the Namer instance
+     *
+     * @return Namer
+     * @codeCoverageIgnore trivial code...
+     */
+    public function getNamer()
+    {
+        if (!$this->namer) {
+            $this->namer = new Namer($this->options);
+        }
+
+        return $this->namer;
     }
 
     /**
@@ -345,35 +486,6 @@ class EntityManager
         return $fetcher->one();
     }
 
-    public function getDbal()
-    {
-        if (!$this->dbal) {
-            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
-            if (!class_exists($dbalClass)) {
-                $this->dbal = new Other($this);
-            } else {
-                $this->dbal = new $dbalClass($this);
-            }
-
-            // backward compatibility - deprecated
-            if (isset($this->options[$connectionType . 'True'])) {
-                $this->dbal->setBooleanTrue($this->options[$connectionType . 'True']);
-            }
-            if (isset($this->options[$connectionType . 'False'])) {
-                $this->dbal->setBooleanFalse($this->options[$connectionType . 'False']);
-            }
-            if (isset($this->options[self::OPT_QUOTING_CHARACTER])) {
-                $this->dbal->setQuotingCharacter($this->options[self::OPT_QUOTING_CHARACTER]);
-            }
-            if (isset($this->options[self::OPT_IDENTIFIER_DIVIDER])) {
-                $this->dbal->setIdentifierDivider($this->options[self::OPT_IDENTIFIER_DIVIDER]);
-            }
-        }
-
-        return $this->dbal;
-    }
-
     /**
      * Returns $value formatted to use in a sql statement.
      *
@@ -402,7 +514,7 @@ class EntityManager
      * Returns an array of columns from $table.
      *
      * @param string $table
-     * @return Column[]
+     * @return Column[]|Table
      */
     public function describe($table)
     {

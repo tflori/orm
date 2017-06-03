@@ -3,9 +3,12 @@
 namespace ORM\Test\Entity;
 
 use ORM\Dbal\Column;
+use ORM\Dbal\Mysql;
+use ORM\Dbal\Table;
 use ORM\Dbal\Type\Integer;
 use ORM\Dbal\Type\Number;
 use ORM\Dbal\Type\VarChar;
+use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
@@ -13,102 +16,41 @@ use ORM\Test\TestCase;
 
 class ValidateTest extends TestCase
 {
-    /** @var Column */
-    protected static $columnId;
-    /** @var Column */
-    protected static $columnTitle;
-    /** @var Column */
-    protected static $columnIntroText;
-
-    public static function setUpBeforeClass()
+    protected function setUp()
     {
-        parent::setUpBeforeClass();
+        parent::setUp();
 
-        self::$columnId = new Column('id', \Mockery::mock(Number::class), true, false);
-        self::$columnTitle = new Column('title', \Mockery::mock(VarChar::class), false, false);
-        self::$columnIntroText = new Column('intro_text', \Mockery::mock(VarChar::class), false, true);
+        $this->mocks['table'] = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('article')->andReturn($this->mocks['table'])->byDefault();
     }
 
-    public function testInitValidatorWithoutStaticDescription()
+    public function testGetsTableFromEmDescribe()
     {
-        $articleDescription = [self::$columnId, self::$columnTitle, self::$columnIntroText];
-        $this->em->shouldReceive('describe')->with('article')->once()->andReturn($articleDescription);
+        $this->mocks['em']->shouldReceive('describe')->with('article')->once()->andReturn($this->mocks['table']);
 
-        Article::initValidator($this->em);
+        Article::describe();
     }
 
-    /**
-     * @depends testInitValidatorWithoutStaticDescription
-     */
-    public function testCallsDescribeOnlyOnce()
+    public function testValidateUsesTableFromDescribe()
     {
-        $this->em->shouldNotReceive('describe')->with('article');
-
-        Article::initValidator($this->em);
-    }
-
-    /**
-     * @depends testInitValidatorWithoutStaticDescription
-     */
-    public function testIsInitialized()
-    {
-        $result = Article::validatorIsInitialized();
-
-        self::assertTrue($result);
-    }
-
-    public function testIsNotInitialized()
-    {
-        $result = Category::validatorIsInitialized();
-
-        self::assertFalse($result);
-    }
-
-    /**
-     * @depends testInitValidatorWithoutStaticDescription
-     */
-    public function testValidateUsesValidator()
-    {
-        self::$columnTitle->getType()->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
+        $this->mocks['table']->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
 
         Article::validate('title', 'Hello World!');
     }
 
-    public function testValidateThrowsValidatorNotInitialized()
-    {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('Validator not initialized yet');
-
-        Category::validate('name', 'News');
-    }
-
-    /**
-     * @depends testInitValidatorWithoutStaticDescription
-     */
     public function testConvertsFieldNamesToColumns()
     {
-        self::$columnIntroText->getType()->shouldReceive('validate')
-            ->with('This is just a test article.')->once()->andReturn(true);
+        $this->mocks['table']->shouldReceive('validate')->with('intro_text', 'This is just a test article.')
+            ->once()->andReturn(true);
 
         Article::validate('introText', 'This is just a test article.');
     }
 
-    public function testConvertsFieldNamesToColumnsAgain()
-    {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('Unknown column some_thing');
-
-        Article::validate('someThing', 23);
-    }
-
-    /**
-     * @depends testInitValidatorWithoutStaticDescription
-     */
     public function testValidateArray()
     {
-        self::$columnTitle->getType()->shouldReceive('validate')->with('Hello World!')->once()->andReturn(true);
-        self::$columnIntroText->getType()->shouldReceive('validate')
-            ->with('This is just a test article.')->once()->andReturn(true);
+        $this->mocks['table']->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
+        $this->mocks['table']->shouldReceive('validate')->with('intro_text', 'This is just a test article.')
+            ->once()->andReturn(true);
 
         $result = Article::validateArray([
             'title' => 'Hello World!',
@@ -116,5 +58,35 @@ class ValidateTest extends TestCase
         ]);
 
         self::assertSame(['title' => true, 'introText' => true], $result);
+    }
+
+    public function testByDefaultValidatorIsDisabled()
+    {
+        self::assertFalse(Article::isValidatorEnabled());
+    }
+
+    /**
+     * @depends testByDefaultValidatorIsDisabled
+     */
+    public function testValidatorCanBeEnabled()
+    {
+        Article::enableValidator();
+
+        self::assertTrue(Article::isValidatorEnabled());
+    }
+
+    /**
+     * @depends testValidatorCanBeEnabled
+     */
+    public function testValidatorCanBeDisabled()
+    {
+        Article::disableValidator();
+
+        self::assertFalse(Article::isValidatorEnabled());
+    }
+
+    public function testValidatorCanBeActivatedByStatic()
+    {
+        self::assertTrue(Category::isValidatorEnabled());
     }
 }

@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type;
 
+use ORM\Dbal\Error;
 use ORM\Dbal\Type\Enum;
 use ORM\Test\TestCase;
 
@@ -18,8 +19,8 @@ class EnumTest extends TestCase
             ['a', ['a', 'b'], true],
             ['b', ['a', 'b'], true],
 
-            ['c', ['a', 'b'], false],
-            [1, ['1', '2'], false],
+            ['c', ['a', 'b'], 'c is not allowed by this enum'],
+            [1, ['1', '2'], 'Only string values are allowed for enum'],
         ];
     }
 
@@ -32,6 +33,11 @@ class EnumTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+        if ($expected !== true) {
+            self::assertInstanceOf(Error::class, $result);
+            self::assertSame($expected, $result->getMessage());
+        } else {
+            self::assertTrue($result);
+        }
     }
 }

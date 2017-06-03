@@ -4,22 +4,12 @@ namespace ORM\Test\EntityManager;
 
 use ORM\Dbal\Dbal;
 use ORM\EntityManager;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\QueryBuilder\QueryBuilder;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class OptionsTest extends TestCase
 {
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        Dbal::setIdentifierDivider('.');
-        Dbal::setQuotingCharacter('"');
-        Dbal::setBooleanFalse('0');
-        Dbal::setBooleanTrue('1');
-    }
-
-
     public function provideOptions()
     {
         return [
@@ -58,17 +48,21 @@ class OptionsTest extends TestCase
     public function provideDbalStatics()
     {
         return [
-            [EntityManager::OPT_IDENTIFIER_DIVIDER, 'identifierDivider', '.'],
-            [EntityManager::OPT_QUOTING_CHARACTER, 'quotingCharacter', '`'],
-            [EntityManager::OPT_SQLITE_BOOLEAN_FASLE, 'booleanFalse', "'no'"],
-            [EntityManager::OPT_SQLITE_BOOLEAN_TRUE, 'booleanTrue', "'yes'"]
+            [EntityManager::OPT_IDENTIFIER_DIVIDER, '|',
+                'escapeIdentifier', 'db|table', '"db"|"table"'],
+            [EntityManager::OPT_QUOTING_CHARACTER, '`',
+                'escapeIdentifier', 'db.table', '`db`.`table`'],
+            [EntityManager::OPT_SQLITE_BOOLEAN_FASLE, "'no'",
+                'escapeValue', false, "'no'"],
+            [EntityManager::OPT_SQLITE_BOOLEAN_TRUE, "'yes'",
+                'escapeValue', true, "'yes'"]
         ];
     }
 
     /**
      * @dataProvider provideDbalStatics
      */
-    public function testSetsStaticsFromDbal($option, $static, $value)
+    public function testSetsStaticsFromDbal($option, $value, $method, $param, $expected)
     {
         $this->em->setOption($option, $value);
         $this->em->shouldReceive('getDbal')->passthru();
@@ -76,8 +70,9 @@ class OptionsTest extends TestCase
             ->andReturn('sqlite');
 
         $dbal = $this->em->getDbal();
+        $result = call_user_func([$dbal, $method], $param);
 
-        self::assertSame($value, call_user_func([$dbal, 'get' . ucfirst($static)]));
+        self::assertSame($expected, $result);
     }
 
     public function testSetsConnectionOnConstruct()
@@ -88,27 +83,5 @@ class OptionsTest extends TestCase
         $emMock->__construct([
             EntityManager::OPT_CONNECTION => 'something'
         ]);
-    }
-
-    public function provideEntityStatics()
-    {
-        return [
-            [EntityManager::OPT_TABLE_NAME_TEMPLATE, 'tableNameTemplate', '%namespace%'],
-            [EntityManager::OPT_NAMING_SCHEME_TABLE, 'namingSchemeTable', 'StudlyCaps'],
-            [EntityManager::OPT_NAMING_SCHEME_COLUMN, 'namingSchemeColumn', 'StudlyCaps'],
-            [EntityManager::OPT_NAMING_SCHEME_METHODS, 'namingSchemeMethods', 'snake_case'],
-        ];
-    }
-
-    /**
-     * @dataProvider provideEntityStatics
-     */
-    public function testSetsEntityStaticsOnConstruct($option, $static, $value)
-    {
-        $em = new EntityManager([
-            $option => $value
-        ]);
-
-        self::assertSame($value, call_user_func([TestEntity::class, 'get' . ucfirst($static)]));
     }
 }

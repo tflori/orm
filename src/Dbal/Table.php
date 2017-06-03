@@ -2,27 +2,34 @@
 
 namespace ORM\Dbal;
 
-use ORM\Dbal\Column;
-use ORM\EntityManager;
+use ArrayObject;
 use ORM\Exception;
-use ORM\Dbal\Validator\Error;
 
-class Validator
+/**
+ * Table is basically an array of Columns
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ * @method Column offsetGet($offset)
+ */
+class Table extends ArrayObject
 {
     /** The columns from this table
      * @var Column[] */
     protected $columns;
 
     /**
-     * Validator constructor.
+     * Table constructor.
      *
      * @param Column[] $columns
      */
     public function __construct(array $columns)
     {
         foreach ($columns as $column) {
-            $this->columns[$column->getName()] = $column;
+            $this->columns[$column->name] = $column;
         }
+
+        parent::__construct($columns);
     }
 
     /**
@@ -41,19 +48,7 @@ class Validator
             throw new Exception('Unknown column ' . $col);
         }
 
-        if ($value === null) {
-            if ($column->isNullable() || $column->hasDefault()) {
-                return true;
-            }
-
-            return new Error\NotNullable($column);
-        }
-
-        if ($column->getType()->validate($value)) {
-            return true;
-        }
-
-        return new Error\NotValid($column);
+        return $column->validate($value);
     }
 
     /**
@@ -62,7 +57,7 @@ class Validator
      * @param string $col
      * @return Column
      */
-    protected function getColumn($col)
+    public function getColumn($col)
     {
         return isset($this->columns[$col]) ? $this->columns[$col] : null;
     }

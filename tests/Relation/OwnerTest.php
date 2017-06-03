@@ -43,7 +43,7 @@ class OwnerTest extends TestCase
         $related = new DamagedABBRVCase(['id' => 42]);
         $this->em->shouldReceive('fetch')->with(DamagedABBRVCase::class, [42])->once()->andReturn($related);
 
-        $result = $entity->fetch('dmgd', null, true);
+        $result = $entity->fetch('dmgd', true);
 
         self::assertSame($related, $result);
     }

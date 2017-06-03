@@ -14,15 +14,6 @@ abstract class Type implements TypeInterface
      * {@inheritdoc}
      * @codeCoverageIgnore void method for types covered by mapping
      */
-    public static function fromDefinition($columnDefinitoin)
-    {
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @codeCoverageIgnore void method for types covered by mapping
-     */
     public static function fits(array $columnDefinition)
     {
         return false;
@@ -33,8 +24,8 @@ abstract class Type implements TypeInterface
      *
      * This method is only for types covered by mapping. Use fromDefinition instead for custom types.
      *
-     * @param Dbal $dbal
-     * @param array $columnDefinition
+     * @param Dbal   $dbal
+     * @param array  $columnDefinition
      * @return static
      */
     public static function factory(Dbal $dbal, array $columnDefinition)

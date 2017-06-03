@@ -42,19 +42,10 @@ class SaveEntityTest extends TestCase
         $emMock->shouldReceive('insert')->with($entity)->once()->andReturn(42);
         $emMock->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
-        $entity->save($emMock);
+        $entity->setEntityManager($emMock);
+        $entity->save();
 
         self::assertSame(42, $entity->id);
-    }
-
-    public function testThrowsWhenNoEntityManagerGiven()
-    {
-        $entity = new StudlyCaps(['foo' => 'bar']);
-
-        self::expectException(NoEntityManager::class);
-        self::expectExceptionMessage('No entity manager given');
-
-        $entity->save();
     }
 
     public function testThrowsWithoutPrimaryAndAutoincrement()
@@ -65,7 +56,7 @@ class SaveEntityTest extends TestCase
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Foobar');
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testSyncsTheEntityAndStopsWhenNotDirty()
@@ -78,7 +69,7 @@ class SaveEntityTest extends TestCase
         });
         $this->em->shouldNotReceive('update');
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testUpdatesIfDirty()
@@ -91,7 +82,7 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('update')->with($entity)->once();
         $this->em->shouldReceive('sync')->with($entity, true);
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testSyncsAfterUpdate()
@@ -104,7 +95,7 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('update')->with($entity)->once();
         $this->em->shouldReceive('sync')->with($entity, true)->once();
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testInsertsIfNotPersisted()
@@ -115,7 +106,7 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('insert')->with($entity, false)->once();
         $this->em->shouldReceive('sync')->with($entity, true);
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testSyncsAfterInsert()
@@ -126,7 +117,7 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('insert')->with($entity, false)->once();
         $this->em->shouldReceive('sync')->with($entity, true)->once();
 
-        $entity->save($this->em);
+        $entity->save();
     }
 
     public function testCallsPrePersistBeforeInsert()

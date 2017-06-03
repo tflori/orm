@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Dbal\Type;
 
+use ORM\Dbal\Error;
 use ORM\Dbal\Type\VarChar;
 use ORM\Test\TestCase;
 
@@ -21,8 +22,8 @@ class VarCharTest extends TestCase
             ['utf8 chars like äöü', 19, true],
             [(string)42, 0, true],
 
-            ['This value is too long', 21, false],
-            [42, 0, false], // only string accepted
+            ['This value is too long', 21, 'This value is too long is too long (max: 21)'],
+            [42, 0, 'Only string values are allowed for varchar'], // only string accepted
         ];
     }
 
@@ -35,6 +36,11 @@ class VarCharTest extends TestCase
 
         $result = $type->validate($value);
 
-        self::assertSame($expected, $result);
+        if ($expected !== true) {
+            self::assertInstanceOf(Error::class, $result);
+            self::assertSame($expected, $result->getMessage());
+        } else {
+            self::assertTrue($result);
+        }
     }
 }
