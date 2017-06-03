@@ -3,8 +3,12 @@
 namespace ORM\Test\Entity;
 
 use Mockery\Mock;
+use ORM\Dbal\Table;
 use ORM\Entity;
+use ORM\Exception;
 use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exceptions\UnknownColumn;
+use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
@@ -277,5 +281,87 @@ class DataTest extends TestCase
         $entity->shouldReceive('onInit')->with(false)->once();
 
         $entity->unserialize(serialize([['foo' => 'bar'],[]]));
+    }
+
+    public function testDoesNotValidateValues()
+    {
+        $this->mocks['em']->shouldNotReceive('describe');
+
+        $entity = new StudlyCaps();
+        $entity->title = 42;
+    }
+
+    public function testValidatesValues()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->once()->andReturn($table);
+        $table->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
+
+        $entity = new StudlyCaps();
+        $entity->title = 'Hello World!';
+    }
+
+    public function testSetThrowsNow()
+    {
+        StudlyCaps::enableValidator();
+        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Unknown column title');
+
+        $entity = new StudlyCaps();
+        $entity->title = 'Hello World!';
+    }
+
+    public function testFillPassesToSetAndValidates()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->with('field_a', 'valueA')->once()->andReturn(true);
+        $table->shouldReceive('validate')->with('field_b', 'valueB')->once()->andReturn(true);
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ]);
+    }
+
+    public function testFillCanIgnoreUnknownColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->twice()->andThrow(UnknownColumn::class, 'unknown column');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ], true);
+    }
+
+    public function testFillThrowsForUnknownColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->once()->andThrow(UnknownColumn::class, 'Unknown column field_a');
+
+        self::expectException(UnknownColumn::class);
+        self::expectExceptionMessage('Unknown column field_a');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ]);
     }
 }

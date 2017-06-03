@@ -3,7 +3,7 @@
 namespace ORM\Dbal;
 
 use ArrayObject;
-use ORM\Exception;
+use ORM\Exceptions\UnknownColumn;
 
 /**
  * Table is basically an array of Columns
@@ -40,12 +40,12 @@ class Table extends ArrayObject
      * @param string $col
      * @param mixed $value
      * @return bool|Error
-     * @throws Exception
+     * @throws UnknownColumn
      */
     public function validate($col, $value)
     {
         if (!($column = $this->getColumn($col))) {
-            throw new Exception('Unknown column ' . $col);
+            throw new UnknownColumn('Unknown column ' . $col);
         }
 
         return $column->validate($value);

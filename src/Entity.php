@@ -12,6 +12,7 @@ use ORM\Exceptions\UndefinedRelation;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\EntityManager as EM;
+use ORM\Exceptions\UnknownColumn;
 
 /**
  * Definition of an entity
@@ -333,32 +334,56 @@ abstract class Entity implements \Serializable
      *
      * The onChange event is called after something got changed.
      *
-     * @param string $var   The variable to change
+     * @param string $field The variable to change
      * @param mixed  $value The value to store
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
-    public function __set($var, $value)
+    public function __set($field, $value)
     {
-        $col = $this->getColumnName($var);
+        $col = $this->getColumnName($field);
 
         $em = EM::getInstance(static::class);
-        $setter = $em->getNamer()->getMethodName('set' . ucfirst($var), self::$namingSchemeMethods);
+        $setter = $em->getNamer()->getMethodName('set' . ucfirst($field), self::$namingSchemeMethods);
 
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
-            $oldValue = $this->__get($var);
+            $oldValue = $this->__get($field);
             $md5OldData = md5(serialize($this->data));
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
-            $oldValue = $this->__get($var);
+            if (static::isValidatorEnabled()) {
+                static::validate($field, $value);
+            }
+
+            $oldValue = $this->__get($field);
             $changed = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
             $this->data[$col] = $value;
         }
 
         if ($changed) {
-            $this->onChange($var, $oldValue, $this->__get($var));
+            $this->onChange($field, $oldValue, $this->__get($field));
+        }
+    }
+
+    /**
+     * Fill the entity with $data
+     *
+     * @param array $data
+     * @param bool  $ignoreUnknown
+     * @throws UnknownColumn
+     */
+    public function fill(array $data, $ignoreUnknown = false)
+    {
+        foreach ($data as $field => $value) {
+            try {
+                $this->__set($field, $value);
+            } catch (UnknownColumn $e) {
+                if (!$ignoreUnknown) {
+                    throw $e;
+                }
+            }
         }
     }
 
