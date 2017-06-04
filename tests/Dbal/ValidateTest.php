@@ -7,7 +7,7 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Type\Number;
-use ORM\Exception;
+use ORM\Exceptions\UnknownColumn;
 use ORM\Test\TestCase;
 use ORM\Dbal\Table;
 
@@ -31,7 +31,7 @@ class ValidateTest extends TestCase
     {
         $validator = new Table([]);
 
-        self::expectException(Exception::class);
+        self::expectException(UnknownColumn::class);
         self::expectExceptionMessage('Unknown column id');
 
         $validator->validate('id', 23);
