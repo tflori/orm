@@ -347,8 +347,8 @@ class EntityManager
 
         /** @var EntityFetcher $fetcher */
         $fetcher = $this->fetch(get_class($entity));
-        foreach ($entity->getPrimaryKey() as $var => $value) {
-            $fetcher->where($var, $value);
+        foreach ($entity->getPrimaryKey() as $attribute => $value) {
+            $fetcher->where($attribute, $value);
         }
 
         $result = $this->getConnection()->query($fetcher->getQuery());
@@ -479,8 +479,8 @@ class EntityManager
         }
 
         $fetcher = new EntityFetcher($this, $class);
-        foreach ($primaryKey as $var => $value) {
-            $fetcher->where($var, $value);
+        foreach ($primaryKey as $attribute => $value) {
+            $fetcher->where($attribute, $value);
         }
 
         return $fetcher->one();

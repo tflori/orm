@@ -121,28 +121,28 @@ class Namer
      * Get the column name with $namingScheme or default naming scheme
      *
      * @param        $class
-     * @param string $field
+     * @param string $attribute
      * @param string $prefix
      * @param string $namingScheme
      * @return string
      */
-    public function getColumnName($class, $field, $prefix = null, $namingScheme = null)
+    public function getColumnName($class, $attribute, $prefix = null, $namingScheme = null)
     {
-        if (!isset($this->columnNames[$class][$field])) {
+        if (!isset($this->columnNames[$class][$attribute])) {
             if (!$namingScheme) {
                 $namingScheme = $this->columnNameScheme;
             }
 
-            $name = $this->forceNamingScheme($field, $namingScheme);
+            $name = $this->forceNamingScheme($attribute, $namingScheme);
 
             if ($prefix !== null && strpos($name, $prefix) !== 0) {
                 $name = $prefix . $name;
             }
 
-            $this->columnNames[$class][$field] = $name;
+            $this->columnNames[$class][$attribute] = $name;
         }
 
-        return $this->columnNames[$class][$field];
+        return $this->columnNames[$class][$attribute];
     }
 
     /**
@@ -249,35 +249,35 @@ class Namer
     }
 
     /**
-     * Get the value for $var from $values using $arrayGlue
+     * Get the value for $attribute from $values using $arrayGlue
      *
-     * @param string $var The key for $values
+     * @param string $attribute The key for $values
      * @param array $values
      * @param string $arrayGlue
      * @return string
      * @throws InvalidConfiguration
      */
-    protected function getValue($var, $values, $arrayGlue)
+    protected function getValue($attribute, $values, $arrayGlue)
     {
-        $placeholder = '%' . $var . '%';
-        if (preg_match('/\[(-?\d+\*?)\]$/', $var, $arrayAccessor)) {
-            $var = substr($var, 0, strpos($var, '['));
+        $placeholder = '%' . $attribute . '%';
+        if (preg_match('/\[(-?\d+\*?)\]$/', $attribute, $arrayAccessor)) {
+            $attribute = substr($attribute, 0, strpos($attribute, '['));
             $arrayAccessor = $arrayAccessor[1];
         }
 
         // throw when the variable is unknown
-        if (!array_key_exists($var, $values)) {
+        if (!array_key_exists($attribute, $values)) {
             throw new InvalidConfiguration(
                 'Template invalid: Placeholder ' . $placeholder . ' is not allowed'
             );
         }
 
-        if (is_scalar($values[$var]) || is_null($values[$var])) {
-            return (string)$values[$var];
+        if (is_scalar($values[$attribute]) || is_null($values[$attribute])) {
+            return (string)$values[$attribute];
         }
 
         // otherwise we assume it is an array
-        $array = $values[$var];
+        $array = $values[$attribute];
 
         if (isset($arrayAccessor[0])) {
             $from = $arrayAccessor[0] === '-' ?

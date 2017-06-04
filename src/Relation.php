@@ -182,14 +182,14 @@ abstract class Relation
     {
         $foreignKey = [];
 
-        foreach ($reference as $var => $fkCol) {
-            $value = $me->__get($var);
+        foreach ($reference as $attribute => $fkAttribute) {
+            $value = $me->__get($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete for join');
             }
 
-            $foreignKey[$fkCol] = $value;
+            $foreignKey[$fkAttribute] = $value;
         }
 
         return $foreignKey;

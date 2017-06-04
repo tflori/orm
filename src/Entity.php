@@ -135,7 +135,7 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get the column name of $field
+     * Get the column name of $attribute
      *
      * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
      * to $namingSchemeColumn.
@@ -143,18 +143,18 @@ abstract class Entity implements \Serializable
      * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
      * the same as getColumnName($name).
      *
-     * @param string $field
+     * @param string $attribute
      * @return string
      * @throws InvalidConfiguration
      */
-    public static function getColumnName($field)
+    public static function getColumnName($attribute)
     {
-        if (isset(static::$columnAliases[$field])) {
-            return static::$columnAliases[$field];
+        if (isset(static::$columnAliases[$attribute])) {
+            return static::$columnAliases[$attribute];
         }
 
         return EM::getInstance(static::class)->getNamer()
-            ->getColumnName(static::class, $field, static::$columnPrefix, static::$namingSchemeColumn);
+            ->getColumnName(static::class, $attribute, static::$columnPrefix, static::$namingSchemeColumn);
     }
 
     /**
@@ -256,31 +256,31 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Validate $value for $field
+     * Validate $value for $attribute
      *
-     * @param string $field
+     * @param string $attribute
      * @param mixed $value
      * @return bool|Error
      * @throws Exception
      */
-    public static function validate($field, $value)
+    public static function validate($attribute, $value)
     {
-        return static::describe()->validate(static::getColumnName($field), $value);
+        return static::describe()->validate(static::getColumnName($attribute), $value);
     }
 
     /**
-     * Validate $fields
+     * Validate $data
      *
-     * $fields has to be an array of $field => $value
+     * $data has to be an array of $attribute => $value
      *
-     * @param array $fields
+     * @param array $data
      * @return array
      */
-    public static function validateArray(array $fields)
+    public static function validateArray(array $data)
     {
-        $result = $fields;
-        foreach ($result as $field => &$value) {
-            $value = static::validate($field, $value);
+        $result = $data;
+        foreach ($result as $attribute => &$value) {
+            $value = static::validate($attribute, $value);
         }
         return $result;
     }
@@ -296,29 +296,29 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get the value from $var
+     * Get the value from $attribute
      *
      * If there is a custom getter this method get called instead.
      *
-     * @param string $var The variable to get
+     * @param string $attribute The variable to get
      * @return mixed|null
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
-    public function __get($var)
+    public function __get($attribute)
     {
         $em = EM::getInstance(static::class);
-        $getter = $em->getNamer()->getMethodName('get' . ucfirst($var), self::$namingSchemeMethods);
+        $getter = $em->getNamer()->getMethodName('get' . ucfirst($attribute), self::$namingSchemeMethods);
 
         if (method_exists($this, $getter) && is_callable([$this, $getter])) {
             return $this->$getter();
         } else {
-            $col = static::getColumnName($var);
+            $col = static::getColumnName($attribute);
             $result = isset($this->data[$col]) ? $this->data[$col] : null;
 
-            if (!$result && isset(static::$relations[$var]) && isset($this->entityManager)) {
-                return $this->getRelated($var);
+            if (!$result && isset(static::$relations[$attribute]) && isset($this->entityManager)) {
+                return $this->getRelated($attribute);
             }
 
             return $result;
@@ -326,7 +326,7 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Set $var to $value
+     * Set $attribute to $value
      *
      * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
      * data that should be updated in the database to $data. Do not store data in $originalData as it will not be
@@ -334,36 +334,36 @@ abstract class Entity implements \Serializable
      *
      * The onChange event is called after something got changed.
      *
-     * @param string $field The variable to change
+     * @param string $attribute The variable to change
      * @param mixed  $value The value to store
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
-    public function __set($field, $value)
+    public function __set($attribute, $value)
     {
-        $col = $this->getColumnName($field);
+        $col = $this->getColumnName($attribute);
 
         $em = EM::getInstance(static::class);
-        $setter = $em->getNamer()->getMethodName('set' . ucfirst($field), self::$namingSchemeMethods);
+        $setter = $em->getNamer()->getMethodName('set' . ucfirst($attribute), self::$namingSchemeMethods);
 
         if (method_exists($this, $setter) && is_callable([$this, $setter])) {
-            $oldValue = $this->__get($field);
+            $oldValue = $this->__get($attribute);
             $md5OldData = md5(serialize($this->data));
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
             if (static::isValidatorEnabled()) {
-                static::validate($field, $value);
+                static::validate($attribute, $value);
             }
 
-            $oldValue = $this->__get($field);
+            $oldValue = $this->__get($attribute);
             $changed = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
             $this->data[$col] = $value;
         }
 
         if ($changed) {
-            $this->onChange($field, $oldValue, $this->__get($field));
+            $this->onChange($attribute, $oldValue, $this->__get($attribute));
         }
     }
 
@@ -376,9 +376,9 @@ abstract class Entity implements \Serializable
      */
     public function fill(array $data, $ignoreUnknown = false)
     {
-        foreach ($data as $field => $value) {
+        foreach ($data as $attribute => $value) {
             try {
-                $this->__set($field, $value);
+                $this->__set($attribute, $value);
             } catch (UnknownColumn $e) {
                 if (!$ignoreUnknown) {
                     throw $e;
@@ -478,15 +478,15 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Resets the entity or $var to original data
+     * Resets the entity or $attribute to original data
      *
-     * @param string $var Reset only this variable or all variables
+     * @param string $attribute Reset only this variable or all variables
      * @throws InvalidConfiguration
      */
-    public function reset($var = null)
+    public function reset($attribute = null)
     {
-        if (!empty($var)) {
-            $col = static::getColumnName($var);
+        if (!empty($attribute)) {
+            $col = static::getColumnName($attribute);
             if (isset($this->originalData[$col])) {
                 $this->data[$col] = $this->originalData[$col];
             } else {
@@ -556,16 +556,16 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Checks if entity or $var got changed
+     * Checks if entity or $attribute got changed
      *
-     * @param string $var Check only this variable or all variables
+     * @param string $attribute Check only this variable or all variables
      * @return bool
      * @throws InvalidConfiguration
      */
-    public function isDirty($var = null)
+    public function isDirty($attribute = null)
     {
-        if (!empty($var)) {
-            $col = static::getColumnName($var);
+        if (!empty($attribute)) {
+            $col = static::getColumnName($attribute);
             return (isset($this->data[$col]) ? $this->data[$col] : null) !==
                    (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
         }
@@ -581,11 +581,11 @@ abstract class Entity implements \Serializable
      *
      * Get called when something is changed with magic setter.
      *
-     * @param string $var The variable that got changed.merge(node.inheritedProperties)
+     * @param string $attribute The variable that got changed.merge(node.inheritedProperties)
      * @param mixed  $oldValue The old value of the variable
      * @param mixed  $value The new value of the variable
      */
-    public function onChange($var, $oldValue, $value)
+    public function onChange($attribute, $oldValue, $value)
     {
     }
 
@@ -681,12 +681,12 @@ abstract class Entity implements \Serializable
     public function getPrimaryKey()
     {
         $primaryKey = [];
-        foreach (static::getPrimaryKeyVars() as $var) {
-            $value = $this->$var;
+        foreach (static::getPrimaryKeyVars() as $attribute) {
+            $value = $this->$attribute;
             if ($value === null) {
-                throw new IncompletePrimaryKey('Incomplete primary key - missing ' . $var);
+                throw new IncompletePrimaryKey('Incomplete primary key - missing ' . $attribute);
             }
-            $primaryKey[$var] = $value;
+            $primaryKey[$attribute] = $value;
         }
         return $primaryKey;
     }

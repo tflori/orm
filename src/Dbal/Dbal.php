@@ -170,8 +170,8 @@ abstract class Dbal
         $primaryKey = $entity->getPrimaryKey();
 
         $where = [];
-        foreach ($primaryKey as $var => $value) {
-            $col = $entity::getColumnName($var);
+        foreach ($primaryKey as $attribute => $value) {
+            $col = $entity::getColumnName($attribute);
             $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
             if (isset($data[$col])) {
                 unset($data[$col]);
@@ -203,8 +203,8 @@ abstract class Dbal
     {
         $primaryKey = $entity->getPrimaryKey();
         $where = [];
-        foreach ($primaryKey as $var => $value) {
-            $col = $entity::getColumnName($var);
+        foreach ($primaryKey as $attribute => $value) {
+            $col = $entity::getColumnName($attribute);
             $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
         }
 

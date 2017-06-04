@@ -48,19 +48,19 @@ class Owner extends Relation
             throw new InvalidRelation('Invalid entity for relation ' . $this->name);
         }
 
-        foreach ($this->reference as $fkVar => $var) {
+        foreach ($this->reference as $fkAttribute => $attribute) {
             if ($entity === null) {
-                $me->__set($fkVar, null);
+                $me->__set($fkAttribute, null);
                 continue;
             }
 
-            $value = $entity->__get($var);
+            $value = $entity->__get($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
-            $me->__set($fkVar, $value);
+            $me->__set($fkAttribute, $value);
         }
     }
 
