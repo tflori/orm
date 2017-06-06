@@ -133,7 +133,7 @@ class EntityManager
     private static function getInstanceByNameSpace($class)
     {
         foreach (self::$emMapping['byNameSpace'] as $nameSpace => $em) {
-            if (substr($class, 0, strlen($nameSpace)) === $nameSpace) {
+            if (strpos($class, $nameSpace) === 0) {
                 return $em;
             }
         }

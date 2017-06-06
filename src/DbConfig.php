@@ -91,6 +91,9 @@ class DbConfig
             case 'pgsql':
                 $this->port = $port ?: '5432';
                 break;
+
+            default:
+                $this->port = $port;
         }
     }
 
@@ -114,12 +117,13 @@ class DbConfig
                 $dsn .= ';dbname=' . $this->name;
                 break;
 
-            case 'pgsql':
-                $dsn .= 'host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->name;
-                break;
-
             case 'sqlite':
                 $dsn .= $this->name;
+                break;
+
+            case 'pgsql':
+            default:
+                $dsn .= 'host=' . $this->host . ';port=' . $this->port . ';dbname=' . $this->name;
                 break;
         }
 

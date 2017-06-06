@@ -29,10 +29,15 @@ use ORM\Exceptions\UnknownColumn;
  */
 abstract class Entity implements \Serializable
 {
+    /** @deprecated Use Relation::OPT_CLASS instead */
     const OPT_RELATION_CLASS       = 'class';
+    /** @deprecated Use Relation::OPT_CARDINALITY instead */
     const OPT_RELATION_CARDINALITY = 'cardinality';
+    /** @deprecated Use Relation::OPT_REFERENCE instead */
     const OPT_RELATION_REFERENCE   = 'reference';
+    /** @deprecated Use Relation::OPT_OPPONENT instead */
     const OPT_RELATION_OPPONENT    = 'opponent';
+    /** @deprecated Use Relation::OPT_TABLE instead */
     const OPT_RELATION_TABLE       = 'table';
 
     /** The template to use to calculate the table name.

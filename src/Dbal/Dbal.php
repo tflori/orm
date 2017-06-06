@@ -255,7 +255,7 @@ abstract class Dbal
             $type = substr($type, 0, $p);
         }
 
-        return $type;
+        return trim($type);
     }
 
     /**

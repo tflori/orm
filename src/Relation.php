@@ -12,8 +12,13 @@ use ORM\Relation\Owner;
 
 abstract class Relation
 {
-    const CARDINALITY_ONE          = 'one';
-    const CARDINALITY_MANY         = 'many';
+    const OPT_CLASS        = 'class';
+    const OPT_REFERENCE    = 'reference';
+    const OPT_CARDINALITY  = 'cardinality';
+    const OPT_OPPONENT     = 'opponent';
+    const OPT_TABLE        = 'table';
+    const CARDINALITY_ONE  = 'one';
+    const CARDINALITY_MANY = 'many';
 
     /** The name of the relation for error messages
      * @var string */
@@ -44,12 +49,12 @@ abstract class Relation
             $relDef = self::convertShort($name, $relDef);
         }
 
-        $class = isset($relDef[Entity::OPT_RELATION_CLASS]) ? $relDef[Entity::OPT_RELATION_CLASS] : null;
-        $reference = isset($relDef[Entity::OPT_RELATION_REFERENCE]) ? $relDef[Entity::OPT_RELATION_REFERENCE] : null;
-        $table = isset($relDef[Entity::OPT_RELATION_TABLE]) ? $relDef[Entity::OPT_RELATION_TABLE] : null;
-        $opponent = isset($relDef[Entity::OPT_RELATION_OPPONENT]) ? $relDef[Entity::OPT_RELATION_OPPONENT] : null;
-        $cardinality = isset($relDef[Entity::OPT_RELATION_CARDINALITY]) ?
-            $relDef[Entity::OPT_RELATION_CARDINALITY] : null;
+        $class = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $reference = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+        $table = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
+        $opponent = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $cardinality = isset($relDef[self::OPT_CARDINALITY]) ?
+            $relDef[self::OPT_CARDINALITY] : null;
 
         if ($reference && !isset($table)) {
             return new Owner($name, $class, $reference);
@@ -78,32 +83,32 @@ abstract class Relation
         if ($length === 2 && gettype($relDef[1]) === 'array') {
             // owner of one-to-many or one-to-one
             return [
-                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                Entity::OPT_RELATION_CLASS       => $relDef[0],
-                Entity::OPT_RELATION_REFERENCE   => $relDef[1],
+                self::OPT_CARDINALITY => self::CARDINALITY_ONE,
+                self::OPT_CLASS       => $relDef[0],
+                self::OPT_REFERENCE   => $relDef[1],
             ];
         } elseif ($length === 3 && $relDef[0] === self::CARDINALITY_ONE) {
             // non-owner of one-to-one
             return [
-                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_ONE,
-                Entity::OPT_RELATION_CLASS       => $relDef[1],
-                Entity::OPT_RELATION_OPPONENT    => $relDef[2],
+                self::OPT_CARDINALITY => self::CARDINALITY_ONE,
+                self::OPT_CLASS       => $relDef[1],
+                self::OPT_OPPONENT    => $relDef[2],
             ];
         } elseif ($length === 2) {
             // non-owner of one-to-many
             return [
-                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                Entity::OPT_RELATION_CLASS       => $relDef[0],
-                Entity::OPT_RELATION_OPPONENT    => $relDef[1],
+                self::OPT_CARDINALITY => self::CARDINALITY_MANY,
+                self::OPT_CLASS       => $relDef[0],
+                self::OPT_OPPONENT    => $relDef[1],
             ];
         } elseif ($length === 4 && gettype($relDef[1]) === 'array') {
             // many-to-many
             return [
-                Entity::OPT_RELATION_CARDINALITY => self::CARDINALITY_MANY,
-                Entity::OPT_RELATION_CLASS       => $relDef[0],
-                Entity::OPT_RELATION_REFERENCE   => $relDef[1],
-                Entity::OPT_RELATION_OPPONENT    => $relDef[2],
-                Entity::OPT_RELATION_TABLE       => $relDef[3],
+                self::OPT_CARDINALITY => self::CARDINALITY_MANY,
+                self::OPT_CLASS       => $relDef[0],
+                self::OPT_REFERENCE   => $relDef[1],
+                self::OPT_OPPONENT    => $relDef[2],
+                self::OPT_TABLE       => $relDef[3],
             ];
         } else {
             throw new InvalidConfiguration('Invalid short form for relation ' . $name);

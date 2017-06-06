@@ -3,7 +3,82 @@ layout: default
 title: RelationExample Definition
 permalink: /relationDefinition.html
 ---
-## RelationExample Definition
+## Relation Definition
+
+### Cheat Sheet
+
+**TL;DR** Here is a cheat sheet. All information is described below in detail.
+
+#### One-To-Many Relation
+
+```php?start_inline=true
+class Article extends ORM\Entity {
+    protected static $relations = [
+        'comments' => [ArticleComments::class, 'article']
+    ];
+}
+
+// owner with foreign key: articleId
+class ArticleComments extends ORM\Entity {
+    protected static $relations = [
+        'article' => [Article::class, ['articleId' => 'id']]
+    ];
+}
+
+$article = $em->fetch(Article::class, 1);
+$comment = $article->fetch($em, 'comments')->one();
+
+echo get_class($comment), "\n";                               // ArticleComment
+echo $article === $comment->article ? 'true' : 'false', "\n"; // true
+```
+
+#### One-To-One Relation
+
+```php?start_inline=true
+class Article extends ORM\Entity {
+    protected static $relations = [
+        'additionalData' => ['one', ArticleAdditionalData::class, 'article']
+    ];
+}
+
+// owner with foreign key: articleId
+class ArticleAdditionalData extends ORM\Entity {
+    protected static $relations = [
+        'article' => [Article::class, ['articleId' => 'id']]
+    ];
+}
+
+$article = $em->fetch(Article::class, 1);
+$additionalData = $article->fetch($em, 'additionalData');
+
+echo get_class($additionalData), "\n";                               // ArticleAdditionalData
+echo $article === $additionalData->article ? 'true' : 'false', "\n"; // true
+```
+
+#### Many-To-Many Relation
+
+```php?start_inline=true
+class Article extends ORM\Entity {
+    protected static $relations = [
+        'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']
+    ];
+}
+
+class Category extends ORM\Entity {
+    protected static $relations = [
+        'articles' => [Article::class, ['id' => 'category_id'], 'categories', 'article_category']
+    ];
+}
+
+$article = $em->fetch(Article::class, 1);
+
+$category = $article->fetch($em, 'categories')->one();
+echo get_class($category), "\n"; // Category
+
+$articlesInCategory = $category->fetch($em, 'articles')->all();
+```
+
+### Introduction
 
 One of the most important features of relational databases are references between tables. They are also called
 relationships or associations - we just say relation. A relation is the reference from one row of a table to another
@@ -37,6 +112,7 @@ class Article extends ORM\ENtity {
         'reference' => ['userId' => 'id'],
     ],
     'comments' => [
+        'cardinality' => 'many', // default
         'class'    => ArticleComments::class,
         'opponent' => 'article',
     ],
@@ -45,15 +121,18 @@ class Article extends ORM\ENtity {
 ```
 
 ```php?start_inline=true
+use ORM\Relation;
+
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
-        self::OPT_RELATION_CLASS     => User::class,
-        self::OPT_RELATION_REFERENCE => ['userId' => 'id'],
+        Relation::OPT_CLASS     => User::class,
+        Relation::OPT_REFERENCE => ['userId' => 'id'],
     ],
     'comments' => [
-        self::OPT_RELATION_CLASS    => ArticleComments::class,
-        self::OPT_RELATION_OPPONENT => 'article',
+        Relation::OPT_CARDINALITY => Relation::CARDINALITY_MANY, // default
+        Relation::OPT_CLASS       => ArticleComments::class,
+        Relation::OPT_OPPONENT    => 'article',
     ],
   ];
 }
@@ -61,13 +140,13 @@ class Article extends ORM\ENtity {
 
 > We prefer the first one but the third one has auto completion.
 
-| Option                     | Key             | Type     | Description                                      |
-|----------------------------|-----------------|----------|--------------------------------------------------|
-| `OPT_RELATION_CLASS`       | `'class'`       | `string` | The full qualified name of related class         |
-| `OPT_RELATION_REFERENCE`   | `'reference'`   | `array`  | The column definition (column or property name)  |
-| `OPT_RELATION_CARDINALITY` | `'cardinality'` | `string` | How many related objects (one or many) can exist |
-| `OPT_RELATION_OPPONENT`    | `'opponent'`    | `string` | The name of the relation in related class        |
-| `OPT_RELATION_TABLE`       | `'table'`       | `string` | The table name for many to many relations        |
+| Option        | Const             | Type     | Description                                      |
+|---------------|-------------------|----------|--------------------------------------------------|
+| `class`       | `OPT_CLASS`       | `string` | The full qualified name of related class         |
+| `reference`   | `OPT_REFERENCE`   | `array`  | The column definition (column or property name)  |
+| `cardinality` | `OPT_CARDINALITY` | `string` | How many related objects (one or many) can exist |
+| `opponent`    | `OPT_OPPONENT`    | `string` | The name of the relation in related class        |
+| `table`       | `OPT_TABLE`       | `string` | The table name for many to many relations        |
 
 ### RelationExample Types
 

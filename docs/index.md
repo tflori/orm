@@ -16,6 +16,11 @@ Yes, there are a lot of implementations:
   - annotations that makes it unreadable
   - big amount of queries or very slow queries when it comes to join across multiple tables
   
+- eloquent
+  - no single entry package (you need illuminate/this, that and database)
+  - complicated setup
+  - I **like** this very much in laravel - so not much to say here against it
+  
 - propel/propel 
   - still not stable 2.0-dev 
   - even more heavy than doctrine

@@ -78,7 +78,7 @@ You can update relations with `setRelated($relation, $entity)` for owners. For n
 and *one-to-many* relations you have to get the owner and call `setRelated()` on the owner.
 
 For *many-to-many* relations there is no owner - you can not just set the related entity. So there are two other 
-methods: `addRelateds($relation, $entities)` and `deleteRelateds($relation, $entities)`.
+methods: `addRelated($relation, $entities)` and `deleteRelated($relation, $entities)`.
 
 ```php?start_inline=true
 // Example - Create a comment:
@@ -99,7 +99,7 @@ if ($user = @$_SESSION['user']) {
     $article = new Article();
     $article->title = 'An amazing title that points out nothing';
     $article->setRelated('writer', $user);
-    $article->addRelateds('categories', [$em->fetch(Category::class)->where('key', 'php')]);
+    $article->addRelated('categories', [$em->fetch(Category::class)->where('key', 'php')]);
     $article->save();
     
     $additional = new ArticleAdditionalData();
@@ -113,7 +113,7 @@ if ($user = @$_SESSION['user']) {
 // Example - update categories
 /** @var Article $article */
 if ($article = $em->fetch(Article::class, 1)) {
-    $currentCategories = $article->getRelated('categories')->all();
+    $currentCategories = $article->getRelated('categories');
     $categoryKeys = $_POST['categories'];
     $newCategories = $em->fetch(Category::class)->where('key', $categoryKeys)->all();
     

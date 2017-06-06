@@ -9,5 +9,5 @@ class NotAllowed extends Error
     const ERROR_CODE = 'NOT_ALLOWED';
 
     /** @var string */
-    protected $message = '%value% is not allowed by this %type%';
+    protected $message = '\'%value%\' is not allowed by this %type%';
 }
