@@ -21,28 +21,29 @@ use ORM\Exceptions\UnsupportedDriver;
  */
 class EntityManager
 {
-    const OPT_CONNECTION             = 'connection';
-    const OPT_TABLE_NAME_TEMPLATE    = 'tableNameTemplate';
-    const OPT_NAMING_SCHEME_TABLE    = 'namingSchemeTable';
-    const OPT_NAMING_SCHEME_COLUMN   = 'namingSchemeColumn';
-    const OPT_NAMING_SCHEME_METHODS  = 'namingSchemeMethods';
-    const OPT_QUOTING_CHARACTER      = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER     = 'identifierDivider';
-    const OPT_BOOLEAN_TRUE           = 'true';
-    const OPT_BOOLEAN_FALSE          = 'false';
+    const OPT_CONNECTION = 'connection';
+    const OPT_TABLE_NAME_TEMPLATE = 'tableNameTemplate';
+    const OPT_NAMING_SCHEME_TABLE = 'namingSchemeTable';
+    const OPT_NAMING_SCHEME_COLUMN = 'namingSchemeColumn';
+    const OPT_NAMING_SCHEME_METHODS = 'namingSchemeMethods';
+    const OPT_QUOTING_CHARACTER = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE = 'true';
+    const OPT_BOOLEAN_FALSE = 'false';
+    const OPT_DBAL_CLASS = 'dbalClass';
 
     /** @deprecated */
-    const OPT_MYSQL_BOOLEAN_TRUE     = 'mysqlTrue';
+    const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
     /** @deprecated */
-    const OPT_MYSQL_BOOLEAN_FALSE    = 'mysqlFalse';
+    const OPT_MYSQL_BOOLEAN_FALSE = 'mysqlFalse';
     /** @deprecated */
-    const OPT_SQLITE_BOOLEAN_TRUE    = 'sqliteTrue';
+    const OPT_SQLITE_BOOLEAN_TRUE = 'sqliteTrue';
     /** @deprecated */
-    const OPT_SQLITE_BOOLEAN_FASLE   = 'sqliteFalse';
+    const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
     /** @deprecated */
-    const OPT_PGSQL_BOOLEAN_TRUE     = 'pgsqlTrue';
+    const OPT_PGSQL_BOOLEAN_TRUE = 'pgsqlTrue';
     /** @deprecated */
-    const OPT_PGSQL_BOOLEAN_FALSE    = 'pgsqlFalse';
+    const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
     /** Connection to database
      * @var \PDO|callable|DbConfig */
@@ -293,7 +294,7 @@ class EntityManager
         if (!$this->dbal) {
             $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
 
-            $options = $this->options;
+            $options = &$this->options;
             // backward compatibility - deprecated
             if (isset($options[$connectionType . 'True']) && !isset($options[self::OPT_BOOLEAN_TRUE])) {
                 $options[self::OPT_BOOLEAN_TRUE] = $options[$connectionType . 'True'];
@@ -302,12 +303,13 @@ class EntityManager
                 $options[self::OPT_BOOLEAN_FALSE] = $options[$connectionType . 'False'];
             }
 
-            $dbalClass = __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
+            $dbalClass = isset($options[self::OPT_DBAL_CLASS]) ?
+                $options[self::OPT_DBAL_CLASS] : __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
             if (!class_exists($dbalClass)) {
-                $this->dbal = new Other($this);
-            } else {
-                $this->dbal = new $dbalClass($this, $options);
+                $dbalClass = Other::class;
             }
+
+            $this->dbal = new $dbalClass($this, $options);
         }
 
         return $this->dbal;

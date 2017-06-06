@@ -22,7 +22,7 @@ class VarCharTest extends TestCase
             ['utf8 chars like äöü', 19, true],
             [(string)42, 0, true],
 
-            ['This value is too long', 21, 'This value is too long is too long (max: 21)'],
+            ['This value is too long', 21, '\'This value is too long\' is too long (max: 21)'],
             [42, 0, 'Only string values are allowed for varchar'], // only string accepted
         ];
     }

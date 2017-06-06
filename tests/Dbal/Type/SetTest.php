@@ -21,8 +21,8 @@ class SetTest extends TestCase
             ['a,b', ['a', 'b'], true],
             ['b,a', ['a', 'b'], true],
 
-            ['c', ['a', 'b'], 'c is not allowed by this set'],
-            ['a,c', ['a', 'b'], 'c is not allowed by this set'],
+            ['c', ['a', 'b'], '\'c\' is not allowed by this set'],
+            ['a,c', ['a', 'b'], '\'c\' is not allowed by this set'],
             [1, ['1', '2'], 'Only string values are allowed for set'],
         ];
     }

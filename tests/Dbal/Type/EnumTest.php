@@ -19,7 +19,7 @@ class EnumTest extends TestCase
             ['a', ['a', 'b'], true],
             ['b', ['a', 'b'], true],
 
-            ['c', ['a', 'b'], 'c is not allowed by this enum'],
+            ['c', ['a', 'b'], '\'c\' is not allowed by this enum'],
             [1, ['1', '2'], 'Only string values are allowed for enum'],
         ];
     }
