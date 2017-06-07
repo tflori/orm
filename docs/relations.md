@@ -5,7 +5,7 @@ permalink: /relations.html
 ---
 ## Working With Relations
 
-Relations can be used for joins in EntityFetcher and of course to fetch related objects from Entity. In this doc we
+Relations can be used for joins in `EntityFetcher` and of course to fetch related objects from Entity. In this doc we
 want to describe how and what else you can do with these relations. How to add relations and how to remove relations.
 
 All examples refer to this definitions:
@@ -13,10 +13,10 @@ All examples refer to this definitions:
 ```php?start_inline=true
 class Article extends ORM\Entity {
     protected static $relations = [
-        'additionalData' => ['one', ArticleAdditionalData::class, 'article'],
-        'comments' => [ArticleComments::class, 'article'],
-        'categories' => [Category::class, ['id' => 'articleId'], 'articles', 'article_category'],
-        'writer' => [User::class, ['userId' => 'id']]
+        'additionalData' => ['one', ArticleAdditionalData::class, 'article'], // 1:1
+        'comments' => [ArticleComments::class, 'article'], // 1:n
+        'categories' => [Category::class, ['id' => 'articleId'], 'articles', 'article_category'], // n:m
+        'writer' => [User::class, ['userId' => 'id']] // n:1
     ];
 }
 

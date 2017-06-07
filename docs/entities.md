@@ -5,7 +5,7 @@ permalink: /entities.html
 ---
 ## Working with entities
 
-One of the most important things for an orm: how to fetch an object from database? Directly followed by: how to get
+One of the most important things for an ORM: how to fetch an object from database? Directly followed by: how to get
 related objects? It should be easy what means it should not need much lines to get an entity by primary key or even by
 different where conditions.
 
@@ -45,22 +45,27 @@ already. This means that fetching by query will always query the database.
 Fetching by primary key is a shortcut for the first row:
 
 ```php?start_inline=true
-$entityManager->fetch(User::class)->where('id', 1)->one(); // stores to entity map
-$entityManager->fetch(User::class, 1); // gets the object from the entity map
+$entityManager->fetch(User::class)->where('id', 1)->one();
+$entityManager->fetch(User::class, 1);
 ```
+
+> Because fetching with EntityFetcher also stores the entity in the entity map, the second row will not execute a
+> statement on the database.
 
 ### Fetching with query builder
 
 By calling `EntityManager::fetch()` and providing only the entity class you will receive an object from 
-`EntityFetcher`. This class implements the `QueryBuilder-Interface` and uses the `QueryBuilder` to delegate the method
-calls. The difference between the query builder and the EntityFetcher is that the query builder will just return the
-query while the entity fetcher will specify the columns to fetch and provides functions to fetch one or more entities.
+`EntityFetcher`. This class implements the `QueryBuilderInterface` and uses the `QueryBuilder` to delegate the method
+calls. The difference between the query builder and the `EntityFetcher` is that the `QueryBuilder` will just return the
+query while the `EntityFetcher` will specify the columns to fetch and provides functions to fetch one or more entities.
 
 Long text short: query builder builds an query (`string QueryBuilder::getQuery()`) and entity fetcher fetches objects of 
 entities (`Entity EntityFetcher::all()`).
 
-The entity fetcher does not handle relations. If you need to fetch a lot of objects and relations consider using more
+The `EntityFetcher` does not fetch relations. If you need to fetch a lot of objects and relations consider using more
 than one entity fetcher. See the documentation about relations for more details.
+
+For information how to join, build where conditions and so on please have look in the [API Reference](reference.md).
 
 ### Set and get columns
 

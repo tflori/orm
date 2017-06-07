@@ -5,7 +5,7 @@ permalink: /entityDefinition.html
 ---
 ## Entity Definition
 
-Nothing is required and everything should work out of the box. It is like using PDO alone.
+Nothing is required and everything should work out of the box. It is like using `PDO` alone.
 
 ```php?start_inline=true
 class User extends ORM\Entity {}
@@ -19,15 +19,15 @@ To make this example work you need to have a table `user` with columns `id`, `us
 different in your system. In further description we show how to setup different table name, column names, column 
 aliases and identifier.
 
-All table and column names get quoted in queries. The usual way for quoting in SQL is with double quote (`"`).
-Table names can also be in separated schemas or databases (in mysql) it is usually divided by a dot (`.`). Maybe your
+All table and column names get quoted in queries. The usual way for quoting in SQL is with double quote `"`.
+Table names can also be in separated schemas or databases (in mysql) it is usually divided by a dot `.`. Maybe your
 database is different (mysql uses `` ` `` for quoting) - then you can define them with the options 
 `OPT_QUOTING_CHARACTER` and `OPT_IDENTIFIER_DIVIDER`.
 
 > For mysql we suggest to use `PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode ='ANSI_QUOTES'"`
 
-This orm library also handles relations - for more information about configuring relations check the [documentation 
-of relations](relations.md).
+This orm library also handles relations - for more information about configuring relations check
+[Relation Definition](relationDefinition.md).
 
 ### Table name
 
@@ -48,7 +48,7 @@ method in an abstract class.
 
 #### Template
 
-The table name template can be configured in the Namer but you should better pass it to the options for the 
+The table name template can be configured in the `Namer` but you should better pass it to the options for the 
 EntityManager during initialization:
 
 ```php?start_inline=true
