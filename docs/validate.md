@@ -68,7 +68,47 @@ Here is a small example for a user Table:
 ```php
 <?php
 
-class User extends \ORM\Entity {
-    
+use ORM\Entity;
+use ORM\EntityManager;
+use ORM\Dbal\Table;
+use ORM\Dbal\Column;
+use ORM\Dbal\Type;
+
+class User extends Entity {
+    public static function describe() {
+        $dbal = EntityManager::getInstance(static::class)->getDbal();
+        return new Table([
+            new Column($dbal, [
+                'column_name' => 'id',
+                'data_type' => 'int',
+                'type' => Type\Number::class,
+                'is_nullable' => false,
+                'column_default' => 'incremented'
+            ]),
+            new Column($dbal, [
+                'column_name' => 'username',
+                'data_type' => 'varchar',
+                'type' => Type\VarChar::class,
+                'is_nullable' => false,
+                'column_default' => null,
+                'character_maximum_length' => 20
+            ]),
+            new Column($dbal, [
+                'column_name' => 'password',
+                'data_type' => 'char',
+                'type' => Type\VarChar::class,
+                'is_nullable' => false,
+                'column_default' => null,
+                'character_maximum_length' => 40
+            ]),
+            new Column($dbal, [
+                'column_name' => 'active',
+                'data_type' => 'boolean',
+                'type' => Type\Boolean::class,
+                'is_nullable' => false,
+                'column_default' => 0
+            ]),
+        ]);
+    }
 }
 ```
