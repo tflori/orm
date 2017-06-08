@@ -117,7 +117,7 @@ the opposite function by passing a boolean: `::disableValidator(false)` will ena
 `enableValidator(false)` will disable the validator. You can also set the static property `$enableValidator` to true.
 
 When the validator is enabled each call to the magic setter that is not handled by a setter will validate the value. If
-an Error is returned it will throw a `ORM\Exception\NotValid` exception. This is also executed for the fill method. The
+an Error is returned it will throw an `ORM\Dbal\Error` exception. This is also executed for the fill method. The
 Idea behind this is that you can just fill your entity from unvalidated data source (such as `$_POST` or `php://input`).
 
 ```php?start_inline=true
