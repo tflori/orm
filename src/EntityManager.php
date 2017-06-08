@@ -6,12 +6,12 @@ use ORM\Dbal\Dbal;
 use ORM\Dbal\Column;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\NoConnection;
-use ORM\Exceptions\NoEntity;
-use ORM\Exceptions\NotScalar;
-use ORM\Exceptions\UnsupportedDriver;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\NoConnection;
+use ORM\Exception\NoEntity;
+use ORM\Exception\NotScalar;
+use ORM\Exception\UnsupportedDriver;
 
 /**
  * The EntityManager that manages the instances of Entities.

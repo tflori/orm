@@ -56,7 +56,7 @@ class ManyToManyTest extends TestCase
     {
         $entity = new Article([], $this->em);
 
-        self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
+        self::expectException(\ORM\Exception\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');
 
         $entity->fetch('categories');

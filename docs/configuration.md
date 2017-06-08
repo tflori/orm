@@ -84,7 +84,7 @@ These settings are for global naming definition of tables, columns and methods. 
 
 The available naming schemes are: `snake_lower`, `SNAKE_UPPER`, `camelCase`, `StudlyCaps`, `Snake_Ucfirst`,
 `snake_case`, `lower` and `UPPER`. You can read more about table name template in
-[Entity Definition](entityDefinition.html#template).
+[Entity Definition](entityDefinition.md#template).
 
 
 ### Database abstraction layer options

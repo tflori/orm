@@ -2,8 +2,8 @@
 
 namespace ORM;
 
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\InvalidName;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\InvalidName;
 use ReflectionClass;
 
 /**

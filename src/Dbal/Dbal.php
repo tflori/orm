@@ -4,8 +4,8 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\EntityManager;
-use ORM\Exceptions\NotScalar;
-use ORM\Exceptions\UnsupportedDriver;
+use ORM\Exception\NotScalar;
+use ORM\Exception\UnsupportedDriver;
 
 /**
  * Base class for database abstraction

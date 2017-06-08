@@ -25,9 +25,7 @@ The `Type` has to implement `TypeInterface` and can be registered through `Colum
 
 Example for the type `point`:
 
-```php
-<?php
-
+```php?start_inline=true
 namespace App\Type;
 
 use ORM\Dbal\TypeInterface;
@@ -65,9 +63,7 @@ method.
 
 Here is a small example for a user Table:
 
-```php
-<?php
-
+```php?start_inline=true
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Dbal\Table;
@@ -110,5 +106,26 @@ class User extends Entity {
             ]),
         ]);
     }
+}
+```
+
+### Enable Validator
+
+You can enable the validator for every attribute (except attributes with specific setters) by calling 
+`::enableValidator()`. For easier handling there is also a `::disableValidator()` and you can disable or enable with
+the opposite function by passing a boolean: `::disableValidator(false)` will enable the validator and 
+`enableValidator(false)` will disable the validator. You can also set the static property `$enableValidator` to true.
+
+When the validator is enabled each call to the magic setter that is not handled by a setter will validate the value. If
+an Error is returned it will throw a `ORM\Exception\NotValid` exception. This is also executed for the fill method. The
+Idea behind this is that you can just fill your entity from unvalidated data source (such as `$_POST` or `php://input`).
+
+```php?start_inline=true
+/** @var User $user **/
+if (isset($_SESSION['user']) && $user = $_SESSION['user']) {
+    $article = new Article();
+    $article->setRelated('writer', $user);
+    $article->fill($_POST);
+    $article->save();
 }
 ```

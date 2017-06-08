@@ -3,8 +3,8 @@
 namespace ORM\Test\Relation;
 
 use ORM\EntityFetcher;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\UndefinedRelation;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\UndefinedRelation;
 use ORM\Relation\OneToMany;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
@@ -71,7 +71,7 @@ class OneToManyTest extends TestCase
     {
         $entity = new RelationExample([], $this->em);
 
-        self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
+        self::expectException(\ORM\Exception\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');
 
         $entity->fetch('contactPhones');

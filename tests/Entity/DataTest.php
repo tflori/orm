@@ -3,11 +3,14 @@
 namespace ORM\Test\Entity;
 
 use Mockery\Mock;
+use ORM\Dbal\Column;
+use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Table;
 use ORM\Entity;
 use ORM\Exception;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\UnknownColumn;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\UnknownColumn;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
@@ -303,7 +306,7 @@ class DataTest extends TestCase
         $entity->title = 'Hello World!';
     }
 
-    public function testSetThrowsNow()
+    public function testSetThrowsForUnknownColumns()
     {
         StudlyCaps::enableValidator();
         $table = \Mockery::mock(Table::class, [[]])->makePartial();
@@ -314,6 +317,23 @@ class DataTest extends TestCase
 
         $entity = new StudlyCaps();
         $entity->title = 'Hello World!';
+    }
+
+    public function testSetThrowsForInvalidValues()
+    {
+        StudlyCaps::enableValidator();
+        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->with('title', 42)->andReturn(new NotValid(
+            new Column($this->dbal, ['column_name' => 'title']),
+            new NoString(['type' => 'varchar'])
+        ));
+
+        self::expectException(Exception\NotValid::class);
+        self::expectExceptionMessage('Value not valid for title');
+
+        $entity = new StudlyCaps();
+        $entity->title = 42;
     }
 
     public function testFillPassesToSetAndValidates()

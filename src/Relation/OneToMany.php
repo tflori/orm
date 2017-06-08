@@ -5,7 +5,7 @@ namespace ORM\Relation;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exception\InvalidConfiguration;
 use ORM\Relation;
 
 class OneToMany extends Relation

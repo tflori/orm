@@ -1,16 +1,15 @@
 <?php
 
-namespace ORM\Exceptions;
+namespace ORM\Exception;
 
 use ORM\Exception;
 
 /**
- * Class NotJoined
+ * Class IncompletePrimaryKey
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class NotJoined extends Exception
+class IncompletePrimaryKey extends Exception
 {
-
 }

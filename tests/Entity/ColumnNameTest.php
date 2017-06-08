@@ -2,7 +2,7 @@
 
 namespace ORM\Test\Entity;
 
-use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exception\InvalidConfiguration;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;

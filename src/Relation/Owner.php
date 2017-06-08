@@ -5,8 +5,8 @@ namespace ORM\Relation;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\InvalidRelation;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidRelation;
 use ORM\Relation;
 
 class Owner extends Relation

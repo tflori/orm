@@ -2,9 +2,9 @@
 
 namespace ORM;
 
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\InvalidRelation;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\InvalidRelation;
 use ORM\Relation\ManyToMany;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;

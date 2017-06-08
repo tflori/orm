@@ -1,15 +1,15 @@
 <?php
 
-namespace ORM\Exceptions;
+namespace ORM\Exception;
 
 use ORM\Exception;
 
 /**
- * Class NotScalar
+ * Class NoConnection
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class NotScalar extends Exception
+class NoConnection extends Exception
 {
 }

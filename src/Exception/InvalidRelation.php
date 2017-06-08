@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Exceptions;
+namespace ORM\Exception;
 
 use ORM\Exception;
 

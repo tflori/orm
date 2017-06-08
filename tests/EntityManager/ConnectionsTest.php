@@ -4,8 +4,8 @@ namespace ORM\Test\EntityManager;
 
 use ORM\DbConfig;
 use ORM\EntityManager;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\NoConnection;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\NoConnection;
 use ORM\Test\TestCase;
 
 class ConnectionsTest extends TestCase

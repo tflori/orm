@@ -4,8 +4,8 @@ namespace ORM\Test\EntityManager;
 
 use Mockery\Mock;
 use ORM\Entity;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\UnsupportedDriver;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\UnsupportedDriver;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;

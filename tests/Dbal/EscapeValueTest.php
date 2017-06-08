@@ -3,7 +3,7 @@
 namespace ORM\Test\Dbal;
 
 use ORM\Dbal;
-use ORM\Exceptions\NotScalar;
+use ORM\Exception\NotScalar;
 use ORM\Test\TestCase;
 
 class EscapeValueTest extends TestCase

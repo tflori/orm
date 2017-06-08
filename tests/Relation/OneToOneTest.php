@@ -3,8 +3,8 @@
 namespace ORM\Test\Relation;
 
 use ORM\EntityFetcher;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\UndefinedRelation;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\UndefinedRelation;
 use ORM\Relation\OneToOne;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\RelationExample;

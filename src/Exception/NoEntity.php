@@ -1,15 +1,16 @@
 <?php
 
-namespace ORM\Exceptions;
+namespace ORM\Exception;
 
 use ORM\Exception;
 
 /**
- * Class IncompletePrimaryKey
+ * Class NoEntity
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class IncompletePrimaryKey extends Exception
+class NoEntity extends Exception
 {
+
 }

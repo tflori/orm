@@ -2,7 +2,7 @@
 
 namespace ORM\Dbal;
 
-use ORM\Exceptions\UnsupportedDriver;
+use ORM\Exception\UnsupportedDriver;
 
 /**
  * Database abstraction for other databases

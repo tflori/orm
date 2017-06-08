@@ -4,7 +4,7 @@ namespace ORM\Test\EntityManager;
 
 use Mockery\Mock;
 use ORM\EntityFetcher;
-use ORM\Exceptions\NotJoined;
+use ORM\Exception\NotJoined;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\ContactPhone;

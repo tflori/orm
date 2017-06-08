@@ -4,7 +4,7 @@ namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
 use ORM\Exception;
-use ORM\Exceptions\NoOperator;
+use ORM\Exception\NoOperator;
 
 /**
  * Build a ansi sql query / select statement
@@ -95,8 +95,8 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param string      $expression Expression with placeholders
      * @param array|mixed $args       Arguments for placeholders
      * @return string
-     * @throws \ORM\Exceptions\NoConnection
-     * @throws \ORM\Exceptions\NotScalar
+     * @throws \ORM\Exception\NoConnection
+     * @throws \ORM\Exception\NotScalar
      */
     protected function convertPlaceholders(
         $expression,
@@ -225,8 +225,8 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param array|mixed $args       Arguments to use in $expression
      * @param bool        $empty      Create an empty join (without USING and ON)
      * @return ParenthesisInterface|QueryBuilder
-     * @throws \ORM\Exceptions\NoConnection
-     * @throws \ORM\Exceptions\NotScalar
+     * @throws \ORM\Exception\NoConnection
+     * @throws \ORM\Exception\NotScalar
      * @internal
      */
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)

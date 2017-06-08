@@ -1,15 +1,15 @@
 <?php
 
-namespace ORM\Exceptions;
+namespace ORM\Exception;
 
 use ORM\Exception;
 
 /**
- * Class InvalidConfiguration
+ * Class InvalidName
  *
  * @package ORM
  * @author Thomas Flori <thflori@gmail.com>
  */
-class InvalidConfiguration extends Exception
+class InvalidName extends Exception
 {
 }

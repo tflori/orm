@@ -7,7 +7,7 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Type\Number;
-use ORM\Exceptions\UnknownColumn;
+use ORM\Exception\UnknownColumn;
 use ORM\Test\TestCase;
 use ORM\Dbal\Table;
 

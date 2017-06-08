@@ -3,8 +3,8 @@
 namespace ORM\Test\Entity;
 
 use ORM\Entity;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\InvalidName;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\InvalidName;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;

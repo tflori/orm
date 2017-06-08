@@ -3,7 +3,7 @@
 namespace ORM\Dbal;
 
 use ArrayObject;
-use ORM\Exceptions\UnknownColumn;
+use ORM\Exception\UnknownColumn;
 
 /**
  * Table is basically an array of Columns

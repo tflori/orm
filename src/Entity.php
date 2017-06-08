@@ -3,16 +3,17 @@
 namespace ORM;
 
 use ORM\Dbal\Column;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\InvalidConfiguration;
-use ORM\Exceptions\InvalidRelation;
-use ORM\Exceptions\InvalidName;
-use ORM\Exceptions\NoEntityManager;
-use ORM\Exceptions\UndefinedRelation;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\InvalidRelation;
+use ORM\Exception\InvalidName;
+use ORM\Exception\NoEntityManager;
+use ORM\Exception\NotValid;
+use ORM\Exception\UndefinedRelation;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\EntityManager as EM;
-use ORM\Exceptions\UnknownColumn;
+use ORM\Exception\UnknownColumn;
 
 /**
  * Definition of an entity
@@ -340,9 +341,8 @@ abstract class Entity implements \Serializable
      * The onChange event is called after something got changed.
      *
      * @param string $attribute The variable to change
-     * @param mixed  $value The value to store
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
+     * @param mixed  $value     The value to store
+     * @throws NotValid
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($attribute, $value)
@@ -359,7 +359,10 @@ abstract class Entity implements \Serializable
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
             if (static::isValidatorEnabled()) {
-                static::validate($attribute, $value);
+                $error = static::validate($attribute, $value);
+                if ($error instanceof Error) {
+                    throw new NotValid($error);
+                }
             }
 
             $oldValue = $this->__get($attribute);
@@ -401,8 +404,8 @@ abstract class Entity implements \Serializable
      * @param string $relation
      * @param bool   $refresh
      * @return mixed
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NoEntity
+     * @throws Exception\NoConnection
+     * @throws Exception\NoEntity
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @throws NoEntityManager
@@ -507,10 +510,10 @@ abstract class Entity implements \Serializable
      * Save the entity to EntityManager
      *
      * @return Entity
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NoEntity
-     * @throws Exceptions\NotScalar
-     * @throws Exceptions\UnsupportedDriver
+     * @throws Exception\NoConnection
+     * @throws Exception\NoEntity
+     * @throws Exception\NotScalar
+     * @throws Exception\UnsupportedDriver
      * @throws IncompletePrimaryKey
      * @throws InvalidConfiguration
      * @throws InvalidName

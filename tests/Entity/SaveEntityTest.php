@@ -4,8 +4,8 @@ namespace ORM\Test\Entity;
 
 use ORM\Entity;
 use ORM\EntityManager;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\NoEntityManager;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\NoEntityManager;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
