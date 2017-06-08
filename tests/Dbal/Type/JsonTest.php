@@ -25,8 +25,10 @@ class JsonTest extends TestCase
             [json_encode(['a','b','c']), true],
 
             [42, 'Only string values are allowed for json'],
-            ['{\'key\':\'value\'}', '\'{\'key\':\'value\'}\' is not a valid JSON string'], // json allows only double quotes
-            ['undefined', '\'undefined\' is not a valid JSON string'], // no valid json
+            // json allows only double quotes
+            ['{\'key\':\'value\'}', '\'{\'key\':\'value\'}\' is not a valid JSON string'],
+            // no valid json
+            ['undefined', '\'undefined\' is not a valid JSON string'],
         ];
     }
 

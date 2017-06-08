@@ -329,7 +329,7 @@ class DataTest extends TestCase
             new NoString(['type' => 'varchar'])
         ));
 
-        self::expectException(Exception\NotValid::class);
+        self::expectException(NotValid::class);
         self::expectExceptionMessage('Value not valid for title');
 
         $entity = new StudlyCaps();

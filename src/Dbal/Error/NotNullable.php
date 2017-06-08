@@ -13,8 +13,6 @@ class NotNullable extends Error
 
     public function __construct(Column $column)
     {
-        parent::__construct();
-
-        $this->params['column'] = $column->name;
+        parent::__construct(['column' => $column->name]);
     }
 }

@@ -12,9 +12,6 @@ class NotValid extends Error
     /** @var string */
     protected $message = 'Value not valid for %column% (Caused by: %previous%)';
 
-    /** @var Error */
-    protected $previous;
-
     /**
      * NotValid constructor
      *
@@ -23,20 +20,9 @@ class NotValid extends Error
      */
     public function __construct(Column $column, Error $previous)
     {
-        parent::__construct();
-
-        $this->previous = $previous;
-        $this->params['column'] = $column->name;
-        $this->params['previous'] = $previous->getMessage();
-    }
-
-    /**
-     * Get the error that caused this error
-     *
-     * @return Error
-     */
-    public function getPrevious()
-    {
-        return $this->previous;
+        parent::__construct([
+            'column' => $column->name,
+            'previous' => $previous->getMessage()
+        ], null, null, $previous);
     }
 }

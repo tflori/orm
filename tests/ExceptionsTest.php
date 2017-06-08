@@ -8,7 +8,7 @@ class ExceptionsTest extends TestCase
 {
     public function provideExceptionClasses()
     {
-        exec('find "' . __DIR__ . '/../src" -type f -wholename "*Exceptions/*.php"', $exceptionFiles);
+        exec('find "' . __DIR__ . '/../src" -type f -wholename "*Exception/*.php"', $exceptionFiles);
         $exceptionClasses = [];
         foreach ($exceptionFiles as $exceptionFile) {
             $class = 'ORM\\' . str_replace(

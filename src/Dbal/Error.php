@@ -4,70 +4,36 @@ namespace ORM\Dbal;
 
 use ORM\Dbal\Column;
 use ORM\EntityManager;
+use ORM\Exception;
 use ORM\Namer;
 
-class Error
+class Error extends Exception
 {
     const ERROR_CODE = 'UNKNOWN';
 
-    /** @var string[] */
-    protected $params = [
-        'code' => self::ERROR_CODE
-    ];
-
     /** @var string */
     protected $message = 'ERROR(%code%) occurred';
+
+    /** @var string */
+    protected $errorCode;
 
     /**
      * Error constructor
      *
      * @param array $params
-     * @param null $code
-     * @param null $message
+     * @param null  $code
+     * @param null  $message
+     * @param Error $previous
      */
-    public function __construct(array $params = [], $code = null, $message = null)
+    public function __construct(array $params = [], $code = null, $message = null, Error $previous = null)
     {
-        // set code from concrete class
-        $this->params['code'] = static::ERROR_CODE;
+        $this->message = $message ?: $this->message;
+        $this->code = $code ?: static::ERROR_CODE;
 
-        // overwrite message from params
-        if ($message) {
-            $this->message = $message;
-        }
+        $params['code'] = $this->code;
 
-        // overwrite code from params
-        if ($code) {
-            $this->params['code'] = $code;
-        }
+        $namer = EntityManager::getInstance()->getNamer();
 
-        $this->addParams($params);
-    }
-
-    /**
-     * Add message parameters
-     *
-     * @param string[] $params
-     */
-    public function addParams($params)
-    {
-        $this->params = array_merge($this->params, $params);
-    }
-
-    /**
-     * Build and return message
-     *
-     * @return string
-     */
-    public function getMessage()
-    {
-        return EntityManager::getInstance()->getNamer()->substitute($this->message, $this->params);
-    }
-
-    /**
-     * @return string
-     */
-    public function getCode()
-    {
-        return $this->params['code'];
+        parent::__construct($namer->substitute($this->message, $params), 0, $previous);
     }
 }

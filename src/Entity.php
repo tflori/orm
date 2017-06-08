@@ -8,7 +8,6 @@ use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
 use ORM\Exception\InvalidName;
 use ORM\Exception\NoEntityManager;
-use ORM\Exception\NotValid;
 use ORM\Exception\UndefinedRelation;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
@@ -342,7 +341,7 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute The variable to change
      * @param mixed  $value     The value to store
-     * @throws NotValid
+     * @throws Error
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($attribute, $value)
@@ -361,7 +360,7 @@ abstract class Entity implements \Serializable
             if (static::isValidatorEnabled()) {
                 $error = static::validate($attribute, $value);
                 if ($error instanceof Error) {
-                    throw new NotValid($error);
+                    throw $error;
                 }
             }
 
