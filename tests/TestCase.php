@@ -9,7 +9,7 @@ use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\Dbal\TestEntityManager;
 
-class TestCase extends MockeryTestCase
+abstract class TestCase extends MockeryTestCase
 {
     /** @var EntityManager|Mock */
     protected $em;
