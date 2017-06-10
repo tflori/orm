@@ -662,7 +662,7 @@ abstract class Entity implements \Serializable
     {
         // @codeCoverageIgnoreStart
         if ($getAll instanceof EM || func_num_args() === 3 && $getAll === null) {
-            $getAll = func_get_arg(2);
+            $getAll = func_num_args() === 3 ? func_get_arg(2) : false;
             trigger_error(
                 'Passing EntityManager to fetch is deprecated. Use ->setEntityManager() to overwrite',
                 E_USER_DEPRECATED
