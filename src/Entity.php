@@ -661,7 +661,7 @@ abstract class Entity implements \Serializable
     public function fetch($relation, $getAll = false)
     {
         // @codeCoverageIgnoreStart
-        if (func_num_args() === 3 && ($getAll instanceof EM || $getAll === null)) {
+        if ($getAll instanceof EM || func_num_args() === 3 && $getAll === null) {
             $getAll = func_get_arg(2);
             trigger_error(
                 'Passing EntityManager to fetch is deprecated. Use ->setEntityManager() to overwrite',
