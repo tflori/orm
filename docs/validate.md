@@ -123,9 +123,13 @@ Idea behind this is that you can just fill your entity from unvalidated data sou
 ```php?start_inline=true
 /** @var User $user **/
 if (isset($_SESSION['user']) && $user = $_SESSION['user']) {
+    Article::enableValidator();
     $article = new Article();
     $article->setRelated('writer', $user);
     $article->fill($_POST);
     $article->save();
 }
 ```
+
+Fill has an extra option `$checkMissing` - as the name suppose it checks that absent columns/attributes are nullable.
+This could lead to an unexpected behaviour if you use it with the example above (user_id is not set in `$_POST`).

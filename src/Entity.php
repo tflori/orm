@@ -339,6 +339,8 @@ abstract class Entity implements \Serializable
      *
      * The onChange event is called after something got changed.
      *
+     * The method throws an error when the validation fails (also when the column does not exist).
+     *
      * @param string $attribute The variable to change
      * @param mixed  $value     The value to store
      * @throws Error
@@ -357,11 +359,10 @@ abstract class Entity implements \Serializable
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
-            if (static::isValidatorEnabled()) {
-                $error = static::validate($attribute, $value);
-                if ($error instanceof Error) {
-                    throw $error;
-                }
+            if (static::isValidatorEnabled() &&
+                ($error = static::validate($attribute, $value)) instanceof Error
+            ) {
+                throw $error;
             }
 
             $oldValue = $this->__get($attribute);
@@ -377,11 +378,15 @@ abstract class Entity implements \Serializable
     /**
      * Fill the entity with $data
      *
+     * When $checkMissing is set to true it also proves that the absent columns are nullable.
+     *
      * @param array $data
      * @param bool  $ignoreUnknown
+     * @param bool  $checkMissing
+     * @throws Error
      * @throws UnknownColumn
      */
-    public function fill(array $data, $ignoreUnknown = false)
+    public function fill(array $data, $ignoreUnknown = false, $checkMissing = false)
     {
         foreach ($data as $attribute => $value) {
             try {
@@ -389,6 +394,16 @@ abstract class Entity implements \Serializable
             } catch (UnknownColumn $e) {
                 if (!$ignoreUnknown) {
                     throw $e;
+                }
+            }
+        }
+        if ($checkMissing) {
+            $presentColumns = array_map([static::class, 'getColumnName'], array_keys($data));
+            foreach (static::describe() as $column) {
+                if (!in_array($column->name, $presentColumns) &&
+                    ($error = static::validate($column->name, null)) instanceof Error
+                ) {
+                    throw $error;
                 }
             }
         }

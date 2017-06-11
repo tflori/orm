@@ -5,8 +5,10 @@ namespace ORM\Test\Entity;
 use Mockery\Mock;
 use ORM\Dbal\Column;
 use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\NotNullable;
 use ORM\Dbal\Error\NotValid;
 use ORM\Dbal\Table;
+use ORM\Dbal\Type\Number;
 use ORM\Entity;
 use ORM\Exception;
 use ORM\Exception\InvalidConfiguration;
@@ -383,5 +385,47 @@ class DataTest extends TestCase
             'fieldA' => 'valueA',
             'fieldB' => 'valueB'
         ]);
+    }
+
+    public function testFillThrowsForMissingColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class, [[
+            // id is auto increment
+            new Column($this->dbal, [
+                'column_name' => 'id',
+                'column_default' => 'sequence(AUTO_INCREMENT)',
+                'is_nullable' => false
+            ]),
+            // title is missing
+            new Column($this->dbal, [
+                'column_name' => 'title',
+                'column_default' => null,
+                'is_nullable' => false
+            ]),
+            // intro is nullable
+            new Column($this->dbal, [
+                'column_name' => 'intro',
+                'column_default' => null,
+                'is_nullable' => true
+            ]),
+            // user (writer) is given
+            new Column($this->dbal, [
+                'column_name' => 'user_id',
+                'column_default' => null,
+                'is_nullable' => false,
+                'type' => Number::class,
+            ]),
+        ]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+
+        self::expectException(NotNullable::class);
+        self::expectExceptionMessage('title does not allow null values');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'userId' => 23
+        ], false, true);
     }
 }

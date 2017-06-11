@@ -17,22 +17,6 @@ permalink: /reference.html
 * [Relation](#ormrelation)
 
 
-### ORM\Exceptions
-
-* [IncompletePrimaryKey](#ormexceptionsincompleteprimarykey)
-* [InvalidConfiguration](#ormexceptionsinvalidconfiguration)
-* [InvalidName](#ormexceptionsinvalidname)
-* [InvalidRelation](#ormexceptionsinvalidrelation)
-* [NoConnection](#ormexceptionsnoconnection)
-* [NoEntity](#ormexceptionsnoentity)
-* [NoEntityManager](#ormexceptionsnoentitymanager)
-* [NoOperator](#ormexceptionsnooperator)
-* [NotJoined](#ormexceptionsnotjoined)
-* [NotScalar](#ormexceptionsnotscalar)
-* [UndefinedRelation](#ormexceptionsundefinedrelation)
-* [UnsupportedDriver](#ormexceptionsunsupporteddriver)
-
-
 ### ORM\Dbal
 
 * [Column](#ormdbalcolumn)
@@ -72,6 +56,23 @@ permalink: /reference.html
 * [Text](#ormdbaltypetext)
 * [Time](#ormdbaltypetime)
 * [VarChar](#ormdbaltypevarchar)
+
+
+### ORM\Exception
+
+* [IncompletePrimaryKey](#ormexceptionincompleteprimarykey)
+* [InvalidConfiguration](#ormexceptioninvalidconfiguration)
+* [InvalidName](#ormexceptioninvalidname)
+* [InvalidRelation](#ormexceptioninvalidrelation)
+* [NoConnection](#ormexceptionnoconnection)
+* [NoEntity](#ormexceptionnoentity)
+* [NoEntityManager](#ormexceptionnoentitymanager)
+* [NoOperator](#ormexceptionnooperator)
+* [NotJoined](#ormexceptionnotjoined)
+* [NotScalar](#ormexceptionnotscalar)
+* [UndefinedRelation](#ormexceptionundefinedrelation)
+* [UnknownColumn](#ormexceptionunknowncolumn)
+* [UnsupportedDriver](#ormexceptionunsupporteddriver)
 
 
 ### ORM\Relation
@@ -712,7 +713,7 @@ public function describe(
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
-<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
 
 ##### Parameters
 
@@ -758,7 +759,7 @@ public function escapeValue( $value ): string
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -806,7 +807,7 @@ public function insert(
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed**
-<br />**Throws:** this method may throw **\ORM\Exceptions\UnsupportedDriver**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
 
 ##### Parameters
 
@@ -1014,15 +1015,16 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 #### Methods
 
 * [__construct](#ormentity__construct) Constructor
-* [__get](#ormentity__get) Get the value from $var
-* [__set](#ormentity__set) Set $var to $value
+* [__get](#ormentity__get) Get the value from $attribute
+* [__set](#ormentity__set) Set $attribute to $value
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [describe](#ormentitydescribe) Get a description for this table.
 * [disableValidator](#ormentitydisablevalidator) Disable validator
 * [enableValidator](#ormentityenablevalidator) Enable validator
 * [fetch](#ormentityfetch) Fetches related objects
-* [getColumnName](#ormentitygetcolumnname) Get the column name of $field
+* [fill](#ormentityfill) Fill the entity with $data
+* [getColumnName](#ormentitygetcolumnname) Get the column name of $attribute
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
 * [getNamingSchemeTable](#ormentitygetnamingschemetable) 
@@ -1033,7 +1035,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column
-* [isDirty](#ormentityisdirty) Checks if entity or $var got changed
+* [isDirty](#ormentityisdirty) Checks if entity or $attribute got changed
 * [isValidatorEnabled](#ormentityisvalidatorenabled) Check if the validator is enabled
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
@@ -1041,7 +1043,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [postUpdate](#ormentitypostupdate) Empty event handler
 * [prePersist](#ormentityprepersist) Empty event handler
 * [preUpdate](#ormentitypreupdate) Empty event handler
-* [reset](#ormentityreset) Resets the entity or $var to original data
+* [reset](#ormentityreset) Resets the entity or $attribute to original data
 * [save](#ormentitysave) Save the entity to EntityManager
 * [serialize](#ormentityserialize) String representation of data
 * [setEntityManager](#ormentitysetentitymanager) 
@@ -1051,8 +1053,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setRelated](#ormentitysetrelated) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [unserialize](#ormentityunserialize) Constructs the object
-* [validate](#ormentityvalidate) Validate $value for $field
-* [validateArray](#ormentityvalidatearray) Validate $fields
+* [validate](#ormentityvalidate) Validate $value for $attribute
+* [validateArray](#ormentityvalidatearray) Validate $data
 
 #### ORM\Entity::__construct
 
@@ -1084,23 +1086,23 @@ It calls ::onInit() after initializing $data and $originalData.
 #### ORM\Entity::__get
 
 ```php?start_inline=true
-public function __get( string $var ): mixed|null
+public function __get( string $attribute ): mixed|null
 ```
 
-##### Get the value from $var
+##### Get the value from $attribute
 
 If there is a custom getter this method get called instead.
 
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed|null**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | The variable to get |
+| `$attribute` | **string**  | The variable to get |
 
 
 
@@ -1111,10 +1113,10 @@ If there is a custom getter this method get called instead.
 #### ORM\Entity::__set
 
 ```php?start_inline=true
-public function __set( string $var, $value )
+public function __set( string $attribute, $value )
 ```
 
-##### Set $var to $value
+##### Set $attribute to $value
 
 Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
 data that should be updated in the database to $data. Do not store data in $originalData as it will not be
@@ -1122,15 +1124,17 @@ written and give wrong results for dirty checking.
 
 The onChange event is called after something got changed.
 
+The method throws an error when the validation fails (also when the column does not exist).
+
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration**<br />
+**Throws:** this method may throw **\ORM\Dbal\Error**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | The variable to change |
+| `$attribute` | **string**  | The variable to change |
 | `$value` | **mixed**  | The value to store |
 
 
@@ -1155,7 +1159,7 @@ This method does not take care about already existing relations and will fail ha
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
+**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -1180,7 +1184,7 @@ This method is only for many-to-many relations.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
+**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -1272,7 +1276,7 @@ It will throw an error for non owner when the key is incomplete.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity|array&lt;mixed,\ORM\Entity&gt;|\ORM\EntityFetcher**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoEntityManager**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
 
 ##### Parameters
 
@@ -1283,13 +1287,39 @@ It will throw an error for non owner when the key is incomplete.
 
 
 
+#### ORM\Entity::fill
+
+```php?start_inline=true
+public function fill(
+    array $data, boolean $ignoreUnknown = false, boolean $checkMissing = false
+)
+```
+
+##### Fill the entity with $data
+
+When $checkMissing is set to true it also proves that the absent columns are nullable.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Dbal\Error** or **\ORM\Exception\UnknownColumn**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$data` | **array**  |  |
+| `$ignoreUnknown` | **boolean**  |  |
+| `$checkMissing` | **boolean**  |  |
+
+
+
 #### ORM\Entity::getColumnName
 
 ```php?start_inline=true
-public static function getColumnName( string $field ): string
+public static function getColumnName( string $attribute ): string
 ```
 
-##### Get the column name of $field
+##### Get the column name of $attribute
 
 The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
 to $namingSchemeColumn.
@@ -1301,13 +1331,13 @@ the same as getColumnName($name).
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$field` | **string**  |  |
+| `$attribute` | **string**  |  |
 
 
 
@@ -1378,7 +1408,7 @@ public function getPrimaryKey(): array
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 
 
@@ -1415,7 +1445,7 @@ $refresh to true.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoEntityManager** or **\ORM\Exceptions\UndefinedRelation**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity** or **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoEntityManager** or **\ORM\Exception\UndefinedRelation**<br />
 
 ##### Parameters
 
@@ -1440,7 +1470,7 @@ It normalize the short definition form and create a Relation object from it.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\UndefinedRelation**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\UndefinedRelation**<br />
 
 ##### Parameters
 
@@ -1465,7 +1495,7 @@ $tableName.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidName** or **\ORM\Exception\InvalidConfiguration**<br />
 
 
 
@@ -1508,23 +1538,23 @@ public static function isAutoIncremented(): boolean
 #### ORM\Entity::isDirty
 
 ```php?start_inline=true
-public function isDirty( string $var = null ): boolean
+public function isDirty( string $attribute = null ): boolean
 ```
 
-##### Checks if entity or $var got changed
+##### Checks if entity or $attribute got changed
 
 
 
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | Check only this variable or all variables |
+| `$attribute` | **string**  | Check only this variable or all variables |
 
 
 
@@ -1549,7 +1579,7 @@ public static function isValidatorEnabled(): boolean
 #### ORM\Entity::onChange
 
 ```php?start_inline=true
-public function onChange( string $var, $oldValue, $value )
+public function onChange( string $attribute, $oldValue, $value )
 ```
 
 ##### Empty event handler
@@ -1564,7 +1594,7 @@ Get called when something is changed with magic setter.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | The variable that got changed.merge(node.inheritedProperties) |
+| `$attribute` | **string**  | The variable that got changed.merge(node.inheritedProperties) |
 | `$oldValue` | **mixed**  | The old value of the variable |
 | `$value` | **mixed**  | The new value of the variable |
 
@@ -1659,22 +1689,22 @@ Get called before the entity get updated in database.
 #### ORM\Entity::reset
 
 ```php?start_inline=true
-public function reset( string $var = null )
+public function reset( string $attribute = null )
 ```
 
-##### Resets the entity or $var to original data
+##### Resets the entity or $attribute to original data
 
 
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | Reset only this variable or all variables |
+| `$attribute` | **string**  | Reset only this variable or all variables |
 
 
 
@@ -1691,7 +1721,7 @@ public function save(): \ORM\Entity
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity** or **\ORM\Exceptions\NotScalar** or **\ORM\Exceptions\UnsupportedDriver** or **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName** or **\ORM\Exceptions\NoEntityManager**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity** or **\ORM\Exception\NotScalar** or **\ORM\Exception\UnsupportedDriver** or **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\InvalidName** or **\ORM\Exception\NoEntityManager**<br />
 
 
 
@@ -1819,7 +1849,7 @@ This method is only for the owner of a relation.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -1883,11 +1913,11 @@ public function unserialize( string $serialized )
 
 ```php?start_inline=true
 public static function validate(
-    string $field, $value
+    string $attribute, $value
 ): boolean|\ORM\Dbal\Error
 ```
 
-##### Validate $value for $field
+##### Validate $value for $attribute
 
 
 
@@ -1901,7 +1931,7 @@ public static function validate(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$field` | **string**  |  |
+| `$attribute` | **string**  |  |
 | `$value` | **mixed**  |  |
 
 
@@ -1909,12 +1939,12 @@ public static function validate(
 #### ORM\Entity::validateArray
 
 ```php?start_inline=true
-public static function validateArray( array $fields ): array
+public static function validateArray( array $data ): array
 ```
 
-##### Validate $fields
+##### Validate $data
 
-$fields has to be an array of $field => $value
+$data has to be an array of $attribute => $value
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
@@ -1926,7 +1956,7 @@ $fields has to be an array of $field => $value
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$fields` | **array**  |  |
+| `$data` | **array**  |  |
 
 
 
@@ -2034,7 +2064,7 @@ It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\InvalidName**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\InvalidName**<br />
 
 ##### Parameters
 
@@ -2058,7 +2088,7 @@ When no $limit is set it fetches all entities in result set.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection**<br />
 
 ##### Parameters
 
@@ -2232,7 +2262,7 @@ $translateCols is true (default).
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -2404,7 +2434,7 @@ change the result.
 **Visibility:** this method is **private**.
 <br />
  **Returns**: this method returns **\PDOStatement**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection**<br />
 
 
 
@@ -2622,7 +2652,7 @@ If there is no more entity in the result set it returns null.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection**<br />
 
 
 
@@ -2773,7 +2803,7 @@ For easier use and against sql injection it allows question mark placeholders.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **$this**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -2852,6 +2882,7 @@ where('name = ?', ['John Doe'])
 | OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
 | OPT_BOOLEAN_TRUE | `'true'` |
 | OPT_BOOLEAN_FALSE | `'false'` |
+| OPT_DBAL_CLASS | `'dbalClass'` |
 | OPT_MYSQL_BOOLEAN_TRUE | `'mysqlTrue'` |
 | OPT_MYSQL_BOOLEAN_FALSE | `'mysqlFalse'` |
 | OPT_SQLITE_BOOLEAN_TRUE | `'sqliteTrue'` |
@@ -2908,7 +2939,7 @@ public function __construct( array $options = array() ): EntityManager
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -3077,7 +3108,7 @@ Without $primaryKey it creates an entityFetcher and returns this.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity**<br />
 
 ##### Parameters
 
@@ -3101,7 +3132,7 @@ public function getConnection(): \PDO
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\PDO**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection**<br />
 
 
 
@@ -3255,7 +3286,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -3281,7 +3312,7 @@ When it is not a PDO instance the connection get established on first use.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -3328,7 +3359,7 @@ If $reset is true it also calls reset() on $entity.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey** or **\ORM\Exceptions\InvalidConfiguration** or **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NoEntity**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity**<br />
 
 ##### Parameters
 
@@ -3489,10 +3520,12 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ### ORM\Dbal\Error
 
+**Extends:** [ORM\Exception](#ormexception)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -3507,23 +3540,21 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 #### Methods
 
 * [__construct](#ormdbalerror__construct) Error constructor
-* [addParams](#ormdbalerroraddparams) Add message parameters
-* [getCode](#ormdbalerrorgetcode) 
-* [getMessage](#ormdbalerrorgetmessage) Build and return message
 
 #### ORM\Dbal\Error::__construct
 
 ```php?start_inline=true
 public function __construct(
-    array $params = array(), null $code = null, null $message = null
+    array $params = array(), null $code = null, null $message = null, 
+    \ORM\Dbal\Error $previous = null
 ): Error
 ```
 
@@ -3542,61 +3573,7 @@ public function __construct(
 | `$params` | **array**  |  |
 | `$code` | **null**  |  |
 | `$message` | **null**  |  |
-
-
-
-#### ORM\Dbal\Error::addParams
-
-```php?start_inline=true
-public function addParams( array<string> $params )
-```
-
-##### Add message parameters
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$params` | **array&lt;string>**  |  |
-
-
-
-#### ORM\Dbal\Error::getCode
-
-```php?start_inline=true
-public function getCode(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Error::getMessage
-
-```php?start_inline=true
-public function getMessage(): string
-```
-
-##### Build and return message
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
+| `$previous` | **Error**  |  |
 
 
 
@@ -3621,7 +3598,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\IncompletePrimaryKey
+### ORM\Exception\IncompletePrimaryKey
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -3637,7 +3614,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\InvalidConfiguration
+### ORM\Exception\InvalidConfiguration
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -3658,8 +3635,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -3674,15 +3652,15 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 
 ---
 
-### ORM\Exceptions\InvalidName
+### ORM\Exception\InvalidName
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -3698,7 +3676,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\InvalidRelation
+### ORM\Exception\InvalidRelation
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -3949,7 +3927,7 @@ protected static function convertShort( string $name, array $relDef ): array
 <br />**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -4094,7 +4072,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -4165,7 +4143,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -4351,7 +4329,7 @@ public function escapeValue( $value ): string
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -4516,7 +4494,7 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 * [getColumnName](#ormnamergetcolumnname) Get the column name with $namingScheme or default naming scheme
 * [getMethodName](#ormnamergetmethodname) Get the column name with $namingScheme or default naming scheme
 * [getTableName](#ormnamergettablename) Get the table name for $reflection
-* [getValue](#ormnamergetvalue) Get the value for $var from $values using $arrayGlue
+* [getValue](#ormnamergetvalue) Get the value for $attribute from $values using $arrayGlue
 * [setOption](#ormnamersetoption) Set $option to $value
 * [substitute](#ormnamersubstitute) Substitute a $template with $values
 
@@ -4556,7 +4534,7 @@ and UPPER.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -4571,7 +4549,8 @@ and UPPER.
 
 ```php?start_inline=true
 public function getColumnName(
-    $class, string $field, string $prefix = null, string $namingScheme = null
+    $class, string $attribute, string $prefix = null, 
+    string $namingScheme = null
 ): string
 ```
 
@@ -4589,7 +4568,7 @@ public function getColumnName(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
-| `$field` | **string**  |  |
+| `$attribute` | **string**  |  |
 | `$prefix` | **string**  |  |
 | `$namingScheme` | **string**  |  |
 
@@ -4634,7 +4613,7 @@ public function getTableName(
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidName**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidName**<br />
 
 ##### Parameters
 
@@ -4650,24 +4629,24 @@ public function getTableName(
 
 ```php?start_inline=true
 protected function getValue(
-    string $var, array $values, string $arrayGlue
+    string $attribute, array $values, string $arrayGlue
 ): string
 ```
 
-##### Get the value for $var from $values using $arrayGlue
+##### Get the value for $attribute from $values using $arrayGlue
 
 
 
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$var` | **string**  | The key for $values |
+| `$attribute` | **string**  | The key for $values |
 | `$values` | **array**  |  |
 | `$arrayGlue` | **string**  |  |
 
@@ -4733,8 +4712,9 @@ $values is a key value pair array. The value should be a string or an array o
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4749,15 +4729,15 @@ $values is a key value pair array. The value should be a string or an array o
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 
 ---
 
-### ORM\Exceptions\NoConnection
+### ORM\Exception\NoConnection
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4778,8 +4758,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4794,15 +4775,15 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 
 ---
 
-### ORM\Exceptions\NoEntity
+### ORM\Exception\NoEntity
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4818,7 +4799,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\NoEntityManager
+### ORM\Exception\NoEntityManager
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4840,8 +4821,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4856,15 +4838,15 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 
 ---
 
-### ORM\Exceptions\NoOperator
+### ORM\Exception\NoOperator
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4886,8 +4868,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4902,8 +4885,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
@@ -4915,8 +4898,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4931,8 +4915,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
@@ -4944,8 +4928,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -4960,15 +4945,15 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 
 ---
 
-### ORM\Exceptions\NotJoined
+### ORM\Exception\NotJoined
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4989,8 +4974,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -5005,17 +4991,14 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 #### Methods
 
 * [__construct](#ormdbalerrornotnullable__construct) Error constructor
-* [addParams](#ormdbalerrornotnullableaddparams) Add message parameters
-* [getCode](#ormdbalerrornotnullablegetcode) 
-* [getMessage](#ormdbalerrornotnullablegetmessage) Build and return message
 
 #### ORM\Dbal\Error\NotNullable::__construct
 
@@ -5039,66 +5022,11 @@ public function __construct( \ORM\Dbal\Column $column ): NotNullable
 
 
 
-#### ORM\Dbal\Error\NotNullable::addParams
-
-```php?start_inline=true
-public function addParams( array<string> $params )
-```
-
-##### Add message parameters
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$params` | **array&lt;string>**  |  |
-
-
-
-#### ORM\Dbal\Error\NotNullable::getCode
-
-```php?start_inline=true
-public function getCode(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Error\NotNullable::getMessage
-
-```php?start_inline=true
-public function getMessage(): string
-```
-
-##### Build and return message
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
 
 
 ---
 
-### ORM\Exceptions\NotScalar
+### ORM\Exception\NotScalar
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -5119,8 +5047,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -5135,19 +5064,14 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
-| **protected** | `$previous` | ** \ ORM \ Dbal \ Error** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
 #### Methods
 
 * [__construct](#ormdbalerrornotvalid__construct) NotValid constructor
-* [addParams](#ormdbalerrornotvalidaddparams) Add message parameters
-* [getCode](#ormdbalerrornotvalidgetcode) 
-* [getMessage](#ormdbalerrornotvalidgetmessage) Build and return message
-* [getPrevious](#ormdbalerrornotvalidgetprevious) Get the error that caused this error
 
 #### ORM\Dbal\Error\NotValid::__construct
 
@@ -5171,78 +5095,6 @@ public function __construct(
 |-----------|------|-------------|
 | `$column` | **\ORM\Dbal\Column**  | The column that got a not valid error |
 | `$previous` | **\ORM\Dbal\Error**  | The error from validate |
-
-
-
-#### ORM\Dbal\Error\NotValid::addParams
-
-```php?start_inline=true
-public function addParams( array<string> $params )
-```
-
-##### Add message parameters
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$params` | **array&lt;string>**  |  |
-
-
-
-#### ORM\Dbal\Error\NotValid::getCode
-
-```php?start_inline=true
-public function getCode(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Error\NotValid::getMessage
-
-```php?start_inline=true
-public function getMessage(): string
-```
-
-##### Build and return message
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
-#### ORM\Dbal\Error\NotValid::getPrevious
-
-```php?start_inline=true
-public function getPrevious(): \ORM\Dbal\Error
-```
-
-##### Get the error that caused this error
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **\ORM\Dbal\Error**
-<br />
 
 
 
@@ -5454,7 +5306,7 @@ public function addRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -5480,7 +5332,7 @@ protected static function convertShort( string $name, array $relDef ): array
 <br />**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -5533,7 +5385,7 @@ public function deleteRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -5626,7 +5478,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -5681,7 +5533,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -5802,7 +5654,7 @@ public function addRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -5828,7 +5680,7 @@ protected static function convertShort( string $name, array $relDef ): array
 <br />**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -5881,7 +5733,7 @@ public function deleteRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -5974,7 +5826,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -6029,7 +5881,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -6178,7 +6030,7 @@ public function addRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -6204,7 +6056,7 @@ protected static function convertShort( string $name, array $relDef ): array
 <br />**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -6257,7 +6109,7 @@ public function deleteRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -6350,7 +6202,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -7102,7 +6954,7 @@ public function escapeValue( $value ): string
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -7476,7 +7328,7 @@ protected function convertPlaceholders(
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NoConnection** or **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -8514,6 +8366,11 @@ where('name = ?', ['John Doe'])
 
 | Name | Value |
 |------|-------|
+| OPT_CLASS | `'class'` |
+| OPT_REFERENCE | `'reference'` |
+| OPT_CARDINALITY | `'cardinality'` |
+| OPT_OPPONENT | `'opponent'` |
+| OPT_TABLE | `'table'` |
 | CARDINALITY_ONE | `'one'` |
 | CARDINALITY_MANY | `'many'` |
 
@@ -8586,7 +8443,7 @@ public function addRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -8612,7 +8469,7 @@ protected static function convertShort( string $name, array $relDef ): array
 <br />**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\InvalidConfiguration**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -8665,7 +8522,7 @@ public function deleteRelated(
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -8758,7 +8615,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exceptions\IncompletePrimaryKey**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
@@ -8813,7 +8670,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exceptions\InvalidRelation**<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
 
 ##### Parameters
 
@@ -9145,7 +9002,7 @@ public function escapeValue( $value ): string
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exceptions\NotScalar**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NotScalar**<br />
 
 ##### Parameters
 
@@ -9389,7 +9246,7 @@ Returns an array with at least
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean|\ORM\Dbal\Error**
-<br />**Throws:** this method may throw **\ORM\Exception**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UnknownColumn**<br />
 
 ##### Parameters
 
@@ -9578,8 +9435,9 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
+#### Base exception for ORM
 
-
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
 
@@ -9594,8 +9452,8 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$params` | **array&lt;string>** |  |
 | **protected** | `$message` | **string** |  |
+| **protected** | `$errorCode` | **string** |  |
 
 
 
@@ -9773,7 +9631,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ---
 
-### ORM\Exceptions\UndefinedRelation
+### ORM\Exception\UndefinedRelation
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -9790,7 +9648,24 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
-### ORM\Exceptions\UnsupportedDriver
+### ORM\Exception\UnknownColumn
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exception\UnsupportedDriver
 
 **Extends:** [ORM\Exception](#ormexception)
 
