@@ -94,33 +94,13 @@ abstract class Dbal
      */
     public function escapeValue($value)
     {
-        $type = gettype($value);
-        if ($type === 'object') {
-            $type = get_class($value);
-        }
+        $type = is_object($value) ? get_class($value) : gettype($value);
+        $method = [$this, 'escape' . ucfirst($type)];
 
-        switch ($type) {
-            case 'string':
-                return $this->entityManager->getConnection()->quote($value);
-
-            case 'integer':
-                return (string) $value;
-
-            case 'double':
-                return (string) $value;
-
-            case 'NULL':
-                return 'NULL';
-
-            case 'boolean':
-                return ($value) ? $this->booleanTrue : $this->booleanFalse;
-
-            case 'DateTime':
-                $value->setTimezone(new \DateTimeZone('UTC'));
-                return $value->format('Y-m-d\TH:i:s.u\Z');
-
-            default:
-                throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
+        if (is_callable($method)) {
+            return call_user_func($method, $value);
+        } else {
+            throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
         }
     }
 
@@ -271,5 +251,71 @@ abstract class Dbal
         }
 
         return null;
+    }
+
+    /**
+     * Escape a string for query
+     *
+     * @param $value
+     * @return string
+     */
+    protected function escapeString($value)
+    {
+        return $this->entityManager->getConnection()->quote($value);
+    }
+
+    /**
+     * Escape an integer for query
+     *
+     * @param $value
+     * @return string
+     */
+    protected function escapeInteger($value)
+    {
+        return (string) $value;
+    }
+
+    /**
+     * Escape a double for Query
+     *
+     * @param $value
+     * @return string
+     */
+    protected function escapeDouble($value)
+    {
+        return (string) $value;
+    }
+
+    /**
+     * Escape NULL for query
+     *
+     * @return string
+     */
+    protected function escapeNULL()
+    {
+        return 'NULL';
+    }
+
+    /**
+     * Escape a boolean for query
+     *
+     * @param $value
+     * @return string
+     */
+    protected function escapeBoolean($value)
+    {
+        return ($value) ? $this->booleanTrue : $this->booleanFalse;
+    }
+
+    /**
+     * Escape a date time object for query
+     *
+     * @param $value
+     * @return mixed
+     */
+    protected function escapeDateTime($value)
+    {
+        $value->setTimezone(new \DateTimeZone('UTC'));
+        return $value->format('Y-m-d\TH:i:s.u\Z');
     }
 }

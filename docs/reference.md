@@ -620,7 +620,13 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbaldbaldelete) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
+* [escapeBoolean](#ormdbaldbalescapeboolean) Escape a boolean for query
+* [escapeDateTime](#ormdbaldbalescapedatetime) Escape a date time object for query
+* [escapeDouble](#ormdbaldbalescapedouble) Escape a double for Query
 * [escapeIdentifier](#ormdbaldbalescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeInteger](#ormdbaldbalescapeinteger) Escape an integer for query
+* [escapeNULL](#ormdbaldbalescapenull) Escape NULL for query
+* [escapeString](#ormdbaldbalescapestring) Escape a string for query
 * [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
 * [insert](#ormdbaldbalinsert) Inserts $entity and returns the new ID for autoincrement or true
@@ -723,6 +729,75 @@ public function describe(
 
 
 
+#### ORM\Dbal\Dbal::escapeBoolean
+
+```php?start_inline=true
+protected function escapeBoolean( $value ): string
+```
+
+##### Escape a boolean for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Dbal::escapeDateTime
+
+```php?start_inline=true
+protected function escapeDateTime( $value ): mixed
+```
+
+##### Escape a date time object for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Dbal::escapeDouble
+
+```php?start_inline=true
+protected function escapeDouble( $value ): string
+```
+
+##### Escape a double for Query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
 #### ORM\Dbal\Dbal::escapeIdentifier
 
 ```php?start_inline=true
@@ -743,6 +818,69 @@ public function escapeIdentifier( string $identifier ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Dbal\Dbal::escapeInteger
+
+```php?start_inline=true
+protected function escapeInteger( $value ): string
+```
+
+##### Escape an integer for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Dbal::escapeNULL
+
+```php?start_inline=true
+protected function escapeNULL(): string
+```
+
+##### Escape NULL for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Dbal::escapeString
+
+```php?start_inline=true
+protected function escapeString( $value ): string
+```
+
+##### Escape a string for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
 
 
 
@@ -4207,7 +4345,13 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [buildInsertStatement](#ormdbalmysqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalmysqldelete) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
+* [escapeBoolean](#ormdbalmysqlescapeboolean) Escape a boolean for query
+* [escapeDateTime](#ormdbalmysqlescapedatetime) Escape a date time object for query
+* [escapeDouble](#ormdbalmysqlescapedouble) Escape a double for Query
 * [escapeIdentifier](#ormdbalmysqlescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeInteger](#ormdbalmysqlescapeinteger) Escape an integer for query
+* [escapeNULL](#ormdbalmysqlescapenull) Escape NULL for query
+* [escapeString](#ormdbalmysqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
 * [insert](#ormdbalmysqlinsert) Inserts $entity and returns the new ID for autoincrement or true
@@ -4311,6 +4455,75 @@ public function describe(
 
 
 
+#### ORM\Dbal\Mysql::escapeBoolean
+
+```php?start_inline=true
+protected function escapeBoolean( $value ): string
+```
+
+##### Escape a boolean for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Mysql::escapeDateTime
+
+```php?start_inline=true
+protected function escapeDateTime( $value ): mixed
+```
+
+##### Escape a date time object for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Mysql::escapeDouble
+
+```php?start_inline=true
+protected function escapeDouble( $value ): string
+```
+
+##### Escape a double for Query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
 #### ORM\Dbal\Mysql::escapeIdentifier
 
 ```php?start_inline=true
@@ -4331,6 +4544,69 @@ public function escapeIdentifier( string $identifier ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Dbal\Mysql::escapeInteger
+
+```php?start_inline=true
+protected function escapeInteger( $value ): string
+```
+
+##### Escape an integer for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Mysql::escapeNULL
+
+```php?start_inline=true
+protected function escapeNULL(): string
+```
+
+##### Escape NULL for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Mysql::escapeString
+
+```php?start_inline=true
+protected function escapeString( $value ): string
+```
+
+##### Escape a string for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
 
 
 
@@ -6833,7 +7109,13 @@ where('name = ?', ['John Doe'])
 * [buildInsertStatement](#ormdbalpgsqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalpgsqldelete) Delete $entity from database
 * [describe](#ormdbalpgsqldescribe) Describe a table
+* [escapeBoolean](#ormdbalpgsqlescapeboolean) Escape a boolean for query
+* [escapeDateTime](#ormdbalpgsqlescapedatetime) Escape a date time object for query
+* [escapeDouble](#ormdbalpgsqlescapedouble) Escape a double for Query
 * [escapeIdentifier](#ormdbalpgsqlescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeInteger](#ormdbalpgsqlescapeinteger) Escape an integer for query
+* [escapeNULL](#ormdbalpgsqlescapenull) Escape NULL for query
+* [escapeString](#ormdbalpgsqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
 * [insert](#ormdbalpgsqlinsert) Inserts $entity and returns the new ID for autoincrement or true
@@ -6936,6 +7218,75 @@ public function describe(
 
 
 
+#### ORM\Dbal\Pgsql::escapeBoolean
+
+```php?start_inline=true
+protected function escapeBoolean( $value ): string
+```
+
+##### Escape a boolean for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Pgsql::escapeDateTime
+
+```php?start_inline=true
+protected function escapeDateTime( $value ): mixed
+```
+
+##### Escape a date time object for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Pgsql::escapeDouble
+
+```php?start_inline=true
+protected function escapeDouble( $value ): string
+```
+
+##### Escape a double for Query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
 #### ORM\Dbal\Pgsql::escapeIdentifier
 
 ```php?start_inline=true
@@ -6956,6 +7307,69 @@ public function escapeIdentifier( string $identifier ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Dbal\Pgsql::escapeInteger
+
+```php?start_inline=true
+protected function escapeInteger( $value ): string
+```
+
+##### Escape an integer for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Pgsql::escapeNULL
+
+```php?start_inline=true
+protected function escapeNULL(): string
+```
+
+##### Escape NULL for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Pgsql::escapeString
+
+```php?start_inline=true
+protected function escapeString( $value ): string
+```
+
+##### Escape a string for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
 
 
 
@@ -8879,7 +9293,13 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [buildInsertStatement](#ormdbalsqlitebuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalsqlitedelete) Delete $entity from database
 * [describe](#ormdbalsqlitedescribe) Describe a table
+* [escapeBoolean](#ormdbalsqliteescapeboolean) Escape a boolean for query
+* [escapeDateTime](#ormdbalsqliteescapedatetime) Escape a date time object for query
+* [escapeDouble](#ormdbalsqliteescapedouble) Escape a double for Query
 * [escapeIdentifier](#ormdbalsqliteescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeInteger](#ormdbalsqliteescapeinteger) Escape an integer for query
+* [escapeNULL](#ormdbalsqliteescapenull) Escape NULL for query
+* [escapeString](#ormdbalsqliteescapestring) Escape a string for query
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
 * [hasMultiplePrimaryKey](#ormdbalsqlitehasmultipleprimarykey) Checks $rawColumns for a multiple primary key
@@ -8984,6 +9404,75 @@ public function describe(
 
 
 
+#### ORM\Dbal\Sqlite::escapeBoolean
+
+```php?start_inline=true
+protected function escapeBoolean( $value ): string
+```
+
+##### Escape a boolean for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Sqlite::escapeDateTime
+
+```php?start_inline=true
+protected function escapeDateTime( $value ): mixed
+```
+
+##### Escape a date time object for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Sqlite::escapeDouble
+
+```php?start_inline=true
+protected function escapeDouble( $value ): string
+```
+
+##### Escape a double for Query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
 #### ORM\Dbal\Sqlite::escapeIdentifier
 
 ```php?start_inline=true
@@ -9004,6 +9493,69 @@ public function escapeIdentifier( string $identifier ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Dbal\Sqlite::escapeInteger
+
+```php?start_inline=true
+protected function escapeInteger( $value ): string
+```
+
+##### Escape an integer for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Dbal\Sqlite::escapeNULL
+
+```php?start_inline=true
+protected function escapeNULL(): string
+```
+
+##### Escape NULL for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Sqlite::escapeString
+
+```php?start_inline=true
+protected function escapeString( $value ): string
+```
+
+##### Escape a string for query
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
 
 
 
