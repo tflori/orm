@@ -1036,6 +1036,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column
 * [isDirty](#ormentityisdirty) Checks if entity or $attribute got changed
+* [isValid](#ormentityisvalid) Check if the current data is valid
 * [isValidatorEnabled](#ormentityisvalidatorenabled) Check if the validator is enabled
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
@@ -1555,6 +1556,23 @@ public function isDirty( string $attribute = null ): boolean
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$attribute` | **string**  | Check only this variable or all variables |
+
+
+
+#### ORM\Entity::isValid
+
+```php?start_inline=true
+public function isValid(): boolean|array<\ORM\Dbal\Error>
+```
+
+##### Check if the current data is valid
+
+Returns boolean true when valid otherwise an array of Errors.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean|array&lt;mixed,\ORM\Dbal\Error&gt;**
+<br />
 
 
 

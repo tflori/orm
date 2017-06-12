@@ -397,15 +397,9 @@ abstract class Entity implements \Serializable
                 }
             }
         }
-        if ($checkMissing) {
-            $presentColumns = array_map([static::class, 'getColumnName'], array_keys($data));
-            foreach (static::describe() as $column) {
-                if (!in_array($column->name, $presentColumns) &&
-                    ($error = static::validate($column->name, null)) instanceof Error
-                ) {
-                    throw $error;
-                }
-            }
+
+        if ($checkMissing && is_array($errors = $this->isValid())) {
+            throw $errors[0];
         }
     }
 
@@ -596,6 +590,36 @@ abstract class Entity implements \Serializable
         ksort($this->originalData);
 
         return serialize($this->data) !== serialize($this->originalData);
+    }
+
+    /**
+     * Check if the current data is valid
+     *
+     * Returns boolean true when valid otherwise an array of Errors.
+     *
+     * @return bool|Error[]
+     */
+    public function isValid()
+    {
+        $result = [];
+
+        $presentColumns = [];
+        foreach ($this->data as $column => $value) {
+            $presentColumns[] = $column;
+            $result[] = static::validate($column, $value);
+        }
+
+        foreach (static::describe() as $column) {
+            if (!in_array($column->name, $presentColumns)) {
+                $result[] = static::validate($column->name, null);
+            }
+        }
+
+        $result = array_values(array_filter($result, function ($error) {
+            return $error instanceof Error;
+        }));
+
+        return count($result) === 0 ? true : $result;
     }
 
     /**
