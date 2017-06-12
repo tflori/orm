@@ -24,7 +24,7 @@ class Enum extends Type
      *
      * @param string[] $allowedValues
      */
-    public function __construct(array $allowedValues = null)
+    public function __construct(array $allowedValues)
     {
         $this->allowedValues = $allowedValues;
     }

@@ -3561,7 +3561,7 @@ If $reset is true it also calls reset() on $entity.
 #### ORM\Dbal\Type\Enum::__construct
 
 ```php?start_inline=true
-public function __construct( array<string> $allowedValues = null ): Enum
+public function __construct( array<string> $allowedValues ): Enum
 ```
 
 ##### Set constructor
@@ -4871,7 +4871,7 @@ and UPPER.
 
 ```php?start_inline=true
 public function getColumnName(
-    $class, string $attribute, string $prefix = null, 
+    string $class, string $attribute, string $prefix = null, 
     string $namingScheme = null
 ): string
 ```
@@ -4889,7 +4889,7 @@ public function getColumnName(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$class` |   |  |
+| `$class` | **string**  |  |
 | `$attribute` | **string**  |  |
 | `$prefix` | **string**  |  |
 | `$namingScheme` | **string**  |  |
@@ -4899,7 +4899,9 @@ public function getColumnName(
 #### ORM\Namer::getMethodName
 
 ```php?start_inline=true
-public function getMethodName( $name, null $namingScheme = null ): string
+public function getMethodName(
+    string $name, string $namingScheme = null
+): string
 ```
 
 ##### Get the column name with $namingScheme or default naming scheme
@@ -4915,8 +4917,8 @@ public function getMethodName( $name, null $namingScheme = null ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
-| `$namingScheme` | **null**  |  |
+| `$name` | **string**  |  |
+| `$namingScheme` | **string**  |  |
 
 
 
@@ -9177,7 +9179,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 #### ORM\Dbal\Type\Set::__construct
 
 ```php?start_inline=true
-public function __construct( array<string> $allowedValues = null ): Enum
+public function __construct( array<string> $allowedValues ): Enum
 ```
 
 ##### Set constructor

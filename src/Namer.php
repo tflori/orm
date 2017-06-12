@@ -120,7 +120,7 @@ class Namer
     /**
      * Get the column name with $namingScheme or default naming scheme
      *
-     * @param        $class
+     * @param string $class
      * @param string $attribute
      * @param string $prefix
      * @param string $namingScheme
@@ -129,7 +129,7 @@ class Namer
     public function getColumnName($class, $attribute, $prefix = null, $namingScheme = null)
     {
         if (!isset($this->columnNames[$class][$attribute])) {
-            if (!$namingScheme) {
+            if ($namingScheme === null) {
                 $namingScheme = $this->columnNameScheme;
             }
 
@@ -148,13 +148,13 @@ class Namer
     /**
      * Get the column name with $namingScheme or default naming scheme
      *
-     * @param $name
-     * @param null $namingScheme
+     * @param string $name
+     * @param string $namingScheme
      * @return string
      */
     public function getMethodName($name, $namingScheme = null)
     {
-        if (!$namingScheme) {
+        if ($namingScheme === null) {
             $namingScheme = $this->methodNameScheme;
         }
 
@@ -263,6 +263,8 @@ class Namer
         if (preg_match('/\[(-?\d+\*?)\]$/', $attribute, $arrayAccessor)) {
             $attribute = substr($attribute, 0, strpos($attribute, '['));
             $arrayAccessor = $arrayAccessor[1];
+        } else {
+            $arrayAccessor = '';
         }
 
         // throw when the variable is unknown
