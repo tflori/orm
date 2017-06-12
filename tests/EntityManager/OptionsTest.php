@@ -84,4 +84,28 @@ class OptionsTest extends TestCase
             EntityManager::OPT_CONNECTION => 'something'
         ]);
     }
+
+    public function provideDeprecatedOptions()
+    {
+        return [
+            [EntityManager::OPT_MYSQL_BOOLEAN_TRUE, EntityManager::OPT_BOOLEAN_TRUE, '\'y\''],
+            [EntityManager::OPT_MYSQL_BOOLEAN_FALSE, EntityManager::OPT_BOOLEAN_FALSE, '\'n\''],
+            [EntityManager::OPT_PGSQL_BOOLEAN_TRUE, EntityManager::OPT_BOOLEAN_TRUE, '\'y\''],
+            [EntityManager::OPT_PGSQL_BOOLEAN_FALSE, EntityManager::OPT_BOOLEAN_FALSE, '\'n\''],
+            [EntityManager::OPT_SQLITE_BOOLEAN_TRUE, EntityManager::OPT_BOOLEAN_TRUE, '\'y\''],
+            [EntityManager::OPT_SQLITE_BOOLEAN_FALSE, EntityManager::OPT_BOOLEAN_FALSE, '\'n\''],
+        ];
+    }
+
+    /**
+     * @dataProvider provideDeprecatedOptions
+     */
+    public function testConvertsDeprecatedOptions($deprecated, $actual, $value)
+    {
+        $em = new EntityManager([$deprecated => $value]);
+
+        $result = $em->getOption($actual);
+
+        self::assertSame($value, $result);
+    }
 }

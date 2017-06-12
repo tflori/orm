@@ -276,21 +276,31 @@ class Namer
             return (string)$values[$attribute];
         }
 
-        // otherwise we assume it is an array
-        $array = $values[$attribute];
+        return $this->arrayToString($values[$attribute], $arrayAccessor, $arrayGlue);
+    }
 
-        if (isset($arrayAccessor[0])) {
-            $from = $arrayAccessor[0] === '-' ?
-                count($array) - abs($arrayAccessor) : (int)$arrayAccessor;
+    /**
+     * Convert array to string using indexes defined by $accessor
+     *
+     * @param array $array
+     * @param string $accessor
+     * @param string $glue
+     * @return string
+     */
+    protected function arrayToString(array $array, $accessor, $glue)
+    {
+        if (isset($accessor[0])) {
+            $from = $accessor[0] === '-' ?
+                count($array) - abs($accessor) : (int)$accessor;
 
             if ($from >= count($array)) {
                 return '';
             }
 
-            $array = substr($arrayAccessor, -1) === '*' ?
+            $array = substr($accessor, -1) === '*' ?
                 array_slice($array, $from) : [$array[$from]];
         }
 
-        return implode($arrayGlue, $array);
+        return implode($glue, $array);
     }
 }

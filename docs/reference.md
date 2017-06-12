@@ -3042,7 +3042,7 @@ where('name = ?', ['John Doe'])
 | OPT_MYSQL_BOOLEAN_TRUE | `'mysqlTrue'` |
 | OPT_MYSQL_BOOLEAN_FALSE | `'mysqlFalse'` |
 | OPT_SQLITE_BOOLEAN_TRUE | `'sqliteTrue'` |
-| OPT_SQLITE_BOOLEAN_FASLE | `'sqliteFalse'` |
+| OPT_SQLITE_BOOLEAN_FALSE | `'sqliteFalse'` |
 | OPT_PGSQL_BOOLEAN_TRUE | `'pgsqlTrue'` |
 | OPT_PGSQL_BOOLEAN_FALSE | `'pgsqlFalse'` |
 
@@ -4784,6 +4784,7 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 #### Methods
 
 * [__construct](#ormnamer__construct) Namer constructor.
+* [arrayToString](#ormnamerarraytostring) Convert array to string using indexes defined by $accessor
 * [forceNamingScheme](#ormnamerforcenamingscheme) Enforce $namingScheme to $name
 * [getColumnName](#ormnamergetcolumnname) Get the column name with $namingScheme or default naming scheme
 * [getMethodName](#ormnamergetmethodname) Get the column name with $namingScheme or default naming scheme
@@ -4811,6 +4812,33 @@ public function __construct( array $options = array() ): Namer
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$options` | **array**  |  |
+
+
+
+#### ORM\Namer::arrayToString
+
+```php?start_inline=true
+protected function arrayToString(
+    array $array, string $accessor, string $glue
+): string
+```
+
+##### Convert array to string using indexes defined by $accessor
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$accessor` | **string**  |  |
+| `$glue` | **string**  |  |
 
 
 
