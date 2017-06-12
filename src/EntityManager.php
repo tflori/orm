@@ -39,7 +39,7 @@ class EntityManager
     /** @deprecated */
     const OPT_SQLITE_BOOLEAN_TRUE = 'sqliteTrue';
     /** @deprecated */
-    const OPT_SQLITE_BOOLEAN_FASLE = 'sqliteFalse';
+    const OPT_SQLITE_BOOLEAN_FALSE = 'sqliteFalse';
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_TRUE = 'pgsqlTrue';
     /** @deprecated */
@@ -202,6 +202,18 @@ class EntityManager
             case self::OPT_CONNECTION:
                 $this->setConnection($value);
                 break;
+
+            case self::OPT_SQLITE_BOOLEAN_TRUE:
+            case self::OPT_MYSQL_BOOLEAN_TRUE:
+            case self::OPT_PGSQL_BOOLEAN_TRUE:
+                $option = self::OPT_BOOLEAN_TRUE;
+                break;
+
+            case self::OPT_SQLITE_BOOLEAN_FALSE:
+            case self::OPT_MYSQL_BOOLEAN_FALSE:
+            case self::OPT_PGSQL_BOOLEAN_FALSE:
+                $option = self::OPT_BOOLEAN_FALSE;
+                break;
         }
 
         $this->options[$option] = $value;
@@ -293,18 +305,10 @@ class EntityManager
     {
         if (!$this->dbal) {
             $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-
             $options = &$this->options;
-            // backward compatibility - deprecated
-            if (isset($options[$connectionType . 'True']) && !isset($options[self::OPT_BOOLEAN_TRUE])) {
-                $options[self::OPT_BOOLEAN_TRUE] = $options[$connectionType . 'True'];
-            }
-            if (isset($options[$connectionType . 'False']) && !isset($options[self::OPT_BOOLEAN_FALSE])) {
-                $options[self::OPT_BOOLEAN_FALSE] = $options[$connectionType . 'False'];
-            }
-
             $dbalClass = isset($options[self::OPT_DBAL_CLASS]) ?
                 $options[self::OPT_DBAL_CLASS] : __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
+
             if (!class_exists($dbalClass)) {
                 $dbalClass = Other::class;
             }

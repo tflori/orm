@@ -15,8 +15,8 @@ class OptionsTest extends TestCase
         return [
             [EntityManager::OPT_IDENTIFIER_DIVIDER, '.'],
             [EntityManager::OPT_QUOTING_CHARACTER, '`'],
-            [EntityManager::OPT_MYSQL_BOOLEAN_FALSE, "'no'"],
-            [EntityManager::OPT_MYSQL_BOOLEAN_TRUE, "'yes'"]
+            [EntityManager::OPT_BOOLEAN_FALSE, "'no'"],
+            [EntityManager::OPT_BOOLEAN_TRUE, "'yes'"]
         ];
     }
 
@@ -52,9 +52,9 @@ class OptionsTest extends TestCase
                 'escapeIdentifier', 'db|table', '"db"|"table"'],
             [EntityManager::OPT_QUOTING_CHARACTER, '`',
                 'escapeIdentifier', 'db.table', '`db`.`table`'],
-            [EntityManager::OPT_SQLITE_BOOLEAN_FASLE, "'no'",
+            [EntityManager::OPT_BOOLEAN_FALSE, "'no'",
                 'escapeValue', false, "'no'"],
-            [EntityManager::OPT_SQLITE_BOOLEAN_TRUE, "'yes'",
+            [EntityManager::OPT_BOOLEAN_TRUE, "'yes'",
                 'escapeValue', true, "'yes'"]
         ];
     }
