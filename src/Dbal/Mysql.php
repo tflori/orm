@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Entity;
 use ORM\Exception;
 
 /**
@@ -40,19 +41,19 @@ class Mysql extends Dbal
         'json' => Type\Json::class,
     ];
 
-    public function insert($entity, $useAutoIncrement = true)
+    public function insert(Entity $entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
         $pdo = $this->entityManager->getConnection();
 
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $pdo->query($statement);
-            return $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn();
+            $this->updateAutoincrement($entity, $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn());
+        } else {
+            $pdo->query($statement);
         }
 
-        $pdo->query($statement);
-        $this->entityManager->sync($entity, true);
-        return true;
+        return $this->entityManager->sync($entity, true);
     }
 
     public function describe($table)

@@ -250,43 +250,52 @@ class DataModificationTest extends TestCase
 
     public function testInsertReturnsAutoIncrementSqlite()
     {
+        $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
             ->andReturn(\Mockery::mock(\PDOStatement::class));
         $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42');
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
-        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
+        $result = $this->em->insert($entity);
 
-        self::assertSame('42', $result);
+        self::assertSame(true, $result);
+        self::assertSame('42', $entity->id);
     }
 
     public function testInsertReturnsAutoIncrementMysql()
     {
+        $entity = new StudlyCaps(['foo' => 'bar']);
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
             ->andReturn(\Mockery::mock(\PDOStatement::class));
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('SELECT LAST_INSERT_ID()')->once()->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
-        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
+        $result = $this->em->insert($entity);
 
-        self::assertSame(42, $result);
+        self::assertSame(true, $result);
+        self::assertSame(42, $entity->id);
     }
 
     public function testInsertReturnsAutoIncrementPgsql()
     {
+        $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('pgsql');
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES .* RETURNING id$/')->once()
             ->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
-        $result = $this->em->insert(new StudlyCaps(['foo' => 'bar']));
+        $result = $this->em->insert($entity);
 
-        self::assertSame(42, $result);
+        self::assertSame(true, $result);
+        self::assertSame(42, $entity->id);
     }
 
     public function testThrowsForUnsupportedDriverWithAutoincrement()

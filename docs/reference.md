@@ -629,9 +629,10 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeString](#ormdbaldbalescapestring) Escape a string for query
 * [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbaldbalinsert) Inserts $entity and returns the new ID for autoincrement or true
+* [insert](#ormdbaldbalinsert) Inserts $entity in database and returns success
 * [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
 * [setOption](#ormdbaldbalsetoption) Set $option to $value
+* [updateAutoincrement](#ormdbaldbalupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Dbal::__construct
 
@@ -732,7 +733,7 @@ public function describe(
 #### ORM\Dbal\Dbal::escapeBoolean
 
 ```php?start_inline=true
-protected function escapeBoolean( $value ): string
+protected function escapeBoolean( boolean $value ): string
 ```
 
 ##### Escape a boolean for query
@@ -748,14 +749,14 @@ protected function escapeBoolean( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **boolean**  |  |
 
 
 
 #### ORM\Dbal\Dbal::escapeDateTime
 
 ```php?start_inline=true
-protected function escapeDateTime( $value ): mixed
+protected function escapeDateTime( \DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -771,14 +772,14 @@ protected function escapeDateTime( $value ): mixed
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **\DateTime**  |  |
 
 
 
 #### ORM\Dbal\Dbal::escapeDouble
 
 ```php?start_inline=true
-protected function escapeDouble( $value ): string
+protected function escapeDouble( double $value ): string
 ```
 
 ##### Escape a double for Query
@@ -794,7 +795,7 @@ protected function escapeDouble( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **double**  |  |
 
 
 
@@ -824,7 +825,7 @@ public function escapeIdentifier( string $identifier ): string
 #### ORM\Dbal\Dbal::escapeInteger
 
 ```php?start_inline=true
-protected function escapeInteger( $value ): string
+protected function escapeInteger( integer $value ): string
 ```
 
 ##### Escape an integer for query
@@ -840,7 +841,7 @@ protected function escapeInteger( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **integer**  |  |
 
 
 
@@ -864,7 +865,7 @@ protected function escapeNULL(): string
 #### ORM\Dbal\Dbal::escapeString
 
 ```php?start_inline=true
-protected function escapeString( $value ): string
+protected function escapeString( string $value ): string
 ```
 
 ##### Escape a string for query
@@ -880,7 +881,7 @@ protected function escapeString( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **string**  |  |
 
 
 
@@ -935,16 +936,16 @@ protected function extractParenthesis( string $type ): string
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): mixed
+): boolean
 ```
 
-##### Inserts $entity and returns the new ID for autoincrement or true
+##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
+ **Returns**: this method returns **boolean**
 <br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
 
 ##### Parameters
@@ -1000,6 +1001,29 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Dbal::updateAutoincrement
+
+```php?start_inline=true
+protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+```
+
+##### Update the autoincrement value
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$value` | **integer &#124; string**  |  |
 
 
 
@@ -4354,10 +4378,11 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [escapeString](#ormdbalmysqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalmysqlinsert) Inserts $entity and returns the new ID for autoincrement or true
+* [insert](#ormdbalmysqlinsert) Inserts $entity in database and returns success
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
+* [updateAutoincrement](#ormdbalmysqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Mysql::__construct
 
@@ -4458,7 +4483,7 @@ public function describe(
 #### ORM\Dbal\Mysql::escapeBoolean
 
 ```php?start_inline=true
-protected function escapeBoolean( $value ): string
+protected function escapeBoolean( boolean $value ): string
 ```
 
 ##### Escape a boolean for query
@@ -4474,14 +4499,14 @@ protected function escapeBoolean( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **boolean**  |  |
 
 
 
 #### ORM\Dbal\Mysql::escapeDateTime
 
 ```php?start_inline=true
-protected function escapeDateTime( $value ): mixed
+protected function escapeDateTime( \DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -4497,14 +4522,14 @@ protected function escapeDateTime( $value ): mixed
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **\DateTime**  |  |
 
 
 
 #### ORM\Dbal\Mysql::escapeDouble
 
 ```php?start_inline=true
-protected function escapeDouble( $value ): string
+protected function escapeDouble( double $value ): string
 ```
 
 ##### Escape a double for Query
@@ -4520,7 +4545,7 @@ protected function escapeDouble( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **double**  |  |
 
 
 
@@ -4550,7 +4575,7 @@ public function escapeIdentifier( string $identifier ): string
 #### ORM\Dbal\Mysql::escapeInteger
 
 ```php?start_inline=true
-protected function escapeInteger( $value ): string
+protected function escapeInteger( integer $value ): string
 ```
 
 ##### Escape an integer for query
@@ -4566,7 +4591,7 @@ protected function escapeInteger( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **integer**  |  |
 
 
 
@@ -4590,7 +4615,7 @@ protected function escapeNULL(): string
 #### ORM\Dbal\Mysql::escapeString
 
 ```php?start_inline=true
-protected function escapeString( $value ): string
+protected function escapeString( string $value ): string
 ```
 
 ##### Escape a string for query
@@ -4606,7 +4631,7 @@ protected function escapeString( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **string**  |  |
 
 
 
@@ -4661,16 +4686,16 @@ protected function extractParenthesis( string $type ): string
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): mixed
+): boolean
 ```
 
-##### Inserts $entity and returns the new ID for autoincrement or true
+##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -4750,6 +4775,29 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Mysql::updateAutoincrement
+
+```php?start_inline=true
+protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+```
+
+##### Update the autoincrement value
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$value` | **integer &#124; string**  |  |
 
 
 
@@ -7148,9 +7196,10 @@ where('name = ?', ['John Doe'])
 * [escapeString](#ormdbalpgsqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalpgsqlinsert) Inserts $entity and returns the new ID for autoincrement or true
+* [insert](#ormdbalpgsqlinsert) Inserts $entity in database and returns success
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
 * [setOption](#ormdbalpgsqlsetoption) Set $option to $value
+* [updateAutoincrement](#ormdbalpgsqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Pgsql::__construct
 
@@ -7251,7 +7300,7 @@ public function describe(
 #### ORM\Dbal\Pgsql::escapeBoolean
 
 ```php?start_inline=true
-protected function escapeBoolean( $value ): string
+protected function escapeBoolean( boolean $value ): string
 ```
 
 ##### Escape a boolean for query
@@ -7267,14 +7316,14 @@ protected function escapeBoolean( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **boolean**  |  |
 
 
 
 #### ORM\Dbal\Pgsql::escapeDateTime
 
 ```php?start_inline=true
-protected function escapeDateTime( $value ): mixed
+protected function escapeDateTime( \DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -7290,14 +7339,14 @@ protected function escapeDateTime( $value ): mixed
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **\DateTime**  |  |
 
 
 
 #### ORM\Dbal\Pgsql::escapeDouble
 
 ```php?start_inline=true
-protected function escapeDouble( $value ): string
+protected function escapeDouble( double $value ): string
 ```
 
 ##### Escape a double for Query
@@ -7313,7 +7362,7 @@ protected function escapeDouble( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **double**  |  |
 
 
 
@@ -7343,7 +7392,7 @@ public function escapeIdentifier( string $identifier ): string
 #### ORM\Dbal\Pgsql::escapeInteger
 
 ```php?start_inline=true
-protected function escapeInteger( $value ): string
+protected function escapeInteger( integer $value ): string
 ```
 
 ##### Escape an integer for query
@@ -7359,7 +7408,7 @@ protected function escapeInteger( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **integer**  |  |
 
 
 
@@ -7383,7 +7432,7 @@ protected function escapeNULL(): string
 #### ORM\Dbal\Pgsql::escapeString
 
 ```php?start_inline=true
-protected function escapeString( $value ): string
+protected function escapeString( string $value ): string
 ```
 
 ##### Escape a string for query
@@ -7399,7 +7448,7 @@ protected function escapeString( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **string**  |  |
 
 
 
@@ -7454,16 +7503,16 @@ protected function extractParenthesis( string $type ): string
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): mixed
+): boolean
 ```
 
-##### Inserts $entity and returns the new ID for autoincrement or true
+##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -7519,6 +7568,29 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::updateAutoincrement
+
+```php?start_inline=true
+protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+```
+
+##### Update the autoincrement value
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$value` | **integer &#124; string**  |  |
 
 
 
@@ -9333,10 +9405,11 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
 * [hasMultiplePrimaryKey](#ormdbalsqlitehasmultipleprimarykey) Checks $rawColumns for a multiple primary key
-* [insert](#ormdbalsqliteinsert) Inserts $entity and returns the new ID for autoincrement or true
+* [insert](#ormdbalsqliteinsert) Inserts $entity in database and returns success
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
+* [updateAutoincrement](#ormdbalsqliteupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Sqlite::__construct
 
@@ -9437,7 +9510,7 @@ public function describe(
 #### ORM\Dbal\Sqlite::escapeBoolean
 
 ```php?start_inline=true
-protected function escapeBoolean( $value ): string
+protected function escapeBoolean( boolean $value ): string
 ```
 
 ##### Escape a boolean for query
@@ -9453,14 +9526,14 @@ protected function escapeBoolean( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **boolean**  |  |
 
 
 
 #### ORM\Dbal\Sqlite::escapeDateTime
 
 ```php?start_inline=true
-protected function escapeDateTime( $value ): mixed
+protected function escapeDateTime( \DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -9476,14 +9549,14 @@ protected function escapeDateTime( $value ): mixed
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **\DateTime**  |  |
 
 
 
 #### ORM\Dbal\Sqlite::escapeDouble
 
 ```php?start_inline=true
-protected function escapeDouble( $value ): string
+protected function escapeDouble( double $value ): string
 ```
 
 ##### Escape a double for Query
@@ -9499,7 +9572,7 @@ protected function escapeDouble( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **double**  |  |
 
 
 
@@ -9529,7 +9602,7 @@ public function escapeIdentifier( string $identifier ): string
 #### ORM\Dbal\Sqlite::escapeInteger
 
 ```php?start_inline=true
-protected function escapeInteger( $value ): string
+protected function escapeInteger( integer $value ): string
 ```
 
 ##### Escape an integer for query
@@ -9545,7 +9618,7 @@ protected function escapeInteger( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **integer**  |  |
 
 
 
@@ -9569,7 +9642,7 @@ protected function escapeNULL(): string
 #### ORM\Dbal\Sqlite::escapeString
 
 ```php?start_inline=true
-protected function escapeString( $value ): string
+protected function escapeString( string $value ): string
 ```
 
 ##### Escape a string for query
@@ -9585,7 +9658,7 @@ protected function escapeString( $value ): string
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **string**  |  |
 
 
 
@@ -9663,16 +9736,16 @@ protected function hasMultiplePrimaryKey( array $rawColumns ): boolean
 ```php?start_inline=true
 public function insert(
     \ORM\Entity $entity, boolean $useAutoIncrement = true
-): mixed
+): boolean
 ```
 
-##### Inserts $entity and returns the new ID for autoincrement or true
+##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -9755,6 +9828,29 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::updateAutoincrement
+
+```php?start_inline=true
+protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+```
+
+##### Update the autoincrement value
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$value` | **integer &#124; string**  |  |
 
 
 

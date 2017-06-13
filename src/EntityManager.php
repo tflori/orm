@@ -375,7 +375,7 @@ class EntityManager
      *
      * @param Entity $entity
      * @param bool   $useAutoIncrement
-     * @return mixed
+     * @return bool
      * @internal
      */
     public function insert(Entity $entity, $useAutoIncrement = true)
@@ -392,9 +392,7 @@ class EntityManager
      */
     public function update(Entity $entity)
     {
-        $this->getDbal()->update($entity);
-        $this->sync($entity, true);
-        return true;
+        return $this->getDbal()->update($entity);
     }
 
     /**

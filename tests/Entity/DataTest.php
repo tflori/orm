@@ -23,6 +23,12 @@ use ORM\Test\TestCase;
 
 class DataTest extends TestCase
 {
+    public function tearDown()
+    {
+        StudlyCaps::disableValidator();
+        parent::tearDown();
+    }
+
 
     public function testOnChangeGetCalled()
     {

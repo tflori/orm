@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Entity;
 use ORM\Exception;
 use ORM\QueryBuilder\QueryBuilder;
 use PDO;
@@ -41,7 +42,7 @@ class Pgsql extends Dbal
     protected $booleanTrue = 'true';
     protected $booleanFalse = 'false';
 
-    public function insert($entity, $useAutoIncrement = true)
+    public function insert(Entity $entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
         $pdo = $this->entityManager->getConnection();
@@ -49,12 +50,12 @@ class Pgsql extends Dbal
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
             $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
             $result = $pdo->query($statement);
-            return $result->fetchColumn();
+            $this->updateAutoincrement($entity, $result->fetchColumn());
+        } else {
+            $pdo->query($statement);
         }
 
-        $pdo->query($statement);
-        $this->entityManager->sync($entity, true);
-        return true;
+        return $this->entityManager->sync($entity, true);
     }
 
     public function describe($schemaTable)

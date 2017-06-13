@@ -544,29 +544,23 @@ abstract class Entity implements \Serializable
         try {
             // this may throw if the primary key is auto incremented but we using this to omit duplicated code
             if (!$this->entityManager->sync($this)) {
-                $this->entityManager->insert($this, false);
-                $inserted = true;
+                $this->prePersist();
+                $inserted = $this->entityManager->insert($this, false);
             } elseif ($this->isDirty()) {
                 $this->preUpdate();
-                $this->entityManager->update($this);
-                $updated = true;
+                $updated = $this->entityManager->update($this);
             }
         } catch (IncompletePrimaryKey $e) {
             if (static::isAutoIncremented()) {
                 $this->prePersist();
-                $id = $this->entityManager->insert($this);
-                $this->data[static::getColumnName(static::getPrimaryKeyVars()[0])] = $id;
-                $inserted = true;
+                $inserted = $this->entityManager->insert($this);
             } else {
                 throw $e;
             }
         }
 
-        if ($inserted || $updated) {
-            $inserted && $this->postPersist();
-            $updated && $this->postUpdate();
-            $this->entityManager->sync($this, true);
-        }
+        $inserted && $this->postPersist();
+        $updated && $this->postUpdate();
 
         return $this;
     }
@@ -630,6 +624,7 @@ abstract class Entity implements \Serializable
      * @param string $attribute The variable that got changed.merge(node.inheritedProperties)
      * @param mixed  $oldValue The old value of the variable
      * @param mixed  $value The new value of the variable
+     * @codeCoverageIgnore dummy event handler
      */
     public function onChange($attribute, $oldValue, $value)
     {
@@ -641,6 +636,7 @@ abstract class Entity implements \Serializable
      * Get called when the entity get initialized.
      *
      * @param bool $new Whether or not the entity is new or from database
+     * @codeCoverageIgnore dummy event handler
      */
     public function onInit($new)
     {
@@ -650,6 +646,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called before the entity get updated in database.
+     * @codeCoverageIgnore dummy event handler
      */
     public function preUpdate()
     {
@@ -659,18 +656,18 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called before the entity get inserted in database.
+     * @codeCoverageIgnore dummy event handler
      */
     public function prePersist()
     {
     }
 
 
-    // DEPRECATED stuff
-
     /**
      * Empty event handler
      *
      * Get called after the entity got inserted in database.
+     * @codeCoverageIgnore dummy event handler
      */
     public function postPersist()
     {
@@ -680,6 +677,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called after the entity got updated in database.
+     * @codeCoverageIgnore dummy event handler
      */
     public function postUpdate()
     {
@@ -782,6 +780,8 @@ abstract class Entity implements \Serializable
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
     }
+
+    // DEPRECATED stuff
 
     /**
      * @return string

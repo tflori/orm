@@ -117,14 +117,14 @@ abstract class Dbal
     }
 
     /**
-     * Inserts $entity and returns the new ID for autoincrement or true
+     * Inserts $entity in database and returns success
      *
      * @param Entity $entity
      * @param bool   $useAutoIncrement
-     * @return mixed
+     * @return bool
      * @throws UnsupportedDriver
      */
-    public function insert($entity, $useAutoIncrement = true)
+    public function insert(Entity $entity, $useAutoIncrement = true)
     {
         $statement = $this->buildInsertStatement($entity);
 
@@ -133,12 +133,11 @@ abstract class Dbal
         }
 
         $this->entityManager->getConnection()->query($statement);
-        $this->entityManager->sync($entity, true);
-        return true;
+        return $this->entityManager->sync($entity, true);
     }
 
     /**
-     * Update $entity in database
+     * Update $entity in database and returns success
      *
      * @param Entity $entity
      * @return bool
@@ -168,7 +167,7 @@ abstract class Dbal
                      'WHERE ' . implode(' AND ', $where);
         $this->entityManager->getConnection()->query($statement);
 
-        return true;
+        return $this->entityManager->sync($entity, true);
     }
 
     /**
@@ -220,6 +219,23 @@ abstract class Dbal
     }
 
     /**
+     * Update the autoincrement value
+     *
+     * @param Entity     $entity
+     * @param int|string $value
+     */
+    protected function updateAutoincrement(Entity $entity, $value)
+    {
+        $var = $entity::getPrimaryKeyVars()[0];
+        $column = $entity::getColumnName($var);
+
+        $entity->setOriginalData(array_merge($entity->getData(), [
+            $column => $value
+        ]));
+        $entity->__set($var, $value);
+    }
+
+    /**
      * Normalize $type
      *
      * The type returned by mysql is for example VARCHAR(20) - this function converts it to varchar
@@ -256,7 +272,7 @@ abstract class Dbal
     /**
      * Escape a string for query
      *
-     * @param $value
+     * @param string $value
      * @return string
      */
     protected function escapeString($value)
@@ -267,7 +283,7 @@ abstract class Dbal
     /**
      * Escape an integer for query
      *
-     * @param $value
+     * @param int $value
      * @return string
      */
     protected function escapeInteger($value)
@@ -278,7 +294,7 @@ abstract class Dbal
     /**
      * Escape a double for Query
      *
-     * @param $value
+     * @param double $value
      * @return string
      */
     protected function escapeDouble($value)
@@ -299,7 +315,7 @@ abstract class Dbal
     /**
      * Escape a boolean for query
      *
-     * @param $value
+     * @param bool $value
      * @return string
      */
     protected function escapeBoolean($value)
@@ -310,10 +326,10 @@ abstract class Dbal
     /**
      * Escape a date time object for query
      *
-     * @param $value
+     * @param \DateTime $value
      * @return mixed
      */
-    protected function escapeDateTime($value)
+    protected function escapeDateTime(\DateTime $value)
     {
         $value->setTimezone(new \DateTimeZone('UTC'));
         return $value->format('Y-m-d\TH:i:s.u\Z');

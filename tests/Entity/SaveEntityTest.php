@@ -25,8 +25,16 @@ class SaveEntityTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
-        $this->em->shouldReceive('insert')->with($entity)->once()->andReturn(42);
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->em->shouldReceive('insert')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
+            $var = $entity::getPrimaryKeyVars()[0];
+            $column = $entity::getColumnName($var);
+
+            $entity->setOriginalData(array_merge($entity->getData(), [
+                $column => 42
+            ]));
+            $entity->__set($var, 42);
+            return true;
+        });
 
         $entity->save();
 
@@ -39,8 +47,16 @@ class SaveEntityTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
         $emMock->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
-        $emMock->shouldReceive('insert')->with($entity)->once()->andReturn(42);
-        $emMock->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $emMock->shouldReceive('insert')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
+            $var = $entity::getPrimaryKeyVars()[0];
+            $column = $entity::getColumnName($var);
+
+            $entity->setOriginalData(array_merge($entity->getData(), [
+                $column => 42
+            ]));
+            $entity->__set($var, 42);
+            return true;
+        });
 
         $entity->setEntityManager($emMock);
         $entity->save();
@@ -85,19 +101,6 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testSyncsAfterUpdate()
-    {
-        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
-        $this->em->shouldReceive('sync')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
-            $entity->setOriginalData(['id' => 42, 'foo' => 'baz']);
-            return true;
-        });
-        $this->em->shouldReceive('update')->with($entity)->once();
-        $this->em->shouldReceive('sync')->with($entity, true)->once();
-
-        $entity->save();
-    }
-
     public function testInsertsIfNotPersisted()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
@@ -109,25 +112,22 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testSyncsAfterInsert()
-    {
-        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
-
-        $this->em->shouldReceive('sync')->with($entity)->once()->andReturn(false);
-        $this->em->shouldReceive('insert')->with($entity, false)->once();
-        $this->em->shouldReceive('sync')->with($entity, true)->once();
-
-        $entity->save();
-    }
-
     public function testCallsPrePersistBeforeInsert()
     {
         $entity = \Mockery::mock(StudlyCaps::class . '[prePersist]', [['foo' => 'bar'], $this->em])->makePartial();
         $entity->shouldReceive('prePersist')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
-        $this->em->shouldReceive('insert')->with($entity)->once()->andReturn(42);
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->em->shouldReceive('insert')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
+            $var = $entity::getPrimaryKeyVars()[0];
+            $column = $entity::getColumnName($var);
+
+            $entity->setOriginalData(array_merge($entity->getData(), [
+                $column => 42
+            ]));
+            $entity->__set($var, 42);
+            return true;
+        });
 
         $entity->save();
     }
@@ -153,8 +153,16 @@ class SaveEntityTest extends TestCase
         $entity->shouldReceive('postPersist')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
-        $this->em->shouldReceive('insert')->with($entity)->once()->andReturn(42);
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->em->shouldReceive('insert')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
+            $var = $entity::getPrimaryKeyVars()[0];
+            $column = $entity::getColumnName($var);
+
+            $entity->setOriginalData(array_merge($entity->getData(), [
+                $column => 42
+            ]));
+            $entity->__set($var, 42);
+            return true;
+        });
 
         $entity->save();
     }
@@ -168,8 +176,7 @@ class SaveEntityTest extends TestCase
             $entity->setOriginalData(['id' => 42, 'foo' => 'baz']);
             return true;
         });
-        $this->em->shouldReceive('update')->with($entity)->once();
-        $this->em->shouldReceive('sync')->with($entity, true);
+        $this->em->shouldReceive('update')->with($entity)->once()->andReturn(true);
 
         $entity->save();
     }
