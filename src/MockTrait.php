@@ -22,13 +22,13 @@ trait MockTrait
      *
      * @param array  $options Options passed to EntityManager constructor
      * @param string $driver  Database driver you are using (results in different dbal instance)
-     * @return Mock|EntityManager
+     * @return m\MockInterface|EntityManager
      */
-    public function emInitMock($options = [], $driver = 'mysql')
+    public function ormInitMock($options = [], $driver = 'mysql')
     {
-        /** @var EntityManager|Mock $em */
+        /** @var EntityManager|m\MockInterface $em */
         $em = m::mock(EntityManager::class, [$options])->makePartial();
-        /** @var \PDO|Mock $pdo */
+        /** @var \PDO|m\MockInterface $pdo */
         $pdo = m::mock(\PDO::class);
 
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
@@ -47,15 +47,23 @@ trait MockTrait
      * @param string        $class
      * @param array         $data
      * @param EntityManager $em
-     * @return Mock|Entity
+     * @return m\MockInterface|Entity
      */
-    public function emCreateMockedEntity($class, $data = [], $em = null)
+    public function ormCreateMockedEntity($class, $data = [], $em = null)
     {
-        /** @var Entity|Mock $entity */
-        $entity = \Mockery::mock($class)->makePartial();
-        $entity->setEntityManager($em ?: EntityManager::getInstance($class));
+        $em = $em ?: EntityManager::getInstance($class);
+
+        /** @var Entity|m\MockInterface $entity */
+        $entity = m::mock($class)->makePartial();
+        $entity->setEntityManager($em);
         $entity->setOriginalData($data);
         $entity->reset();
+
+        try {
+            $em->map($entity, true, $class);
+        } catch (IncompletePrimaryKey $ex) {
+            // we tried to map but ignore primary key missing
+        }
         return $entity;
     }
 
@@ -74,9 +82,9 @@ trait MockTrait
      * @param EntityManager $em
      * @throws Exception
      */
-    public function emExpectInsert($class, $defaultValues = [], $em = null)
+    public function ormExpectInsert($class, $defaultValues = [], $em = null)
     {
-        /** @var EntityManager|Mock $em */
+        /** @var EntityManager|m\MockInterface $em */
         $em = $em ?: EntityManager::getInstance($class);
 
         $em->shouldReceive('sync')->with(m::type($class))->once()
@@ -111,15 +119,16 @@ trait MockTrait
      * @param string        $class    The class that should be fetched
      * @param array         $entities The entities that get returned from fetcher
      * @param EntityManager $em
-     * @return Mock
+     * @return m\MockInterface|EntityFetcher
      * @throws Exception
      */
-    public function emExpectFetch($class, $entities = [], $em = null)
+    public function ormExpectFetch($class, $entities = [], $em = null)
     {
-        /** @var EntityManager|Mock $em */
+        /** @var EntityManager|m\MockInterface $em */
         $em = $em ?: EntityManager::getInstance($class);
 
-        $fetcher = \Mockery::mock(EntityFetcher::class, [$em, $class])->makePartial();
+        /** @var m\MockInterface|EntityFetcher $fetcher */
+        $fetcher = m::mock(EntityFetcher::class, [$em, $class])->makePartial();
         $em->shouldReceive('fetch')->with($class)->once()->andReturn($fetcher);
 
         $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
@@ -127,5 +136,39 @@ trait MockTrait
         $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
 
         return $fetcher;
+    }
+
+    /**
+     * Expect save on $entity
+     *
+     * Entity has to be a mock use `emCreateMockedEntity()` to create it.
+     *
+     * @param Entity $entity
+     * @param array  $changingData Emulate changing data during update statement (triggers etc)
+     * @param array  $updatedData  Emulate data changes in database
+     */
+    public function ormExpectUpdate(Entity $entity, $changingData = [], $updatedData = [])
+    {
+        $entity->shouldReceive('save')->once()->andReturnUsing(function () use ($entity, $updatedData, $changingData) {
+            // sync with database using $updatedData
+            if (!empty($updatedData)) {
+                $newData = $entity->getData();
+                $entity->reset();
+                $entity->setOriginalData(array_merge($entity->getData(), $updatedData));
+                $entity->fill($newData);
+            }
+
+            if (!$entity->isDirty()) {
+                return $entity;
+            }
+
+            // update the entity using $changingData
+            $entity->preUpdate();
+            $entity->setOriginalData(array_merge($entity->getData(), $changingData));
+            $entity->reset();
+            $entity->postUpdate();
+
+            return $entity;
+        });
     }
 }

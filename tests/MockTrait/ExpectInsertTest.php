@@ -18,7 +18,7 @@ class ExpectInsertTest extends MockeryTestCase
 
     protected function setUp()
     {
-        $this->em = $this->emInitMock();
+        $this->em = $this->ormInitMock();
     }
 
     protected function tearDown()
@@ -28,7 +28,7 @@ class ExpectInsertTest extends MockeryTestCase
 
     public function testAllowsInsertOfSpecifiedClass()
     {
-        $this->emExpectInsert(Article::class, ['id' => 42]);
+        $this->ormExpectInsert(Article::class, ['id' => 42]);
         $article = new Article();
 
         $article->save();
@@ -36,7 +36,7 @@ class ExpectInsertTest extends MockeryTestCase
 
     public function testDoesNotAllowInsertsOfOtherClasses()
     {
-        $this->emExpectInsert(Category::class);
+        $this->ormExpectInsert(Category::class);
         $article = new Article();
 
         self::expectException(\BadMethodCallException::class);
@@ -53,7 +53,7 @@ class ExpectInsertTest extends MockeryTestCase
     public function testSetsDefaultData()
     {
         $defaults = ['id' => 42, 'created' => date('c')];
-        $this->emExpectInsert(Article::class, $defaults);
+        $this->ormExpectInsert(Article::class, $defaults);
         $article = new Article();
 
         $article->save();
@@ -64,7 +64,7 @@ class ExpectInsertTest extends MockeryTestCase
     public function testDoesNotOverwriteCurrentData()
     {
         $defaults = ['id' => 42, 'created' => date('c')];
-        $this->emExpectInsert(Article::class, $defaults);
+        $this->ormExpectInsert(Article::class, $defaults);
         $article = new Article();
 
         $article->id = 1337;
@@ -76,7 +76,7 @@ class ExpectInsertTest extends MockeryTestCase
 
     public function testEmulatesAutoIncrementWithRandomValue()
     {
-        $this->emExpectInsert(Article::class);
+        $this->ormExpectInsert(Article::class);
         $article = new Article();
 
         $article->save();

@@ -9,6 +9,12 @@ For development of this library we using Mockery and we suggest to use it for yo
 
 What needs to be tested is up to you but we recommend to mock all the database access including quoting and querying
 table definitions.
+ 
+For easier use we created a trait that helps you with emulating the behaviour of `Entity` and `EntityManager`. All
+methods have the prefix `orm` to not interfere with your methods.
+
+> If you are not using mockery and don't want to have this dependency you will have to create your own helpers. This
+> guide will just give some hints how to mock it.
 
 ### Setup
 
@@ -57,7 +63,7 @@ abstract class TestCase extends MockeryTestCase
         $di = $GLOBALS['di'];
         
         // create the mock for EntityManager
-        $em = $this->mocks['em'] = $this->mockEntityManager([], 'mysql');
+        $em = $this->mocks['em'] = $this->ormInitMock([], 'mysql');
         
         // inject the entity manager mock
         $di->set('entityManager', function () use ($em) {
@@ -102,7 +108,7 @@ class ArticleControllerTest extends TestCase
     
     public function testMockEntityUsingHelper()
     {
-        $entity = $this->emCreateMockEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
+        $entity = $this->ormCreateMockEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
         // when onInit is required call it now: $entity->onInit(false);
         
         // now you can use the entity as usual and write expectations
@@ -145,7 +151,7 @@ class ArticleControllerTest extends TestCase // uses ORM\MockTrait
 {
     public function testSavesTheArticle()
     {
-        $this->emExpectInsert(Article::class, ['created' => date('c')]);
+        $this->ormExpectInsert(Article::class, ['created' => date('c')]);
         
         createArticle('Anything');
     }
@@ -154,7 +160,7 @@ class ArticleControllerTest extends TestCase // uses ORM\MockTrait
     public function testReturnsJsonEncodedArticle()
     {
         $defaults = ['id' => 42, 'created' => date('c')];
-        $this->emExpectInsert(Article::class, $defaults);
+        $this->ormExpectInsert(Article::class, $defaults);
         
         $article = createArticle('Anything');
         
@@ -220,7 +226,7 @@ class ArticleControllerTest extends TestCase
     // expect fetch
     public function testFetchesArticles()
     {
-        $this->emExpectFetch(Article::class);
+        $this->ormExpectFetch(Article::class);
         
         getArticles();
     }
@@ -228,7 +234,7 @@ class ArticleControllerTest extends TestCase
     // expect where condition
     public function testSearchesForTitle()
     {
-        $fetcher = $this->emExpectFetch(Article::class);
+        $fetcher = $this->ormExpectFetch(Article::class);
         $fetcher->shouldReceive('where')->with('title', 'LIKE', '%cambozola%');
         
         getArticles('cambozola');
@@ -240,11 +246,60 @@ class ArticleControllerTest extends TestCase
         $articles = [new Article(), new Article()];
         $articles[0]->title = 'Hello World!';
         $articles[1]->title = 'Anything';
-        $this->emExpectFetch(Article::class, $articles);
+        $this->ormExpectFetch(Article::class, $articles);
         
         $result = getArticles('cambozola');
         
         self::assertSame($articles, $result);
+    }
+}
+```
+
+### Updating an entity
+
+There is no need for complicated stuff:
+
+1. [Create a mock](#createapartialmockentity)
+2. Expect save method and maybe return the entity
+
+But it might be neccessary that the entity is not dirty afterwards, to emulate the data has changed in the database
+and the entity got new data while updated (triggers like `ON UPDATE CURRENT TIMESTAMP`). To make the save method act
+like the original method act (without using the database) there is a helper method for it. 
+
+```php
+<?php
+
+function updateArticle($id, $newTitle)
+{
+    $article = $GLOBALS['di']->get('entityManager')->fetch(Article::class, $id);
+    $article->title = $newTitle;
+    $article->save();
+}
+
+class ArticleControllerTest extends TestCase
+{
+    public function testCallsSave()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
+        $article->shouldReceive('save')->once();
+        
+        updateArticle(42, 'Don`t Panic!');
+        
+        self::assertSame('Don`t Panic!', $article->title);
+        // ATTENTION! the entity is still dirty:
+        self::assertTrue($article->isDirty());
+    }
+    
+    public function testWithHelper()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, [
+            'id' => 42,
+            'title' => 'Hello World!',
+            'changed' => date('c', strtotime('-1 Hour')) 
+        ]);
+        $this->ormExpectUpdate($article, ['changed' => date('c')]);
+        
+        updateArticle(42, 'Don`t Panic!');
     }
 }
 ```

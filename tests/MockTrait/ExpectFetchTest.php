@@ -18,7 +18,7 @@ class ExpectFetchTest extends MockeryTestCase
 
     protected function setUp()
     {
-        $this->em = $this->emInitMock();
+        $this->em = $this->ormInitMock();
     }
 
     protected function tearDown()
@@ -28,7 +28,7 @@ class ExpectFetchTest extends MockeryTestCase
 
     public function testReturnsFetcher()
     {
-        $fetcher = $this->emExpectFetch(Article::class);
+        $fetcher = $this->ormExpectFetch(Article::class);
 
         self::assertInstanceOf(EntityFetcher::class, $fetcher);
 
@@ -37,14 +37,14 @@ class ExpectFetchTest extends MockeryTestCase
 
     public function testMocksFetch()
     {
-        $fetcher = $this->emExpectFetch(Article::class);
+        $fetcher = $this->ormExpectFetch(Article::class);
 
         self::assertSame($fetcher, $this->em->fetch(Article::class));
     }
 
     public function testReturnsNull()
     {
-        $this->emExpectFetch(Article::class);
+        $this->ormExpectFetch(Article::class);
 
         $fetcher = $this->em->fetch(Article::class);
         $result = $fetcher->one();
@@ -55,7 +55,7 @@ class ExpectFetchTest extends MockeryTestCase
     public function testReturnsEntities()
     {
         $articles = [new Article(), new Article()];
-        $this->emExpectFetch(Article::class, $articles);
+        $this->ormExpectFetch(Article::class, $articles);
 
         $fetcher = $this->em->fetch(Article::class);
         $result = $fetcher->all();
@@ -66,7 +66,7 @@ class ExpectFetchTest extends MockeryTestCase
     public function testReturnsCount()
     {
         $articles = [new Article(), new Article()];
-        $this->emExpectFetch(Article::class, $articles);
+        $this->ormExpectFetch(Article::class, $articles);
 
         $fetcher = $this->em->fetch(Article::class);
         $result = $fetcher->count();

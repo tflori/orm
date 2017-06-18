@@ -13,21 +13,21 @@ class InitMockTest extends TestCase
 
     public function testReturnsAnEntityManager()
     {
-        $em = $this->emInitMock();
+        $em = $this->ormInitMock();
 
         self::assertInstanceOf(EntityManager::class, $em);
     }
 
     public function testEntityManagerIsAMock()
     {
-        $em = $this->emInitMock();
+        $em = $this->ormInitMock();
 
         self::assertInstanceOf(MockInterface::class, $em);
     }
 
     public function testMocksConnection()
     {
-        $em = $this->emInitMock();
+        $em = $this->ormInitMock();
         $connection = $em->getConnection();
 
         self::assertInstanceOf(MockInterface::class, $em);
@@ -35,7 +35,7 @@ class InitMockTest extends TestCase
 
     public function testMocksSetAttribute()
     {
-        $em = $this->emInitMock();
+        $em = $this->ormInitMock();
         $connection = $em->getConnection();
 
         $result = $connection->setAttribute(\PDO::ATTR_AUTOCOMMIT, true);
@@ -45,7 +45,7 @@ class InitMockTest extends TestCase
 
     public function testMocksDriverName()
     {
-        $em = $this->emInitMock([], 'mssql');
+        $em = $this->ormInitMock([], 'mssql');
         $connection = $em->getConnection();
 
         $result = $connection->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -55,7 +55,7 @@ class InitMockTest extends TestCase
 
     public function testMocksQuote()
     {
-        $em = $this->emInitMock();
+        $em = $this->ormInitMock();
         $connection = $em->getConnection();
 
         $result = $connection->quote('Wayne\'s World!');

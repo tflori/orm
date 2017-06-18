@@ -422,12 +422,12 @@ class EntityManager
      *
      * @param Entity $entity
      * @param bool   $update Update the entity map
+     * @param string $class Overwrite the class
      * @return Entity
-     * @throws IncompletePrimaryKey
      */
-    public function map(Entity $entity, $update = false)
+    public function map(Entity $entity, $update = false, $class = null)
     {
-        $class = get_class($entity);
+        $class = $class ?: get_class($entity);
         $key = md5(serialize($entity->getPrimaryKey()));
 
         if ($update || !isset($this->map[$class][$key])) {
