@@ -75,6 +75,41 @@ abstract class TestCase extends MockeryTestCase
 }
 ```
 
+### Create a Partial Mock Entity
+
+Due to the fact that the entity constructor is final and calls an internal method (`onInit()`) you can not just create
+the mock with `Mockery::mock(Article::class, [['id' => 42, 'title' => 'Hello World!']])->makePartial()`. Also creating
+a passive mock with `Mockery::mock(new Article(['id' => 42, 'title' => 'Hello world!']))` does not work because
+the orignal object is wrapped but the magic getter not.
+
+You have to initialize the object without using the original constructor, set the entity manager manually, set the
+original data and reset the entity. We created a helper for this to make it easier.
+
+```php
+<?php
+
+class ArticleControllerTest extends TestCase
+{
+    public function testMockEntity()
+    {
+        $entity = \Mockery::mock(Article::class)->makePartial();
+        $entity->setEntityManager($this->mocks['em']);
+        $entity->setOriginalData(['id' => 42, 'title' => 'Hello World!']);
+        $entity->reset;
+        
+        // now you can use the entity as usual and write expectations
+    }
+    
+    public function testMockEntityUsingHelper()
+    {
+        $entity = $this->emCreateMockEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
+        // when onInit is required call it now: $entity->onInit(false);
+        
+        // now you can use the entity as usual and write expectations
+    }
+}
+```
+
 ### Mocking Create, Read, Update and Delete (CRUD)
 
 First we want to have a look on the basics- so lets have a look on CRUD-Operations.

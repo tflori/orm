@@ -116,7 +116,7 @@ class EntityManager
 
         if (!isset(self::$emMapping['byClass'][$class])) {
             if (!($em = self::getInstanceByParent($class)) && !($em = self::getInstanceByNameSpace($class))) {
-                $em = self::$emMapping['last'];
+                return self::$emMapping['last'];
             }
 
             self::$emMapping['byClass'][$class] = $em;

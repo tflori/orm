@@ -42,6 +42,24 @@ trait MockTrait
     }
 
     /**
+     * Create a partial mock of Entity $class
+     *
+     * @param string        $class
+     * @param array         $data
+     * @param EntityManager $em
+     * @return Mock|Entity
+     */
+    public function emCreateMockedEntity($class, $data = [], $em = null)
+    {
+        /** @var Entity|Mock $entity */
+        $entity = \Mockery::mock($class)->makePartial();
+        $entity->setEntityManager($em ?: EntityManager::getInstance($class));
+        $entity->setOriginalData($data);
+        $entity->reset();
+        return $entity;
+    }
+
+    /**
      * Expect an insert for $class
      *
      * Mocks and expects the calls to sync and insert as they came for `save()` method for a new Entity.
@@ -61,30 +79,28 @@ trait MockTrait
         /** @var EntityManager|Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
-        if (!is_callable([$em, 'shouldReceive'])) {
-            throw new Exception('EntityManager mock not initialized');
-        }
-
         $em->shouldReceive('sync')->with(m::type($class))->once()
-            ->andReturnUsing(function (Entity $entity, $reset = false) {
-                $entity->getPrimaryKey(); // this may throw
-                return false;
-            });
+            ->andReturnUsing(function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
+                $expectation = $em->shouldReceive('insert')->once()
+                    ->andReturnUsing(function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
+                        if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
+                            $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
+                        }
+                        $entity->setOriginalData(array_merge($defaultValues, $entity->getData()));
+                        $entity->reset();
+                        $em->map($entity);
+                        return true;
+                    });
 
-        $em->shouldReceive('insert')->with(m::on(function ($entity, $useAutoIncrement = true) use ($class) {
-            if ($entity instanceof $class) {
-                return true;
-            }
-            return false;
-        }))->once()->andReturnUsing(function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
-            if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
-                $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
-            }
-            $entity->setOriginalData(array_merge($defaultValues, $entity->getData()));
-            $entity->reset();
-            $em->map($entity);
-            return true;
-        });
+                try {
+                    $entity->getPrimaryKey();
+                    $expectation->with(m::type($class), false);
+                    return false;
+                } catch (IncompletePrimaryKey $ex) {
+                    $expectation->with(m::type($class));
+                    throw $ex;
+                }
+            });
     }
 
     /**
@@ -103,15 +119,12 @@ trait MockTrait
         /** @var EntityManager|Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
-        if (!is_callable([$em, 'shouldReceive'])) {
-            throw new Exception('EntityManager mock not initialized');
-        }
-
         $fetcher = \Mockery::mock(EntityFetcher::class, [$em, $class])->makePartial();
         $em->shouldReceive('fetch')->with($class)->once()->andReturn($fetcher);
 
-        $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
         $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
+        array_push($entities, null);
+        $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
 
         return $fetcher;
     }
