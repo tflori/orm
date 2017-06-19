@@ -255,7 +255,7 @@ class ArticleControllerTest extends TestCase
 }
 ```
 
-### Updating an entity
+#### Updating an Entity
 
 There is no need for complicated stuff:
 
@@ -300,6 +300,95 @@ class ArticleControllerTest extends TestCase
         $this->ormExpectUpdate($article, ['changed' => date('c')]);
         
         updateArticle(42, 'Don`t Panic!');
+    }
+}
+```
+
+#### Deleting an Entity
+
+When you deleting an Entity you will have to know which entity will come or at least from which class. Then you just
+expect delete with `$em->shouldReceive('delete')->with($entity)->once()->andReturn(true)`. The helper for it just
+removes the the original data like the delete method generally does.
+
+```php
+<?php
+
+function deleteArticle($id)
+{
+    $em = $GLOBALS['di']->get('entityManager');
+    $article = $em->fetch(Article::class, $id);
+    $em->delete($article);
+}
+
+class ArticleControllerTest extends TestCase
+{
+    public function testDeleteWithoutHelper()
+    {
+        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        
+        $this->mocks['em']->shouldReceive('delete')->with($article)->once()->andReturn(true);
+        
+        deleteArticle(42);
+    }
+    
+    public function testDeleteWithHelper()
+    {
+        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        
+        $this->ormExpectDelete($article);
+        
+        deleteArticle(42);
+    }
+}
+```
+
+### Mocking Relations
+
+Relations are always taken from `$entity->fetch($relation[, true])`. You can easily mock this method with expecting 
+the relation name as first and `true` as second parameter. It has to return an array or a single relation appropriate
+to the definition of the relation. If you expecting fetch without the second parameter you can use the `ormExpectFetch`
+helper.
+
+```php
+<?php
+
+function getArticleCategories($articleId)
+{
+    $em = $GLOBALS['di']->get('entityManager');
+    $article = $em->fetch(Article::class, $id);
+    return $article->categories;    
+}
+
+function getFirstArticleCategory($articleId)
+{
+    $em = $GLOBALS['di']->get('entityManager');
+    $article = $em->fetch(Article::class, $id);
+    $fetcher = $article->fetch('categories');
+    return $fetcher->one();
+}
+
+class ArticleControllerTest extends TestCase
+{
+    public function testFetchWithGetAll()
+    {
+        $categories = [new Category(), new Category()];
+        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        $article->expect('fetch')->with('categories', true)->once()->andReturn($categories);
+        
+        $result = getArticleCategories(42);
+        
+        self::assertSame($categories, $result);
+    }
+    
+    public function testFetchUsingFetcher()
+    {
+        $categories = [new Category(), new Category()];
+        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        $this->ormExpectFetch(Category::class, $categories);
+        
+        $result = getFirstArticleCategory(42);
+        
+        self::assertSame($categories[0], $result);
     }
 }
 ```

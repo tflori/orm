@@ -171,4 +171,33 @@ trait MockTrait
             return $entity;
         });
     }
+
+    /**
+     * Expect delete on $em
+     *
+     * If $em is not given it is determined by get_class($entity).
+     *
+     * If $entity is a string then it is assumed to be a class name.
+     *
+     * @param string|Entity $entity
+     * @param EntityManager $em
+     */
+    public function ormExpectDelete($entity, $em = null)
+    {
+        $class = is_string($entity) ? $entity : get_class($entity);
+
+        /** @var EntityManager|m\MockInterface $em */
+        $em = $em ?: EntityManager::getInstance($class);
+
+        $expectation = $em->shouldReceive('delete');
+        if (is_string($entity)) {
+            $expectation->with(m::type($class));
+        } else {
+            $expectation->with($entity);
+        }
+        $expectation->once()->andReturnUsing(function (Entity $entity) {
+            $entity->setOriginalData([]);
+            return true;
+        });
+    }
 }

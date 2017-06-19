@@ -8,6 +8,7 @@ use ORM\EntityFetcher;
 use ORM\EntityManager;
 use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Test\Entity\Examples\Category;
 
 class ExpectFetchTest extends MockeryTestCase
 {
@@ -72,5 +73,17 @@ class ExpectFetchTest extends MockeryTestCase
         $result = $fetcher->count();
 
         self::assertSame(2, $result);
+    }
+
+    public function testExpectFetchOnEntity()
+    {
+        $categories = [new Category(), new Category()];
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
+        $this->ormExpectFetch(Category::class, $categories);
+
+        $fetcher = $article->fetch('categories');
+        $result = $fetcher->all();
+
+        self::assertSame($categories, $result);
     }
 }

@@ -3451,7 +3451,9 @@ public function getOption( $option ): mixed
 #### ORM\EntityManager::map
 
 ```php?start_inline=true
-public function map( \ORM\Entity $entity, boolean $update = false ): \ORM\Entity
+public function map(
+    \ORM\Entity $entity, boolean $update = false, string $class = null
+): \ORM\Entity
 ```
 
 ##### Map $entity in the entity map
@@ -3466,7 +3468,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+<br />
 
 ##### Parameters
 
@@ -3474,6 +3476,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
 | `$update` | **boolean**  | Update the entity map |
+| `$class` | **string**  | Overwrite the class |
 
 
 
