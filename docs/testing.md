@@ -23,9 +23,7 @@ For testing you need to be able to inject a mock object into your code. We assum
 
 The production bootstrap could look like this:
 
-```php
-<?php
-
+```php?start_inline=true
 $di = new DependencyInjector();
 
 $di->set('config', function () {
@@ -45,9 +43,7 @@ $di->set('entityManager', function () use ($di) {
 
 In the `setUp()` method for your test case you have to mock the access to the database:
 
-```php
-<?php
-
+```php?start_inline=true
 abstract class TestCase extends MockeryTestCase
 {
     use \ORM\MockTrait;
@@ -91,9 +87,7 @@ the orignal object is wrapped but the magic getter not.
 You have to initialize the object without using the original constructor, set the entity manager manually, set the
 original data and reset the entity. We created a helper for this to make it easier.
 
-```php
-<?php
-
+```php?start_inline=true
 class ArticleControllerTest extends TestCase
 {
     public function testMockEntity()
@@ -135,9 +129,7 @@ makes two calls methods on `EntiyManager` for a new `Entiy`:
 
 For an easier use we provide a method to expect exactly this. You can use it as follows:
 
-```php
-<?php
-
+```php?start_inline=true
 // the function that creates the entity
 function createArticle($title)
 {
@@ -183,9 +175,7 @@ For mocking an `EntityFetcher` the procedure will be more complicated. Therefore
 like a real `EntityFetcher` by default. This method returns the mock from `EntityFetcher` this way you can expect
 specific calls.
 
-```php
-<?php
-
+```php?start_inline=true
 // the function that reads one article
 function getArticle($id)
 {
@@ -266,9 +256,7 @@ But it might be neccessary that the entity is not dirty afterwards, to emulate t
 and the entity got new data while updated (triggers like `ON UPDATE CURRENT TIMESTAMP`). To make the save method act
 like the original method act (without using the database) there is a helper method for it. 
 
-```php
-<?php
-
+```php?start_inline=true
 function updateArticle($id, $newTitle)
 {
     $article = $GLOBALS['di']->get('entityManager')->fetch(Article::class, $id);
@@ -310,9 +298,7 @@ When you deleting an Entity you will have to know which entity will come or at l
 expect delete with `$em->shouldReceive('delete')->with($entity)->once()->andReturn(true)`. The helper for it just
 removes the the original data like the delete method generally does.
 
-```php
-<?php
-
+```php?start_inline=true
 function deleteArticle($id)
 {
     $em = $GLOBALS['di']->get('entityManager');
@@ -349,9 +335,7 @@ the relation name as first and `true` as second parameter. It has to return an a
 to the definition of the relation. If you expecting fetch without the second parameter you can use the `ormExpectFetch`
 helper.
 
-```php
-<?php
-
+```php?start_inline=true
 function getArticleCategories($articleId)
 {
     $em = $GLOBALS['di']->get('entityManager');

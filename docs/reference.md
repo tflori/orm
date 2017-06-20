@@ -638,7 +638,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ```php?start_inline=true
 public function __construct(
-    \ORM\EntityManager $entityManager, $options = array()
+    \ORM\EntityManager $entityManager, array $options = array()
 ): Dbal
 ```
 
@@ -655,7 +655,7 @@ public function __construct(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
-| `$options` |   |  |
+| `$options` | **array**  |  |
 
 
 
@@ -3288,13 +3288,13 @@ Without $primaryKey it creates an entityFetcher and returns this.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\NoEntity**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$class` | **string &#124; Entity**  | The entity class you want to fetch |
+| `$class` | **string**  | The entity class you want to fetch |
 | `$primaryKey` | **mixed**  | The primary key of the entity you want to fetch |
 
 
@@ -3706,7 +3706,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
+#### Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -3818,7 +3818,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### InvalidJson Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -3864,7 +3864,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -3979,6 +3978,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Relation](#ormrelation)
 
 
+#### ManyToMany Relation
 
 
 
@@ -4391,7 +4391,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 ```php?start_inline=true
 public function __construct(
-    \ORM\EntityManager $entityManager, $options = array()
+    \ORM\EntityManager $entityManager, array $options = array()
 ): Dbal
 ```
 
@@ -4408,7 +4408,7 @@ public function __construct(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
-| `$options` |   |  |
+| `$options` | **array**  |  |
 
 
 
@@ -5087,7 +5087,7 @@ $values is a key value pair array. The value should be a string or an array o
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NoBoolean Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5133,7 +5133,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NoDateTime Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5179,7 +5179,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5196,7 +5195,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NoNumber Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5226,7 +5225,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5243,7 +5241,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NoString Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5273,7 +5271,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NotAllowed Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5303,7 +5301,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NoTime Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5349,7 +5347,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NotNullable Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5422,7 +5420,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### NotValid Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -5580,6 +5578,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Relation](#ormrelation)
 
 
+#### OneToMany Relation
 
 
 
@@ -5928,6 +5927,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 **Extends:** [ORM\Relation\OneToMany](#ormrelationonetomany)
 
 
+#### OneToOne Relation
 
 
 
@@ -6304,6 +6304,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 **Extends:** [ORM\Relation](#ormrelation)
 
 
+#### Owner Relation
 
 
 
@@ -7208,7 +7209,7 @@ where('name = ?', ['John Doe'])
 
 ```php?start_inline=true
 public function __construct(
-    \ORM\EntityManager $entityManager, $options = array()
+    \ORM\EntityManager $entityManager, array $options = array()
 ): Dbal
 ```
 
@@ -7225,7 +7226,7 @@ public function __construct(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
-| `$options` |   |  |
+| `$options` | **array**  |  |
 
 
 
@@ -8894,6 +8895,7 @@ where('name = ?', ['John Doe'])
 
 
 
+#### Base Relation
 
 
 
@@ -9418,7 +9420,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ```php?start_inline=true
 public function __construct(
-    \ORM\EntityManager $entityManager, $options = array()
+    \ORM\EntityManager $entityManager, array $options = array()
 ): Dbal
 ```
 
@@ -9435,7 +9437,7 @@ public function __construct(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entityManager` | **\ORM\EntityManager**  |  |
-| `$options` |   |  |
+| `$options` | **array**  |  |
 
 
 
@@ -9764,7 +9766,7 @@ public function insert(
 
 ```php?start_inline=true
 protected function normalizeColumnDefinition(
-    array $rawColumn, $hasMultiplePrimaryKey = false
+    array $rawColumn, boolean $hasMultiplePrimaryKey = false
 ): array
 ```
 
@@ -9783,7 +9785,7 @@ ANSI-SQL style.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$rawColumn` | **array**  |  |
-| `$hasMultiplePrimaryKey` |   |  |
+| `$hasMultiplePrimaryKey` | **boolean**  |  |
 
 
 
@@ -10134,7 +10136,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Dbal\Error](#ormdbalerror)
 
 
-#### Base exception for ORM
+#### TooLong Validation Error
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -10335,7 +10337,6 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
@@ -10369,7 +10370,6 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 **Extends:** [ORM\Exception](#ormexception)
 
 
-#### Base exception for ORM
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
