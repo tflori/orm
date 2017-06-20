@@ -3,17 +3,32 @@
 namespace ORM\Test\Entity;
 
 use Mockery\Mock;
+use ORM\Dbal\Column;
+use ORM\Dbal\Error\NoString;
+use ORM\Dbal\Error\NotNullable;
+use ORM\Dbal\Error\NotValid;
+use ORM\Dbal\Table;
+use ORM\Dbal\Type\Number;
 use ORM\Entity;
-use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exception;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\UnknownColumn;
+use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\Entity\Examples\TestEntity;
+use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase
 {
+    public function tearDown()
+    {
+        StudlyCaps::disableValidator();
+        parent::tearDown();
+    }
+
 
     public function testOnChangeGetCalled()
     {
@@ -80,6 +95,7 @@ class DataTest extends TestCase
 
     public function testCallsGetRelatedWhenThereIsARelationButNoValue()
     {
+        /** @var Entity|Mock $entity */
         $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
@@ -98,18 +114,6 @@ class DataTest extends TestCase
         $mock->shouldReceive('get_another_var')->atLeast()->once();
 
         $mock->another_var = 'foobar';
-    }
-
-    public function testDoesNotAllowToChangeNamingSchemeAfterUsage()
-    {
-        TestEntity::setNamingSchemeMethods('snake_lower');
-        $entity = new Snake_Ucfirst();
-        $entity->anotherVar = 'foobar';
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Naming scheme can not be changed afterwards');
-
-        TestEntity::setNamingSchemeMethods('camelCase');
     }
 
     public function testGetsInitialDataOverConstructor()
@@ -288,5 +292,146 @@ class DataTest extends TestCase
         $entity->shouldReceive('onInit')->with(false)->once();
 
         $entity->unserialize(serialize([['foo' => 'bar'],[]]));
+    }
+
+    public function testDoesNotValidateValues()
+    {
+        $this->mocks['em']->shouldNotReceive('describe');
+
+        $entity = new StudlyCaps();
+        $entity->title = 42;
+    }
+
+    public function testValidatesValues()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->once()->andReturn($table);
+        $table->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
+
+        $entity = new StudlyCaps();
+        $entity->title = 'Hello World!';
+    }
+
+    public function testSetThrowsForUnknownColumns()
+    {
+        StudlyCaps::enableValidator();
+        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Unknown column title');
+
+        $entity = new StudlyCaps();
+        $entity->title = 'Hello World!';
+    }
+
+    public function testSetThrowsForInvalidValues()
+    {
+        StudlyCaps::enableValidator();
+        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->with('title', 42)->andReturn(new NotValid(
+            new Column($this->dbal, ['column_name' => 'title']),
+            new NoString(['type' => 'varchar'])
+        ));
+
+        self::expectException(NotValid::class);
+        self::expectExceptionMessage('Value not valid for title');
+
+        $entity = new StudlyCaps();
+        $entity->title = 42;
+    }
+
+    public function testFillPassesToSetAndValidates()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->with('field_a', 'valueA')->once()->andReturn(true);
+        $table->shouldReceive('validate')->with('field_b', 'valueB')->once()->andReturn(true);
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ]);
+    }
+
+    public function testFillCanIgnoreUnknownColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->twice()->andThrow(UnknownColumn::class, 'unknown column');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ], true);
+    }
+
+    public function testFillThrowsForUnknownColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class);
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+        $table->shouldReceive('validate')->once()->andThrow(UnknownColumn::class, 'Unknown column field_a');
+
+        self::expectException(UnknownColumn::class);
+        self::expectExceptionMessage('Unknown column field_a');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'fieldA' => 'valueA',
+            'fieldB' => 'valueB'
+        ]);
+    }
+
+    public function testFillThrowsForMissingColumns()
+    {
+        StudlyCaps::enableValidator();
+
+        $table = \Mockery::mock(Table::class, [[
+            // id is auto increment
+            new Column($this->dbal, [
+                'column_name' => 'id',
+                'column_default' => 'sequence(AUTO_INCREMENT)',
+                'is_nullable' => false
+            ]),
+            // title is missing
+            new Column($this->dbal, [
+                'column_name' => 'title',
+                'column_default' => null,
+                'is_nullable' => false
+            ]),
+            // intro is nullable
+            new Column($this->dbal, [
+                'column_name' => 'intro',
+                'column_default' => null,
+                'is_nullable' => true
+            ]),
+            // user (writer) is given
+            new Column($this->dbal, [
+                'column_name' => 'user_id',
+                'column_default' => null,
+                'is_nullable' => false,
+                'type' => Number::class,
+            ]),
+        ]])->makePartial();
+        $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
+
+        self::expectException(NotNullable::class);
+        self::expectExceptionMessage('title does not allow null values');
+
+        $entity = new StudlyCaps();
+        $entity->fill([
+            'userId' => 23
+        ], false, true);
     }
 }

@@ -21,7 +21,7 @@ class ManyToManyTest extends TestCase
     {
         $entity = new Article(['id' => 42]);
 
-        $fetcher = $entity->fetch('categories', $this->em);
+        $fetcher = $entity->fetch('categories');
 
         self::assertInstanceOf(EntityFetcher::class, $fetcher);
     }
@@ -56,7 +56,7 @@ class ManyToManyTest extends TestCase
     {
         $entity = new Article([], $this->em);
 
-        self::expectException(\ORM\Exceptions\IncompletePrimaryKey::class);
+        self::expectException(\ORM\Exception\IncompletePrimaryKey::class);
         self::expectExceptionMessage('Key incomplete for join');
 
         $entity->fetch('categories');
@@ -79,7 +79,7 @@ class ManyToManyTest extends TestCase
                   ->once()->andReturn($statement);
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_NUM)->once()->andReturn($ids);
 
-        $result = $entity->fetch('categories', null, true);
+        $result = $entity->fetch('categories', true);
 
         self::assertSame($related, $result);
     }

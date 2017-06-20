@@ -6,7 +6,7 @@ namespace ORM\QueryBuilder;
  * Class Parenthesis
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class Parenthesis implements ParenthesisInterface
 {
@@ -34,8 +34,8 @@ class Parenthesis implements ParenthesisInterface
         callable $onClose,
         ParenthesisInterface $parent
     ) {
-        $this->onClose       = $onClose;
-        $this->parent        = $parent;
+        $this->onClose = $onClose;
+        $this->parent  = $parent;
     }
 
     /**
@@ -85,11 +85,14 @@ class Parenthesis implements ParenthesisInterface
     /** {@inheritdoc} */
     public function andParenthesis()
     {
-        $parenthesis = new Parenthesis(function (ParenthesisInterface $parenthesis) {
-            $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getExpression();
+        $parenthesis = new Parenthesis(
+            function (ParenthesisInterface $parenthesis) {
+                $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getExpression();
 
-            return $this;
-        }, $this);
+                return $this;
+            },
+            $this
+        );
 
         return $parenthesis;
     }
@@ -97,11 +100,14 @@ class Parenthesis implements ParenthesisInterface
     /** {@inheritdoc} */
     public function orParenthesis()
     {
-        $parenthesis = new Parenthesis(function (ParenthesisInterface $parenthesis) {
-            $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getExpression();
+        $parenthesis = new Parenthesis(
+            function (ParenthesisInterface $parenthesis) {
+                $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getExpression();
 
-            return $this;
-        }, $this);
+                return $this;
+            },
+            $this
+        );
 
         return $parenthesis;
     }

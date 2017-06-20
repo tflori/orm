@@ -3,8 +3,8 @@
 namespace ORM\Test\EntityManager;
 
 use ORM\EntityFetcher;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\NoEntity;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\NoEntity;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\StudlyCaps;

@@ -18,7 +18,7 @@ $em->getConnection()->query("DROP TABLE IF EXISTS user");
 
 $em->getConnection()->query("CREATE TABLE user (
   id INTEGER NOT NULL PRIMARY KEY,
-  username VARCHAR (50) NOT NULL,
+  username VARCHAR (20) NOT NULL,
   password VARCHAR (32) NOT NULL
 )");
 
@@ -119,3 +119,13 @@ $user2 = $em->map(new User(['id' => 1]));
 $user3 = $em->fetch(User::class, 1); // returns $user2
 $user4 = $em->map(new User(['id' => '1']));
 var_dump($user1->username, $user2->username, $user3 === $user2, $user1 === $user4);
+
+/********************************
+ * Validate data for a new user *
+ ********************************/
+$data = [
+    'username' => 'This username is way to long for a username',
+    'password' => null // null is not allowed
+];
+$result = User::validateArray($data);
+echo $result['username']->getMessage() . "\n" . $result['password']->getMessage() . "\n";

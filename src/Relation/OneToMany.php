@@ -5,9 +5,15 @@ namespace ORM\Relation;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\Exceptions\InvalidConfiguration;
+use ORM\Exception\InvalidConfiguration;
 use ORM\Relation;
 
+/**
+ * OneToMany Relation
+ *
+ * @package ORM\Relation
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class OneToMany extends Relation
 {
     /**
@@ -19,8 +25,8 @@ class OneToMany extends Relation
      */
     public function __construct($name, $class, $opponent)
     {
-        $this->name = $name;
-        $this->class = $class;
+        $this->name     = $name;
+        $this->class    = $class;
         $this->opponent = $opponent;
     }
 
@@ -50,6 +56,6 @@ class OneToMany extends Relation
             $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
         }
 
-        call_user_func([$fetcher, $join], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
     }
 }

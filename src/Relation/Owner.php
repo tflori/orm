@@ -5,10 +5,16 @@ namespace ORM\Relation;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\Exceptions\IncompletePrimaryKey;
-use ORM\Exceptions\InvalidRelation;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidRelation;
 use ORM\Relation;
 
+/**
+ * Owner Relation
+ *
+ * @package ORM\Relation
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Owner extends Relation
 {
     /** Reference definition as key value pairs
@@ -24,15 +30,15 @@ class Owner extends Relation
      */
     public function __construct($name, $class, array $reference)
     {
-        $this->name = $name;
-        $this->class = $class;
+        $this->name      = $name;
+        $this->class     = $class;
         $this->reference = $reference;
     }
 
     /** {@inheritdoc} */
     public function fetch(Entity $me, EntityManager $entityManager)
     {
-        $key = array_map([$me, '__get'], array_keys($this->reference));
+        $key = array_map([ $me, '__get' ], array_keys($this->reference));
 
         if (in_array(null, $key)) {
             return null;
@@ -48,19 +54,19 @@ class Owner extends Relation
             throw new InvalidRelation('Invalid entity for relation ' . $this->name);
         }
 
-        foreach ($this->reference as $fkVar => $var) {
+        foreach ($this->reference as $fkAttribute => $attribute) {
             if ($entity === null) {
-                $me->__set($fkVar, null);
+                $me->__set($fkAttribute, null);
                 continue;
             }
 
-            $value = $entity->__get($var);
+            $value = $entity->__get($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
-            $me->__set($fkVar, $value);
+            $me->__set($fkAttribute, $value);
         }
     }
 
@@ -72,6 +78,6 @@ class Owner extends Relation
             $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
         }
 
-        call_user_func([$fetcher, $join], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
     }
 }

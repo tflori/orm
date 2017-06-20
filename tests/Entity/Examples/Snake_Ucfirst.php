@@ -2,6 +2,8 @@
 
 namespace ORM\Test\Entity\Examples;
 
+use ORM\Test\TestEntity;
+
 class Snake_Ucfirst extends TestEntity
 {
     protected static $primaryKey = 'My_Key';

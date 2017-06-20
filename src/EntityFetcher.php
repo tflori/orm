@@ -2,7 +2,7 @@
 
 namespace ORM;
 
-use ORM\Exceptions\NotJoined;
+use ORM\Exception\NotJoined;
 use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\QueryBuilderInterface;
@@ -24,7 +24,7 @@ use ORM\QueryBuilder\QueryBuilderInterface;
  *  - modifiers
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class EntityFetcher extends QueryBuilder
 {
@@ -53,8 +53,8 @@ class EntityFetcher extends QueryBuilder
      *
      * @param EntityManager $entityManager EntityManager where to store the fetched entities
      * @param Entity|string $class         Class to fetch
-     * @throws Exceptions\InvalidConfiguration
-     * @throws Exceptions\InvalidName
+     * @throws Exception\InvalidConfiguration
+     * @throws Exception\InvalidName
      */
     public function __construct(EntityManager $entityManager, $class)
     {
@@ -62,12 +62,12 @@ class EntityFetcher extends QueryBuilder
         $this->class         = $class;
 
         $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
-        $this->alias = 't0';
-        $this->columns = ['t0.*'];
-        $this->modifier = ['DISTINCT'];
+        $this->alias     = 't0';
+        $this->columns   = [ 't0.*' ];
+        $this->modifier  = [ 'DISTINCT' ];
 
         $this->classMapping['byClass'][$class] = 't0';
-        $this->classMapping['byAlias']['t0'] = $class;
+        $this->classMapping['byAlias']['t0']   = $class;
     }
 
     /** @return self
@@ -96,8 +96,8 @@ class EntityFetcher extends QueryBuilder
      * @param array|mixed $args          Argument(s) to insert
      * @param bool        $translateCols Whether or not column names should be translated
      * @return string
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NotScalar
+     * @throws Exception\NoConnection
+     * @throws Exception\NotScalar
      */
     protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
@@ -152,10 +152,10 @@ class EntityFetcher extends QueryBuilder
      * @param array|mixed $args       Arguments to use in $expression
      * @param bool        $empty      Create an empty join (without USING and ON)
      * @return EntityFetcher|ParenthesisInterface
-     * @throws Exceptions\InvalidConfiguration
-     * @throws Exceptions\InvalidName
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NotScalar
+     * @throws Exception\InvalidConfiguration
+     * @throws Exception\InvalidName
+     * @throws Exception\NoConnection
+     * @throws Exception\NotScalar
      * @internal
      */
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
@@ -163,7 +163,7 @@ class EntityFetcher extends QueryBuilder
         if (class_exists($class)) {
             /** @var Entity|string $class */
             $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
-            $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
+            $alias     = $alias ?: 't' . count($this->classMapping['byAlias']);
 
             $this->classMapping['byClass'][$class] = $alias;
             $this->classMapping['byAlias'][$alias] = $class;
@@ -171,14 +171,7 @@ class EntityFetcher extends QueryBuilder
             $tableName = $class;
         }
 
-        return parent::createJoin(
-            $join,
-            $tableName,
-            $expression,
-            $alias,
-            $args,
-            $empty
-        );
+        return parent::createJoin($join, $tableName, $expression, $alias, $args, $empty);
     }
 
     /**
@@ -198,7 +191,7 @@ class EntityFetcher extends QueryBuilder
             $alias = $this->alias;
         }
 
-        call_user_func([$class, 'getRelation'], $relation)->addJoin($this, $join, $alias);
+        call_user_func([ $class, 'getRelation' ], $relation)->addJoin($this, $join, $alias);
         return $this;
     }
 
@@ -231,9 +224,9 @@ class EntityFetcher extends QueryBuilder
      * If there is no more entity in the result set it returns null.
      *
      * @return Entity
-     * @throws Exceptions\IncompletePrimaryKey
-     * @throws Exceptions\InvalidConfiguration
-     * @throws Exceptions\NoConnection
+     * @throws Exception\IncompletePrimaryKey
+     * @throws Exception\InvalidConfiguration
+     * @throws Exception\NoConnection
      */
     public function one()
     {
@@ -270,9 +263,9 @@ class EntityFetcher extends QueryBuilder
      *
      * @param int $limit Maximum number of entities to fetch
      * @return Entity[]
-     * @throws Exceptions\IncompletePrimaryKey
-     * @throws Exceptions\InvalidConfiguration
-     * @throws Exceptions\NoConnection
+     * @throws Exception\IncompletePrimaryKey
+     * @throws Exception\InvalidConfiguration
+     * @throws Exception\NoConnection
      */
     public function all($limit = 0)
     {
@@ -288,16 +281,21 @@ class EntityFetcher extends QueryBuilder
         return $result;
     }
 
+    /**
+     * Get the count of the resulting items
+     *
+     * @return int
+     */
     public function count()
     {
         // set the columns and reset after get query
-        $this->columns = ['COUNT(DISTINCT t0.*)'];
+        $this->columns  = [ 'COUNT(DISTINCT t0.*)' ];
         $this->modifier = [];
-        $query = $this->getQuery();
-        $this->columns = ['t0.*'];
-        $this->modifier = ['DISTINCT'];
+        $query          = $this->getQuery();
+        $this->columns  = [ 't0.*' ];
+        $this->modifier = [ 'DISTINCT' ];
 
-        return (int)$this->entityManager->getConnection()->query($query)->fetchColumn();
+        return (int) $this->entityManager->getConnection()->query($query)->fetchColumn();
     }
 
     /**
@@ -309,7 +307,7 @@ class EntityFetcher extends QueryBuilder
      * change the result.
      *
      * @return \PDOStatement
-     * @throws Exceptions\NoConnection
+     * @throws Exception\NoConnection
      */
     private function getStatement()
     {
@@ -323,7 +321,7 @@ class EntityFetcher extends QueryBuilder
     public function getQuery()
     {
         if ($this->query) {
-            return $this->query instanceof  QueryBuilderInterface ? $this->query->getQuery() : $this->query;
+            return $this->query instanceof QueryBuilderInterface ? $this->query->getQuery() : $this->query;
         }
         return parent::getQuery();
     }
@@ -336,8 +334,8 @@ class EntityFetcher extends QueryBuilder
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders
      * @return $this
-     * @throws Exceptions\NoConnection
-     * @throws Exceptions\NotScalar
+     * @throws Exception\NoConnection
+     * @throws Exception\NotScalar
      */
     public function setQuery($query, $args = null)
     {

@@ -2,18 +2,15 @@
 
 namespace ORM\QueryBuilder;
 
-use ORM\QueryBuilder\ParenthesisInterface;
-use ORM\QueryBuilder\QueryBuilder;
-
 /**
  * Interface QueryBuilderInterface
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 interface QueryBuilderInterface extends ParenthesisInterface
 {
-    const DIRECTION_ASCENDING = 'ASC';
+    const DIRECTION_ASCENDING  = 'ASC';
     const DIRECTION_DESCENDING = 'DESC';
 
     /**
