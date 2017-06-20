@@ -12,6 +12,7 @@ use ReflectionClass;
  * Namer is an artificial word and is more a name giver. We just don't wanted to write so much.
  *
  * @package ORM
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class Namer
 {
@@ -53,7 +54,7 @@ class Namer
      * Set $option to $value
      *
      * @param string $option
-     * @param mixed $value
+     * @param mixed  $value
      * @return self
      */
     public function setOption($option, $value)
@@ -101,11 +102,15 @@ class Namer
 
             $reflection = new ReflectionClass($class);
 
-            $name = $this->substitute($template, [
+            $name = $this->substitute(
+                $template,
+                [
                     'short'     => $reflection->getShortName(),
                     'namespace' => explode('\\', $reflection->getNamespaceName()),
                     'name'      => preg_split('/[\\\\_]+/', $reflection->name),
-                ], '_');
+                ],
+                '_'
+            );
 
             if (empty($name)) {
                 throw new InvalidName('Table name can not be empty');
@@ -252,7 +257,7 @@ class Namer
      * Get the value for $attribute from $values using $arrayGlue
      *
      * @param string $attribute The key for $values
-     * @param array $values
+     * @param array  $values
      * @param string $arrayGlue
      * @return string
      * @throws InvalidConfiguration
@@ -261,7 +266,7 @@ class Namer
     {
         $placeholder = '%' . $attribute . '%';
         if (preg_match('/\[(-?\d+\*?)\]$/', $attribute, $arrayAccessor)) {
-            $attribute = substr($attribute, 0, strpos($attribute, '['));
+            $attribute     = substr($attribute, 0, strpos($attribute, '['));
             $arrayAccessor = $arrayAccessor[1];
         } else {
             $arrayAccessor = '';
@@ -275,7 +280,7 @@ class Namer
         }
 
         if (is_scalar($values[$attribute]) || is_null($values[$attribute])) {
-            return (string)$values[$attribute];
+            return (string) $values[$attribute];
         }
 
         return $this->arrayToString($values[$attribute], $arrayAccessor, $arrayGlue);
@@ -284,7 +289,7 @@ class Namer
     /**
      * Convert array to string using indexes defined by $accessor
      *
-     * @param array $array
+     * @param array  $array
      * @param string $accessor
      * @param string $glue
      * @return string
@@ -293,14 +298,14 @@ class Namer
     {
         if (isset($accessor[0])) {
             $from = $accessor[0] === '-' ?
-                count($array) - abs($accessor) : (int)$accessor;
+                count($array) - abs($accessor) : (int) $accessor;
 
             if ($from >= count($array)) {
                 return '';
             }
 
             $array = substr($accessor, -1) === '*' ?
-                array_slice($array, $from) : [$array[$from]];
+                array_slice($array, $from) : [ $array[$from] ];
         }
 
         return implode($glue, $array);

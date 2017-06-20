@@ -33,8 +33,9 @@ abstract class Dbal
      * Dbal constructor.
      *
      * @param EntityManager $entityManager
+     * @param array         $options
      */
-    public function __construct(EntityManager $entityManager, $options = [])
+    public function __construct(EntityManager $entityManager, array $options = [])
     {
         $this->entityManager = $entityManager;
 
@@ -47,7 +48,7 @@ abstract class Dbal
      * Set $option to $value
      *
      * @param string $option
-     * @param mixed $value
+     * @param mixed  $value
      * @return self
      */
     public function setOption($option, $value)
@@ -88,14 +89,14 @@ abstract class Dbal
     /**
      * Returns $value formatted to use in a sql statement.
      *
-     * @param  mixed  $value The variable that should be returned in SQL syntax
+     * @param  mixed $value The variable that should be returned in SQL syntax
      * @return string
      * @throws NotScalar
      */
     public function escapeValue($value)
     {
-        $type = is_object($value) ? get_class($value) : gettype($value);
-        $method = [$this, 'escape' . ucfirst($type)];
+        $type   = is_object($value) ? get_class($value) : gettype($value);
+        $method = [ $this, 'escape' . ucfirst($type) ];
 
         if (is_callable($method)) {
             return call_user_func($method, $value);
@@ -145,12 +146,12 @@ abstract class Dbal
      */
     public function update(Entity $entity)
     {
-        $data = $entity->getData();
+        $data       = $entity->getData();
         $primaryKey = $entity->getPrimaryKey();
 
         $where = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col = $entity::getColumnName($attribute);
+            $col     = $entity::getColumnName($attribute);
             $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
             if (isset($data[$col])) {
                 unset($data[$col]);
@@ -181,9 +182,9 @@ abstract class Dbal
     public function delete(Entity $entity)
     {
         $primaryKey = $entity->getPrimaryKey();
-        $where = [];
+        $where      = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col = $entity::getColumnName($attribute);
+            $col     = $entity::getColumnName($attribute);
             $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
         }
 
@@ -204,13 +205,19 @@ abstract class Dbal
     {
         $data = $entity->getData();
 
-        $cols = array_map(function ($key) {
-            return $this->escapeIdentifier($key);
-        }, array_keys($data));
+        $cols = array_map(
+            function ($key) {
+                return $this->escapeIdentifier($key);
+            },
+            array_keys($data)
+        );
 
-        $values = array_map(function ($value) use ($entity) {
-            return $this->escapeValue($value);
-        }, array_values($data));
+        $values = array_map(
+            function ($value) use ($entity) {
+                return $this->escapeValue($value);
+            },
+            array_values($data)
+        );
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
@@ -226,12 +233,10 @@ abstract class Dbal
      */
     protected function updateAutoincrement(Entity $entity, $value)
     {
-        $var = $entity::getPrimaryKeyVars()[0];
+        $var    = $entity::getPrimaryKeyVars()[0];
         $column = $entity::getColumnName($var);
 
-        $entity->setOriginalData(array_merge($entity->getData(), [
-            $column => $value
-        ]));
+        $entity->setOriginalData(array_merge($entity->getData(), [ $column => $value ]));
         $entity->__set($var, $value);
     }
 

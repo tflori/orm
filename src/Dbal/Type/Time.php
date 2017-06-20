@@ -32,7 +32,7 @@ class Time extends DateTime
                 return new Error([], 'DATETIME', 'DateTime is not allowed for time');
             }
 
-            return new NoTime([ 'value' => (string)$value ]);
+            return new NoTime([ 'value' => (string) $value ]);
         }
 
         return true;

@@ -9,6 +9,12 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
 use ORM\Relation;
 
+/**
+ * Owner Relation
+ *
+ * @package ORM\Relation
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Owner extends Relation
 {
     /** Reference definition as key value pairs
@@ -24,15 +30,15 @@ class Owner extends Relation
      */
     public function __construct($name, $class, array $reference)
     {
-        $this->name = $name;
-        $this->class = $class;
+        $this->name      = $name;
+        $this->class     = $class;
         $this->reference = $reference;
     }
 
     /** {@inheritdoc} */
     public function fetch(Entity $me, EntityManager $entityManager)
     {
-        $key = array_map([$me, '__get'], array_keys($this->reference));
+        $key = array_map([ $me, '__get' ], array_keys($this->reference));
 
         if (in_array(null, $key)) {
             return null;
@@ -72,6 +78,6 @@ class Owner extends Relation
             $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
         }
 
-        call_user_func([$fetcher, $join], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
     }
 }

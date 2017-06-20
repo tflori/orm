@@ -10,6 +10,12 @@ use ORM\Exception\InvalidRelation;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Relation;
 
+/**
+ * ManyToMany Relation
+ *
+ * @package ORM\Relation
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class ManyToMany extends Relation
 {
     /** The table that holds the foreign keys
@@ -27,11 +33,11 @@ class ManyToMany extends Relation
      */
     public function __construct($name, $class, array $reference, $opponent, $table)
     {
-        $this->name = $name;
-        $this->class = $class;
-        $this->opponent = $opponent;
+        $this->name      = $name;
+        $this->class     = $class;
+        $this->opponent  = $opponent;
         $this->reference = $reference;
-        $this->table = $table;
+        $this->table     = $table;
     }
 
     /**
@@ -49,7 +55,7 @@ class ManyToMany extends Relation
         $foreignKey = $this->getForeignKey($me, $this->reference);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
-        $table = $entityManager->escapeIdentifier($this->table);
+        $table   = $entityManager->escapeIdentifier($this->table);
 
         $expression = [];
         foreach ($this->getOpponent()->getReference() as $t0Var => $fkCol) {
@@ -68,7 +74,7 @@ class ManyToMany extends Relation
     public function fetchAll(Entity $me, EntityManager $entityManager)
     {
         $foreignKey = $this->getForeignKey($me, $this->reference);
-        $table = $entityManager->escapeIdentifier($this->table);
+        $table      = $entityManager->escapeIdentifier($this->table);
 
         $query = new QueryBuilder($table, '', $entityManager);
 
@@ -80,7 +86,7 @@ class ManyToMany extends Relation
             $query->where($entityManager->escapeIdentifier($col), $value);
         }
 
-        $result = $entityManager->getConnection()->query($query->getQuery());
+        $result      = $entityManager->getConnection()->query($query->getQuery());
         $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
 
         /** @var Entity[] $result */
@@ -103,11 +109,11 @@ class ManyToMany extends Relation
 
         $table = $entityManager->escapeIdentifier($this->table);
 
-        $cols = [];
+        $cols            = [];
         $baseAssociation = [];
         foreach ($this->reference as $myVar => $fkCol) {
-            $cols[]            = $entityManager->escapeIdentifier($fkCol);
-            $value             = $me->__get($myVar);
+            $cols[] = $entityManager->escapeIdentifier($fkCol);
+            $value  = $me->__get($myVar);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
@@ -199,7 +205,7 @@ class ManyToMany extends Relation
                             $table . '.' . $fetcher->getEntityManager()->escapeIdentifier($col);
         }
 
-        call_user_func([$fetcher, $join], $table, implode(' AND ', $expression), null, [], true);
+        call_user_func([ $fetcher, $join ], $table, implode(' AND ', $expression), null, [], true);
 
         $expression = [];
         foreach ($this->getOpponent()->getReference() as $hisVar => $col) {
@@ -207,6 +213,6 @@ class ManyToMany extends Relation
                             ' = ' . $this->name . '.' . $hisVar;
         }
 
-        call_user_func([$fetcher, $join], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
     }
 }

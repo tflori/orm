@@ -6,13 +6,14 @@ namespace ORM\Dbal;
  * Interface TypeInterface
  *
  * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 interface TypeInterface
 {
     /**
      * Create Type class for given $dbal and $columnDefinition
      *
-     * @param Dbal $dbal
+     * @param Dbal  $dbal
      * @param array $columnDefinition
      * @return Type
      */

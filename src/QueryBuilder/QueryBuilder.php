@@ -3,7 +3,6 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
-use ORM\Exception;
 use ORM\Exception\NoOperator;
 
 /**
@@ -22,7 +21,7 @@ use ORM\Exception\NoOperator;
  *  - limit and offset
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
@@ -84,8 +83,8 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      */
     public function __construct($tableName, $alias = '', EntityManager $entityManager = null)
     {
-        $this->tableName = $tableName;
-        $this->alias = $alias;
+        $this->tableName     = $tableName;
+        $this->alias         = $alias;
         $this->entityManager = $entityManager;
     }
 
@@ -107,10 +106,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         }
 
         if (!is_array($args)) {
-            $args = [$args];
+            $args = [ $args ];
         }
 
-        $parts = explode('?', $expression);
+        $parts      = explode('?', $expression);
         $expression = '';
         while ($part = array_shift($parts)) {
             $expression .= $part;
@@ -151,7 +150,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $expression = $column;
         } else {
             if ($value === null) {
-                $value = $operator;
+                $value    = $operator;
                 $operator = null;
             }
 
@@ -165,10 +164,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 
     private function buildExpression($column, $value, $operator = null)
     {
-        $operator = $operator ?: $this->getDefaultOperator($value);
+        $operator   = $operator ?: $this->getDefaultOperator($value);
         $expression = $column . ' ' . $operator;
 
-        if (in_array(strtoupper($operator), ['IN', 'NOT IN']) && is_array($value)) {
+        if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ]) && is_array($value)) {
             $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
         } else {
             $expression .= ' ?';
@@ -235,21 +234,24 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 . ($alias ? ' AS ' . $alias : '');
 
         if (preg_match('/^[A-Za-z_]+$/', $expression)) {
-            $join .= ' USING (' . $expression . ')';
+            $join          .= ' USING (' . $expression . ')';
             $this->joins[] = $join;
         } elseif ($expression) {
             $expression = $this->convertPlaceholders($expression, $args);
 
-            $join .= ' ON ' . $expression;
+            $join          .= ' ON ' . $expression;
             $this->joins[] = $join;
         } elseif ($empty) {
             $this->joins[] = $join;
         } else {
-            return new Parenthesis(function (ParenthesisInterface $parenthesis) use ($join) {
-                $join .= ' ON ' . $parenthesis->getExpression();
-                $this->joins[] = $join;
-                return $this;
-            }, $this);
+            return new Parenthesis(
+                function (ParenthesisInterface $parenthesis) use ($join) {
+                    $join          .= ' ON ' . $parenthesis->getExpression();
+                    $this->joins[] = $join;
+                    return $this;
+                },
+                $this
+            );
         }
 
         return $this;

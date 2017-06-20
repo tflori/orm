@@ -2,35 +2,33 @@
 
 namespace ORM;
 
-use ORM\Dbal\Dbal;
 use ORM\Dbal\Column;
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
-use ORM\Exception\NotScalar;
-use ORM\Exception\UnsupportedDriver;
 
 /**
  * The EntityManager that manages the instances of Entities.
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class EntityManager
 {
-    const OPT_CONNECTION = 'connection';
-    const OPT_TABLE_NAME_TEMPLATE = 'tableNameTemplate';
-    const OPT_NAMING_SCHEME_TABLE = 'namingSchemeTable';
-    const OPT_NAMING_SCHEME_COLUMN = 'namingSchemeColumn';
+    const OPT_CONNECTION            = 'connection';
+    const OPT_TABLE_NAME_TEMPLATE   = 'tableNameTemplate';
+    const OPT_NAMING_SCHEME_TABLE   = 'namingSchemeTable';
+    const OPT_NAMING_SCHEME_COLUMN  = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS = 'namingSchemeMethods';
-    const OPT_QUOTING_CHARACTER = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER = 'identifierDivider';
-    const OPT_BOOLEAN_TRUE = 'true';
-    const OPT_BOOLEAN_FALSE = 'false';
-    const OPT_DBAL_CLASS = 'dbalClass';
+    const OPT_QUOTING_CHARACTER     = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER    = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE          = 'true';
+    const OPT_BOOLEAN_FALSE         = 'false';
+    const OPT_DBAL_CLASS            = 'dbalClass';
 
     /** @deprecated */
     const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
@@ -72,10 +70,10 @@ class EntityManager
     /** Mapping for EntityManager instances
      * @var EntityManager[string]|EntityManager[string][string] */
     protected static $emMapping = [
-        'byClass' => [],
+        'byClass'     => [],
         'byNameSpace' => [],
-        'byParent' => [],
-        'last' => null,
+        'byParent'    => [],
+        'last'        => null,
     ];
 
     /**
@@ -276,7 +274,7 @@ class EntityManager
         if (!$this->connection instanceof \PDO) {
             if ($this->connection instanceof DbConfig) {
                 /** @var DbConfig $dbConfig */
-                $dbConfig = $this->connection;
+                $dbConfig         = $this->connection;
                 $this->connection = new \PDO(
                     $dbConfig->getDsn(),
                     $dbConfig->user,
@@ -305,8 +303,8 @@ class EntityManager
     {
         if (!$this->dbal) {
             $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            $options = &$this->options;
-            $dbalClass = isset($options[self::OPT_DBAL_CLASS]) ?
+            $options        = &$this->options;
+            $dbalClass      = isset($options[self::OPT_DBAL_CLASS]) ?
                 $options[self::OPT_DBAL_CLASS] : __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
 
             if (!class_exists($dbalClass)) {
@@ -422,13 +420,13 @@ class EntityManager
      *
      * @param Entity $entity
      * @param bool   $update Update the entity map
-     * @param string $class Overwrite the class
+     * @param string $class  Overwrite the class
      * @return Entity
      */
     public function map(Entity $entity, $update = false, $class = null)
     {
         $class = $class ?: get_class($entity);
-        $key = md5(serialize($entity->getPrimaryKey()));
+        $key   = md5(serialize($entity->getPrimaryKey()));
 
         if ($update || !isset($this->map[$class][$key])) {
             $this->map[$class][$key] = $entity;
@@ -446,12 +444,10 @@ class EntityManager
      *
      * Without $primaryKey it creates an entityFetcher and returns this.
      *
-     * @param string|Entity $class      The entity class you want to fetch
-     * @param mixed         $primaryKey The primary key of the entity you want to fetch
+     * @param string $class      The entity class you want to fetch
+     * @param mixed  $primaryKey The primary key of the entity you want to fetch
      * @return Entity|EntityFetcher
      * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoConnection
      * @throws NoEntity
      */
     public function fetch($class, $primaryKey = null)
@@ -466,7 +462,7 @@ class EntityManager
         }
 
         if (!is_array($primaryKey)) {
-            $primaryKey = [$primaryKey];
+            $primaryKey = [ $primaryKey ];
         }
 
         $primaryKeyVars = $class::getPrimaryKeyVars();
@@ -493,7 +489,7 @@ class EntityManager
     /**
      * Returns $value formatted to use in a sql statement.
      *
-     * @param  mixed  $value      The variable that should be returned in SQL syntax
+     * @param  mixed $value The variable that should be returned in SQL syntax
      * @return string
      * @codeCoverageIgnore This is just a proxy
      */

@@ -24,9 +24,9 @@ class Json extends Type
     public function validate($value)
     {
         if (!is_string($value)) {
-            return new NoString(['type' => 'json']);
+            return new NoString([ 'type' => 'json' ]);
         } elseif ($value !== 'null' && json_decode($value) === null) {
-            return new InvalidJson([ 'value' => (string)$value ]);
+            return new InvalidJson([ 'value' => (string) $value ]);
         }
 
         return true;

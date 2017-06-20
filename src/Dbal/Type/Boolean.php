@@ -2,7 +2,6 @@
 
 namespace ORM\Dbal\Type;
 
-use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Error;
 use ORM\Dbal\Error\NoBoolean;
@@ -22,7 +21,7 @@ class Boolean extends Type
     /**
      * Boolean constructor
      *
-     * @param Dbal   $dbal
+     * @param Dbal $dbal
      */
     public function __construct(Dbal $dbal)
     {
@@ -45,14 +44,14 @@ class Boolean extends Type
         if (!is_bool($value)) {
             // convert int to string
             if (is_int($value)) {
-                $value = (string)$value;
+                $value = (string) $value;
             }
 
             if (!is_string($value) ||
                 ($value !== $this->getBoolean(true) && $value !== $this->getBoolean(false))
             ) {
                 // value is not boolean, not int and (not string OR string value for boolean)
-                return new NoBoolean([ 'value' => (string)$value ]);
+                return new NoBoolean([ 'value' => (string) $value ]);
             }
         }
 

@@ -33,8 +33,8 @@ class DateTime extends Type
      */
     public function __construct($precision = null, $dateOnly = false)
     {
-        $this->precision = (int)$precision;
-        $this->regex = $dateOnly ?
+        $this->precision = (int) $precision;
+        $this->regex     = $dateOnly ?
             '/^' . self::DATE_REGEX . '([ T]' . self::TIME_REGEX . self::ZONE_REGEX . ')?$/' :
             '/^' . self::DATE_REGEX . '[ T]' . self::TIME_REGEX . self::ZONE_REGEX . '$/';
     }
@@ -56,7 +56,7 @@ class DateTime extends Type
     public function validate($value)
     {
         if (!$value instanceof \DateTime && (!is_string($value) || !preg_match($this->regex, $value))) {
-            return new NoDateTime([ 'value' => (string)$value ]);
+            return new NoDateTime([ 'value' => (string) $value ]);
         }
 
         return true;

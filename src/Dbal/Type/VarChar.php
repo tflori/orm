@@ -31,7 +31,7 @@ class VarChar extends Type
      */
     public function __construct($maxLength = null)
     {
-        $this->maxLength = (int)$maxLength;
+        $this->maxLength = (int) $maxLength;
     }
 
     public static function factory(Dbal $dbal, array $columnDefinition)

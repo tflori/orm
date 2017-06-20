@@ -5,6 +5,12 @@ namespace ORM\Dbal\Error;
 use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 
+/**
+ * NotNullable Validation Error
+ *
+ * @package ORM\Dbal\Error
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class NotNullable extends Error
 {
     const ERROR_CODE = 'NOT_NULLABLE';
@@ -13,6 +19,6 @@ class NotNullable extends Error
 
     public function __construct(Column $column)
     {
-        parent::__construct(['column' => $column->name]);
+        parent::__construct([ 'column' => $column->name ]);
     }
 }

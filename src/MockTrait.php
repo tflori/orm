@@ -3,9 +3,14 @@
 namespace ORM;
 
 use Mockery as m;
-use Mockery\Mock;
 use ORM\Exception\IncompletePrimaryKey;
 
+/**
+ * MockTrait for ORM
+ *
+ * @package ORM
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 trait MockTrait
 {
 
@@ -27,15 +32,17 @@ trait MockTrait
     public function ormInitMock($options = [], $driver = 'mysql')
     {
         /** @var EntityManager|m\MockInterface $em */
-        $em = m::mock(EntityManager::class, [$options])->makePartial();
+        $em = m::mock(EntityManager::class, [ $options ])->makePartial();
         /** @var \PDO|m\MockInterface $pdo */
         $pdo = m::mock(\PDO::class);
 
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
         $pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
-        $pdo->shouldReceive('quote')->with(stringValue())->andReturnUsing(function ($str) {
-            return '\'' . addcslashes($str, '\'') . '\'';
-        })->byDefault();
+        $pdo->shouldReceive('quote')->with(stringValue())->andReturnUsing(
+            function ($str) {
+                return '\'' . addcslashes($str, '\'') . '\'';
+            }
+        )->byDefault();
 
         $em->setConnection($pdo);
         return $em;
@@ -88,27 +95,31 @@ trait MockTrait
         $em = $em ?: EntityManager::getInstance($class);
 
         $em->shouldReceive('sync')->with(m::type($class))->once()
-            ->andReturnUsing(function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
-                $expectation = $em->shouldReceive('insert')->once()
-                    ->andReturnUsing(function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
-                        if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
-                            $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
-                        }
-                        $entity->setOriginalData(array_merge($defaultValues, $entity->getData()));
-                        $entity->reset();
-                        $em->map($entity);
-                        return true;
-                    });
+            ->andReturnUsing(
+                function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
+                    $expectation = $em->shouldReceive('insert')->once()
+                        ->andReturnUsing(
+                            function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
+                                if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
+                                    $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
+                                }
+                                $entity->setOriginalData(array_merge($defaultValues, $entity->getData()));
+                                $entity->reset();
+                                $em->map($entity);
+                                return true;
+                            }
+                        );
 
-                try {
-                    $entity->getPrimaryKey();
-                    $expectation->with(m::type($class), false);
-                    return false;
-                } catch (IncompletePrimaryKey $ex) {
-                    $expectation->with(m::type($class));
-                    throw $ex;
+                    try {
+                        $entity->getPrimaryKey();
+                        $expectation->with(m::type($class), false);
+                        return false;
+                    } catch (IncompletePrimaryKey $ex) {
+                        $expectation->with(m::type($class));
+                        throw $ex;
+                    }
                 }
-            });
+            );
     }
 
     /**
@@ -128,7 +139,7 @@ trait MockTrait
         $em = $em ?: EntityManager::getInstance($class);
 
         /** @var m\MockInterface|EntityFetcher $fetcher */
-        $fetcher = m::mock(EntityFetcher::class, [$em, $class])->makePartial();
+        $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
         $em->shouldReceive('fetch')->with($class)->once()->andReturn($fetcher);
 
         $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
@@ -149,27 +160,29 @@ trait MockTrait
      */
     public function ormExpectUpdate(Entity $entity, $changingData = [], $updatedData = [])
     {
-        $entity->shouldReceive('save')->once()->andReturnUsing(function () use ($entity, $updatedData, $changingData) {
-            // sync with database using $updatedData
-            if (!empty($updatedData)) {
-                $newData = $entity->getData();
-                $entity->reset();
-                $entity->setOriginalData(array_merge($entity->getData(), $updatedData));
-                $entity->fill($newData);
-            }
+        $entity->shouldReceive('save')->once()->andReturnUsing(
+            function () use ($entity, $updatedData, $changingData) {
+                // sync with database using $updatedData
+                if (!empty($updatedData)) {
+                    $newData = $entity->getData();
+                    $entity->reset();
+                    $entity->setOriginalData(array_merge($entity->getData(), $updatedData));
+                    $entity->fill($newData);
+                }
 
-            if (!$entity->isDirty()) {
+                if (!$entity->isDirty()) {
+                    return $entity;
+                }
+
+                // update the entity using $changingData
+                $entity->preUpdate();
+                $entity->setOriginalData(array_merge($entity->getData(), $changingData));
+                $entity->reset();
+                $entity->postUpdate();
+
                 return $entity;
             }
-
-            // update the entity using $changingData
-            $entity->preUpdate();
-            $entity->setOriginalData(array_merge($entity->getData(), $changingData));
-            $entity->reset();
-            $entity->postUpdate();
-
-            return $entity;
-        });
+        );
     }
 
     /**
@@ -195,9 +208,11 @@ trait MockTrait
         } else {
             $expectation->with($entity);
         }
-        $expectation->once()->andReturnUsing(function (Entity $entity) {
-            $entity->setOriginalData([]);
-            return true;
-        });
+        $expectation->once()->andReturnUsing(
+            function (Entity $entity) {
+                $entity->setOriginalData([]);
+                return true;
+            }
+        );
     }
 }

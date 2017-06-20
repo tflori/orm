@@ -11,9 +11,9 @@ use ORM\Dbal\Error\NotValid;
  * @author  Thomas Flori <thflori@gmail.com>
  *
  * @property string name
- * @property Type type
- * @property mixed default
- * @property bool nullable
+ * @property Type   type
+ * @property mixed  default
+ * @property bool   nullable
  */
 class Column
 {
@@ -41,7 +41,7 @@ class Column
     protected static function getRegisteredType(array $columnDefinition)
     {
         foreach (self::$registeredTypes as $class) {
-            if (call_user_func([$class, 'fits'], $columnDefinition)) {
+            if (call_user_func([ $class, 'fits' ], $columnDefinition)) {
                 return $class;
             }
         }
@@ -72,7 +72,7 @@ class Column
      */
     public function __construct(Dbal $dbal, array $columnDefinition)
     {
-        $this->dbal = $dbal;
+        $this->dbal             = $dbal;
         $this->columnDefinition = $columnDefinition;
     }
 
@@ -152,11 +152,11 @@ class Column
                 $class = $this->columnDefinition['type'];
             }
 
-            if ($class === null || !is_callable([$class, 'factory'])) {
+            if ($class === null || !is_callable([ $class, 'factory' ])) {
                 $class = Type\Text::class;
             }
 
-            $this->type = call_user_func([$class, 'factory'], $this->dbal, $this->columnDefinition);
+            $this->type = call_user_func([ $class, 'factory' ], $this->dbal, $this->columnDefinition);
         }
 
         return $this->type;

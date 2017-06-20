@@ -2,11 +2,15 @@
 
 namespace ORM\Dbal;
 
-use ORM\Dbal\Column;
 use ORM\EntityManager;
 use ORM\Exception;
-use ORM\Namer;
 
+/**
+ * Validation Error
+ *
+ * @package ORM\Dbal
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 class Error extends Exception
 {
     const ERROR_CODE = 'UNKNOWN';
@@ -28,7 +32,7 @@ class Error extends Exception
     public function __construct(array $params = [], $code = null, $message = null, Error $previous = null)
     {
         $this->message = $message ?: $this->message;
-        $this->code = $code ?: static::ERROR_CODE;
+        $this->code    = $code ?: static::ERROR_CODE;
 
         $params['code'] = $this->code;
 

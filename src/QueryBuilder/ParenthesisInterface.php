@@ -6,7 +6,7 @@ namespace ORM\QueryBuilder;
  * Interface ParenthesisInterface
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 interface ParenthesisInterface
 {

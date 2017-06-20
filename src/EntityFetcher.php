@@ -24,7 +24,7 @@ use ORM\QueryBuilder\QueryBuilderInterface;
  *  - modifiers
  *
  * @package ORM
- * @author Thomas Flori <thflori@gmail.com>
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 class EntityFetcher extends QueryBuilder
 {
@@ -62,12 +62,12 @@ class EntityFetcher extends QueryBuilder
         $this->class         = $class;
 
         $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
-        $this->alias = 't0';
-        $this->columns = ['t0.*'];
-        $this->modifier = ['DISTINCT'];
+        $this->alias     = 't0';
+        $this->columns   = [ 't0.*' ];
+        $this->modifier  = [ 'DISTINCT' ];
 
         $this->classMapping['byClass'][$class] = 't0';
-        $this->classMapping['byAlias']['t0'] = $class;
+        $this->classMapping['byAlias']['t0']   = $class;
     }
 
     /** @return self
@@ -163,7 +163,7 @@ class EntityFetcher extends QueryBuilder
         if (class_exists($class)) {
             /** @var Entity|string $class */
             $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
-            $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
+            $alias     = $alias ?: 't' . count($this->classMapping['byAlias']);
 
             $this->classMapping['byClass'][$class] = $alias;
             $this->classMapping['byAlias'][$alias] = $class;
@@ -191,7 +191,7 @@ class EntityFetcher extends QueryBuilder
             $alias = $this->alias;
         }
 
-        call_user_func([$class, 'getRelation'], $relation)->addJoin($this, $join, $alias);
+        call_user_func([ $class, 'getRelation' ], $relation)->addJoin($this, $join, $alias);
         return $this;
     }
 
@@ -289,13 +289,13 @@ class EntityFetcher extends QueryBuilder
     public function count()
     {
         // set the columns and reset after get query
-        $this->columns = ['COUNT(DISTINCT t0.*)'];
+        $this->columns  = [ 'COUNT(DISTINCT t0.*)' ];
         $this->modifier = [];
-        $query = $this->getQuery();
-        $this->columns = ['t0.*'];
-        $this->modifier = ['DISTINCT'];
+        $query          = $this->getQuery();
+        $this->columns  = [ 't0.*' ];
+        $this->modifier = [ 'DISTINCT' ];
 
-        return (int)$this->entityManager->getConnection()->query($query)->fetchColumn();
+        return (int) $this->entityManager->getConnection()->query($query)->fetchColumn();
     }
 
     /**
@@ -321,7 +321,7 @@ class EntityFetcher extends QueryBuilder
     public function getQuery()
     {
         if ($this->query) {
-            return $this->query instanceof  QueryBuilderInterface ? $this->query->getQuery() : $this->query;
+            return $this->query instanceof QueryBuilderInterface ? $this->query->getQuery() : $this->query;
         }
         return parent::getQuery();
     }

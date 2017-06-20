@@ -23,7 +23,7 @@ class Number extends Type
     public function validate($value)
     {
         if (!is_int($value) && !is_double($value) && (!is_string($value) || !is_numeric($value))) {
-            return new NoNumber([ 'value' => (string)$value ]);
+            return new NoNumber([ 'value' => (string) $value ]);
         }
 
         return true;

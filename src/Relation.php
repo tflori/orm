@@ -10,6 +10,12 @@ use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
 use ORM\Relation\Owner;
 
+/**
+ * Base Relation
+ *
+ * @package ORM
+ * @author  Thomas Flori <thflori@gmail.com>
+ */
 abstract class Relation
 {
     const OPT_CLASS        = 'class';
@@ -40,7 +46,7 @@ abstract class Relation
      * Factory for relation definition object
      *
      * @param string $name
-     * @param array $relDef
+     * @param array  $relDef
      * @return Relation
      */
     public static function createRelation($name, $relDef)
@@ -49,10 +55,10 @@ abstract class Relation
             $relDef = self::convertShort($name, $relDef);
         }
 
-        $class = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
-        $reference = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
-        $table = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
-        $opponent = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+        $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
+        $opponent    = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
         $cardinality = isset($relDef[self::OPT_CARDINALITY]) ?
             $relDef[self::OPT_CARDINALITY] : null;
 
@@ -71,7 +77,7 @@ abstract class Relation
      * Converts short form to assoc form
      *
      * @param string $name
-     * @param array $relDef
+     * @param array  $relDef
      * @return array
      * @throws InvalidConfiguration
      */
@@ -141,7 +147,7 @@ abstract class Relation
 //            return null;
 //        }
 
-        return call_user_func([$this->class, 'getRelation'], $this->opponent);
+        return call_user_func([ $this->class, 'getRelation' ], $this->opponent);
     }
 
     /**

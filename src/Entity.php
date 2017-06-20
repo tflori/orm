@@ -3,15 +3,15 @@
 namespace ORM;
 
 use ORM\Dbal\Column;
-use ORM\Exception\IncompletePrimaryKey;
-use ORM\Exception\InvalidConfiguration;
-use ORM\Exception\InvalidRelation;
-use ORM\Exception\InvalidName;
-use ORM\Exception\NoEntityManager;
-use ORM\Exception\UndefinedRelation;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\EntityManager as EM;
+use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\InvalidName;
+use ORM\Exception\InvalidRelation;
+use ORM\Exception\NoEntityManager;
+use ORM\Exception\UndefinedRelation;
 use ORM\Exception\UnknownColumn;
 
 /**
@@ -24,8 +24,8 @@ use ORM\Exception\UnknownColumn;
  * in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity Definition).
  *
  * @package ORM
- * @link https://tflori.github.io/orm/entityDefinition.html Entity Definition
- * @author Thomas Flori <thflori@gmail.com>
+ * @link    https://tflori.github.io/orm/entityDefinition.html Entity Definition
+ * @author  Thomas Flori <thflori@gmail.com>
  */
 abstract class Entity implements \Serializable
 {
@@ -114,16 +114,16 @@ abstract class Entity implements \Serializable
      *
      * It calls ::onInit() after initializing $data and $originalData.
      *
-     * @param mixed[] $data The current data
-     * @param EM $entityManager The EntityManager that created this entity
-     * @param bool $fromDatabase Whether or not the data comes from database
+     * @param mixed[] $data          The current data
+     * @param EM      $entityManager The EntityManager that created this entity
+     * @param bool    $fromDatabase  Whether or not the data comes from database
      */
     final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
     {
         if ($fromDatabase) {
             $this->originalData = $data;
         }
-        $this->data = array_merge($this->data, $data);
+        $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
         $this->onInit(!$fromDatabase);
     }
@@ -172,7 +172,7 @@ abstract class Entity implements \Serializable
      */
     public static function getPrimaryKeyVars()
     {
-        return !is_array(static::$primaryKey) ? [static::$primaryKey] : static::$primaryKey;
+        return !is_array(static::$primaryKey) ? [ static::$primaryKey ] : static::$primaryKey;
     }
 
     /**
@@ -264,7 +264,7 @@ abstract class Entity implements \Serializable
      * Validate $value for $attribute
      *
      * @param string $attribute
-     * @param mixed $value
+     * @param mixed  $value
      * @return bool|Error
      * @throws Exception
      */
@@ -313,13 +313,13 @@ abstract class Entity implements \Serializable
      */
     public function __get($attribute)
     {
-        $em = EM::getInstance(static::class);
+        $em     = EM::getInstance(static::class);
         $getter = $em->getNamer()->getMethodName('get' . ucfirst($attribute), self::$namingSchemeMethods);
 
-        if (method_exists($this, $getter) && is_callable([$this, $getter])) {
+        if (method_exists($this, $getter) && is_callable([ $this, $getter ])) {
             return $this->$getter();
         } else {
-            $col = static::getColumnName($attribute);
+            $col    = static::getColumnName($attribute);
             $result = isset($this->data[$col]) ? $this->data[$col] : null;
 
             if (!$result && isset(static::$relations[$attribute]) && isset($this->entityManager)) {
@@ -350,11 +350,11 @@ abstract class Entity implements \Serializable
     {
         $col = $this->getColumnName($attribute);
 
-        $em = EM::getInstance(static::class);
+        $em     = EM::getInstance(static::class);
         $setter = $em->getNamer()->getMethodName('set' . ucfirst($attribute), self::$namingSchemeMethods);
 
-        if (method_exists($this, $setter) && is_callable([$this, $setter])) {
-            $oldValue = $this->__get($attribute);
+        if (method_exists($this, $setter) && is_callable([ $this, $setter ])) {
+            $oldValue   = $this->__get($attribute);
             $md5OldData = md5(serialize($this->data));
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
@@ -365,8 +365,8 @@ abstract class Entity implements \Serializable
                 throw $error;
             }
 
-            $oldValue = $this->__get($attribute);
-            $changed = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
+            $oldValue         = $this->__get($attribute);
+            $changed          = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
             $this->data[$col] = $value;
         }
 
@@ -452,8 +452,8 @@ abstract class Entity implements \Serializable
      *
      * This method does not take care about already existing relations and will fail hard.
      *
-     * @param string        $relation
-     * @param Entity[]      $entities
+     * @param string   $relation
+     * @param Entity[] $entities
      * @throws NoEntityManager
      */
     public function addRelated($relation, array $entities)
@@ -475,8 +475,8 @@ abstract class Entity implements \Serializable
      *
      * This method is only for many-to-many relations.
      *
-     * @param string        $relation
-     * @param Entity[]      $entities
+     * @param string   $relation
+     * @param Entity[] $entities
      * @throws NoEntityManager
      */
     public function deleteRelated($relation, $entities)
@@ -539,7 +539,7 @@ abstract class Entity implements \Serializable
         // @codeCoverageIgnoreEnd
 
         $inserted = false;
-        $updated = false;
+        $updated  = false;
 
         try {
             // this may throw if the primary key is auto incremented but we using this to omit duplicated code
@@ -600,7 +600,7 @@ abstract class Entity implements \Serializable
         $presentColumns = [];
         foreach ($this->data as $column => $value) {
             $presentColumns[] = $column;
-            $result[] = static::validate($column, $value);
+            $result[]         = static::validate($column, $value);
         }
 
         foreach (static::describe() as $column) {
@@ -622,8 +622,8 @@ abstract class Entity implements \Serializable
      * Get called when something is changed with magic setter.
      *
      * @param string $attribute The variable that got changed.merge(node.inheritedProperties)
-     * @param mixed  $oldValue The old value of the variable
-     * @param mixed  $value The new value of the variable
+     * @param mixed  $oldValue  The old value of the variable
+     * @param mixed  $value     The new value of the variable
      * @codeCoverageIgnore dummy event handler
      */
     public function onChange($attribute, $oldValue, $value)
@@ -646,6 +646,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called before the entity get updated in database.
+     *
      * @codeCoverageIgnore dummy event handler
      */
     public function preUpdate()
@@ -656,6 +657,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called before the entity get inserted in database.
+     *
      * @codeCoverageIgnore dummy event handler
      */
     public function prePersist()
@@ -667,6 +669,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called after the entity got inserted in database.
+     *
      * @codeCoverageIgnore dummy event handler
      */
     public function postPersist()
@@ -677,6 +680,7 @@ abstract class Entity implements \Serializable
      * Empty event handler
      *
      * Get called after the entity got updated in database.
+     *
      * @codeCoverageIgnore dummy event handler
      */
     public function postUpdate()
@@ -690,8 +694,8 @@ abstract class Entity implements \Serializable
      *
      * It will throw an error for non owner when the key is incomplete.
      *
-     * @param string        $relation      The relation to fetch
-     * @param bool          $getAll
+     * @param string $relation The relation to fetch
+     * @param bool   $getAll
      * @return Entity|Entity[]|EntityFetcher
      * @throws NoEntityManager
      */
@@ -765,7 +769,7 @@ abstract class Entity implements \Serializable
      */
     public function serialize()
     {
-        return serialize([$this->data, $this->relatedObjects]);
+        return serialize([ $this->data, $this->relatedObjects ]);
     }
 
     /**
@@ -785,7 +789,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @return string
-     * @deprecated use getOption from EntityManager
+     * @deprecated         use getOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function getTableNameTemplate()
@@ -795,7 +799,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $tableNameTemplate
-     * @deprecated use setOption from EntityManager
+     * @deprecated         use setOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function setTableNameTemplate($tableNameTemplate)
@@ -805,7 +809,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @return string
-     * @deprecated use getOption from EntityManager
+     * @deprecated         use getOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function getNamingSchemeTable()
@@ -815,7 +819,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeTable
-     * @deprecated use setOption from EntityManager
+     * @deprecated         use setOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function setNamingSchemeTable($namingSchemeTable)
@@ -825,7 +829,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @return string
-     * @deprecated use getOption from EntityManager
+     * @deprecated         use getOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function getNamingSchemeColumn()
@@ -835,7 +839,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeColumn
-     * @deprecated use setOption from EntityManager
+     * @deprecated         use setOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function setNamingSchemeColumn($namingSchemeColumn)
@@ -845,7 +849,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @return string
-     * @deprecated use getOption from EntityManager
+     * @deprecated         use getOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function getNamingSchemeMethods()
@@ -855,7 +859,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param string $namingSchemeMethods
-     * @deprecated use setOption from EntityManager
+     * @deprecated         use setOption from EntityManager
      * @codeCoverageIgnore deprecated
      */
     public static function setNamingSchemeMethods($namingSchemeMethods)
