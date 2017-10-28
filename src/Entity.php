@@ -331,6 +331,31 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * Check if a column is defined
+     *
+     * @param $attribute
+     * @return bool
+     */
+    public function __isset($attribute)
+    {
+        $em     = EM::getInstance(static::class);
+        $getter = $em->getNamer()->getMethodName('get' . ucfirst($attribute), self::$namingSchemeMethods);
+
+        if (method_exists($this, $getter) && is_callable([ $this, $getter ])) {
+            return $this->$getter() !== null;
+        } else {
+            $col = static::getColumnName($attribute);
+            $isset = isset($this->data[$col]);
+
+            if (!$isset && isset(static::$relations[$attribute])) {
+                return !empty($this->getRelated($attribute));
+            }
+
+            return $isset;
+        }
+    }
+
+    /**
      * Set $attribute to $value
      *
      * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
