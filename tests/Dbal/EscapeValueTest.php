@@ -37,7 +37,6 @@ class EscapeValueTest extends TestCase
             [-5E-8, '-5.0E-8'],
             [0.002, '0.002'],
             [42.1, '42.1'],
-            [\DateTime::createFromFormat('U.u', '1496163695.123456'), '2017-05-30T17:01:35.123456Z'],
             [null, 'NULL'],
         ];
     }
@@ -66,6 +65,16 @@ class EscapeValueTest extends TestCase
         $result = $this->dbal->escapeValue($value);
 
         self::assertSame($expected, $result);
+    }
+
+    /** @test */
+    public function dateTime()
+    {
+        $dateTime = \DateTime::createFromFormat('U.u', '1496163695.123456');
+
+        $result = $this->dbal->escapeValue($dateTime);
+
+        self::assertSame('\'2017-05-30T17:01:35.123456Z\'', $result);
     }
 
     /** @test */
