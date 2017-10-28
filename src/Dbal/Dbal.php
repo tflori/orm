@@ -337,6 +337,6 @@ abstract class Dbal
     protected function escapeDateTime(\DateTime $value)
     {
         $value->setTimezone(new \DateTimeZone('UTC'));
-        return $value->format('Y-m-d\TH:i:s.u\Z');
+        return $this->escapeString($value->format('Y-m-d\TH:i:s.u\Z'));
     }
 }
