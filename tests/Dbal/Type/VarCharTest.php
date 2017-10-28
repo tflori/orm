@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class VarCharTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(VarChar::class));
     }
@@ -27,10 +28,9 @@ class VarCharTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $maxLen, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $maxLen, $expected)
     {
         $type = new VarChar($maxLen);
 

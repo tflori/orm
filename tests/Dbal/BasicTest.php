@@ -8,7 +8,7 @@ use ORM\Test\TestCase;
 
 class BasicTest extends TestCase
 {
-    /** @var Dbal */
+    /** @var Dbal\Dbal */
     protected $dbal;
 
     protected function setUp()
@@ -18,21 +18,24 @@ class BasicTest extends TestCase
         $this->dbal = new Dbal\Other($this->em);
     }
 
-    public function testEscapesIdentifiersWithDoubleQuote()
+    /** @test */
+    public function escapesIdentifiersWithDoubleQuote()
     {
         $escaped = $this->dbal->escapeIdentifier('user');
 
         self::assertSame('"user"', $escaped);
     }
 
-    public function testEscapesSchemasInIdentifiers()
+    /** @test */
+    public function escapesSchemasInIdentifiers()
     {
         $escaped = $this->dbal->escapeIdentifier('user.id');
 
         self::assertSame('"user"."id"', $escaped);
     }
 
-    public function testDoesNotSupportDescribe()
+    /** @test */
+    public function doesNotSupportDescribe()
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('Not supported for this driver');

@@ -10,14 +10,16 @@ use ORM\Test\TestCase;
 
 class ManyToManyTest extends TestCase
 {
-    public function testGetsReturnedByGetRelation()
+    /** @test */
+    public function getsReturnedByGetRelation()
     {
         $result = Article::getRelation('categories');
 
         self::assertInstanceOf(ManyToMany::class, $result);
     }
 
-    public function testFetchReturnsEntityFetcher()
+    /** @test */
+    public function fetchReturnsEntityFetcher()
     {
         $entity = new Article(['id' => 42]);
 
@@ -26,7 +28,8 @@ class ManyToManyTest extends TestCase
         self::assertInstanceOf(EntityFetcher::class, $fetcher);
     }
 
-    public function testFetchCreatesFetcherForTheRelatedClass()
+    /** @test */
+    public function fetchCreatesFetcherForTheRelatedClass()
     {
         $entity = new Article(['id' => 42], $this->em);
         $fetcher = new EntityFetcher($this->em, Category::class);
@@ -37,7 +40,8 @@ class ManyToManyTest extends TestCase
         self::assertSame($fetcher, $result);
     }
 
-    public function testFetchFiltersByRelationTable()
+    /** @test */
+    public function fetchFiltersByRelationTable()
     {
         $entity = new Article(['id' => 42], $this->em);
         $fetcher = \Mockery::mock(EntityFetcher::class);
@@ -52,7 +56,8 @@ class ManyToManyTest extends TestCase
         self::assertSame($fetcher, $result);
     }
 
-    public function testFetchThrowsWhenKeyIsEmpty()
+    /** @test */
+    public function fetchThrowsWhenKeyIsEmpty()
     {
         $entity = new Article([], $this->em);
 
@@ -62,7 +67,8 @@ class ManyToManyTest extends TestCase
         $entity->fetch('categories');
     }
 
-    public function testReturnsAllWithGetAll()
+    /** @test */
+    public function returnsAllWithGetAll()
     {
         $entity = new Article(['id' => 42], $this->em);
         $related = [

@@ -30,10 +30,9 @@ class ColumnNameTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnNames
-     */
-    public function testUsesNamingScheme($namingScheme, $name, $expected)
+    /** @dataProvider provideColumnNames
+     * @test */
+    public function usesNamingScheme($namingScheme, $name, $expected)
     {
         TestEntity::setNamingSchemeColumn($namingScheme);
 
@@ -42,7 +41,8 @@ class ColumnNameTest extends TestCase
         self::assertSame($expected, $colName);
     }
 
-    public function testStoresTheNames()
+    /** @test */
+    public function storesTheNames()
     {
         TestEntity::setNamingSchemeColumn('snake_lower');
         $colNameBefore = StudlyCaps::getColumnName('StudlyCaps');
@@ -53,7 +53,8 @@ class ColumnNameTest extends TestCase
         self::assertSame($colNameBefore, $colName);
     }
 
-    public function testPrependsPrefix()
+    /** @test */
+    public function prependsPrefix()
     {
         TestEntity::setNamingSchemeColumn('snake_lower');
 
@@ -62,7 +63,8 @@ class ColumnNameTest extends TestCase
         self::assertSame('stn_some_col', $colName);
     }
 
-    public function testDoesNotDoublePrefix()
+    /** @test */
+    public function doesNotDoublePrefix()
     {
         TestEntity::setNamingSchemeColumn('snake_lower');
 
@@ -71,10 +73,9 @@ class ColumnNameTest extends TestCase
         self::assertSame('stn_some_col', $colName);
     }
 
-    /**
-     * @dataProvider provideColumnNames
-     */
-    public function testDoesNotTouchColumnNames($namingScheme, $name)
+    /** @dataProvider provideColumnNames
+     * @test */
+    public function doesNotTouchColumnNames($namingScheme, $name)
     {
         $colName = StaticTableName::getColumnName($name);
 
@@ -83,42 +84,48 @@ class ColumnNameTest extends TestCase
         self::assertSame($colName, $second);
     }
 
-    public function testUsesAliasIfGiven()
+    /** @test */
+    public function usesAliasIfGiven()
     {
         $colName = StaticTableName::getColumnName('foo');
 
         self::assertSame('bar', $colName);
     }
 
-    public function testPrimaryKeyIsId()
+    /** @test */
+    public function primaryKeyIsId()
     {
         $primaryKey = StudlyCaps::getPrimaryKeyVars();
 
         self::assertSame(['id'], $primaryKey);
     }
 
-    public function testPrimaryKeyIsAlwaysArray()
+    /** @test */
+    public function primaryKeyIsAlwaysArray()
     {
         $primaryKey = Snake_Ucfirst::getPrimaryKeyVars();
 
         self::assertSame(['My_Key'], $primaryKey);
     }
 
-    public function testCombinedPrimaryKey()
+    /** @test */
+    public function combinedPrimaryKey()
     {
         $primaryKey = StaticTableName::getPrimaryKeyVars();
 
         self::assertSame(['table', 'name', 'foo'], $primaryKey);
     }
 
-    public function testIsAutoIncrementedByDefault()
+    /** @test */
+    public function isAutoIncrementedByDefault()
     {
         $r = StudlyCaps::isAutoIncremented();
 
         self::assertTrue($r);
     }
 
-    public function testCombinedPrimaryIsNeverAutoIncremented()
+    /** @test */
+    public function combinedPrimaryIsNeverAutoIncremented()
     {
         $r = StaticTableName::isAutoIncremented();
 

@@ -27,7 +27,8 @@ class ValidateTest extends TestCase
     }
 
 
-    public function testThrowsWhenColumnDoesNotExist()
+    /** @test */
+    public function throwsWhenColumnDoesNotExist()
     {
         $validator = new Table([]);
 
@@ -37,7 +38,8 @@ class ValidateTest extends TestCase
         $validator->validate('id', 23);
     }
 
-    public function testPassesValidateFromCol()
+    /** @test */
+    public function passesValidateFromCol()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -52,7 +54,8 @@ class ValidateTest extends TestCase
         self::assertSame('return', $result);
     }
 
-    public function testAllowsNullValues()
+    /** @test */
+    public function allowsNullValues()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -67,7 +70,8 @@ class ValidateTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testAllowsNullWithDefault()
+    /** @test */
+    public function allowsNullWithDefault()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -82,7 +86,8 @@ class ValidateTest extends TestCase
         self::assertSame(true, $result);
     }
 
-    public function testReturnsNotNullable()
+    /** @test */
+    public function returnsNotNullable()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -97,7 +102,8 @@ class ValidateTest extends TestCase
         self::assertInstanceOf(\ORM\Dbal\Error\NotNullable::class, $result);
     }
 
-    public function testValidatesUsingType()
+    /** @test */
+    public function validatesUsingType()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -113,7 +119,8 @@ class ValidateTest extends TestCase
         self::assertSame(true, $result);
     }
 
-    public function testReturnsNotValid()
+    /** @test */
+    public function returnsNotValid()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',
@@ -131,7 +138,8 @@ class ValidateTest extends TestCase
         self::assertInstanceOf(\ORM\Dbal\Error\NotValid::class, $result);
     }
 
-    public function testReturnsNotValidOnFalse()
+    /** @test */
+    public function returnsNotValidOnFalse()
     {
         $this->column = \Mockery::mock(Column::class, [$this->dbal, [
             'column_name' => 'colA',

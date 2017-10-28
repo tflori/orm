@@ -19,7 +19,8 @@ class DescribeTest extends TestCase
         $this->dbal = new Mysql($this->em);
     }
 
-    public function testQueriesDescribeTable()
+    /** @test */
+    public function queriesDescribeTable()
     {
         $this->pdo->shouldReceive('query')->with('DESCRIBE "db"."table"')->once()
             ->andThrow(
@@ -71,10 +72,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTypes
-     */
-    public function testColumnTypes($type, $class)
+    /** @dataProvider provideTypes
+     * @test */
+    public function columnTypes($type, $class)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
@@ -124,10 +124,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnData
-     */
-    public function testColumnData($data, $method, $expected)
+    /** @dataProvider provideColumnData
+     * @test */
+    public function columnData($data, $method, $expected)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
@@ -162,10 +161,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnTypeData
-     */
-    public function testColumnTypeData($type, $getter, $expected)
+    /** @dataProvider provideColumnTypeData
+     * @test */
+    public function columnTypeData($type, $getter, $expected)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);

@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class SetTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Set::class));
     }
@@ -27,10 +28,9 @@ class SetTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $allowedValues, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $allowedValues, $expected)
     {
         $type = new Set($allowedValues);
 

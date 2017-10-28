@@ -13,14 +13,16 @@ use ORM\Test\TestCase;
 
 class OneToOneTest extends TestCase
 {
-    public function testGetsReturnedByGetRelation()
+    /** @test */
+    public function getsReturnedByGetRelation()
     {
         $result = DamagedABBRVCase::getRelation('relation');
 
         self::assertInstanceOf(OneToOne::class, $result);
     }
 
-    public function testFetchFiltersByForeignKeyAndReturnsFirst()
+    /** @test */
+    public function fetchFiltersByForeignKeyAndReturnsFirst()
     {
         $entity = new DamagedABBRVCase(['id' => 42], $this->em);
         $related = new RelationExample();
@@ -34,7 +36,8 @@ class OneToOneTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testFetchThrowsWhenOpponentIsNotDefined()
+    /** @test */
+    public function fetchThrowsWhenOpponentIsNotDefined()
     {
         $entity = new DamagedABBRVCase([], $this->em);
 
@@ -44,7 +47,8 @@ class OneToOneTest extends TestCase
         $entity->fetch('undefined1t1');
     }
 
-    public function testFetchThrowsWhenReferenceInOpponentIsNotDefined()
+    /** @test */
+    public function fetchThrowsWhenReferenceInOpponentIsNotDefined()
     {
         $entity = new Snake_Ucfirst([], $this->em);
 

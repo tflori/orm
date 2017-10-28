@@ -23,7 +23,8 @@ class DescribeTest extends TestCase
         ])]);
     }
 
-    public function testCallsDescribeFromDbal()
+    /** @test */
+    public function callsDescribeFromDbal()
     {
         $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn($this->table);
 
@@ -32,7 +33,8 @@ class DescribeTest extends TestCase
         self::assertSame($this->table, $description);
     }
 
-    public function testRemembersPreviousCalls()
+    /** @test */
+    public function remembersPreviousCalls()
     {
         $this->dbal->shouldReceive('describe')->with('db.table')->once()->andReturn($this->table);
         $this->em->describe('db.table');

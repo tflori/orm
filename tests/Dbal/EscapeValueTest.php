@@ -8,7 +8,7 @@ use ORM\Test\TestCase;
 
 class EscapeValueTest extends TestCase
 {
-    /** @var Dbal */
+    /** @var Dbal\Dbal */
     protected $dbal;
 
     protected function setUp()
@@ -18,7 +18,8 @@ class EscapeValueTest extends TestCase
         $this->dbal = new Dbal\Other($this->em);
     }
 
-    public function testOnlyConvertsScalarData()
+    /** @test */
+    public function onlyConvertsScalarData()
     {
         $array = ['this','is','not','scalar'];
 
@@ -28,7 +29,7 @@ class EscapeValueTest extends TestCase
         $this->dbal->escapeValue($array);
     }
 
-    public function provideScalarsWithoutStringAndBoolean()
+    public function provideScalars()
     {
         return [
             [42, '42'],
@@ -41,10 +42,9 @@ class EscapeValueTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideScalarsWithoutStringAndBoolean
-     */
-    public function testConvertsScalar($value, $expected)
+    /** @dataProvider provideScalars
+     * @test */
+    public function convertsScalar($value, $expected)
     {
         $result = $this->dbal->escapeValue($value);
 
@@ -59,17 +59,17 @@ class EscapeValueTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideBooleanDefaults
-     */
-    public function testBooleanUseDefaults($value, $expected)
+    /** @dataProvider provideBooleanDefaults
+     * @test */
+    public function booleanUseDefaults($value, $expected)
     {
         $result = $this->dbal->escapeValue($value);
 
         self::assertSame($expected, $result);
     }
 
-    public function testStringsUseQuote()
+    /** @test */
+    public function stringsUseQuote()
     {
         $this->pdo->shouldReceive('quote')->once()->with('foobar')->andReturn('\'buzzword\'');
 
@@ -78,7 +78,8 @@ class EscapeValueTest extends TestCase
         self::assertSame('\'buzzword\'', $result);
     }
 
-    public function testNumericString()
+    /** @test */
+    public function numericString()
     {
         $result = $this->dbal->escapeValue('1.1234567890123456');
 

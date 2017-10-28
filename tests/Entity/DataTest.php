@@ -30,7 +30,8 @@ class DataTest extends TestCase
     }
 
 
-    public function testOnChangeGetCalled()
+    /** @test */
+    public function onChangeGetCalled()
     {
         /** @var Mock|Entity $mock */
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
@@ -39,7 +40,8 @@ class DataTest extends TestCase
         $mock->someVar = 'foobar';
     }
 
-    public function testStoresData()
+    /** @test */
+    public function storesData()
     {
         $studlyCaps = new StudlyCaps();
 
@@ -48,7 +50,8 @@ class DataTest extends TestCase
         self::assertSame('foobar', $studlyCaps->someVar);
     }
 
-    public function testShouldNotCallIfNotChanged()
+    /** @test */
+    public function shouldNotCallIfNotChanged()
     {
         /** @var Mock|Entity $mock */
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
@@ -59,7 +62,8 @@ class DataTest extends TestCase
         $mock->someVar = 'foobar';
     }
 
-    public function testStoresDataInCorrectNamingScheme()
+    /** @test */
+    public function storesDataInCorrectNamingScheme()
     {
         $entity = new StudlyCaps();
 
@@ -68,7 +72,8 @@ class DataTest extends TestCase
         self::assertSame(['some_var' => 'foobar'], $entity->getData());
     }
 
-    public function testDelegatesToSetter()
+    /** @test */
+    public function delegatesToSetter()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('setAnotherVar')->once()->with('foobar');
@@ -76,7 +81,8 @@ class DataTest extends TestCase
         $mock->anotherVar = 'foobar';
     }
 
-    public function testOnChangeWatchesDataChanges()
+    /** @test */
+    public function onChangeWatchesDataChanges()
     {
         /** @var Mock|Entity $mock */
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
@@ -85,7 +91,8 @@ class DataTest extends TestCase
         $mock->anotherVar = 'foobar';
     }
 
-    public function testReturnsAnotherVar()
+    /** @test */
+    public function returnsAnotherVar()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('getAnotherVar')->once()->andReturn('foobar');
@@ -93,7 +100,8 @@ class DataTest extends TestCase
         self::assertSame('foobar', $mock->anotherVar);
     }
 
-    public function testCallsGetRelatedWhenThereIsARelationButNoValue()
+    /** @test */
+    public function callsGetRelatedWhenThereIsARelationButNoValue()
     {
         /** @var Entity|Mock $entity */
         $entity = \Mockery::mock(RelationExample::class)->makePartial();
@@ -106,7 +114,8 @@ class DataTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testUsesNamingSchemeMethods()
+    /** @test */
+    public function usesNamingSchemeMethods()
     {
         Entity::setNamingSchemeMethods('snake_lower');
         $mock = \Mockery::mock(Snake_Ucfirst::class)->makePartial();
@@ -116,7 +125,8 @@ class DataTest extends TestCase
         $mock->another_var = 'foobar';
     }
 
-    public function testGetsInitialDataOverConstructor()
+    /** @test */
+    public function getsInitialDataOverConstructor()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -127,14 +137,16 @@ class DataTest extends TestCase
         self::assertSame('foobar', $studlyCaps->someVar);
     }
 
-    public function testDoesNotOverwriteDefaultData()
+    /** @test */
+    public function doesNotOverwriteDefaultData()
     {
         $staticTableName = new StaticTableName();
 
         self::assertSame('default', $staticTableName->foo);
     }
 
-    public function testItIsNotDirtyAfterCreateFromDatabase()
+    /** @test */
+    public function itIsNotDirtyAfterCreateFromDatabase()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -144,7 +156,8 @@ class DataTest extends TestCase
         self::assertFalse($studlyCaps->isDirty());
     }
 
-    public function testIsDirtyAfterChange()
+    /** @test */
+    public function isDirtyAfterChange()
     {
         $studlyCaps = new StudlyCaps();
 
@@ -153,7 +166,8 @@ class DataTest extends TestCase
         self::assertTrue($studlyCaps->isDirty());
     }
 
-    public function testOnlyTheChangedColumnsAreDirty()
+    /** @test */
+    public function onlyTheChangedColumnsAreDirty()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -169,7 +183,8 @@ class DataTest extends TestCase
         self::assertFalse($studlyCaps->isDirty('nonExistingVar'));
     }
 
-    public function testResetRestoresOriginalData()
+    /** @test */
+    public function resetRestoresOriginalData()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -184,7 +199,8 @@ class DataTest extends TestCase
         self::assertNull($studlyCaps->newVar);
     }
 
-    public function testResetRestoresSpecificData()
+    /** @test */
+    public function resetRestoresSpecificData()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -199,7 +215,8 @@ class DataTest extends TestCase
         self::assertSame('foobar', $studlyCaps->newVar);
     }
 
-    public function testResetDeletesData()
+    /** @test */
+    public function resetDeletesData()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -214,7 +231,8 @@ class DataTest extends TestCase
         self::assertNull($studlyCaps->newVar);
     }
 
-    public function testIsDirtyWithNewOriginalData()
+    /** @test */
+    public function isDirtyWithNewOriginalData()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -231,7 +249,8 @@ class DataTest extends TestCase
         self::assertTrue($studlyCaps->isDirty('someVar'));
     }
 
-    public function testIsNotDirtyWithDifferentOrder()
+    /** @test */
+    public function isNotDirtyWithDifferentOrder()
     {
         $studlyCaps = new StudlyCaps([
             'id' => 42,
@@ -246,7 +265,8 @@ class DataTest extends TestCase
         self::assertFalse($studlyCaps->isDirty());
     }
 
-    public function testOnInitGetCalled()
+    /** @test */
+    public function onInitGetCalled()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('onInit')->once()->with(true);
@@ -254,7 +274,8 @@ class DataTest extends TestCase
         $mock->__construct();
     }
 
-    public function testOnInitFromDatabase()
+    /** @test */
+    public function onInitFromDatabase()
     {
         $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('onInit')->once()->with(false);
@@ -268,7 +289,8 @@ class DataTest extends TestCase
     private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":' .
                           '46:{a:2:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}}}';
 
-    public function testSerialization()
+    /** @test */
+    public function serialization()
     {
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
@@ -277,7 +299,8 @@ class DataTest extends TestCase
         self::assertSame($this->serialized, $serialized);
     }
 
-    public function testDeserialization()
+    /** @test */
+    public function deserialization()
     {
         $entity = unserialize($this->serialized);
 
@@ -285,7 +308,8 @@ class DataTest extends TestCase
         self::assertSame('bar', $entity->foo);
     }
 
-    public function testUnserializeCallsOnInit()
+    /** @test */
+    public function unserializeCallsOnInit()
     {
         $entity = \Mockery::mock(StudlyCaps::class)->makePartial();
 
@@ -294,7 +318,8 @@ class DataTest extends TestCase
         $entity->unserialize(serialize([['foo' => 'bar'],[]]));
     }
 
-    public function testDoesNotValidateValues()
+    /** @test */
+    public function doesNotValidateValues()
     {
         $this->mocks['em']->shouldNotReceive('describe');
 
@@ -302,7 +327,8 @@ class DataTest extends TestCase
         $entity->title = 42;
     }
 
-    public function testValidatesValues()
+    /** @test */
+    public function validatesValues()
     {
         StudlyCaps::enableValidator();
 
@@ -314,7 +340,8 @@ class DataTest extends TestCase
         $entity->title = 'Hello World!';
     }
 
-    public function testSetThrowsForUnknownColumns()
+    /** @test */
+    public function setThrowsForUnknownColumns()
     {
         StudlyCaps::enableValidator();
         $table = \Mockery::mock(Table::class, [[]])->makePartial();
@@ -327,7 +354,8 @@ class DataTest extends TestCase
         $entity->title = 'Hello World!';
     }
 
-    public function testSetThrowsForInvalidValues()
+    /** @test */
+    public function setThrowsForInvalidValues()
     {
         StudlyCaps::enableValidator();
         $table = \Mockery::mock(Table::class, [[]])->makePartial();
@@ -344,7 +372,8 @@ class DataTest extends TestCase
         $entity->title = 42;
     }
 
-    public function testFillPassesToSetAndValidates()
+    /** @test */
+    public function fillPassesToSetAndValidates()
     {
         StudlyCaps::enableValidator();
 
@@ -360,7 +389,8 @@ class DataTest extends TestCase
         ]);
     }
 
-    public function testFillCanIgnoreUnknownColumns()
+    /** @test */
+    public function fillCanIgnoreUnknownColumns()
     {
         StudlyCaps::enableValidator();
 
@@ -375,7 +405,8 @@ class DataTest extends TestCase
         ], true);
     }
 
-    public function testFillThrowsForUnknownColumns()
+    /** @test */
+    public function fillThrowsForUnknownColumns()
     {
         StudlyCaps::enableValidator();
 
@@ -393,7 +424,8 @@ class DataTest extends TestCase
         ]);
     }
 
-    public function testFillThrowsForMissingColumns()
+    /** @test */
+    public function fillThrowsForMissingColumns()
     {
         StudlyCaps::enableValidator();
 

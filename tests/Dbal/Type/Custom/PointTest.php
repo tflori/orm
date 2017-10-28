@@ -37,14 +37,16 @@ class PointTest extends TestCase
         CustomColumn::resetRegisteredTypes();
     }
 
-    public function testRegister()
+    /** @test */
+    public function register()
     {
         Column::registerType(Point::class);
 
         self::assertSame([Point::class], CustomColumn::getRegisteredTypes());
     }
 
-    public function testRegisterUniqueTypes()
+    /** @test */
+    public function registerUniqueTypes()
     {
         Column::registerType(Point::class);
         Column::registerType(Point::class);
@@ -52,7 +54,8 @@ class PointTest extends TestCase
         self::assertSame([Point::class], CustomColumn::getRegisteredTypes());
     }
 
-    public function testAllowsInstances()
+    /** @test */
+    public function allowsInstances()
     {
         $point = new Point();
         Column::registerType($point);
@@ -60,7 +63,8 @@ class PointTest extends TestCase
         self::assertSame([$point], CustomColumn::getRegisteredTypes());
     }
 
-    public function testExecutesFitsForUnknownTypes()
+    /** @test */
+    public function executesFitsForUnknownTypes()
     {
         $point = \Mockery::mock(Point::class);
         Column::registerType($point);
@@ -77,7 +81,8 @@ class PointTest extends TestCase
         $cols[0]->getType();
     }
 
-    public function testExecutesFitsFromNextType()
+    /** @test */
+    public function executesFitsFromNextType()
     {
         Column::registerType(Number::class);
         $point = \Mockery::mock(new Point());
@@ -89,7 +94,8 @@ class PointTest extends TestCase
         $cols[0]->getType();
     }
 
-    public function testExecutesLastRegisteredFirst()
+    /** @test */
+    public function executesLastRegisteredFirst()
     {
         $int = \Mockery::mock(new Number());
         $point = \Mockery::mock(new Point());
@@ -103,7 +109,8 @@ class PointTest extends TestCase
         $cols[0]->getType();
     }
 
-    public function testReturnsTheReturnedType()
+    /** @test */
+    public function returnsTheReturnedType()
     {
         $point = \Mockery::mock(new Point());
         Column::registerType($point);

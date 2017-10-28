@@ -12,7 +12,8 @@ use ORM\Test\TestCase;
 
 class BooleanTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Boolean::class));
     }
@@ -43,10 +44,9 @@ class BooleanTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($true, $false, $value, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($true, $false, $value, $expected)
     {
         $this->dbal->setOption(EntityManager::OPT_BOOLEAN_TRUE, $true);
         $this->dbal->setOption(EntityManager::OPT_BOOLEAN_FALSE, $false);

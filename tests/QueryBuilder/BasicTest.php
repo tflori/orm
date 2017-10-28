@@ -17,17 +17,17 @@ class BasicTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTablesWithAliases
-     */
-    public function testReturnsBasicStatement($table, $alias, $result)
+    /** @dataProvider provideTablesWithAliases
+     * @test */
+    public function returnsBasicStatement($table, $alias, $result)
     {
         $query = new QueryBuilder($table, $alias);
 
         self::assertSame('SELECT * FROM ' . $result, $query->getQuery());
     }
 
-    public function testSetColumns()
+    /** @test */
+    public function setColumns()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->columns([
@@ -40,7 +40,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testResetColumns()
+    /** @test */
+    public function resetColumns()
     {
         $query = new QueryBuilder('foobar');
         $query->columns(['a']);
@@ -50,7 +51,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar', $query->getQuery());
     }
 
-    public function testAddColumn()
+    /** @test */
+    public function addColumn()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->column('asdf');
@@ -59,7 +61,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testAddExpression()
+    /** @test */
+    public function addExpression()
     {
         $query = new QueryBuilder('foobar', '', $this->em);
         $query->column('IF(a = ?, 1, 0)', 'something');
@@ -67,14 +70,16 @@ class BasicTest extends TestCase
         self::assertSame('SELECT IF(a = \'something\', 1, 0) FROM foobar', $query->getQuery());
     }
 
-    public function testAddExpressionWithAlias()
+    /** @test */
+    public function addExpressionWithAlias()
     {
         $query = (new QueryBuilder('foobar'))->column('COUNT(1)', [], 'cnt');
 
         self::assertSame('SELECT COUNT(1) AS cnt FROM foobar', $query->getQuery());
     }
 
-    public function testExpressionsUsingDefaultEntityManager()
+    /** @test */
+    public function expressionsUsingDefaultEntityManager()
     {
         $query = new QueryBuilder('foobar', '');
 
@@ -83,7 +88,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT IF(a = \'something\', 1, 0) FROM foobar', $query->getQuery());
     }
 
-    public function testLimit()
+    /** @test */
+    public function limit()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->limit(20);
@@ -92,7 +98,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testOffset()
+    /** @test */
+    public function offset()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->limit(20)->offset(20);
@@ -101,7 +108,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testGroupByColumn()
+    /** @test */
+    public function groupByColumn()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->groupBy('col');
@@ -110,7 +118,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testGroupByExpression()
+    /** @test */
+    public function groupByExpression()
     {
         $query = (new QueryBuilder('foobar'))
             ->groupBy('col > ?', 42);
@@ -118,7 +127,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar GROUP BY col > 42', $query->getQuery());
     }
 
-    public function testGroupByMultiple()
+    /** @test */
+    public function groupByMultiple()
     {
         $query = (new QueryBuilder('foobar'))
             ->groupBy('col')
@@ -127,7 +137,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar GROUP BY col,col2', $query->getQuery());
     }
 
-    public function testGroupByHaving()
+    /** @test */
+    public function groupByHaving()
     {
         $query = (new QueryBuilder('foobar'))
             ->groupBy('col HAVING MAX(col) > 0');
@@ -135,7 +146,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar GROUP BY col HAVING MAX(col) > 0', $query->getQuery());
     }
 
-    public function testOrderByColumn()
+    /** @test */
+    public function orderByColumn()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->orderBy('col');
@@ -144,7 +156,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testOrderByColumnDesc()
+    /** @test */
+    public function orderByColumnDesc()
     {
         $query = (new QueryBuilder('foobar'))
             ->orderBy('col', QueryBuilder::DIRECTION_DESCENDING);
@@ -152,7 +165,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar ORDER BY col DESC', $query->getQuery());
     }
 
-    public function testOrderByMultiple()
+    /** @test */
+    public function orderByMultiple()
     {
         $query = (new QueryBuilder('foobar'))
             ->orderBy('col')
@@ -161,7 +175,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar ORDER BY col ASC,col2 ASC', $query->getQuery());
     }
 
-    public function testOrderByExpression()
+    /** @test */
+    public function orderByExpression()
     {
         $query = (new QueryBuilder('foobar'))
             ->orderBy('IF(col > ?, 0, 1)', QueryBuilder::DIRECTION_ASCENDING, 42);
@@ -169,7 +184,8 @@ class BasicTest extends TestCase
         self::assertSame('SELECT * FROM foobar ORDER BY IF(col > 42, 0, 1) ASC', $query->getQuery());
     }
 
-    public function testCloseDoesNothing()
+    /** @test */
+    public function closeDoesNothing()
     {
         $query = new QueryBuilder('foobar');
         $result = $query->close();
@@ -178,7 +194,8 @@ class BasicTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    public function testModifier()
+    /** @test */
+    public function modifier()
     {
         $query = new QueryBuilder('foobar');
 

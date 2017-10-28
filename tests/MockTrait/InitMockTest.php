@@ -11,21 +11,24 @@ class InitMockTest extends TestCase
 {
     use MockTrait;
 
-    public function testReturnsAnEntityManager()
+    /** @test */
+    public function returnsAnEntityManager()
     {
         $em = $this->ormInitMock();
 
         self::assertInstanceOf(EntityManager::class, $em);
     }
 
-    public function testEntityManagerIsAMock()
+    /** @test */
+    public function entityManagerIsAMock()
     {
         $em = $this->ormInitMock();
 
         self::assertInstanceOf(MockInterface::class, $em);
     }
 
-    public function testMocksConnection()
+    /** @test */
+    public function mocksConnection()
     {
         $em = $this->ormInitMock();
         $connection = $em->getConnection();
@@ -33,7 +36,8 @@ class InitMockTest extends TestCase
         self::assertInstanceOf(MockInterface::class, $em);
     }
 
-    public function testMocksSetAttribute()
+    /** @test */
+    public function mocksSetAttribute()
     {
         $em = $this->ormInitMock();
         $connection = $em->getConnection();
@@ -43,7 +47,8 @@ class InitMockTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testMocksDriverName()
+    /** @test */
+    public function mocksDriverName()
     {
         $em = $this->ormInitMock([], 'mssql');
         $connection = $em->getConnection();
@@ -53,7 +58,8 @@ class InitMockTest extends TestCase
         self::assertSame('mssql', $result);
     }
 
-    public function testMocksQuote()
+    /** @test */
+    public function mocksQuote()
     {
         $em = $this->ormInitMock();
         $connection = $em->getConnection();

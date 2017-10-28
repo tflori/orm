@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class EnumTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Enum::class));
     }
@@ -24,10 +25,9 @@ class EnumTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $allowedValues, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $allowedValues, $expected)
     {
         $type = new Enum($allowedValues);
 

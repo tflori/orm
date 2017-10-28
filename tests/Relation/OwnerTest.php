@@ -10,14 +10,16 @@ use ORM\Test\TestCase;
 class OwnerTest extends TestCase
 {
 
-    public function testGetsReturnedByGetRelation()
+    /** @test */
+    public function getsReturnedByGetRelation()
     {
         $result = RelationExample::getRelation('dmgd');
 
         self::assertInstanceOf(Owner::class, $result);
     }
 
-    public function testFetchFetchesWithPrimaryKeyFor1T1Owner()
+    /** @test */
+    public function fetchFetchesWithPrimaryKeyFor1T1Owner()
     {
         $entity = new RelationExample(['dmgd_id' => 42], $this->em);
         $related = new DamagedABBRVCase(['id' => 42]);
@@ -28,7 +30,8 @@ class OwnerTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testFetchReturnsNullWhenReferenceIsEmpty()
+    /** @test */
+    public function fetchReturnsNullWhenReferenceIsEmpty()
     {
         $entity = new RelationExample([], $this->em);
 
@@ -37,7 +40,8 @@ class OwnerTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testFetchAllReturnsTheEntity()
+    /** @test */
+    public function fetchAllReturnsTheEntity()
     {
         $entity = new RelationExample(['dmgd_id' => 42], $this->em);
         $related = new DamagedABBRVCase(['id' => 42]);

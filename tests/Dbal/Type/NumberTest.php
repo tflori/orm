@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class NumberTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Number::class));
     }
@@ -30,10 +31,9 @@ class NumberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $expected)
     {
         $type = new Number();
 

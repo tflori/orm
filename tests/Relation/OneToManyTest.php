@@ -14,14 +14,16 @@ use ORM\Test\TestCase;
 
 class OneToManyTest extends TestCase
 {
-    public function testGetsReturnedByGetRelation()
+    /** @test */
+    public function getsReturnedByGetRelation()
     {
         $result = RelationExample::getRelation('contactPhones');
 
         self::assertInstanceOf(OneToMany::class, $result);
     }
 
-    public function testFetchFiltersByForeignKeyAndReturnsFetcher()
+    /** @test */
+    public function fetchFiltersByForeignKeyAndReturnsFetcher()
     {
         $entity = new RelationExample(['id' => 42], $this->em);
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
@@ -33,7 +35,8 @@ class OneToManyTest extends TestCase
         self::assertSame($fetcher, $result);
     }
 
-    public function testFetchThrowsWhenOpponentIsNotDefined()
+    /** @test */
+    public function fetchThrowsWhenOpponentIsNotDefined()
     {
         $entity = new DamagedABBRVCase([], $this->em);
 
@@ -43,7 +46,8 @@ class OneToManyTest extends TestCase
         $entity->fetch('undefined1tm');
     }
 
-    public function testFetchThrowsWhenReferenceInOpponentIsNotDefined()
+    /** @test */
+    public function fetchThrowsWhenReferenceInOpponentIsNotDefined()
     {
         $entity = new Snake_Ucfirst([], $this->em);
 
@@ -53,7 +57,8 @@ class OneToManyTest extends TestCase
         $entity->fetch('invalid');
     }
 
-    public function testFetchReturnsAllWithGetAll()
+    /** @test */
+    public function fetchReturnsAllWithGetAll()
     {
         $entity = new RelationExample(['id' => 42], $this->em);
         $related = [new ContactPhone(), new ContactPhone()];
@@ -67,7 +72,8 @@ class OneToManyTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testFetchThrowsWhenKeyIsEmpty()
+    /** @test */
+    public function fetchThrowsWhenKeyIsEmpty()
     {
         $entity = new RelationExample([], $this->em);
 

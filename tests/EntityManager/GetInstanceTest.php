@@ -11,7 +11,8 @@ use PHPUnit\Framework\TestCase;
 class GetInstanceTest extends TestCase
 {
 
-    public function testReturnsTheLastCreatedEntityManager()
+    /** @test */
+    public function returnsTheLastCreatedEntityManager()
     {
         $em = new EntityManager();
         $last = new EntityManager();
@@ -19,7 +20,8 @@ class GetInstanceTest extends TestCase
         self::assertSame($last, EntityManager::getInstance());
     }
 
-    public function testReturnsLastCreatedFromOutsiteClass()
+    /** @test */
+    public function returnsLastCreatedFromOutsiteClass()
     {
         require_once __DIR__ . '/Examples/functions.php';
         $last = new EntityManager();
@@ -29,7 +31,8 @@ class GetInstanceTest extends TestCase
         self::assertSame($last, $em);
     }
 
-    public function testDefineForNamespace()
+    /** @test */
+    public function defineForNamespace()
     {
         $em = new EntityManager();
 
@@ -38,7 +41,8 @@ class GetInstanceTest extends TestCase
         self::assertSame($em, EntityManager::getInstance(Examples\SubNamespace\Entity::class));
     }
 
-    public function testDefineForParent()
+    /** @test */
+    public function defineForParent()
     {
         $em = new EntityManager();
 
@@ -47,7 +51,8 @@ class GetInstanceTest extends TestCase
         self::assertSame($em, EntityManager::getInstance(Concrete::class));
     }
 
-    public function testReturnsLastIfNotSpecified()
+    /** @test */
+    public function returnsLastIfNotSpecified()
     {
         $em = new EntityManager();
         $em->defineForNamespace(Examples\SubNamespace::class);

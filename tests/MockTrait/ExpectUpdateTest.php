@@ -25,7 +25,8 @@ class ExpectUpdateTest extends MockeryTestCase
         m::close();
     }
 
-    public function testExpectsSave()
+    /** @test */
+    public function expectsSave()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
         $this->ormExpectUpdate($article);
@@ -35,7 +36,8 @@ class ExpectUpdateTest extends MockeryTestCase
         m::close();
     }
 
-    public function testDoesNotEmulateUpdateWhenNotDirty()
+    /** @test */
+    public function doesNotEmulateUpdateWhenNotDirty()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
         $this->ormExpectUpdate($article);
@@ -45,7 +47,8 @@ class ExpectUpdateTest extends MockeryTestCase
         $this->updateEntity(Article::class, 42);
     }
 
-    public function testUpdatesTheDataFromDatabase()
+    /** @test */
+    public function updatesTheDataFromDatabase()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
         $this->ormExpectUpdate($article, [], ['title' => 'Don`t Panic!']);
@@ -55,7 +58,8 @@ class ExpectUpdateTest extends MockeryTestCase
         $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
     }
 
-    public function testEmulatesUpdate()
+    /** @test */
+    public function emulatesUpdate()
     {
         $article = $this->ormCreateMockedEntity(Article::class, [
             'id' => 42,

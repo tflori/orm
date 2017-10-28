@@ -20,7 +20,8 @@ class DescribeTest extends TestCase
         $this->dbal = new Sqlite($this->em);
     }
 
-    public function testQueriesDescribeTable()
+    /** @test */
+    public function queriesDescribeTable()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('PRAGMA "db".table_info("table")')->once()
@@ -32,7 +33,8 @@ class DescribeTest extends TestCase
         $this->dbal->describe('db.table');
     }
 
-    public function testQueriesMainSchema()
+    /** @test */
+    public function queriesMainSchema()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('PRAGMA table_info("table")')->once()
@@ -74,10 +76,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnData
-     */
-    public function testColumnData($data, $method, $expected)
+    /** @dataProvider provideColumnData
+     * @test */
+    public function columnData($data, $method, $expected)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
@@ -93,7 +94,8 @@ class DescribeTest extends TestCase
         }
     }
 
-    public function testMultiplePrimaryKeyHasNoDefault()
+    /** @test */
+    public function multiplePrimaryKeyHasNoDefault()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
@@ -145,10 +147,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTypes
-     */
-    public function testColumnTypes($type, $class)
+    /** @dataProvider provideTypes
+     * @test */
+    public function columnTypes($type, $class)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()->andReturn($statement);

@@ -10,7 +10,8 @@ use ORM\Test\TestCase;
 
 class ConnectionsTest extends TestCase
 {
-    public function testSetConnectionAcceptsOnlyCallableArrayDbConfig()
+    /** @test */
+    public function setConnectionAcceptsOnlyCallableArrayDbConfig()
     {
         $em = new EntityManager();
         self::expectException(InvalidConfiguration::class);
@@ -37,10 +38,9 @@ class ConnectionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValidConnectionSettings
-     */
-    public function testSetConnectionAccepts($value)
+    /** @dataProvider provideValidConnectionSettings
+     * @test */
+    public function setConnectionAccepts($value)
     {
         if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite extension required for this test');
@@ -58,7 +58,8 @@ class ConnectionsTest extends TestCase
         );
     }
 
-    public function testSetConnectionDoesNotCallGetter()
+    /** @test */
+    public function setConnectionDoesNotCallGetter()
     {
         $em = new EntityManager();
         $mock = \Mockery::mock(\stdClass::class);
@@ -67,7 +68,8 @@ class ConnectionsTest extends TestCase
         $em->setConnection([$mock, 'get']);
     }
 
-    public function testGetConnectionCallsGetterAndThrows()
+    /** @test */
+    public function getConnectionCallsGetterAndThrows()
     {
         $em = new EntityManager();
         $mock = \Mockery::mock(\stdClass::class);
@@ -79,7 +81,8 @@ class ConnectionsTest extends TestCase
         $em->getConnection();
     }
 
-    public function testGetConnectionCallsGetterAndReturnsTheResult()
+    /** @test */
+    public function getConnectionCallsGetterAndReturnsTheResult()
     {
         if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite extension required for this test');
@@ -96,7 +99,8 @@ class ConnectionsTest extends TestCase
         self::assertSame($pdo, $result);
     }
 
-    public function testGetConnectionThrows()
+    /** @test */
+    public function getConnectionThrows()
     {
         $em = new EntityManager();
         self::expectException(NoConnection::class);
@@ -105,7 +109,8 @@ class ConnectionsTest extends TestCase
         $em->getConnection();
     }
 
-    public function testGetConnectionUsesConfiguredDbConfig()
+    /** @test */
+    public function getConnectionUsesConfiguredDbConfig()
     {
         if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite extension required for this test');
@@ -124,7 +129,8 @@ class ConnectionsTest extends TestCase
         );
     }
 
-    public function testConfigurationArray()
+    /** @test */
+    public function configurationArray()
     {
         if (!extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite extension required for this test');

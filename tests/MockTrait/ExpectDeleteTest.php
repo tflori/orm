@@ -25,7 +25,8 @@ class ExpectDeleteTest extends MockeryTestCase
         m::close();
     }
 
-    public function testAllowsDeleteOfEntity()
+    /** @test */
+    public function allowsDeleteOfEntity()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
 
@@ -34,7 +35,8 @@ class ExpectDeleteTest extends MockeryTestCase
         $this->deleteArticle(42);
     }
 
-    public function testAllowsDeleteOfClass()
+    /** @test */
+    public function allowsDeleteOfClass()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
 

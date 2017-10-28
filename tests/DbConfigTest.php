@@ -28,10 +28,9 @@ class DbConfigTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideAttributes
-     */
-    public function testConstructorSetsDsn($args, $expectedDsn)
+    /** @dataProvider provideAttributes
+     * @test */
+    public function constructorSetsDsn($args, $expectedDsn)
     {
         if ($args[0] === 'mysql' && !extension_loaded('pdo_mysql')) {
             self::markTestSkipped('pdo_mysql extension required');

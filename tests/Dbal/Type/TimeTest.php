@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class TimeTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Time::class));
     }
@@ -30,10 +31,9 @@ class TimeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $expected)
     {
         $type = new Time(3);
 

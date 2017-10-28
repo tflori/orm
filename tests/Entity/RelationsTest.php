@@ -94,10 +94,9 @@ class RelationsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideRelationDefinitions
-     */
-    public function testGetRelationAlwaysHasClassAndCardinality($class, $relation, $type, $related)
+    /** @dataProvider provideRelationDefinitions
+     * @test */
+    public function getRelationAlwaysHasClassAndCardinality($class, $relation, $type, $related)
     {
         $relationDefinition = $class::getRelation($relation);
 
@@ -105,10 +104,9 @@ class RelationsTest extends TestCase
         self::assertSame($related, $relationDefinition->getClass());
     }
 
-    /**
-     * @dataProvider provideRelationDefinitions
-     */
-    public function testGetRelationReturnsTheSameObject($class, $relation)
+    /** @dataProvider provideRelationDefinitions
+     * @test */
+    public function getRelationReturnsTheSameObject($class, $relation)
     {
         $result1 = $class::getRelation($relation);
         $result2 = $class::getRelation($relation);
@@ -116,7 +114,8 @@ class RelationsTest extends TestCase
         self::assertSame($result1, $result2);
     }
 
-    public function testThrowsWhenRelationUndefined()
+    /** @test */
+    public function throwsWhenRelationUndefined()
     {
         self::expectException(UndefinedRelation::class);
         self::expectExceptionMessage('Relation undefinedRel is not defined');
@@ -124,7 +123,8 @@ class RelationsTest extends TestCase
         RelationExample::getRelation('undefinedRel');
     }
 
-    public function testThrowsWhenShortFormIsInvalid()
+    /** @test */
+    public function throwsWhenShortFormIsInvalid()
     {
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Invalid short form for relation invalid');
@@ -132,24 +132,32 @@ class RelationsTest extends TestCase
         RelationExample::getRelation('invalid');
     }
 
-    /**
-     * @dataProvider provideRelationDefinitions
-     */
-    public function testShortRelationDefinitionReference($class, $relation, $cardinality, $related, $reference)
+    public function provideRelationDefinitionsWithReference()
     {
-        if (!$reference) {
-            return;
-        }
+        return array_filter($this->provideRelationDefinitions(), function ($definition) {
+            return !empty($definition[5]);
+        });
+    }
 
+    /** @dataProvider provideRelationDefinitionsWithReference
+     * @test */
+    public function shortRelationDefinitionReference($class, $relation, $cardinality, $related, $reference)
+    {
         $relationDefinition = $class::getRelation($relation);
 
         self::assertSame($reference, $relationDefinition->getReference());
     }
 
-    /**
-     * @dataProvider provideRelationDefinitions
-     */
-    public function testShortRelationDefinitionOpponent(
+    public function provideRelationDefinitionsWithOpponent()
+    {
+        return array_filter($this->provideRelationDefinitions(), function ($definition) {
+            return !empty($definition[6]);
+        });
+    }
+
+    /** @dataProvider provideRelationDefinitionsWithOpponent
+     * @test */
+    public function shortRelationDefinitionOpponent(
         $class,
         $relation,
         $cardinality,
@@ -157,9 +165,6 @@ class RelationsTest extends TestCase
         $reference,
         $opponent = null
     ) {
-        if (!$opponent) {
-            return;
-        }
         $opponentRelation = $related::getRelation($opponent);
 
         $relationDefinition = $class::getRelation($relation);
@@ -167,10 +172,16 @@ class RelationsTest extends TestCase
         self::assertSame($opponentRelation, $relationDefinition->getOpponent());
     }
 
-    /**
-     * @dataProvider provideRelationDefinitions
-     */
-    public function testShortRelationDefinitionTable(
+    public function provideRelationDefinitionsWithTable()
+    {
+        return array_filter($this->provideRelationDefinitions(), function ($definition) {
+            return !empty($definition[6]);
+        });
+    }
+
+    /** @dataProvider provideRelationDefinitionsWithTable
+     * @test */
+    public function shortRelationDefinitionTable(
         $class,
         $relation,
         $cardinality,
@@ -179,16 +190,13 @@ class RelationsTest extends TestCase
         $opponent = null,
         $table = null
     ) {
-        if (!$table) {
-            return;
-        }
-
         $relationDefinition = $class::getRelation($relation);
 
         self::assertSame($table, $relationDefinition->getTable());
     }
 
-    public function testGetsEntityManagerViaGetInstance()
+    /** @test */
+    public function getsEntityManagerViaGetInstance()
     {
         $entity = new Article(['id' => 42]);
         $em = EntityManager::getInstance(Article::class);
@@ -197,7 +205,8 @@ class RelationsTest extends TestCase
         $entity->fetch('categories');
     }
 
-    public function testFetchUsesEntityManagerFromConstruct()
+    /** @test */
+    public function fetchUsesEntityManagerFromConstruct()
     {
         $entity = new Article(['id' => 42], $this->em);
 
@@ -214,10 +223,9 @@ class RelationsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideRelationsWithCardinalityOne
-     */
-    public function testGetRelatedReturnsResultFromFetchFor($class, $relation)
+    /** @dataProvider provideRelationsWithCardinalityOne
+     * @test */
+    public function getRelatedReturnsResultFromFetchFor($class, $relation)
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
@@ -228,10 +236,9 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    /**
-     * @dataProvider provideRelationsWithCardinalityOne
-     */
-    public function testGetRelatedStoresTheValue($class, $relation)
+    /** @dataProvider provideRelationsWithCardinalityOne
+     * @test */
+    public function getRelatedStoresTheValue($class, $relation)
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
@@ -243,10 +250,9 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    /**
-     * @dataProvider provideRelationsWithCardinalityOne
-     */
-    public function testRefreshsRelationWithRefresh($class, $relation)
+    /** @dataProvider provideRelationsWithCardinalityOne
+     * @test */
+    public function refreshsRelationWithRefresh($class, $relation)
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
@@ -258,10 +264,9 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    /**
-     * @dataProvider provideRelationsWithCardinalityOne
-     */
-    public function testGetRelatedDoesNotStoreNullValues($class, $relation)
+    /** @dataProvider provideRelationsWithCardinalityOne
+     * @test */
+    public function getRelatedDoesNotStoreNullValues($class, $relation)
     {
         $entity = \Mockery::mock($class)->makePartial();
         $related = new StudlyCaps();
@@ -273,7 +278,8 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testSetRelationStoresTheId()
+    /** @test */
+    public function setRelationStoresTheId()
     {
         $entity = new RelationExample();
         $related = new StudlyCaps(['id' => 42]);
@@ -283,7 +289,8 @@ class RelationsTest extends TestCase
         self::assertSame(42, $entity->studlyCapsId);
     }
 
-    public function testSetRelationThrowsWhenKeyIsIncomplete()
+    /** @test */
+    public function setRelationThrowsWhenKeyIsIncomplete()
     {
         $entity = new RelationExample();
         $related = new StudlyCaps();
@@ -294,7 +301,8 @@ class RelationsTest extends TestCase
         $entity->setRelated('studlyCaps', $related);
     }
 
-    public function testSetRelationThrowsWhenClassWrong()
+    /** @test */
+    public function setRelationThrowsWhenClassWrong()
     {
         $entity = new RelationExample();
 
@@ -304,7 +312,8 @@ class RelationsTest extends TestCase
         $entity->setRelated('studlyCaps', new Psr0_StudlyCaps(['id' => 42]));
     }
 
-    public function testSetRelationThrowsForNonOwner()
+    /** @test */
+    public function setRelationThrowsForNonOwner()
     {
         $entity = new DamagedABBRVCase();
 
@@ -314,7 +323,8 @@ class RelationsTest extends TestCase
         $entity->setRelated('relation', new RelationExample());
     }
 
-    public function testSetRelationStoresTheRelatedObject()
+    /** @test */
+    public function setRelationStoresTheRelatedObject()
     {
         $entity = \Mockery::mock(RelationExample::class)->makePartial();
         $related = new StudlyCaps(['id' => 42]);
@@ -326,7 +336,8 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    public function testSetRelationAllowsNull()
+    /** @test */
+    public function setRelationAllowsNull()
     {
         $entity = new RelationExample([], $this->em);
         $related = new StudlyCaps(['id' => 42]);
@@ -338,7 +349,8 @@ class RelationsTest extends TestCase
         self::assertNull($entity->getRelated('studlyCaps'));
     }
 
-    public function testAddRelatedCreatesTheAssociation()
+    /** @test */
+    public function addRelatedCreatesTheAssociation()
     {
         $article = new Article(['id' => 42], $this->em);
         $category = new Category(['id' => 23]);
@@ -349,7 +361,8 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [$category]);
     }
 
-    public function testAddRelatedCreatesAMultilineInsert()
+    /** @test */
+    public function addRelatedCreatesAMultilineInsert()
     {
         $article = new Article(['id' => 42], $this->em);
         $category1 = new Category(['id' => 23]);
@@ -361,7 +374,8 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [$category1, $category2]);
     }
 
-    public function testAddRelatedThrowsWhenClassWrong()
+    /** @test */
+    public function addRelatedThrowsWhenClassWrong()
     {
         $article = new Article(['id' => 42], $this->em);
 
@@ -371,7 +385,8 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [new Category(['id' => 23]), new StudlyCaps()]);
     }
 
-    public function testAddRelatedThrowsWhenRelationIsNotManyToMany()
+    /** @test */
+    public function addRelatedThrowsWhenRelationIsNotManyToMany()
     {
         $entity = new RelationExample([], $this->em);
 
@@ -381,7 +396,8 @@ class RelationsTest extends TestCase
         $entity->addRelated('studlyCaps', [new StudlyCaps(['id' => 23])]);
     }
 
-    public function testAddRelatedThrowsWhenEntityHasNoKey()
+    /** @test */
+    public function addRelatedThrowsWhenEntityHasNoKey()
     {
         $entity = new Article([], $this->em);
 
@@ -391,7 +407,8 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', [new Category(['id' => 23])]);
     }
 
-    public function testAddRelatedThrowsWhenARelationHasNoKey()
+    /** @test */
+    public function addRelatedThrowsWhenARelationHasNoKey()
     {
         $entity = new Article(['id' => 42], $this->em);
 
@@ -401,7 +418,8 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', [new Category(['id' => 23]), new Category()]);
     }
 
-    public function testAddRelatedDoesNothingWithEmptyArray()
+    /** @test */
+    public function addRelatedDoesNothingWithEmptyArray()
     {
         $entity = new Article(['id' => 42], $this->em);
         $this->pdo->shouldNotReceive('query');
@@ -409,7 +427,8 @@ class RelationsTest extends TestCase
         $entity->addRelated('categories', []);
     }
 
-    public function testAddRelatedAllowsToPassEntityManager()
+    /** @test */
+    public function addRelatedAllowsToPassEntityManager()
     {
         $article = new Article(['id' => 42]);
         $category = new Category(['id' => 23]);
@@ -420,7 +439,8 @@ class RelationsTest extends TestCase
         $article->addRelated('categories', [$category]);
     }
 
-    public function testDeleteRelatedDeletesTheAssociation()
+    /** @test */
+    public function deleteRelatedDeletesTheAssociation()
     {
         $article = new Article(['id' => 42], $this->em);
         $category = new Category(['id' => 23]);
@@ -431,7 +451,8 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [$category]);
     }
 
-    public function testDeleteRelatedExecutesOnlyOneStatement()
+    /** @test */
+    public function deleteRelatedExecutesOnlyOneStatement()
     {
         $article = new Article(['id' => 42], $this->em);
         $category1 = new Category(['id' => 23]);
@@ -444,7 +465,8 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [$category1, $category2]);
     }
 
-    public function testDeleteRelatedThrowsWhenClassWrong()
+    /** @test */
+    public function deleteRelatedThrowsWhenClassWrong()
     {
         $article = new Article(['id' => 42], $this->em);
 
@@ -454,7 +476,8 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [new Category(['id' => 23]), new StudlyCaps()]);
     }
 
-    public function testDeleteRelatedThrowsWhenRelationIsNotManyToMany()
+    /** @test */
+    public function deleteRelatedThrowsWhenRelationIsNotManyToMany()
     {
         $entity = new RelationExample([], $this->em);
 
@@ -464,7 +487,8 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('studlyCaps', [new StudlyCaps(['id' => 23])]);
     }
 
-    public function testDeleteRelatedThrowsWhenEntityHasNoKey()
+    /** @test */
+    public function deleteRelatedThrowsWhenEntityHasNoKey()
     {
         $entity = new Article([], $this->em);
 
@@ -474,7 +498,8 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', [new Category(['id' => 23])]);
     }
 
-    public function testDeleteRelatedThrowsWhenARelationHasNoKey()
+    /** @test */
+    public function deleteRelatedThrowsWhenARelationHasNoKey()
     {
         $entity = new Article(['id' => 42], $this->em);
 
@@ -484,7 +509,8 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', [new Category(['id' => 23]), new Category()]);
     }
 
-    public function testDeleteRelatedDoesNothingWithEmptyArray()
+    /** @test */
+    public function deleteRelatedDoesNothingWithEmptyArray()
     {
         $entity = new Article(['id' => 42], $this->em);
         $this->pdo->shouldNotReceive('query');
@@ -492,7 +518,8 @@ class RelationsTest extends TestCase
         $entity->deleteRelated('categories', []);
     }
 
-    public function testDeleteRelatedAllowsToPassEntityManager()
+    /** @test */
+    public function deleteRelatedAllowsToPassEntityManager()
     {
         $article = new Article(['id' => 42]);
         $category = new Category(['id' => 23]);
@@ -504,7 +531,8 @@ class RelationsTest extends TestCase
         $article->deleteRelated('categories', [$category]);
     }
 
-    public function testSerializeSavesRelated()
+    /** @test */
+    public function serializeSavesRelated()
     {
         $entity = new RelationExample();
         $related = new DamagedABBRVCase(['id' => 42]);

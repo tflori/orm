@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Test\Dbal;
+namespace ORM\Test;
 
 use ORM\EntityManager;
 

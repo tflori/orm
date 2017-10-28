@@ -25,14 +25,16 @@ class CreateMockedEntityTest extends MockeryTestCase
         \Mockery::close();
     }
 
-    public function testReturnsTheEntity()
+    /** @test */
+    public function returnsTheEntity()
     {
         $article = $this->ormCreateMockedEntity(Article::class);
 
         self::assertInstanceOf(Article::class, $article);
     }
 
-    public function testSetsTheData()
+    /** @test */
+    public function setsTheData()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
 
@@ -40,7 +42,8 @@ class CreateMockedEntityTest extends MockeryTestCase
         self::assertSame('Hello World!', $article->title);
     }
 
-    public function testUpdateTheMock()
+    /** @test */
+    public function updateTheMock()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
         $article->shouldReceive('save')->once();

@@ -2,10 +2,7 @@
 
 namespace ORM\Test\EntityManager;
 
-use ORM\Dbal\Dbal;
 use ORM\EntityManager;
-use ORM\QueryBuilder\QueryBuilder;
-use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class OptionsTest extends TestCase
@@ -20,10 +17,9 @@ class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideOptions
-     */
-    public function testSetsOptionsOnConstruct($option, $value)
+    /** @dataProvider provideOptions
+     * @test */
+    public function setsOptionsOnConstruct($option, $value)
     {
         $emMock = \Mockery::mock(EntityManager::class)->makePartial();
 
@@ -34,10 +30,9 @@ class OptionsTest extends TestCase
         ]);
     }
 
-    /**
-     * @dataProvider provideOptions
-     */
-    public function testSetOptionStores($option, $value)
+    /** @dataProvider provideOptions
+     * @test */
+    public function setOptionStores($option, $value)
     {
         $this->em->setOption($option, $value);
 
@@ -59,10 +54,9 @@ class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDbalStatics
-     */
-    public function testSetsStaticsFromDbal($option, $value, $method, $param, $expected)
+    /** @dataProvider provideDbalStatics
+     * @test */
+    public function setsStaticsFromDbal($option, $value, $method, $param, $expected)
     {
         $this->em->setOption($option, $value);
         $this->em->shouldReceive('getDbal')->passthru();
@@ -75,7 +69,8 @@ class OptionsTest extends TestCase
         self::assertSame($expected, $result);
     }
 
-    public function testSetsConnectionOnConstruct()
+    /** @test */
+    public function setsConnectionOnConstruct()
     {
         $emMock = \Mockery::mock(EntityManager::class)->makePartial();
         $emMock->shouldReceive('setConnection')->with('something')->once();
@@ -97,10 +92,9 @@ class OptionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDeprecatedOptions
-     */
-    public function testConvertsDeprecatedOptions($deprecated, $actual, $value)
+    /** @dataProvider provideDeprecatedOptions
+     * @test */
+    public function convertsDeprecatedOptions($deprecated, $actual, $value)
     {
         $em = new EntityManager([$deprecated => $value]);
 

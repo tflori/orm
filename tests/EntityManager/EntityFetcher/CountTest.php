@@ -25,7 +25,8 @@ class CountTest extends TestCase
             ->andReturn(42)->byDefault();
     }
 
-    public function testCountReturnsInteger()
+    /** @test */
+    public function countReturnsInteger()
     {
         $fetcher = $this->em->fetch(DamagedABBRVCase::class);
 
@@ -34,7 +35,8 @@ class CountTest extends TestCase
         self::assertInternalType('integer', $result);
     }
 
-    public function testCountExecutesQuery()
+    /** @test */
+    public function countExecutesQuery()
     {
         /** @var EntityFetcher $fetcher */
         $fetcher = $this->em->fetch(StudlyCaps::class);
@@ -47,7 +49,8 @@ class CountTest extends TestCase
         $fetcher->count();
     }
 
-    public function testFetchesAfterCount()
+    /** @test */
+    public function fetchesAfterCount()
     {
         /** @var EntityFetcher $fetcher */
         $fetcher = $this->em->fetch(StudlyCaps::class);
@@ -61,7 +64,8 @@ class CountTest extends TestCase
         $fetcher->one();
     }
 
-    public function testConvertsResultToInt()
+    /** @test */
+    public function convertsResultToInt()
     {
         /** @var EntityFetcher $fetcher */
         $fetcher = $this->em->fetch(StudlyCaps::class);

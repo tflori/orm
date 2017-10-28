@@ -17,7 +17,8 @@ use ORM\Test\TestCase;
 
 class EntityFetcherTest extends TestCase
 {
-    public function testRunsQueryWithoutParameters()
+    /** @test */
+    public function runsQueryWithoutParameters()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
@@ -26,7 +27,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testReturnsNullWhenQueryFails()
+    /** @test */
+    public function returnsNullWhenQueryFails()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $this->pdo->shouldReceive('query')->andReturn(false);
@@ -36,7 +38,8 @@ class EntityFetcherTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testReturnsNullWhenResultIsEmpty()
+    /** @test */
+    public function returnsNullWhenResultIsEmpty()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
@@ -48,7 +51,8 @@ class EntityFetcherTest extends TestCase
         self::assertNull($result);
     }
 
-    public function testExecutesQueryOnce()
+    /** @test */
+    public function executesQueryOnce()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
@@ -60,7 +64,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testUsesSpecifiedQuery()
+    /** @test */
+    public function usesSpecifiedQuery()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $this->pdo->shouldReceive('query')->once()
@@ -71,7 +76,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testAcceptsQueryBuilderInterface()
+    /** @test */
+    public function acceptsQueryBuilderInterface()
     {
         $query = \Mockery::mock(QueryBuilder::class);
         $query->shouldReceive('getQuery')->once()->andReturn('SELECT * FROM foobar');
@@ -83,7 +89,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testDoesNotReplaceColumnsAndClasses()
+    /** @test */
+    public function doesNotReplaceColumnsAndClasses()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $this->pdo->shouldReceive('query')->once()
@@ -94,7 +101,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testReplacesQuestionmarksWithQuotedValue()
+    /** @test */
+    public function replacesQuestionmarksWithQuotedValue()
     {
         $fetcher = new EntityFetcher($this->em, ContactPhone::class);
         $this->pdo->shouldReceive('query')->once()
@@ -107,7 +115,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->one();
     }
 
-    public function testReturnsAnEntity()
+    /** @test */
+    public function returnsAnEntity()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
@@ -123,7 +132,8 @@ class EntityFetcherTest extends TestCase
         self::assertInstanceOf(ContactPhone::class, $contactPhone);
     }
 
-    public function testReturnsPreviouslyMapped()
+    /** @test */
+    public function returnsPreviouslyMapped()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -145,7 +155,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame($e1, $contactPhone);
     }
 
-    public function testUpdatesOriginalData()
+    /** @test */
+    public function updatesOriginalData()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -169,7 +180,8 @@ class EntityFetcherTest extends TestCase
         self::assertFalse($contactPhone->isDirty());
     }
 
-    public function testResetsData()
+    /** @test */
+    public function resetsData()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -192,7 +204,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('+49 151 00000000', $contactPhone->number);
     }
 
-    public function testResetsOnlyNonDirty()
+    /** @test */
+    public function resetsOnlyNonDirty()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -220,7 +233,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('+49 151 00000000', $contactPhone->number);
     }
 
-    public function testAllReturnsEmptyArray()
+    /** @test */
+    public function allReturnsEmptyArray()
     {
         /** @var EntityFetcher|Mock $fetcher */
         $fetcher = \Mockery::mock(EntityFetcher::class, [$this->em, ContactPhone::class])->makePartial();
@@ -231,7 +245,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame([], $contactPhones);
     }
 
-    public function testAllReturnsArrayWithAllEntities()
+    /** @test */
+    public function allReturnsArrayWithAllEntities()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -259,7 +274,8 @@ class EntityFetcherTest extends TestCase
         ], $contactPhones);
     }
 
-    public function testAllReturnsRemainingEntities()
+    /** @test */
+    public function allReturnsRemainingEntities()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -288,7 +304,8 @@ class EntityFetcherTest extends TestCase
         ], $contactPhones);
     }
 
-    public function testAllReturnsLimitedAmount()
+    /** @test */
+    public function allReturnsLimitedAmount()
     {
         $e1 = new ContactPhone([
             'id' => 42,
@@ -315,7 +332,8 @@ class EntityFetcherTest extends TestCase
         ], $contactPhones);
     }
 
-    public function testColumnsCantBeChanged()
+    /** @test */
+    public function columnsCantBeChanged()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $fetcher->columns(['a', 'b']);
@@ -334,10 +352,9 @@ class EntityFetcherTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinsGetAliasAutomatically($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinsGetAliasAutomatically($method, $sql)
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
@@ -349,7 +366,8 @@ class EntityFetcherTest extends TestCase
         );
     }
 
-    public function testJoinAllowsTableNames()
+    /** @test */
+    public function joinAllowsTableNames()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
@@ -361,7 +379,8 @@ class EntityFetcherTest extends TestCase
         );
     }
 
-    public function testTranslatesColumnNames()
+    /** @test */
+    public function translatesColumnNames()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -370,7 +389,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('SELECT DISTINCT t0.* FROM "my_table" AS t0 WHERE "t0"."stn_id" = 23', $fetcher->getQuery());
     }
 
-    public function testTranslatesClassNames()
+    /** @test */
+    public function translatesClassNames()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -379,7 +399,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('SELECT DISTINCT t0.* FROM "my_table" AS t0 WHERE "t0"."stn_id" = 23', $fetcher->getQuery());
     }
 
-    public function testThrowsWhenClassIsNotJoined()
+    /** @test */
+    public function throwsWhenClassIsNotJoined()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -389,7 +410,8 @@ class EntityFetcherTest extends TestCase
         $fetcher->where(ContactPhone::class . '::id', 23);
     }
 
-    public function testDoesNotTouchUnknownAlias()
+    /** @test */
+    public function doesNotTouchUnknownAlias()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -398,7 +420,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('SELECT DISTINCT t0.* FROM "my_table" AS t0 WHERE foobar.id = 23', $fetcher->getQuery());
     }
 
-    public function testKnowsAliasesInParenthesis()
+    /** @test */
+    public function knowsAliasesInParenthesis()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -407,7 +430,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame('SELECT DISTINCT t0.* FROM "my_table" AS t0 WHERE ("t0"."stn_id" = 23)', $fetcher->getQuery());
     }
 
-    public function testDoesNotReplaceUpperCaseWords()
+    /** @test */
+    public function doesNotReplaceUpperCaseWords()
     {
         $fetcher = $this->em->fetch(StaticTableName::class);
 
@@ -439,10 +463,9 @@ class EntityFetcherTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideRelations
-     */
-    public function testJoinRelatedCreatesJoinStatement($class, $relation, $statement)
+    /** @dataProvider provideRelations
+     * @test */
+    public function joinRelatedCreatesJoinStatement($class, $relation, $statement)
     {
         $fetcher = $this->em->fetch($class);
 
@@ -454,10 +477,9 @@ class EntityFetcherTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideRelations
-     */
-    public function testLeftJoinRelatedCreatesLeftJoinStatement($class, $relation, $statement)
+    /** @dataProvider provideRelations
+     * @test */
+    public function leftJoinRelatedCreatesLeftJoinStatement($class, $relation, $statement)
     {
         $fetcher = $this->em->fetch($class);
 
@@ -469,7 +491,8 @@ class EntityFetcherTest extends TestCase
         );
     }
 
-    public function testReturnsSelf()
+    /** @test */
+    public function returnsSelf()
     {
         $fetcher = $this->em->fetch(DamagedABBRVCase::class);
 
@@ -478,7 +501,8 @@ class EntityFetcherTest extends TestCase
         self::assertSame($fetcher, $result);
     }
 
-    public function testChainedJoin()
+    /** @test */
+    public function chainedJoin()
     {
         $fetcher = $this->em->fetch(DamagedABBRVCase::class);
 

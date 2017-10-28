@@ -18,10 +18,9 @@ class JoinTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinWithUsing($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinWithUsing($method, $sql)
     {
         $query = new QueryBuilder('foo');
 
@@ -31,10 +30,9 @@ class JoinTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinWithExpression($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinWithExpression($method, $sql)
     {
         $query = new QueryBuilder('foo');
 
@@ -44,10 +42,9 @@ class JoinTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinWithExpressionAndArg($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinWithExpressionAndArg($method, $sql)
     {
         $query = new QueryBuilder('foo');
 
@@ -60,10 +57,9 @@ class JoinTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinWithExpressionAndArgs($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinWithExpressionAndArgs($method, $sql)
     {
         $query = new QueryBuilder('foo');
 
@@ -76,10 +72,9 @@ class JoinTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testJoinWithParenthesis($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function joinWithParenthesis($method, $sql)
     {
         $query = new QueryBuilder('foo');
 
@@ -94,10 +89,9 @@ class JoinTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideJoins
-     */
-    public function testEmptyJoin($method, $sql)
+    /** @dataProvider provideJoins
+     * @test */
+    public function emptyJoin($method, $sql)
     {
         $query = new QueryBuilder('foo');
 

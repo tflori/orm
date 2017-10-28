@@ -26,10 +26,9 @@ class ColumnTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnDefinitions
-     */
-    public function testMagicGetter($columnDefinition, $var, $expected)
+    /** @dataProvider provideColumnDefinitions
+     * @test */
+    public function magicGetter($columnDefinition, $var, $expected)
     {
         $column = new Column($this->dbal, $columnDefinition);
 

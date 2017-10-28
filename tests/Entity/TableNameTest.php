@@ -14,14 +14,16 @@ use ORM\Test\TestCase;
 
 class TableNameTest extends TestCase
 {
-    public function testUsesStaticTableName()
+    /** @test */
+    public function usesStaticTableName()
     {
         $tableName = StaticTableName::getTableName();
 
         self::assertSame('my_table', $tableName);
     }
 
-    public function testThrowsForUnknownNamingScheme()
+    /** @test */
+    public function throwsForUnknownNamingScheme()
     {
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Naming scheme foobar unknown');
@@ -76,10 +78,9 @@ class TableNameTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideNamingScheme
-     */
-    public function testTableNamingByNamingScheme($class, $namingScheme, $expected)
+    /** @dataProvider provideNamingScheme
+     * @test */
+    public function tableNamingByNamingScheme($class, $namingScheme, $expected)
     {
         Entity::setTableNameTemplate('%short%');
         Entity::setNamingSchemeTable($namingScheme);
@@ -90,7 +91,8 @@ class TableNameTest extends TestCase
         self::assertSame($expected, $tableName);
     }
 
-    public function testThrowsForIllegalTemplates()
+    /** @test */
+    public function throwsForIllegalTemplates()
     {
         Entity::setTableNameTemplate('%foobar%');
 
@@ -126,10 +128,9 @@ class TableNameTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTemplate
-     */
-    public function testTableNamingByTemplate($class, $template, $expected)
+    /** @dataProvider provideTemplate
+     * @test */
+    public function tableNamingByTemplate($class, $template, $expected)
     {
         Entity::setTableNameTemplate($template);
         Entity::setNamingSchemeTable('snake_case');

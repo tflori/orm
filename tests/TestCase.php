@@ -2,15 +2,16 @@
 
 namespace ORM\Test;
 
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\Mock;
 use ORM\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
-use ORM\Test\Dbal\TestEntityManager;
 
-abstract class TestCase extends MockeryTestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use MockeryPHPUnitIntegration;
+
     /** @var EntityManager|Mock */
     protected $em;
 
@@ -48,9 +49,29 @@ abstract class TestCase extends MockeryTestCase
         QueryBuilder::$defaultEntityManager = $this->em;
     }
 
-    public function tearDown()
+    /**
+     * Performs assertions shared by all tests of a test case. This method is
+     * called before execution of a test ends and before the tearDown method.
+     */
+    protected function assertPostConditions()
     {
-        parent::tearDown();
+        $this->addMockeryExpectationsToAssertionCount();
         $this->closeMockery();
+
+        parent::assertPostConditions();
+    }
+
+    protected function addMockeryExpectationsToAssertionCount()
+    {
+        $container = \Mockery::getContainer();
+        if ($container != null) {
+            $count = $container->mockery_getExpectationCount();
+            $this->addToAssertionCount($count);
+        }
+    }
+
+    protected function closeMockery()
+    {
+        \Mockery::close();
     }
 }

@@ -20,7 +20,8 @@ class DescribeTest extends TestCase
         $this->dbal = new Pgsql($this->em);
     }
 
-    public function testQueriesDescribeTable()
+    /** @test */
+    public function queriesDescribeTable()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with(
@@ -36,7 +37,8 @@ class DescribeTest extends TestCase
         $this->dbal->describe('db.table');
     }
 
-    public function testQueriesPublicSchema()
+    /** @test */
+    public function queriesPublicSchema()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with(
@@ -81,10 +83,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideTypes
-     */
-    public function testColumnTypes($type, $class)
+    /** @dataProvider provideTypes
+     * @test */
+    public function columnTypes($type, $class)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()->andReturn($statement);
@@ -143,10 +144,9 @@ class DescribeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideColumnData
-     */
-    public function testColumnData($data, $method, $expected)
+    /** @dataProvider provideColumnData
+     * @test */
+    public function columnData($data, $method, $expected)
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);

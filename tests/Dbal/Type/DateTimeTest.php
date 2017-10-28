@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class DateTimeTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(DateTime::class));
     }
@@ -34,10 +35,9 @@ class DateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValuesWithTime
-     */
-    public function testValidateWithTime($value, $expected)
+    /** @dataProvider provideValuesWithTime
+     * @test */
+    public function validateWithTime($value, $expected)
     {
         $type = new DateTime(3, false);
 
@@ -73,10 +73,9 @@ class DateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValuesWithoutTime
-     */
-    public function testValidateWithoutTime($value, $expected)
+    /** @dataProvider provideValuesWithoutTime
+     * @test */
+    public function validateWithoutTime($value, $expected)
     {
         $type = new DateTime(3, true);
 

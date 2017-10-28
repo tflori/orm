@@ -26,10 +26,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideEntitiesWithPrimary
-     */
-    public function testSyncQueriesTheDatabase($entity, $table, $whereConditions)
+    /** @dataProvider provideEntitiesWithPrimary
+     * @test */
+    public function syncQueriesTheDatabase($entity, $table, $whereConditions)
     {
         $this->pdo->shouldReceive('query')->once()
             ->with('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/')
@@ -48,10 +47,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideEntitiesWithIncompletePrimary
-     */
-    public function testSyncThrowsWithIncompletePrimary($entity, $message)
+    /** @dataProvider provideEntitiesWithIncompletePrimary
+     * @test */
+    public function syncThrowsWithIncompletePrimary($entity, $message)
     {
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Incomplete primary key - missing ' . $message);
@@ -74,10 +72,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideChangedEntities
-     */
-    public function testSyncUpdatesOriginalData($entity, $newData)
+    /** @dataProvider provideChangedEntities
+     * @test */
+    public function syncUpdatesOriginalData($entity, $newData)
     {
         /** @var Mock|Entity $entity */
         $entity = \Mockery::mock($entity);
@@ -95,7 +92,8 @@ class DataModificationTest extends TestCase
         $this->em->sync($entity);
     }
 
-    public function testDoesNotChangeTheData()
+    /** @test */
+    public function doesNotChangeTheData()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
@@ -112,7 +110,8 @@ class DataModificationTest extends TestCase
         self::assertTrue($entity->isDirty('foo'));
     }
 
-    public function testDoesChangeTheData()
+    /** @test */
+    public function doesChangeTheData()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
@@ -129,7 +128,8 @@ class DataModificationTest extends TestCase
         self::assertFalse($entity->isDirty('foo'));
     }
 
-    public function testMapsTheEntity()
+    /** @test */
+    public function mapsTheEntity()
     {
         /** @var Mock $statement */
         $statement = \Mockery::mock(\PDOStatement::class);
@@ -147,7 +147,8 @@ class DataModificationTest extends TestCase
         self::assertSame($studlyCaps, $this->em->fetch(StudlyCaps::class, 42));
     }
 
-    public function testReturnsTrueWhenEntityPersisted()
+    /** @test */
+    public function returnsTrueWhenEntityPersisted()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
@@ -163,7 +164,8 @@ class DataModificationTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testReturnsFalseWhenEntityNotPersisted()
+    /** @test */
+    public function returnsFalseWhenEntityNotPersisted()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
@@ -192,10 +194,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideInsertStatements
-     */
-    public function testInsertStatement($entity, $statement)
+    /** @dataProvider provideInsertStatements
+     * @test */
+    public function insertStatement($entity, $statement)
     {
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast(1)->andReturn('mysql');
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
@@ -205,7 +206,8 @@ class DataModificationTest extends TestCase
         $this->em->insert($entity);
     }
 
-    public function testInsertReturnsTrue()
+    /** @test */
+    public function insertReturnsTrue()
     {
         $entity = new Psr0_StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
@@ -229,10 +231,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDrivers
-     */
-    public function testDoesNotUseAutoIncrement($driver)
+    /** @dataProvider provideDrivers
+     * @test */
+    public function doesNotUseAutoIncrement($driver)
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
@@ -248,7 +249,8 @@ class DataModificationTest extends TestCase
         self::assertTrue($result);
     }
 
-    public function testInsertReturnsAutoIncrementSqlite()
+    /** @test */
+    public function insertReturnsAutoIncrementSqlite()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
@@ -264,7 +266,8 @@ class DataModificationTest extends TestCase
         self::assertSame('42', $entity->id);
     }
 
-    public function testInsertReturnsAutoIncrementMysql()
+    /** @test */
+    public function insertReturnsAutoIncrementMysql()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
@@ -281,7 +284,8 @@ class DataModificationTest extends TestCase
         self::assertSame(42, $entity->id);
     }
 
-    public function testInsertReturnsAutoIncrementPgsql()
+    /** @test */
+    public function insertReturnsAutoIncrementPgsql()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
@@ -298,7 +302,8 @@ class DataModificationTest extends TestCase
         self::assertSame(42, $entity->id);
     }
 
-    public function testThrowsForUnsupportedDriverWithAutoincrement()
+    /** @test */
+    public function throwsForUnsupportedDriverWithAutoincrement()
     {
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('foobar');
@@ -325,10 +330,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideUpdateStatements
-     */
-    public function testUpdateStatement($entity, $statement)
+    /** @dataProvider provideUpdateStatements
+     * @test */
+    public function updateStatement($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
@@ -337,10 +341,9 @@ class DataModificationTest extends TestCase
         $this->em->update($entity);
     }
 
-    /**
-     * @dataProvider provideUpdateStatements
-     */
-    public function testUpdateReturnsSuccessAndSyncs($entity, $statement)
+    /** @dataProvider provideUpdateStatements
+     * @test */
+    public function updateReturnsSuccessAndSyncs($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
@@ -358,10 +361,9 @@ class DataModificationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideDeleteStatements
-     */
-    public function testDeleteStatement($entity, $statement)
+    /** @dataProvider provideDeleteStatements
+     * @test */
+    public function deleteStatement($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
@@ -370,10 +372,9 @@ class DataModificationTest extends TestCase
         $this->em->delete($entity);
     }
 
-    /**
-     * @dataProvider provideDeleteStatements
-     */
-    public function testDeleteReturnsSuccess($entity, $statement)
+    /** @dataProvider provideDeleteStatements
+     * @test */
+    public function deleteReturnsSuccess($entity, $statement)
     {
         $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
 
@@ -382,10 +383,9 @@ class DataModificationTest extends TestCase
         self::assertTrue($result);
     }
 
-    /**
-     * @dataProvider provideDeleteStatements
-     */
-    public function testDeleteRemovesOriginalData(Entity $entity, $statement)
+    /** @dataProvider provideDeleteStatements
+     * @test */
+    public function deleteRemovesOriginalData(Entity $entity, $statement)
     {
         $entity->setOriginalData($entity->getData());
         self::assertFalse($entity->isDirty());

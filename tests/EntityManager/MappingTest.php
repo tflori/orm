@@ -12,7 +12,8 @@ use ORM\Test\TestCase;
 
 class MappingTest extends TestCase
 {
-    public function testStoresEntities()
+    /** @test */
+    public function storesEntities()
     {
         $entity = new StudlyCaps([
             'id' => 42,
@@ -24,7 +25,8 @@ class MappingTest extends TestCase
         self::assertSame($entity, $this->em->fetch(StudlyCaps::class, 42));
     }
 
-    public function testStoresSeparatedById()
+    /** @test */
+    public function storesSeparatedById()
     {
         $e1 = new StudlyCaps([
             'id' => 42,
@@ -42,7 +44,8 @@ class MappingTest extends TestCase
         self::assertSame($e1, $this->em->fetch(StudlyCaps::class, 42));
     }
 
-    public function testStoresSeparatedByClass()
+    /** @test */
+    public function storesSeparatedByClass()
     {
         $e1 = new StudlyCaps([
             'id' => 42,
@@ -60,7 +63,8 @@ class MappingTest extends TestCase
         self::assertSame($e2, $this->em->fetch(Psr0_StudlyCaps::class, 42));
     }
 
-    public function testStoresByDifferentPrimaryKey()
+    /** @test */
+    public function storesByDifferentPrimaryKey()
     {
         $e1 = new ContactPhone([
             'id' => 1,
@@ -78,7 +82,8 @@ class MappingTest extends TestCase
         self::assertSame($e2, $this->em->fetch(ContactPhone::class, [1, 'private']));
     }
 
-    public function testMapReturnsPreviouslyStored()
+    /** @test */
+    public function mapReturnsPreviouslyStored()
     {
         $e1 = new ContactPhone([
             'id' => 1,
@@ -97,14 +102,16 @@ class MappingTest extends TestCase
         self::assertSame($e1, $this->em->fetch(ContactPhone::class, [1, 'mobile']));
     }
 
-    public function testFetchReturnsEntityFetcher()
+    /** @test */
+    public function fetchReturnsEntityFetcher()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
 
         self::assertInstanceOf(EntityFetcher::class, $fetcher);
     }
 
-    public function testMapThrowsIfPrimaryKeyIsIncomplete()
+    /** @test */
+    public function mapThrowsIfPrimaryKeyIsIncomplete()
     {
         $e1 = new ContactPhone([
             'id' => 42
@@ -116,7 +123,8 @@ class MappingTest extends TestCase
         $this->em->map($e1);
     }
 
-    public function testThrowsForNonEntity()
+    /** @test */
+    public function throwsForNonEntity()
     {
         self::expectException(NoEntity::class);
         self::expectExceptionMessage(self::class . ' is not a subclass of Entity');
@@ -124,7 +132,8 @@ class MappingTest extends TestCase
         $this->em->fetch(self::class, 1);
     }
 
-    public function testFetchThrowsIfPrimaryKeyIsIncomplete()
+    /** @test */
+    public function fetchThrowsIfPrimaryKeyIsIncomplete()
     {
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Primary key consist of [id,name] only 1 given');
@@ -132,7 +141,8 @@ class MappingTest extends TestCase
         $this->em->fetch(ContactPhone::class, 42);
     }
 
-    public function testFetchGetsEntityFromPrimaryKey()
+    /** @test */
+    public function fetchGetsEntityFromPrimaryKey()
     {
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()

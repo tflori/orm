@@ -8,7 +8,8 @@ use ORM\Test\Entity\Examples\Article;
 
 class NamerTest extends TestCase
 {
-    public function testDefaultTableNameTemplate()
+    /** @test */
+    public function defaultTableNameTemplate()
     {
         $namer = new Namer();
 
@@ -17,7 +18,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getTableName(Article::class, '%short%'), $result);
     }
 
-    public function testDefaultTableNamingScheme()
+    /** @test */
+    public function defaultTableNamingScheme()
     {
         $namer = new Namer();
 
@@ -26,7 +28,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getTableName(Article::class, '%name%', 'snake_lower'), $result);
     }
 
-    public function testDefaultColumnNamingScheme()
+    /** @test */
+    public function defaultColumnNamingScheme()
     {
         $namer = new Namer();
 
@@ -35,7 +38,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getColumnName(Article::class, 'someVar', 'snake_lower'), $result);
     }
 
-    public function testDefaultMethodNamingScheme()
+    /** @test */
+    public function defaultMethodNamingScheme()
     {
         $namer = new Namer();
 
@@ -44,7 +48,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getMethodName('get_some_var', 'camelCase'), $result);
     }
 
-    public function testTableNameTemplateOption()
+    /** @test */
+    public function tableNameTemplateOption()
     {
         $namer = new Namer([
             EntityManager::OPT_TABLE_NAME_TEMPLATE => '%name%'
@@ -55,7 +60,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getTableName(Article::class, '%name%'), $result);
     }
 
-    public function testTableNamingSchemeOption()
+    /** @test */
+    public function tableNamingSchemeOption()
     {
         $namer = new Namer([
             EntityManager::OPT_NAMING_SCHEME_TABLE => 'StudlyCaps'
@@ -66,7 +72,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getTableName(Article::class, '%name%', 'StudlyCaps'), $result);
     }
 
-    public function testColumnNamingSchemeOption()
+    /** @test */
+    public function columnNamingSchemeOption()
     {
         $namer = new Namer([
             EntityManager::OPT_NAMING_SCHEME_COLUMN => 'StudlyCaps'
@@ -77,7 +84,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getColumnName(Article::class, 'some_var', null, 'StudlyCaps'), $result);
     }
 
-    public function testMethodNamingSchemeOption()
+    /** @test */
+    public function methodNamingSchemeOption()
     {
         $namer = new Namer([
             EntityManager::OPT_NAMING_SCHEME_METHODS => 'snake_lower'
@@ -88,7 +96,8 @@ class NamerTest extends TestCase
         self::assertSame($namer->getMethodName('getSomeVar', 'snake_lower'), $result);
     }
 
-    public function testSubstituteEscaping()
+    /** @test */
+    public function substituteEscaping()
     {
         $namer = new Namer();
 

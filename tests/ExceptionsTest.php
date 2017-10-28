@@ -28,8 +28,8 @@ class ExceptionsTest extends TestCase
      * lets see if every exception is really a \Exception
      *
      * @dataProvider provideExceptionClasses
-     */
-    public function testExceptionsAreExceptions($exceptionClass)
+     * @test */
+    public function exceptionsAreExceptions($exceptionClass)
     {
         $exception = new $exceptionClass('No exception');
 
@@ -42,8 +42,8 @@ class ExceptionsTest extends TestCase
      * You can just catch every ORM\Exception\Exception if you need to.
      *
      * @dataProvider provideExceptionClasses
-     */
-    public function testExceptionsExtendBase($exceptionClass)
+     * @test */
+    public function exceptionsExtendBase($exceptionClass)
     {
         $exception = new $exceptionClass('No exception');
 

@@ -27,7 +27,8 @@ class ExpectFetchTest extends MockeryTestCase
         \Mockery::close();
     }
 
-    public function testReturnsFetcher()
+    /** @test */
+    public function returnsFetcher()
     {
         $fetcher = $this->ormExpectFetch(Article::class);
 
@@ -36,14 +37,16 @@ class ExpectFetchTest extends MockeryTestCase
         \Mockery::resetContainer();
     }
 
-    public function testMocksFetch()
+    /** @test */
+    public function mocksFetch()
     {
         $fetcher = $this->ormExpectFetch(Article::class);
 
         self::assertSame($fetcher, $this->em->fetch(Article::class));
     }
 
-    public function testReturnsNull()
+    /** @test */
+    public function returnsNull()
     {
         $this->ormExpectFetch(Article::class);
 
@@ -53,7 +56,8 @@ class ExpectFetchTest extends MockeryTestCase
         self::assertNull($result);
     }
 
-    public function testReturnsEntities()
+    /** @test */
+    public function returnsEntities()
     {
         $articles = [new Article(), new Article()];
         $this->ormExpectFetch(Article::class, $articles);
@@ -64,7 +68,8 @@ class ExpectFetchTest extends MockeryTestCase
         self::assertSame($articles, $result);
     }
 
-    public function testReturnsCount()
+    /** @test */
+    public function returnsCount()
     {
         $articles = [new Article(), new Article()];
         $this->ormExpectFetch(Article::class, $articles);
@@ -75,7 +80,8 @@ class ExpectFetchTest extends MockeryTestCase
         self::assertSame(2, $result);
     }
 
-    public function testExpectFetchOnEntity()
+    /** @test */
+    public function expectFetchOnEntity()
     {
         $categories = [new Category(), new Category()];
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);

@@ -26,10 +26,9 @@ class WhereConditionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testWhereConditions($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function whereConditions($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $result = call_user_func_array([$query, 'where'], $params);
@@ -38,10 +37,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testAndWhereConditions($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function andWhereConditions($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $query->where('a = b');
@@ -51,10 +49,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testOrWhereConditions($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function orWhereConditions($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $query->where('a = b');
@@ -64,10 +61,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($query, $result);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testParenthesis($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function parenthesis($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $parenthesis = $query->parenthesis();
@@ -80,10 +76,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($result, $query);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testAndParenthesis($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function andParenthesis($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $query->where('a = b');
@@ -97,10 +92,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($result, $query);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testInnerAndParenthesis($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function innerAndParenthesis($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $parenthesis = $query->andParenthesis();
@@ -114,10 +108,9 @@ class WhereConditionsTest extends TestCase
         self::assertSame($result, $query);
     }
 
-    /**
-     * @dataProvider provideWhereConditions
-     */
-    public function testOrParenthesis($params, $expected)
+    /** @dataProvider provideWhereConditions
+     * @test */
+    public function orParenthesis($params, $expected)
     {
         $query = new QueryBuilder('foobar');
         $query->where('a = b');
@@ -131,7 +124,8 @@ class WhereConditionsTest extends TestCase
         self::assertSame($result, $query);
     }
 
-    public function testParenthesisInParenthesis()
+    /** @test */
+    public function parenthesisInParenthesis()
     {
         $query = (new QueryBuilder('foobar'))
             ->parenthesis()
@@ -148,7 +142,8 @@ class WhereConditionsTest extends TestCase
         self::assertSame('SELECT * FROM foobar WHERE ((a = 1 OR b = 2) AND (c = 3 OR d = 4))', $query->getQuery());
     }
 
-    public function testAllTogether()
+    /** @test */
+    public function allTogether()
     {
         self::assertSame(
             'SELECT * FROM foobar WHERE name = \'John Doe\' AND age > 42 AND (age NOT IN (42) OR name = \'Jane Doe\')',
@@ -163,7 +158,8 @@ class WhereConditionsTest extends TestCase
         );
     }
 
-    public function testStaysQuestionmarksUntouched()
+    /** @test */
+    public function staysQuestionmarksUntouched()
     {
         $query = new QueryBuilder('foobar');
 
@@ -172,7 +168,8 @@ class WhereConditionsTest extends TestCase
         self::assertSame('SELECT * FROM foobar WHERE a IN (\'foo\', ?)', $query->getQuery());
     }
 
-    public function testCreatesWhere0()
+    /** @test */
+    public function createsWhere0()
     {
         $query = new QueryBuilder('foobar');
 
@@ -181,7 +178,8 @@ class WhereConditionsTest extends TestCase
         self::assertSame('SELECT * FROM foobar WHERE a = 0', $query->getQuery());
     }
 
-    public function testCreatesWhereEmpty()
+    /** @test */
+    public function createsWhereEmpty()
     {
         $query = new QueryBuilder('foobar');
 
@@ -190,7 +188,8 @@ class WhereConditionsTest extends TestCase
         self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
     }
 
-    public function testUsesEqualityOperator()
+    /** @test */
+    public function usesEqualityOperator()
     {
         $query = new QueryBuilder('foobar');
 

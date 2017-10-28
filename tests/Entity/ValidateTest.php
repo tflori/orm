@@ -24,21 +24,24 @@ class ValidateTest extends TestCase
         $this->mocks['em']->shouldReceive('describe')->with('article')->andReturn($this->mocks['table'])->byDefault();
     }
 
-    public function testGetsTableFromEmDescribe()
+    /** @test */
+    public function getsTableFromEmDescribe()
     {
         $this->mocks['em']->shouldReceive('describe')->with('article')->once()->andReturn($this->mocks['table']);
 
         Article::describe();
     }
 
-    public function testValidateUsesTableFromDescribe()
+    /** @test */
+    public function validateUsesTableFromDescribe()
     {
         $this->mocks['table']->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
 
         Article::validate('title', 'Hello World!');
     }
 
-    public function testConvertsFieldNamesToColumns()
+    /** @test */
+    public function convertsFieldNamesToColumns()
     {
         $this->mocks['table']->shouldReceive('validate')->with('intro_text', 'This is just a test article.')
             ->once()->andReturn(true);
@@ -46,7 +49,8 @@ class ValidateTest extends TestCase
         Article::validate('introText', 'This is just a test article.');
     }
 
-    public function testValidateArray()
+    /** @test */
+    public function validateArray()
     {
         $this->mocks['table']->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
         $this->mocks['table']->shouldReceive('validate')->with('intro_text', 'This is just a test article.')
@@ -60,7 +64,8 @@ class ValidateTest extends TestCase
         self::assertSame(['title' => true, 'introText' => true], $result);
     }
 
-    public function testByDefaultValidatorIsDisabled()
+    /** @test */
+    public function byDefaultValidatorIsDisabled()
     {
         self::assertFalse(Article::isValidatorEnabled());
     }
@@ -68,7 +73,8 @@ class ValidateTest extends TestCase
     /**
      * @depends testByDefaultValidatorIsDisabled
      */
-    public function testValidatorCanBeEnabled()
+    /** @test */
+    public function validatorCanBeEnabled()
     {
         Article::enableValidator();
 
@@ -78,14 +84,16 @@ class ValidateTest extends TestCase
     /**
      * @depends testValidatorCanBeEnabled
      */
-    public function testValidatorCanBeDisabled()
+    /** @test */
+    public function validatorCanBeDisabled()
     {
         Article::disableValidator();
 
         self::assertFalse(Article::isValidatorEnabled());
     }
 
-    public function testValidatorCanBeActivatedByStatic()
+    /** @test */
+    public function validatorCanBeActivatedByStatic()
     {
         self::assertTrue(Category::isValidatorEnabled());
     }

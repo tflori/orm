@@ -20,7 +20,8 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('sync')->andReturn(false)->byDefault();
     }
 
-    public function testUsesEntityManagerFromConstructor()
+    /** @test */
+    public function usesEntityManagerFromConstructor()
     {
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
@@ -41,7 +42,8 @@ class SaveEntityTest extends TestCase
         self::assertSame(42, $entity->id);
     }
 
-    public function testUsesEntityManagerFromSave()
+    /** @test */
+    public function usesEntityManagerFromSave()
     {
         $emMock = \Mockery::mock(EntityManager::class);
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
@@ -64,7 +66,8 @@ class SaveEntityTest extends TestCase
         self::assertSame(42, $entity->id);
     }
 
-    public function testThrowsWithoutPrimaryAndAutoincrement()
+    /** @test */
+    public function throwsWithoutPrimaryAndAutoincrement()
     {
         $entity = new Psr0_StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('sync')->with($entity)->andThrow(IncompletePrimaryKey::class, 'Foobar');
@@ -75,7 +78,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testSyncsTheEntityAndStopsWhenNotDirty()
+    /** @test */
+    public function syncsTheEntityAndStopsWhenNotDirty()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
@@ -88,7 +92,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testUpdatesIfDirty()
+    /** @test */
+    public function updatesIfDirty()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
         $this->em->shouldReceive('sync')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
@@ -101,7 +106,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testInsertsIfNotPersisted()
+    /** @test */
+    public function insertsIfNotPersisted()
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
@@ -112,7 +118,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testCallsPrePersistBeforeInsert()
+    /** @test */
+    public function callsPrePersistBeforeInsert()
     {
         $entity = \Mockery::mock(StudlyCaps::class . '[prePersist]', [['foo' => 'bar'], $this->em])->makePartial();
         $entity->shouldReceive('prePersist')->once();
@@ -132,7 +139,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testCallsPreUpdateBeforeUpdate()
+    /** @test */
+    public function callsPreUpdateBeforeUpdate()
     {
         $entity = \Mockery::mock(StudlyCaps::class . '[preUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
         $entity->shouldReceive('preUpdate')->once();
@@ -147,7 +155,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testCallsPostPersistAfterInsert()
+    /** @test */
+    public function callsPostPersistAfterInsert()
     {
         $entity = \Mockery::mock(StudlyCaps::class . '[postPersist]', [['foo' => 'bar'], $this->em])->makePartial();
         $entity->shouldReceive('postPersist')->once();
@@ -167,7 +176,8 @@ class SaveEntityTest extends TestCase
         $entity->save();
     }
 
-    public function testCallsPostUpdateAfterUpdate()
+    /** @test */
+    public function callsPostUpdateAfterUpdate()
     {
         $entity = \Mockery::mock(StudlyCaps::class . '[postUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
         $entity->shouldReceive('postUpdate')->once();

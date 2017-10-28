@@ -8,7 +8,8 @@ use ORM\Test\TestCase;
 
 class TextTest extends TestCase
 {
-    public function testExists()
+    /** @test */
+    public function exists()
     {
         self::assertTrue(class_exists(Text::class));
     }
@@ -23,10 +24,9 @@ class TextTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideValues
-     */
-    public function testValidate($value, $expected)
+    /** @dataProvider provideValues
+     * @test */
+    public function validate($value, $expected)
     {
         $type = new Text();
 
