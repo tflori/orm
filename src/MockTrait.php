@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpDocMissingThrowsInspection */
 
 namespace ORM;
 
@@ -38,7 +38,7 @@ trait MockTrait
 
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
         $pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
-        $pdo->shouldReceive('quote')->with(stringValue())->andReturnUsing(
+        $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(
             function ($str) {
                 return '\'' . addcslashes($str, '\'') . '\'';
             }

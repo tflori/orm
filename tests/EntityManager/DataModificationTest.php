@@ -3,6 +3,7 @@
 namespace ORM\Test\EntityManager;
 
 use Mockery\Mock;
+use Mockery as m;
 use ORM\Entity;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnsupportedDriver;
@@ -31,7 +32,7 @@ class DataModificationTest extends TestCase
     public function syncQueriesTheDatabase($entity, $table, $whereConditions)
     {
         $this->pdo->shouldReceive('query')->once()
-            ->with('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/')
+            ->with(m::pattern('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/'))
             ->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -77,12 +78,12 @@ class DataModificationTest extends TestCase
     public function syncUpdatesOriginalData($entity, $newData)
     {
         /** @var Mock|Entity $entity */
-        $entity = \Mockery::mock($entity);
+        $entity = m::mock($entity);
 
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')->once()
                   ->andReturn($newData);
@@ -97,9 +98,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')->once()
                   ->andReturn(['id' => 42, 'foo' => 'bar']);
@@ -115,9 +116,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->once()
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')->once()
                   ->andReturn(['id' => 42, 'foo' => 'bar']);
@@ -132,9 +133,9 @@ class DataModificationTest extends TestCase
     public function mapsTheEntity()
     {
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')
                   ->andReturn(false);
@@ -152,9 +153,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')
                   ->andReturn(['id' => 42, 'foo' => 'bar']);
@@ -169,9 +170,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'baz']);
         /** @var Mock $statement */
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')
-                  ->with('/^SELECT .* FROM .* WHERE/')
+                  ->with(m::pattern('/^SELECT .* FROM .* WHERE/'))
                   ->andReturn($statement);
         $statement->shouldReceive('fetch')
                   ->andReturn(false);
@@ -213,7 +214,7 @@ class DataModificationTest extends TestCase
 
         $this->pdo->shouldReceive('query')
             ->with('INSERT INTO "psr0_studly_caps" ("id","foo") VALUES (42,\'bar\')')
-            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+            ->once()->andReturn(m::mock(\PDOStatement::class));
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
         $result = $this->em->insert($entity);
@@ -241,8 +242,8 @@ class DataModificationTest extends TestCase
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast()->once()
             ->andReturn($driver);
-        $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
-                  ->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
+                  ->andReturn(m::mock(\PDOStatement::class));
 
         $result = $this->em->insert($entity, false);
 
@@ -255,8 +256,8 @@ class DataModificationTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
-        $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
-            ->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
+            ->andReturn(m::mock(\PDOStatement::class));
         $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42');
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
@@ -271,9 +272,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
-        $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES/')->once()
-            ->andReturn(\Mockery::mock(\PDOStatement::class));
-        $statement = \Mockery::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
+            ->andReturn(m::mock(\PDOStatement::class));
+        $statement = m::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->with('SELECT LAST_INSERT_ID()')->once()->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
@@ -290,8 +291,8 @@ class DataModificationTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('pgsql');
-        $statement = \Mockery::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with('/^INSERT INTO .* VALUES .* RETURNING id$/')->once()
+        $statement = m::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES .* RETURNING id$/'))->once()
             ->andReturn($statement);
         $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
@@ -345,7 +346,7 @@ class DataModificationTest extends TestCase
      * @test */
     public function updateReturnsSuccessAndSyncs($entity, $statement)
     {
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
         $result = $this->em->update($entity);
@@ -376,7 +377,7 @@ class DataModificationTest extends TestCase
      * @test */
     public function deleteReturnsSuccess($entity, $statement)
     {
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
 
         $result = $this->em->delete($entity);
 
@@ -390,7 +391,7 @@ class DataModificationTest extends TestCase
         $entity->setOriginalData($entity->getData());
         self::assertFalse($entity->isDirty());
 
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
 
         $this->em->delete($entity);
 

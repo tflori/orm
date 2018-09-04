@@ -4,6 +4,7 @@ namespace ORM\Test\MockTrait;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
+use Mockery as m;
 use ORM\EntityManager;
 use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
@@ -22,7 +23,7 @@ class CreateMockedEntityTest extends MockeryTestCase
 
     protected function tearDown()
     {
-        \Mockery::close();
+        m::close();
     }
 
     /** @test */

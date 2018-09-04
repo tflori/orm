@@ -42,7 +42,7 @@ class ExpectInsertTest extends MockeryTestCase
         $article = new Article();
 
         self::expectException(\BadMethodCallException::class);
-        self::expectExceptionMessage('PDO::query() does not exist on this mock object');
+        self::expectExceptionMessage('PDO::query(), but no expectations were specified');
 
         try {
             $article->save();
