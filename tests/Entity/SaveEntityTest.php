@@ -2,10 +2,12 @@
 
 namespace ORM\Test\Entity;
 
+use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\NoEntityManager;
+use ORM\Test\Entity\Examples\GeneratesUuid;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -45,7 +47,7 @@ class SaveEntityTest extends TestCase
     /** @test */
     public function usesEntityManagerFromSave()
     {
-        $emMock = \Mockery::mock(EntityManager::class);
+        $emMock = m::mock(EntityManager::class);
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
         $emMock->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
@@ -121,7 +123,7 @@ class SaveEntityTest extends TestCase
     /** @test */
     public function callsPrePersistBeforeInsert()
     {
-        $entity = \Mockery::mock(StudlyCaps::class . '[prePersist]', [['foo' => 'bar'], $this->em])->makePartial();
+        $entity = m::mock(StudlyCaps::class . '[prePersist]', [['foo' => 'bar'], $this->em])->makePartial();
         $entity->shouldReceive('prePersist')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
@@ -142,7 +144,7 @@ class SaveEntityTest extends TestCase
     /** @test */
     public function callsPreUpdateBeforeUpdate()
     {
-        $entity = \Mockery::mock(StudlyCaps::class . '[preUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
+        $entity = m::mock(StudlyCaps::class . '[preUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
         $entity->shouldReceive('preUpdate')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
@@ -158,7 +160,7 @@ class SaveEntityTest extends TestCase
     /** @test */
     public function callsPostPersistAfterInsert()
     {
-        $entity = \Mockery::mock(StudlyCaps::class . '[postPersist]', [['foo' => 'bar'], $this->em])->makePartial();
+        $entity = m::mock(StudlyCaps::class . '[postPersist]', [['foo' => 'bar'], $this->em])->makePartial();
         $entity->shouldReceive('postPersist')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
@@ -179,7 +181,7 @@ class SaveEntityTest extends TestCase
     /** @test */
     public function callsPostUpdateAfterUpdate()
     {
-        $entity = \Mockery::mock(StudlyCaps::class . '[postUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
+        $entity = m::mock(StudlyCaps::class . '[postUpdate]', [['id' => 42, 'foo' => 'bar'], $this->em]);
         $entity->shouldReceive('postUpdate')->once();
 
         $this->em->shouldReceive('sync')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
@@ -189,5 +191,21 @@ class SaveEntityTest extends TestCase
         $this->em->shouldReceive('update')->with($entity)->once()->andReturn(true);
 
         $entity->save();
+    }
+
+    /** @test */
+    public function callsGeneratePrimaryKey()
+    {
+        /** @var Entity|m\Mock $entity */
+        $entity = new GeneratesUuid([], $this->em);
+
+        $this->em->shouldReceive('sync')->with($entity)
+            ->once()->andThrow(new IncompletePrimaryKey('Incomplete primary key'));
+        $this->em->shouldReceive('insert')->with($entity)
+            ->once()->andReturn(true);
+
+        $entity->save();
+
+        self::assertNotEmpty($entity->id);
     }
 }

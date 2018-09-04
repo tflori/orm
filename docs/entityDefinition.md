@@ -198,3 +198,24 @@ class AB extends ORM\Entity {
 A::getColumnName('id'); // id -> you have to access the id column via aId
 B::getColumnName('id'); // b_id -> you can access the id column
 ```
+
+A primary key can also be generated or fetched from a sequence just before `prePersist` is executed. Just create a
+protected method `generatePrimaryKey()`  and generate your primary key there:
+
+```php?start_inline=true
+class Tree extends ORM\Entity {
+    protected function generatePrimaryKey()
+    {
+        $seq = $this->type === 'leaf' ? 'tree_leaf_seq' : 'tree_branch_seq';
+        $conn = $this->entityManager->getConnection();
+        $this->id = $conn->query("SELECT nextval('{$seq}')")->fetchColumn();
+    }
+}
+
+class Part extends ORM\Entity {
+    protected function generatePrimaryKey()
+    {
+        $this->id = uniqid();
+    }
+}
+```

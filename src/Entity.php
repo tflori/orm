@@ -579,6 +579,10 @@ abstract class Entity implements \Serializable
             if (static::isAutoIncremented()) {
                 $this->prePersist();
                 $inserted = $this->entityManager->insert($this);
+            } elseif (is_callable([$this, 'generatePrimaryKey'])) {
+                $this->generatePrimaryKey();
+                $this->prePersist();
+                $inserted = $this->entityManager->insert($this);
             } else {
                 throw $e;
             }
