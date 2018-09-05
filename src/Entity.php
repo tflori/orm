@@ -5,6 +5,7 @@ namespace ORM;
 use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
+use ORM\Entity\GeneratesPrimaryKeys;
 use ORM\EntityManager as EM;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
@@ -579,6 +580,10 @@ abstract class Entity implements \Serializable
             if (static::isAutoIncremented()) {
                 $this->prePersist();
                 $inserted = $this->entityManager->insert($this);
+            } elseif ($this instanceof GeneratesPrimaryKeys) {
+                $this->generatePrimaryKey();
+                $this->prePersist();
+                $inserted = $this->entityManager->insert($this);
             } else {
                 throw $e;
             }
@@ -588,6 +593,17 @@ abstract class Entity implements \Serializable
         $updated && $this->postUpdate();
 
         return $this;
+    }
+
+    /**
+     * Generates a primary key
+     *
+     * This method should only be executed from save method.
+     * @codeCoverageIgnore no operations
+     */
+    protected function generatePrimaryKey()
+    {
+        // no operation by default
     }
 
     /**

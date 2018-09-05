@@ -3,6 +3,7 @@
 namespace ORM\Test\EntityManager\EntityFetcher;
 
 use Mockery\Mock;
+use Mockery as m;
 use ORM\EntityFetcher;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\StudlyCaps;
@@ -17,9 +18,9 @@ class CountTest extends TestCase
     {
         parent::setUp();
 
-        $this->statement = \Mockery::mock(\PDOStatement::class);
+        $this->statement = m::mock(\PDOStatement::class);
 
-        $this->pdo->shouldReceive('query')->with('/^SELECT COUNT\(DISTINCT t0\.\*\) FROM ".*" AS t0/')
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT COUNT\(DISTINCT t0\.\*\) FROM ".*" AS t0/'))
             ->andReturn($this->statement)->byDefault();
         $this->statement->shouldReceive('fetchColumn')->with()
             ->andReturn(42)->byDefault();
