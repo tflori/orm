@@ -599,6 +599,7 @@ abstract class Entity implements \Serializable
      * Generates a primary key
      *
      * This method should only be executed from save method.
+     * @codeCoverageIgnore no operations
      */
     protected function generatePrimaryKey()
     {
