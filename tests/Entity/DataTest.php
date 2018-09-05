@@ -11,14 +11,11 @@ use ORM\Dbal\Table;
 use ORM\Dbal\Type\Number;
 use ORM\Entity;
 use ORM\Exception;
-use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\UnknownColumn;
-use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
-use ORM\Test\TestEntity;
 use ORM\Test\TestCase;
 
 class DataTest extends TestCase

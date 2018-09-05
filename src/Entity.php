@@ -6,13 +6,13 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\Entity\GeneratesPrimaryKeys;
+use ORM\Entity\Relations;
+use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidName;
-use ORM\Exception\InvalidRelation;
 use ORM\Exception\NoEntityManager;
-use ORM\Exception\UndefinedRelation;
 use ORM\Exception\UnknownColumn;
 
 /**
@@ -30,6 +30,8 @@ use ORM\Exception\UnknownColumn;
  */
 abstract class Entity implements \Serializable
 {
+    use Validation, Relations;
+
     /** @deprecated Use Relation::OPT_CLASS instead */
     const OPT_RELATION_CLASS       = 'class';
     /** @deprecated Use Relation::OPT_CARDINALITY instead */
@@ -85,10 +87,6 @@ abstract class Entity implements \Serializable
      * @var bool[] */
     protected static $enabledValidators = [];
 
-    /** Relation definitions
-     * @var array */
-    protected static $relations = [];
-
     /** The reflections of the classes.
      * @internal
      * @var \ReflectionClass[] */
@@ -105,10 +103,6 @@ abstract class Entity implements \Serializable
     /** The entity manager from which this entity got created
      * @var EM */
     protected $entityManager;
-
-    /** Related objects for getRelated
-     * @var array */
-    protected $relatedObjects = [];
 
     /**
      * Constructor
@@ -127,17 +121,6 @@ abstract class Entity implements \Serializable
         $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
         $this->onInit(!$fromDatabase);
-    }
-
-    /**
-     * Get a description for this table.
-     *
-     * @return Table|Column[]
-     * @codeCoverageIgnore This is just a proxy
-     */
-    public static function describe()
-    {
-        return EM::getInstance(static::class)->describe(static::getTableName());
     }
 
     /**
@@ -177,31 +160,6 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get the definition for $relation
-     *
-     * It normalize the short definition form and create a Relation object from it.
-     *
-     * @param string $relation
-     * @return Relation
-     * @throws InvalidConfiguration
-     * @throws UndefinedRelation
-     */
-    public static function getRelation($relation)
-    {
-        if (!isset(static::$relations[$relation])) {
-            throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
-        }
-
-        $relDef = &static::$relations[$relation];
-
-        if (!$relDef instanceof Relation) {
-            $relDef = Relation::createRelation($relation, $relDef);
-        }
-
-        return $relDef;
-    }
-
-    /**
      * Get the table name
      *
      * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
@@ -228,67 +186,6 @@ abstract class Entity implements \Serializable
     public static function isAutoIncremented()
     {
         return count(static::getPrimaryKeyVars()) > 1 ? false : static::$autoIncrement;
-    }
-
-    /**
-     * Check if the validator is enabled
-     *
-     * @return bool
-     */
-    public static function isValidatorEnabled()
-    {
-        return isset(self::$enabledValidators[static::class]) ?
-            self::$enabledValidators[static::class] : static::$enableValidator;
-    }
-
-    /**
-     * Enable validator
-     *
-     * @param bool $enable
-     */
-    public static function enableValidator($enable = true)
-    {
-        self::$enabledValidators[static::class] = $enable;
-    }
-
-    /**
-     * Disable validator
-     *
-     * @param bool $disable
-     */
-    public static function disableValidator($disable = true)
-    {
-        self::$enabledValidators[static::class] = !$disable;
-    }
-
-    /**
-     * Validate $value for $attribute
-     *
-     * @param string $attribute
-     * @param mixed  $value
-     * @return bool|Error
-     * @throws Exception
-     */
-    public static function validate($attribute, $value)
-    {
-        return static::describe()->validate(static::getColumnName($attribute), $value);
-    }
-
-    /**
-     * Validate $data
-     *
-     * $data has to be an array of $attribute => $value
-     *
-     * @param array $data
-     * @return array
-     */
-    public static function validateArray(array $data)
-    {
-        $result = $data;
-        foreach ($result as $attribute => &$value) {
-            $value = static::validate($attribute, $value);
-        }
-        return $result;
     }
 
     /**
@@ -430,96 +327,6 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Get related objects
-     *
-     * The difference between getRelated and fetch is that getRelated stores the fetched entities. To refresh set
-     * $refresh to true.
-     *
-     * @param string $relation
-     * @param bool   $refresh
-     * @return mixed
-     * @throws Exception\NoConnection
-     * @throws Exception\NoEntity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoEntityManager
-     * @throws UndefinedRelation
-     */
-    public function getRelated($relation, $refresh = false)
-    {
-        if ($refresh || !isset($this->relatedObjects[$relation])) {
-            $this->relatedObjects[$relation] = $this->fetch($relation, true);
-        }
-
-        return $this->relatedObjects[$relation];
-    }
-
-    /**
-     * Set $relation to $entity
-     *
-     * This method is only for the owner of a relation.
-     *
-     * @param string $relation
-     * @param Entity $entity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
-     */
-    public function setRelated($relation, Entity $entity = null)
-    {
-        $this::getRelation($relation)->setRelated($this, $entity);
-
-        $this->relatedObjects[$relation] = $entity;
-    }
-
-    /**
-     * Add relations for $relation to $entities
-     *
-     * This method is only for many-to-many relations.
-     *
-     * This method does not take care about already existing relations and will fail hard.
-     *
-     * @param string   $relation
-     * @param Entity[] $entities
-     * @throws NoEntityManager
-     */
-    public function addRelated($relation, array $entities)
-    {
-        // @codeCoverageIgnoreStart
-        if (func_num_args() === 3 && func_get_arg(2) instanceof EM) {
-            trigger_error(
-                'Passing EntityManager to addRelated is deprecated. Use ->setEntityManager() to overwrite',
-                E_USER_DEPRECATED
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this::getRelation($relation)->addRelated($this, $entities, $this->entityManager);
-    }
-
-    /**
-     * Delete relations for $relation to $entities
-     *
-     * This method is only for many-to-many relations.
-     *
-     * @param string   $relation
-     * @param Entity[] $entities
-     * @throws NoEntityManager
-     */
-    public function deleteRelated($relation, $entities)
-    {
-        // @codeCoverageIgnoreStart
-        if (func_num_args() === 3 && func_get_arg(2) instanceof EM) {
-            trigger_error(
-                'Passing EntityManager to deleteRelated is deprecated. Use ->setEntityManager() to overwrite',
-                E_USER_DEPRECATED
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
-        $this::getRelation($relation)->deleteRelated($this, $entities, $this->entityManager);
-    }
-
-    /**
      * Resets the entity or $attribute to original data
      *
      * @param string $attribute Reset only this variable or all variables
@@ -628,36 +435,6 @@ abstract class Entity implements \Serializable
     }
 
     /**
-     * Check if the current data is valid
-     *
-     * Returns boolean true when valid otherwise an array of Errors.
-     *
-     * @return bool|Error[]
-     */
-    public function isValid()
-    {
-        $result = [];
-
-        $presentColumns = [];
-        foreach ($this->data as $column => $value) {
-            $presentColumns[] = $column;
-            $result[]         = static::validate($column, $value);
-        }
-
-        foreach (static::describe() as $column) {
-            if (!in_array($column->name, $presentColumns)) {
-                $result[] = static::validate($column->name, null);
-            }
-        }
-
-        $result = array_values(array_filter($result, function ($error) {
-            return $error instanceof Error;
-        }));
-
-        return count($result) === 0 ? true : $result;
-    }
-
-    /**
      * Empty event handler
      *
      * Get called when something is changed with magic setter.
@@ -726,39 +503,6 @@ abstract class Entity implements \Serializable
      */
     public function postUpdate()
     {
-    }
-
-    /**
-     * Fetches related objects
-     *
-     * For relations with cardinality many it returns an EntityFetcher. Otherwise it returns the entity.
-     *
-     * It will throw an error for non owner when the key is incomplete.
-     *
-     * @param string $relation The relation to fetch
-     * @param bool   $getAll
-     * @return Entity|Entity[]|EntityFetcher
-     * @throws NoEntityManager
-     */
-    public function fetch($relation, $getAll = false)
-    {
-        // @codeCoverageIgnoreStart
-        if ($getAll instanceof EM || func_num_args() === 3 && $getAll === null) {
-            $getAll = func_num_args() === 3 ? func_get_arg(2) : false;
-            trigger_error(
-                'Passing EntityManager to fetch is deprecated. Use ->setEntityManager() to overwrite',
-                E_USER_DEPRECATED
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
-        $relation = $this::getRelation($relation);
-
-        if ($getAll) {
-            return $relation->fetchAll($this, $this->entityManager);
-        } else {
-            return $relation->fetch($this, $this->entityManager);
-        }
     }
 
     /**

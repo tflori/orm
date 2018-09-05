@@ -81,9 +81,9 @@ abstract class Dbal
      */
     public function escapeIdentifier($identifier)
     {
-        $q = $this->quotingCharacter;
-        $d = $this->identifierDivider;
-        return $q . str_replace($d, $q . $d . $q, $identifier) . $q;
+        $quote = $this->quotingCharacter;
+        $divider = $this->identifierDivider;
+        return $quote . str_replace($divider, $quote . $divider . $quote, $identifier) . $quote;
     }
 
     /**
