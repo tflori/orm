@@ -4,7 +4,7 @@ namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
 
-class GeneratesUuid extends Entity
+class GeneratesUuid extends Entity implements Entity\GeneratesPrimaryKeys
 {
     protected static $autoIncrement = false;
 
