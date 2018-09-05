@@ -199,11 +199,12 @@ A::getColumnName('id'); // id -> you have to access the id column via aId
 B::getColumnName('id'); // b_id -> you can access the id column
 ```
 
-A primary key can also be generated or fetched from a sequence just before `prePersist` is executed. Just create a
-protected method `generatePrimaryKey()`  and generate your primary key there:
+A primary key can also be generated or fetched from a sequence just before `prePersist` is executed. Just overload the
+protected method `generatePrimaryKey()`, implement `ORM\Entity\GeneratesPrimaryKeys` and generate your primary key
+there:
 
 ```php?start_inline=true
-class Tree extends ORM\Entity {
+class Tree extends ORM\Entity implements ORM\Entity\GeneratesPrimaryKeys {
     protected function generatePrimaryKey()
     {
         $seq = $this->type === 'leaf' ? 'tree_leaf_seq' : 'tree_branch_seq';
@@ -212,7 +213,7 @@ class Tree extends ORM\Entity {
     }
 }
 
-class Part extends ORM\Entity {
+class Part extends ORM\Entity implements ORM\Entity\GeneratesPrimaryKeys {
     protected function generatePrimaryKey()
     {
         $this->id = uniqid();
