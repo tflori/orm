@@ -4,6 +4,7 @@ namespace ORM\Entity;
 
 use ORM\Entity;
 use ORM\EntityFetcher;
+use ORM\EntityManager as EM;
 use ORM\Exception;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
@@ -167,10 +168,7 @@ trait Relations
 
         $relation = $this::getRelation($relation);
 
-        if ($getAll) {
-            return $relation->fetchAll($this, $this->entityManager);
-        } else {
-            return $relation->fetch($this, $this->entityManager);
-        }
+        return $getAll ? $relation->fetchAll($this, $this->entityManager) :
+            $relation->fetch($this, $this->entityManager);
     }
 }

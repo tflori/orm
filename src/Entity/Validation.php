@@ -10,6 +10,11 @@ use ORM\Exception;
 
 trait Validation
 {
+
+    /** The current data of a row.
+     * @var mixed[] */
+    protected $data = [];
+
     /**
      * Check if the validator is enabled
      *

@@ -2,9 +2,7 @@
 
 namespace ORM;
 
-use ORM\Dbal\Column;
 use ORM\Dbal\Error;
-use ORM\Dbal\Table;
 use ORM\Entity\GeneratesPrimaryKeys;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
