@@ -252,8 +252,8 @@ abstract class Dbal
     {
         $type = strtolower($type);
 
-        if (($p = strpos($type, '(')) !== false && $p > 0) {
-            $type = substr($type, 0, $p);
+        if (($pos = strpos($type, '(')) !== false && $pos > 0) {
+            $type = substr($type, 0, $pos);
         }
 
         return trim($type);

@@ -378,7 +378,25 @@ class EntityManager
      */
     public function insert(Entity $entity, $useAutoIncrement = true)
     {
+        if (isset($this->bulkImports[get_class($entity)])) {
+            $this->bulkImports[get_class($entity)]->add($entity);
+            return true;
+        }
+
         return $this->getDbal()->insert($entity, $useAutoIncrement);
+    }
+
+    protected $bulkImports = [];
+    public function useBulkImports($class, $useAutoIncrement = true, $limit = 20, callable $onSync = null)
+    {
+        $this->bulkImports[$class] = new BulkInsert($this->getDbal(), $class, $useAutoIncrement, $limit, $onSync);
+    }
+
+    public function finishBulkImport($class)
+    {
+        $bulkImport = $this->bulkImports[$class];
+        unset($this->bulkImports[$class]);
+        return $bulkImport->finish();
     }
 
     /**
