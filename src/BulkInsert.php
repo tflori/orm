@@ -47,6 +47,8 @@ class BulkInsert
     }
 
     /**
+     * Add an entity to the bulk insert.
+     *
      * @param Entity ...$entities
      * @throws InvalidArgument
      */
@@ -64,6 +66,11 @@ class BulkInsert
         }
     }
 
+    /**
+     * Insert the outstanding entities and return all synced objects.
+     *
+     * @return Entity[]
+     */
     public function finish()
     {
         if (!empty($this->new)) {
@@ -73,9 +80,7 @@ class BulkInsert
     }
 
     /**
-     * Executes the bulk insert and returns the synced entities
-     *
-     * @return Entity[]
+     * Executes the bulk insert.
      */
     protected function execute()
     {
@@ -83,6 +88,5 @@ class BulkInsert
         $synced = $this->dbal->bulkInsert($new, $this->useAutoIncrement);
         array_push($this->synced, ...$synced);
         !$this->onSync || call_user_func($this->onSync, $synced);
-        return $synced;
     }
 }

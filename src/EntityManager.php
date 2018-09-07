@@ -67,6 +67,10 @@ class EntityManager
      * @var Table[]|Column[][] */
     protected $descriptions = [];
 
+    /** Classes forcing bulk insert
+     * @var BulkInsert[] */
+    protected $bulkInserts = [];
+
     /** Mapping for EntityManager instances
      * @var EntityManager[string]|EntityManager[string][string] */
     protected static $emMapping = [
@@ -378,25 +382,46 @@ class EntityManager
      */
     public function insert(Entity $entity, $useAutoIncrement = true)
     {
-        if (isset($this->bulkImports[get_class($entity)])) {
-            $this->bulkImports[get_class($entity)]->add($entity);
+        if (isset($this->bulkInserts[get_class($entity)])) {
+            $this->bulkInserts[get_class($entity)]->add($entity);
             return true;
         }
 
         return $this->getDbal()->insert($entity, $useAutoIncrement);
     }
 
-    protected $bulkImports = [];
-    public function useBulkImports($class, $useAutoIncrement = true, $limit = 20, callable $onSync = null)
+    /**
+     * Force $class to use bulk insert.
+     *
+     * At the end you should call finish bulk insert otherwise you may loose data.
+     *
+     * @param string $class
+     * @param bool $useAutoIncrement
+     * @param int $limit Maximum number of rows per insert
+     * @param callable $onSync Will be called every time entities will be synced
+     * @return BulkInsert
+     */
+    public function useBulkInserts($class, $useAutoIncrement = true, $limit = 20, callable $onSync = null)
     {
-        $this->bulkImports[$class] = new BulkInsert($this->getDbal(), $class, $useAutoIncrement, $limit, $onSync);
+        if (!isset($this->bulkInserts[$class])) {
+            $this->bulkInserts[$class] = new BulkInsert($this->getDbal(), $class, $useAutoIncrement, $limit, $onSync);
+        }
+        return $this->bulkInserts[$class];
     }
 
-    public function finishBulkImport($class)
+    /**
+     * Finish the bulk insert for $class.
+     *
+     * Returns an array of entities added.
+     *
+     * @param $class
+     * @return Entity[]
+     */
+    public function finishBulkInserts($class)
     {
-        $bulkImport = $this->bulkImports[$class];
-        unset($this->bulkImports[$class]);
-        return $bulkImport->finish();
+        $bulkInsert = $this->bulkInserts[$class];
+        unset($this->bulkInserts[$class]);
+        return $bulkInsert->finish();
     }
 
     /**

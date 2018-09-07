@@ -40,7 +40,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mssql')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
-        $this->mocks['em'] = $this->em = \Mockery::mock(EntityManager::class, [])->makePartial();
+        $this->mocks['em'] = $this->em = \Mockery::mock(TestEntityManager::class, [])->makePartial();
         $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
 
         $this->mocks['dbal'] = $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();
