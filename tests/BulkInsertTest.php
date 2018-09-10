@@ -27,7 +27,7 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
-            ->once()->andReturn([new Article, new Article]);
+            ->once()->andReturn($articles);
 
         array_push($articles, new Article);
         $bulk->add(...$articles);
@@ -40,9 +40,9 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article, new Article, new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 0, 2), true)
-            ->once()->andReturn([new Article, new Article]);
+            ->once()->andReturn(array_slice($articles, 0, 2));
         $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 2, 2), true)
-            ->once()->andReturn([new Article, new Article]);
+            ->once()->andReturn(array_slice($articles, 2, 2));
 
         $bulk->add(...$articles);
     }

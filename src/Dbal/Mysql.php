@@ -46,14 +46,50 @@ class Mysql extends Dbal
         $statement = $this->buildInsertStatement($entity);
         $pdo       = $this->entityManager->getConnection();
 
+        $pdo->query($statement);
+
         if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $pdo->query($statement);
+            // we don't need a transaction here because the last insert id is bound to connection
             $this->updateAutoincrement($entity, $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn());
-        } else {
-            $pdo->query($statement);
         }
 
         return $this->entityManager->sync($entity, true);
+    }
+
+    /**
+     * @param Entity[] $entities
+     * @param bool $useAutoIncrement
+     * @throws Exception\NoConnection
+     */
+    public function bulkInsert(array $entities, $useAutoIncrement = true)
+    {
+        $statement = $this->buildInsertStatement(...$entities);
+        $pdo = $this->entityManager->getConnection();
+
+        $pdo->query($statement);
+        $table = $entities[0]::getTableName();
+        $pKey = $entities[0]::getPrimaryKeyVars();
+        if ($useAutoIncrement && $entities[0]::isAutoIncremented()) {
+            $rows = $pdo->query('SELECT * FROM ' . $this->escapeIdentifier($table) .
+                                ' WHERE ' . $this->escapeIdentifier($pKey[0]) . ' >= LAST_INSERT_ID()')
+                ->fetchAll(\PDO::FETCH_ASSOC);
+
+            /** @var Entity $entity */
+            foreach (array_values($entities) as $key => $entity) {
+                $entity->setOriginalData($rows[$key]);
+                $entity->reset();
+                $this->entityManager->map($entity, true);
+            }
+        } else {
+            // @todo multiple primary keys may get complicated
+//            usort($entities, function (Entity $a, Entity $b) {
+//                return strcmp(implode('-', $a->getPrimaryKey()), implode('-', $b->getPrimaryKey()));
+//            });
+//            $statement = $pdo->query("SELECT * FROM " . $this->escapeIdentifier($entities[0]::getTableName()) .
+//                " WHERE ")
+        }
+
+        return $entities;
     }
 
     public function describe($table)

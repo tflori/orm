@@ -60,7 +60,7 @@ class BulkInsertTest extends TestCase
         $entity = new Category;
         $this->bulkInsert->shouldNotReceive('add');
         $this->dbal->shouldReceive('insert')->with($entity, m::type('bool'))
-            ->once()->andReturn(new Category);
+            ->once()->andReturn($entity);
 
         $this->em->insert($entity);
     }
@@ -88,7 +88,7 @@ class BulkInsertTest extends TestCase
         $entity = new Article;
         $this->bulkInsert->shouldNotReceive('add');
         $this->dbal->shouldReceive('insert')->with($entity, m::type('bool'))
-            ->once()->andReturn(new Article);
+            ->once()->andReturn($entity);
 
         $this->em->insert($entity);
     }

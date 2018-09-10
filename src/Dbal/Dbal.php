@@ -199,28 +199,32 @@ abstract class Dbal
      * Build the insert statement for $entity
      *
      * @param Entity $entity
+     * @param Entity[] $entities
      * @return string
      */
-    protected function buildInsertStatement($entity)
+    protected function buildInsertStatement(Entity $entity, Entity ...$entities)
     {
-        $data = $entity->getData();
+        array_unshift($entities, $entity);
+        $cols = [];
+        $rows = [];
+        foreach ($entities as $entity) {
+            $data = $entity->getData();
+            $cols = array_unique(array_merge($cols, array_keys($data)));
+            $rows[] = $data;
+        }
 
-        $cols = array_map(
-            function ($key) {
-                return $this->escapeIdentifier($key);
-            },
-            array_keys($data)
-        );
-
-        $values = array_map(
-            function ($value) use ($entity) {
-                return $this->escapeValue($value);
-            },
-            array_values($data)
-        );
+        $cols = array_combine($cols, array_map([$this, 'escapeIdentifier'], $cols));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+                     '(' . implode(',', $cols) . ') VALUES ';
+
+        $statement .= implode(',', array_map(function ($values) use ($cols) {
+            $result = [];
+            foreach ($cols as $key => $col) {
+                $result[] = isset($values[$key]) ? $this->escapeValue($values[$key]) : $this->escapeNULL();
+            }
+            return '(' . implode(',', $result) . ')';
+        }, $rows));
 
         return $statement;
     }
