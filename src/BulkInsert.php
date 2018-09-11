@@ -85,8 +85,9 @@ class BulkInsert
     protected function execute()
     {
         $new = array_splice($this->new, 0, $this->limit);
-        $synced = $this->dbal->bulkInsert($new, $this->useAutoIncrement);
-        array_push($this->synced, ...$synced);
-        !$this->onSync || call_user_func($this->onSync, $synced);
+        if ($this->dbal->bulkInsert($new, $this->useAutoIncrement)) {
+            array_push($this->synced, ...$new);
+            !$this->onSync || call_user_func($this->onSync, $new);
+        }
     }
 }
