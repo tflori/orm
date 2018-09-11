@@ -4,6 +4,7 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exception\InvalidArgument;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
 
@@ -118,7 +119,9 @@ abstract class Dbal
     }
 
     /**
-     * Inserts $entity in database and returns success
+     * Inserts $entity in database and synchronizes the entity
+     *
+     * Returns whether the insert was successful or not.
      *
      * @param Entity $entity
      * @param bool   $useAutoIncrement
@@ -135,6 +138,38 @@ abstract class Dbal
 
         $this->entityManager->getConnection()->query($statement);
         return $this->entityManager->sync($entity, true);
+    }
+
+    /**
+     * Inserts $entities in one query
+     *
+     * If update is false the entities will not be synchronized after insert.
+     *
+     * @param Entity[] $entities
+     * @param bool $update
+     * @param bool $useAutoIncrement
+     * @return bool
+     * @throws UnsupportedDriver
+     * @throws InvalidArgument
+     * @throws \ORM\Exception\NoConnection
+     */
+    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    {
+        if (count($entities) === 0) {
+            throw new InvalidArgument('$entities should not be empty');
+        }
+        $statement = $this->buildInsertStatement(...$entities);
+
+        $entity = reset($entities);
+        if ($useAutoIncrement && $entity::isAutoIncremented()) {
+            throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
+        }
+
+        $pdo = $this->entityManager->getConnection()->query($statement);
+        if ($update) {
+            $this->syncInserted(...$entities);
+        }
+        return true;
     }
 
     /**
@@ -242,6 +277,46 @@ abstract class Dbal
 
         $entity->setOriginalData(array_merge($entity->getData(), [ $column => $value ]));
         $entity->__set($var, $value);
+    }
+
+    protected function syncInserted(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            throw new Exception\InvalidArgument('$entities should not be empty');
+        }
+
+        $entity = reset($entities);
+        $vars = $entity::getPrimaryKeyVars();
+        $cols = array_map([$entity, 'getColumnName'], $vars);
+        $primary = array_combine($vars, $cols);
+
+        $query = "SELECT * FROM " . $this->escapeIdentifier($entity::getTableName()) . " WHERE ";
+        $query .= count($cols) > 1 ? '(' . implode(',', array_map([$this, 'escapeIdentifier'], $cols)) . ')' : $cols[0];
+        $query .= ' IN (';
+        $pKeys = [];
+        foreach ($entities as $entity) {
+            $pKey = array_map([$this, 'escapeValue'], $entity->getPrimaryKey());
+            $pKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
+        }
+        $query .= implode(',', $pKeys) . ')';
+
+        $statement = $this->entityManager->getConnection()->query($query);
+        $left = $entities;
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($left as $k => $entity) {
+                foreach ($primary as $var => $col) {
+                    if ($entity->$var != $row[$col]) {
+                        continue 2;
+                    }
+                }
+
+                $this->entityManager->map($entity, true);
+                $entity->setOriginalData($row);
+                $entity->reset();
+                unset($left[$k]);
+                break;
+            }
+        }
     }
 
     /**

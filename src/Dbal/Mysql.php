@@ -56,40 +56,36 @@ class Mysql extends Dbal
         return $this->entityManager->sync($entity, true);
     }
 
-    /**
-     * @param Entity[] $entities
-     * @param bool $useAutoIncrement
-     * @throws Exception\NoConnection
-     */
-    public function bulkInsert(array $entities, $useAutoIncrement = true)
+    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
     {
+        if (count($entities) === 0) {
+            throw new Exception\InvalidArgument('$entities should not be empty');
+        }
         $statement = $this->buildInsertStatement(...$entities);
         $pdo = $this->entityManager->getConnection();
-
         $pdo->query($statement);
-        $table = $entities[0]::getTableName();
-        $pKey = $entities[0]::getPrimaryKeyVars();
-        if ($useAutoIncrement && $entities[0]::isAutoIncremented()) {
-            $rows = $pdo->query('SELECT * FROM ' . $this->escapeIdentifier($table) .
-                                ' WHERE ' . $this->escapeIdentifier($pKey[0]) . ' >= LAST_INSERT_ID()')
-                ->fetchAll(\PDO::FETCH_ASSOC);
 
-            /** @var Entity $entity */
-            foreach (array_values($entities) as $key => $entity) {
-                $entity->setOriginalData($rows[$key]);
-                $entity->reset();
-                $this->entityManager->map($entity, true);
+        if ($update) {
+            $entity = reset($entities);
+            if ($useAutoIncrement && $entity::isAutoIncremented()) {
+                $table = $this->escapeIdentifier($entity::getTableName());
+                $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
+                $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
+                    ->fetchAll(\PDO::FETCH_ASSOC);
+
+                /** @var Entity $entity */
+                foreach (array_values($entities) as $key => $entity) {
+                    $entity->setOriginalData($rows[$key]);
+                    $entity->reset();
+                    $this->entityManager->map($entity, true);
+                }
+                return true;
             }
-        } else {
-            // @todo multiple primary keys may get complicated
-//            usort($entities, function (Entity $a, Entity $b) {
-//                return strcmp(implode('-', $a->getPrimaryKey()), implode('-', $b->getPrimaryKey()));
-//            });
-//            $statement = $pdo->query("SELECT * FROM " . $this->escapeIdentifier($entities[0]::getTableName()) .
-//                " WHERE ")
+
+            $this->syncInserted(...$entities);
         }
 
-        return $entities;
+        return true;
     }
 
     public function describe($table)

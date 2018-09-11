@@ -62,7 +62,7 @@ composer require tflori/orm
 <?php
 
 $entityManager = new ORM\EntityManager([
-      ORM\EntityManager::OPT_DEFAULT_CONNECTION => ['pgsql', 'mydb', 'postgres']
+      ORM\EntityManager::OPT_CONNECTION => ['pgsql', 'mydb', 'postgres']
 ]);
 
 $user = $entityManager->fetch(User::class, 1);
