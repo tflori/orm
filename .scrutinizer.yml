@@ -3,13 +3,11 @@ checks:
       code_rating: true
       duplication: false
 build:
-    tests:
-        override:
-            -
-                command: 'vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text'
-                coverage:
-                    file: 'clover.xml'
-                    format: 'clover'
+    nodes:
+        analysis:
+            tests:
+                override:
+                    - php-scrutinizer-run
     environment:
         php:
             version: 7.1.0
