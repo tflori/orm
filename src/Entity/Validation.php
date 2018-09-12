@@ -14,6 +14,14 @@ trait Validation
      * @var mixed[] */
     protected $data = [];
 
+    /** Whether or not the validator for this class is enabled.
+     * @var bool */
+    protected static $enableValidator = false;
+
+    /** Whether or not the validator for a class got enabled during runtime.
+     * @var bool[] */
+    protected static $enabledValidators = [];
+
     /**
      * Check if the validator is enabled
      *

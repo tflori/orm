@@ -74,14 +74,6 @@ abstract class Entity implements \Serializable
      * @var bool */
     protected static $autoIncrement = true;
 
-    /** Whether or not the validator for this class is enabled.
-     * @var bool */
-    protected static $enableValidator = false;
-
-    /** Whether or not the validator for a class got enabled during runtime.
-     * @var bool[] */
-    protected static $enabledValidators = [];
-
     /** The reflections of the classes.
      * @internal
      * @var \ReflectionClass[] */
