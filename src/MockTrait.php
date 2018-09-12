@@ -97,6 +97,7 @@ trait MockTrait
         $em->shouldReceive('sync')->with(m::type($class))->once()
             ->andReturnUsing(
                 function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
+                    /** @scrutinizer ignore-call */
                     $expectation = $em->shouldReceive('insert')->once()
                         ->andReturnUsing(
                             function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
