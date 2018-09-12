@@ -67,6 +67,7 @@ trait MockTrait
         $entity->reset();
 
         try {
+            /** @scrutinizer ignore-type */
             $em->map($entity, true, $class);
         } catch (IncompletePrimaryKey $ex) {
             // we tried to map but ignore primary key missing
@@ -96,7 +97,7 @@ trait MockTrait
         /** @scrutinizer ignore-call */
         $em->shouldReceive('sync')->with(m::type($class))->once()
             ->andReturnUsing(
-                function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
+                function (Entity $entity) use ($class, $defaultValues, $em) {
                     /** @scrutinizer ignore-call */
                     $expectation = $em->shouldReceive('insert')->once()
                         ->andReturnUsing(
