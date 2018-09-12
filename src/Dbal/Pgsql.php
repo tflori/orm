@@ -61,7 +61,7 @@ class Pgsql extends Dbal
     public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
     {
         if (count($entities) === 0) {
-            throw new InvalidArgument('$entities should not be empty');
+            return false;
         }
         $statement = $this->buildInsertStatement(...$entities);
         $pdo       = $this->entityManager->getConnection();

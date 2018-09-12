@@ -50,6 +50,57 @@ class Sqlite extends Dbal
         return $this->entityManager->sync($entity, true);
     }
 
+    /**
+     * Inserts $entities in one query
+     *
+     * If update is false the entities will not be synchronized after insert.
+     *
+     * **WARNING**: This implementation assumes that the rows with the highest ids are the just inserted rows.
+     *
+     * @param Entity[] $entities
+     * @param bool $update
+     * @param bool $useAutoIncrement
+     * @return bool
+     */
+    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        $statement = $this->buildInsertStatement(...$entities);
+        $pdo = $this->entityManager->getConnection();
+
+        if ($update) {
+            $entity = reset($entities);
+            if ($useAutoIncrement && $entity::isAutoIncremented()) {
+                $table = $this->escapeIdentifier($entity::getTableName());
+                $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
+                $pdo->beginTransaction();
+                $pdo->query($statement);
+                $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
+                    ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
+                    ->fetchAll(\PDO::FETCH_ASSOC);
+                $pdo->commit();
+
+                /** @var Entity $entity */
+                foreach (array_reverse($entities) as $key => $entity) {
+                    $entity->setOriginalData($rows[$key]);
+                    $entity->reset();
+                    $this->entityManager->map($entity, true);
+                }
+                return true;
+            } else {
+                $pdo->query($statement);
+            }
+
+            $this->syncInserted(...$entities);
+            return true;
+        }
+
+        $pdo->query($statement);
+        return true;
+    }
+
     public function describe($schemaTable)
     {
         $table = explode($this->identifierDivider, $schemaTable);

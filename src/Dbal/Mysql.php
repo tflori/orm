@@ -59,7 +59,7 @@ class Mysql extends Dbal
     public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
     {
         if (count($entities) === 0) {
-            throw new Exception\InvalidArgument('$entities should not be empty');
+            return false;
         }
         $statement = $this->buildInsertStatement(...$entities);
         $pdo = $this->entityManager->getConnection();
@@ -70,8 +70,11 @@ class Mysql extends Dbal
             if ($useAutoIncrement && $entity::isAutoIncremented()) {
                 $table = $this->escapeIdentifier($entity::getTableName());
                 $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
+                $pdo->beginTransaction();
+                $pdo->query($statement);
                 $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
                     ->fetchAll(\PDO::FETCH_ASSOC);
+                $pdo->commit();
 
                 /** @var Entity $entity */
                 foreach (array_values($entities) as $key => $entity) {
@@ -80,11 +83,15 @@ class Mysql extends Dbal
                     $this->entityManager->map($entity, true);
                 }
                 return true;
+            } else {
+                $pdo->query($statement);
             }
 
             $this->syncInserted(...$entities);
+            return true;
         }
 
+        $pdo->query($statement);
         return true;
     }
 

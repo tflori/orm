@@ -150,14 +150,13 @@ abstract class Dbal
      * @param bool $useAutoIncrement
      * @return bool
      * @throws UnsupportedDriver
-     * @throws InvalidArgument
-     * @throws \ORM\Exception\NoConnection
      */
     public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
     {
         if (count($entities) === 0) {
-            throw new InvalidArgument('$entities should not be empty');
+            return false;
         }
+
         $statement = $this->buildInsertStatement(...$entities);
 
         $entity = reset($entities);
@@ -279,12 +278,13 @@ abstract class Dbal
         $entity->__set($var, $value);
     }
 
+    /**
+     * Sync the $entities after insert
+     *
+     * @param Entity ...$entities
+     */
     protected function syncInserted(Entity ...$entities)
     {
-        if (count($entities) === 0) {
-            throw new Exception\InvalidArgument('$entities should not be empty');
-        }
-
         $entity = reset($entities);
         $vars = $entity::getPrimaryKeyVars();
         $cols = array_map([$entity, 'getColumnName'], $vars);
