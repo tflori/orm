@@ -161,11 +161,11 @@ abstract class Dbal
         $statement = $this->buildInsertStatement(...$entities);
 
         $entity = reset($entities);
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
+        if ($update && $useAutoIncrement && $entity::isAutoIncremented()) {
             throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
         }
 
-        $pdo = $this->entityManager->getConnection()->query($statement);
+        $this->entityManager->getConnection()->query($statement);
         if ($update) {
             $this->syncInserted(...$entities);
         }

@@ -20,7 +20,10 @@ class BulkInsert
     protected $onSync;
 
     /** @var bool */
-    protected $useAutoIncrement;
+    protected $useAutoIncrement = true;
+
+    /** @var bool */
+    protected $update = true;
 
     /** @var Entity[] */
     protected $new = [];
@@ -34,16 +37,12 @@ class BulkInsert
      * @param string $class
      * @param Dbal $dbal
      * @param int $limit
-     * @param callable $onSync
-     * @param bool $useAutoIncrement
      */
-    public function __construct(Dbal $dbal, $class, $useAutoIncrement = true, $limit = 20, callable $onSync = null)
+    public function __construct(Dbal $dbal, $class, $limit = 20)
     {
         $this->class = $class;
         $this->dbal = $dbal;
         $this->limit = $limit;
-        $this->onSync = $onSync;
-        $this->useAutoIncrement = $useAutoIncrement;
     }
 
     /**
@@ -85,9 +84,99 @@ class BulkInsert
     protected function execute()
     {
         $new = array_splice($this->new, 0, $this->limit);
-        if ($this->dbal->bulkInsert($new, $this->useAutoIncrement)) {
+        if ($this->dbal->bulkInsert($new, $this->update, $this->useAutoIncrement)) {
             array_push($this->synced, ...$new);
             !$this->onSync || call_user_func($this->onSync, $new);
         }
+    }
+
+    /** @return int
+     * @codeCoverageIgnore trivial */
+    public function getLimit()
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Limit the amount of entities inserted at once.
+     *
+     * @param int $limit
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function limit($limit)
+    {
+        $this->limit = $limit;
+        return $this;
+    }
+
+    /**
+     * Enable updating the primary keys from autoincrement
+     *
+     * **Caution**: Your db access layer (DBAL) may not support this feature.
+     *
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function useAutoincrement()
+    {
+        $this->useAutoIncrement = true;
+        return $this;
+    }
+
+    /**
+     * Disable updating the primary key by auto increment.
+     *
+     * **Caution**: If this is disabled updating could cause a IncompletePrimaryKey exception.
+     *
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function noAutoincrement()
+    {
+        $this->useAutoIncrement = false;
+        return $this;
+    }
+
+    /**
+     * Executes $callback after insert
+     *
+     * Provides an array of the just inserted entities in first argument.
+     *
+     * @param callable $callback
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function onSync(callable $callback)
+    {
+        $this->onSync = $callback;
+        return $this;
+    }
+
+    /**
+     * Disable updating entities after insert
+     *
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function noUpdates()
+    {
+        $this->update = false;
+        return $this;
+    }
+
+    /**
+     * Enable updating entities after insert
+     *
+     * **Caution**: This option will need to update the primary key by autoincrement which maybe is not supported
+     * by your db access layer (DBAL).
+     *
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function updateEntities()
+    {
+        $this->update = true;
+        return $this;
     }
 }

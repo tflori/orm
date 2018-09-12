@@ -396,15 +396,13 @@ class EntityManager
      * At the end you should call finish bulk insert otherwise you may loose data.
      *
      * @param string $class
-     * @param bool $useAutoIncrement
      * @param int $limit Maximum number of rows per insert
-     * @param callable $onSync Will be called every time entities will be synced
      * @return BulkInsert
      */
-    public function useBulkInserts($class, $useAutoIncrement = true, $limit = 20, callable $onSync = null)
+    public function useBulkInserts($class, $limit = 20)
     {
         if (!isset($this->bulkInserts[$class])) {
-            $this->bulkInserts[$class] = new BulkInsert($this->getDbal(), $class, $useAutoIncrement, $limit, $onSync);
+            $this->bulkInserts[$class] = new BulkInsert($this->getDbal(), $class, $limit);
         }
         return $this->bulkInserts[$class];
     }

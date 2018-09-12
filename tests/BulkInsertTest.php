@@ -23,10 +23,10 @@ class BulkInsertTest extends TestCase
     /** @test */
     public function executesWhenLimitReached()
     {
-        $bulk = new BulkInsert($this->dbal, Article::class, true, 2);
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
+        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
             ->once()->andReturn(true);
 
         array_push($articles, new Article);
@@ -36,12 +36,12 @@ class BulkInsertTest extends TestCase
     /** @test */
     public function executesUntilLimitIsNotReached()
     {
-        $bulk = new BulkInsert($this->dbal, Article::class, true, 2);
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article, new Article, new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 0, 2), true)
+        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 0, 2), true, true)
             ->once()->andReturn(true);
-        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 2, 2), true)
+        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 2, 2), true, true)
             ->once()->andReturn(true);
 
         $bulk->add(...$articles);
@@ -54,7 +54,7 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article, new Article, new Article, new Article];
         $bulk->add(...$articles);
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
+        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
             ->once()->andReturn(true);
 
         $bulk->finish();
@@ -73,10 +73,10 @@ class BulkInsertTest extends TestCase
     /** @test */
     public function returnsTheSyncedEntities()
     {
-        $bulk = new BulkInsert($this->dbal, Article::class, true, 2);
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
+        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
             ->once()->andReturn(true);
         $bulk->add(...$articles);
 
@@ -89,10 +89,10 @@ class BulkInsertTest extends TestCase
     public function executesOnSyncAfterExecution()
     {
         $onSync = \Mockery::mock(ClosureWrapper::class);
-        $bulk = new BulkInsert($this->dbal, Article::class, true, 2, $onSync);
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2)->onSync($onSync);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
+        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
             ->once()->andReturn(true);
 
         $onSync->shouldReceive('__invoke')->with($articles)
