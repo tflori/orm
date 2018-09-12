@@ -27,13 +27,13 @@ trait MockTrait
      *
      * @param array $options Options passed to EntityManager constructor
      * @param string $driver Database driver you are using (results in different dbal instance)
-     * @return m\MockInterface|EntityManager
+     * @return m\Mock|EntityManager
      */
     public function ormInitMock($options = [], $driver = 'mysql')
     {
-        /** @var EntityManager|m\MockInterface $em */
+        /** @var EntityManager|m\Mock $em */
         $em = m::mock(EntityManager::class, [ $options ])->makePartial();
-        /** @var \PDO|m\MockInterface $pdo */
+        /** @var \PDO|m\Mock $pdo */
         $pdo = m::mock(\PDO::class);
 
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
@@ -54,13 +54,13 @@ trait MockTrait
      * @param string        $class
      * @param array         $data
      * @param EntityManager $em
-     * @return m\MockInterface|Entity
+     * @return m\Mock|Entity
      */
     public function ormCreateMockedEntity($class, $data = [], $em = null)
     {
         $em = $em ?: EntityManager::getInstance($class);
 
-        /** @var Entity|m\MockInterface $entity */
+        /** @var Entity|m\Mock $entity */
         $entity = m::mock($class)->makePartial();
         $entity->setEntityManager($em);
         $entity->setOriginalData($data);
@@ -90,9 +90,10 @@ trait MockTrait
      */
     public function ormExpectInsert($class, $defaultValues = [], $em = null)
     {
-        /** @var EntityManager|m\MockInterface $em */
+        /** @var EntityManager|m\Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
+        /** @scrutinizer ignore-call */
         $em->shouldReceive('sync')->with(m::type($class))->once()
             ->andReturnUsing(
                 function (Entity $entity, $reset = false) use ($class, $defaultValues, $em) {
@@ -129,17 +130,18 @@ trait MockTrait
      * @param string        $class    The class that should be fetched
      * @param array         $entities The entities that get returned from fetcher
      * @param EntityManager $em
-     * @return m\MockInterface|EntityFetcher
+     * @return m\Mock|EntityFetcher
      */
     public function ormExpectFetch($class, $entities = [], $em = null)
     {
-        /** @var EntityManager|m\MockInterface $em */
+        /** @var EntityManager|m\Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
-        /** @var m\MockInterface|EntityFetcher $fetcher */
+        /** @var m\Mock|EntityFetcher $fetcher */
         $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
         $em->shouldReceive('fetch')->with($class)->once()->andReturn($fetcher);
 
+        /** @scrutinizer ignore-call */
         $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
         array_push($entities, null);
         $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
@@ -152,12 +154,13 @@ trait MockTrait
      *
      * Entity has to be a mock use `emCreateMockedEntity()` to create it.
      *
-     * @param Entity $entity
+     * @param Entity|m\Mock $entity
      * @param array  $changingData Emulate changing data during update statement (triggers etc)
      * @param array  $updatedData  Emulate data changes in database
      */
     public function ormExpectUpdate(Entity $entity, $changingData = [], $updatedData = [])
     {
+        /** @scrutinizer ignore-call */
         $entity->shouldReceive('save')->once()->andReturnUsing(
             function () use ($entity, $updatedData, $changingData) {
                 // sync with database using $updatedData
@@ -197,7 +200,7 @@ trait MockTrait
     {
         $class = is_string($entity) ? $entity : get_class($entity);
 
-        /** @var EntityManager|m\MockInterface $em */
+        /** @var EntityManager|m\Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
         $expectation = $em->shouldReceive('delete');
