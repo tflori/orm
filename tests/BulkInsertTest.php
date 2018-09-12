@@ -27,7 +27,7 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
-            ->once()->andReturn($articles);
+            ->once()->andReturn(true);
 
         array_push($articles, new Article);
         $bulk->add(...$articles);
@@ -40,9 +40,9 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article, new Article, new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 0, 2), true)
-            ->once()->andReturn(array_slice($articles, 0, 2));
+            ->once()->andReturn(true);
         $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 2, 2), true)
-            ->once()->andReturn(array_slice($articles, 2, 2));
+            ->once()->andReturn(true);
 
         $bulk->add(...$articles);
     }
@@ -55,7 +55,7 @@ class BulkInsertTest extends TestCase
         $bulk->add(...$articles);
 
         $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
-            ->once()->andReturn($articles);
+            ->once()->andReturn(true);
 
         $bulk->finish();
     }
@@ -77,13 +77,12 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
-            ->once()->andReturn([new Article, new Article]);
+            ->once()->andReturn(true);
         $bulk->add(...$articles);
 
         $synced = $bulk->finish();
 
-        self::assertNotSame($articles, $synced);
-        self::assertEquals($articles, $synced);
+        self::assertSame($articles, $synced);
     }
 
     /** @test */
@@ -92,12 +91,11 @@ class BulkInsertTest extends TestCase
         $onSync = \Mockery::mock(ClosureWrapper::class);
         $bulk = new BulkInsert($this->dbal, Article::class, true, 2, $onSync);
         $articles = [new Article, new Article];
-        $synced = [new Article, new Article];
 
         $this->dbal->shouldReceive('bulkInsert')->with($articles, true)
-            ->once()->andReturn($synced);
+            ->once()->andReturn(true);
 
-        $onSync->shouldReceive('__invoke')->with($synced)
+        $onSync->shouldReceive('__invoke')->with($articles)
             ->once();
 
         $bulk->add(...$articles);
