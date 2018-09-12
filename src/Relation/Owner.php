@@ -47,7 +47,11 @@ class Owner extends Relation
         return $entityManager->fetch($this->class, $key);
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     * @throws InvalidRelation
+     * @throws IncompletePrimaryKey
+     */
     public function setRelated(Entity $me, Entity $entity = null)
     {
         if ($entity !== null && !$entity instanceof $this->class) {

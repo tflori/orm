@@ -256,8 +256,9 @@ abstract class Entity implements \Serializable
      * The method throws an error when the validation fails (also when the column does not exist).
      *
      * @param string $attribute The variable to change
-     * @param mixed  $value     The value to store
+     * @param mixed $value The value to store
      * @link https://tflori.github.io/orm/entities.html Working with entities
+     * @throws Error
      */
     public function __set($attribute, $value)
     {
@@ -295,8 +296,9 @@ abstract class Entity implements \Serializable
      * When $checkMissing is set to true it also proves that the absent columns are nullable.
      *
      * @param array $data
-     * @param bool  $ignoreUnknown
-     * @param bool  $checkMissing
+     * @param bool $ignoreUnknown
+     * @param bool $checkMissing
+     * @throws UnknownColumn
      */
     public function fill(array $data, $ignoreUnknown = false, $checkMissing = false)
     {
@@ -339,6 +341,7 @@ abstract class Entity implements \Serializable
      * Save the entity to EntityManager
      *
      * @return Entity
+     * @throws IncompletePrimaryKey
      */
     public function save()
     {
@@ -488,6 +491,7 @@ abstract class Entity implements \Serializable
      * Get the primary key
      *
      * @return array
+     * @throws IncompletePrimaryKey
      */
     public function getPrimaryKey()
     {

@@ -242,6 +242,7 @@ class EntityManager
      * When it is not a PDO instance the connection get established on first use.
      *
      * @param mixed $connection A configuration for (or a) PDO instance
+     * @throws InvalidConfiguration
      */
     public function setConnection($connection)
     {
@@ -265,6 +266,8 @@ class EntityManager
      * Get the pdo connection.
      *
      * @return \PDO
+     * @throws NoConnection
+     * @throws NoConnection
      */
     public function getConnection()
     {
@@ -478,9 +481,11 @@ class EntityManager
      *
      * Without $primaryKey it creates an entityFetcher and returns this.
      *
-     * @param string $class      The entity class you want to fetch
-     * @param mixed  $primaryKey The primary key of the entity you want to fetch
+     * @param string $class The entity class you want to fetch
+     * @param mixed $primaryKey The primary key of the entity you want to fetch
      * @return Entity|EntityFetcher
+     * @throws IncompletePrimaryKey
+     * @throws NoEntity
      */
     public function fetch($class, $primaryKey = null)
     {

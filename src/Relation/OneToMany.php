@@ -30,7 +30,10 @@ class OneToMany extends Relation
         $this->opponent = $opponent;
     }
 
-    /** {@inheritdoc} */
+    /**
+     * {@inheritdoc}
+     * @throws InvalidConfiguration
+     */
     public function fetch(Entity $me, EntityManager $entityManager)
     {
         $reference = $this->getOpponent()->getReference();

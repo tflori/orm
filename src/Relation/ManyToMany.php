@@ -100,7 +100,11 @@ class ManyToMany extends Relation
         return $result;
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritdoc}
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     * @throws IncompletePrimaryKey
+     */
     public function addRelated(Entity $me, array $entities, EntityManager $entityManager)
     {
         if (empty($entities)) {
@@ -149,7 +153,11 @@ class ManyToMany extends Relation
         $entityManager->getConnection()->query($statement);
     }
 
-    /** {@inheritdoc} */
+    /** {@inheritdoc}
+     * @throws IncompletePrimaryKey
+     * @throws InvalidRelation
+     * @throws IncompletePrimaryKey
+     */
     public function deleteRelated(Entity $me, array $entities, EntityManager $entityManager)
     {
         if (empty($entities)) {

@@ -77,8 +77,9 @@ abstract class Relation
      * Converts short form to assoc form
      *
      * @param string $name
-     * @param array  $relDef
+     * @param array $relDef
      * @return array
+     * @throws InvalidConfiguration
      */
     protected static function convertShort($name, $relDef)
     {
@@ -184,8 +185,9 @@ abstract class Relation
      * Get the foreign key for the given reference
      *
      * @param Entity $me
-     * @param array  $reference
+     * @param array $reference
      * @return array
+     * @throws IncompletePrimaryKey
      */
     protected function getForeignKey(Entity $me, $reference)
     {
@@ -207,8 +209,9 @@ abstract class Relation
     /**
      * Set the relation to $entity
      *
-     * @param Entity      $me
+     * @param Entity $me
      * @param Entity|null $entity
+     * @throws InvalidRelation
      */
     public function setRelated(Entity $me, Entity $entity = null)
     {
@@ -218,9 +221,10 @@ abstract class Relation
     /**
      * Add $entities to association table
      *
-     * @param Entity        $me
-     * @param Entity[]      $entities
+     * @param Entity $me
+     * @param Entity[] $entities
      * @param EntityManager $entityManager
+     * @throws InvalidRelation
      */
     public function addRelated(Entity $me, array $entities, EntityManager $entityManager)
     {
@@ -230,9 +234,10 @@ abstract class Relation
     /**
      * Delete $entities from association table
      *
-     * @param Entity        $me
-     * @param Entity[]      $entities
+     * @param Entity $me
+     * @param Entity[] $entities
      * @param EntityManager $entityManager
+     * @throws InvalidRelation
      */
     public function deleteRelated(Entity $me, array $entities, EntityManager $entityManager)
     {

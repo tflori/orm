@@ -87,6 +87,7 @@ class Namer
      * @param string $template
      * @param string $namingScheme
      * @return string
+     * @throws InvalidName
      */
     public function getTableName($class, $template = null, $namingScheme = null)
     {
@@ -198,9 +199,10 @@ class Namer
      * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
      * and UPPER.
      *
-     * @param string $name         The name of the var / column
+     * @param string $name The name of the var / column
      * @param string $namingScheme The naming scheme to use
      * @return string
+     * @throws InvalidConfiguration
      */
     public function forceNamingScheme($name, $namingScheme)
     {
@@ -256,9 +258,10 @@ class Namer
      * Get the value for $attribute from $values using $arrayGlue
      *
      * @param string $attribute The key for $values
-     * @param array  $values
+     * @param array $values
      * @param string $arrayGlue
      * @return string
+     * @throws InvalidConfiguration
      */
     protected function getValue($attribute, $values, $arrayGlue)
     {

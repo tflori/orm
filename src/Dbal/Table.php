@@ -38,8 +38,9 @@ class Table extends ArrayObject
      * Returns an array with at least
      *
      * @param string $col
-     * @param mixed  $value
+     * @param mixed $value
      * @return bool|Error
+     * @throws UnknownColumn
      */
     public function validate($col, $value)
     {

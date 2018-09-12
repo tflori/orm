@@ -29,6 +29,7 @@ trait Relations
      *
      * @param string $relation
      * @return Relation
+     * @throws UndefinedRelation
      */
     public static function getRelation($relation)
     {
