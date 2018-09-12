@@ -292,7 +292,7 @@ class EntityFetcher extends QueryBuilder
      * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
      * change the result.
      *
-     * @return \PDOStatement
+     * @return \PDOStatement|bool
      */
     private function getStatement()
     {
