@@ -58,6 +58,35 @@ class Pgsql extends Dbal
         return $this->entityManager->sync($entity, true);
     }
 
+    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    {
+        if (count($entities) === 0) {
+            throw new InvalidArgument('$entities should not be empty');
+        }
+        $statement = $this->buildInsertStatement(...$entities);
+        $pdo       = $this->entityManager->getConnection();
+        $entity    = reset($entities);
+
+        if ($update) {
+            if ($useAutoIncrement && $entity::isAutoIncremented()) {
+                $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
+                $result = $pdo->query($statement);
+                while ($id = $result->fetchColumn()) {
+                    $this->updateAutoincrement($entity, $id);
+                    $entity = next($entities);
+                }
+            } else {
+                $pdo->query($statement);
+            }
+
+            $this->syncInserted(...$entities);
+            return true;
+        }
+
+        $pdo->query($statement);
+        return true;
+    }
+
     public function describe($schemaTable)
     {
         $table = explode($this->identifierDivider, $schemaTable);
