@@ -26,7 +26,7 @@ class BulkInsertTest extends TestCase
         $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...$articles)
             ->once()->andReturn(true);
 
         array_push($articles, new Article);
@@ -39,9 +39,9 @@ class BulkInsertTest extends TestCase
         $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article, new Article, new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 0, 2), true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...array_slice($articles, 0, 2))
             ->once()->andReturn(true);
-        $this->dbal->shouldReceive('bulkInsert')->with(array_slice($articles, 2, 2), true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...array_slice($articles, 2, 2))
             ->once()->andReturn(true);
 
         $bulk->add(...$articles);
@@ -54,7 +54,7 @@ class BulkInsertTest extends TestCase
         $articles = [new Article, new Article, new Article, new Article, new Article];
         $bulk->add(...$articles);
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...$articles)
             ->once()->andReturn(true);
 
         $bulk->finish();
@@ -65,7 +65,7 @@ class BulkInsertTest extends TestCase
     {
         $bulk = new BulkInsert($this->dbal, Article::class);
 
-        $this->dbal->shouldNotReceive('bulkInsert');
+        $this->dbal->shouldNotReceive('insertAndSyncWithAutoInc');
 
         $bulk->finish();
     }
@@ -76,7 +76,7 @@ class BulkInsertTest extends TestCase
         $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...$articles)
             ->once()->andReturn(true);
         $bulk->add(...$articles);
 
@@ -92,7 +92,7 @@ class BulkInsertTest extends TestCase
         $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2)->onSync($onSync);
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('bulkInsert')->with($articles, true, true)
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with(...$articles)
             ->once()->andReturn(true);
 
         $onSync->shouldReceive('__invoke')->with($articles)

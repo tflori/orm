@@ -43,6 +43,9 @@ class BulkInsert
         $this->class = $class;
         $this->dbal = $dbal;
         $this->limit = $limit;
+        if (!$class::isAutoIncremented()) {
+            $this->useAutoIncrement = false;
+        }
     }
 
     /**
@@ -84,7 +87,16 @@ class BulkInsert
     protected function execute()
     {
         $new = array_splice($this->new, 0, $this->limit);
-        if ($this->dbal->bulkInsert($new, $this->update, $this->useAutoIncrement)) {
+
+        if (!$this->update) {
+            $success = $this->dbal->insert(...$new);
+        } elseif ($this->useAutoIncrement) {
+            $success = $this->dbal->insertAndSyncWithAutoInc(...$new);
+        } else {
+            $success = $this->dbal->insertAndSync(...$new);
+        }
+
+        if ($success) {
             array_push($this->synced, ...$new);
             !$this->onSync || call_user_func($this->onSync, $new);
         }

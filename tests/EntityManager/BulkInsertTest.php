@@ -59,7 +59,7 @@ class BulkInsertTest extends TestCase
     {
         $entity = new Category;
         $this->bulkInsert->shouldNotReceive('add');
-        $this->dbal->shouldReceive('insert')->with($entity, m::type('bool'))
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with($entity)
             ->once()->andReturn($entity);
 
         $this->em->insert($entity);
@@ -87,7 +87,7 @@ class BulkInsertTest extends TestCase
 
         $entity = new Article;
         $this->bulkInsert->shouldNotReceive('add');
-        $this->dbal->shouldReceive('insert')->with($entity, m::type('bool'))
+        $this->dbal->shouldReceive('insertAndSyncWithAutoInc')->with($entity)
             ->once()->andReturn($entity);
 
         $this->em->insert($entity);

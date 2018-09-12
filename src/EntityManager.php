@@ -383,7 +383,9 @@ class EntityManager
             return true;
         }
 
-        return $this->getDbal()->insert($entity, $useAutoIncrement);
+        return $useAutoIncrement && $entity::isAutoIncremented() ?
+            $this->getDbal()->insertAndSyncWithAutoInc($entity) :
+            $this->getDbal()->insertAndSync($entity);
     }
 
     /**

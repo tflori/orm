@@ -120,56 +120,60 @@ abstract class Dbal
     }
 
     /**
-     * Inserts $entity in database and synchronizes the entity
-     *
-     * Returns whether the insert was successful or not.
-     *
-     * @param Entity $entity
-     * @param bool $useAutoIncrement
+     * @param Entity[] $entities
      * @return bool
-     * @throws UnsupportedDriver
+     * @throws Exception\InvalidArgument
      */
-    public function insert(Entity $entity, $useAutoIncrement = true)
+    protected static function assertSameType(array $entities)
     {
-        $statement = $this->buildInsertStatement($entity);
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
+        if (count($entities) < 2) {
+            return true;
         }
 
-        $this->entityManager->getConnection()->query($statement);
-        return $this->entityManager->sync($entity, true);
+        $type = get_class(reset($entities));
+        foreach ($entities as $i => $entity) {
+            if (get_class($entity) !== $type) {
+                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type'));
+            }
+        }
+
+        return true;
     }
 
-    /**
-     * Inserts $entities in one query
-     *
-     * If update is false the entities will not be synchronized after insert.
-     *
-     * @param Entity[] $entities
-     * @param bool $update
-     * @param bool $useAutoIncrement
-     * @return bool
-     * @throws UnsupportedDriver
-     */
-    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    public function insert(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
-
-        $statement = $this->buildInsertStatement(...$entities);
-
-        $entity = reset($entities);
-        if ($update && $useAutoIncrement && $entity::isAutoIncremented()) {
-            throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
-        }
-
-        $this->entityManager->getConnection()->query($statement);
-        if ($update) {
-            $this->syncInserted(...$entities);
-        }
+        static::assertSameType($entities);
+        $insert = $this->buildInsertStatement(...$entities);
+        $this->entityManager->getConnection()->query($insert);
         return true;
+    }
+
+    public function insertAndSync(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        self::assertSameType($entities);
+        $this->insert(...$entities);
+        $this->syncInserted(...$entities);
+        return true;
+    }
+
+    /**
+     * @param Entity ...$entities
+     * @return int|bool
+     * @throws UnsupportedDriver
+     */
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        self::assertSameType($entities);
+        throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
     }
 
     /**
@@ -292,7 +296,9 @@ abstract class Dbal
         $primary = array_combine($vars, $cols);
 
         $query = "SELECT * FROM " . $this->escapeIdentifier($entity::getTableName()) . " WHERE ";
-        $query .= count($cols) > 1 ? '(' . implode(',', array_map([$this, 'escapeIdentifier'], $cols)) . ')' : $cols[0];
+        $query .= count($cols) > 1 ?
+            '(' . implode(',', array_map([$this, 'escapeIdentifier'], $cols)) . ')' :
+            $this->escapeIdentifier($cols[0]);
         $query .= ' IN (';
         $pKeys = [];
         foreach ($entities as $entity) {

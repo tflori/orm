@@ -42,48 +42,22 @@ class Pgsql extends Dbal
     protected $booleanTrue  = 'true';
     protected $booleanFalse = 'false';
 
-    public function insert(Entity $entity, $useAutoIncrement = true)
-    {
-        $statement = $this->buildInsertStatement($entity);
-        $pdo       = $this->entityManager->getConnection();
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-            $result    = $pdo->query($statement);
-            $this->updateAutoincrement($entity, $result->fetchColumn());
-        } else {
-            $pdo->query($statement);
-        }
-
-        return $this->entityManager->sync($entity, true);
-    }
-
-    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
-        $statement = $this->buildInsertStatement(...$entities);
-        $pdo       = $this->entityManager->getConnection();
-        $entity    = reset($entities);
+        static::assertSameType($entities);
 
-        if ($update) {
-            if ($useAutoIncrement && $entity::isAutoIncremented()) {
-                $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-                $result = $pdo->query($statement);
-                while ($id = $result->fetchColumn()) {
-                    $this->updateAutoincrement($entity, $id);
-                    $entity = next($entities);
-                }
-            } else {
-                $pdo->query($statement);
-            }
-
-            $this->syncInserted(...$entities);
-            return true;
+        $entity = reset($entities);
+        $pdo = $this->entityManager->getConnection();
+        $col = $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
+        $result = $pdo->query($this->buildInsertStatement(...$entities) . ' RETURNING ' . $col);
+        while ($id = $result->fetchColumn()) {
+            $this->updateAutoincrement($entity, $id);
+            $entity = next($entity);
         }
-
-        $pdo->query($statement);
+        $this->syncInserted(...$entities);
         return true;
     }
 

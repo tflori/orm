@@ -41,57 +41,30 @@ class Mysql extends Dbal
         'json' => Type\Json::class,
     ];
 
-    public function insert(Entity $entity, $useAutoIncrement = true)
-    {
-        $statement = $this->buildInsertStatement($entity);
-        $pdo       = $this->entityManager->getConnection();
-
-        $pdo->query($statement);
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            // we don't need a transaction here because the last insert id is bound to connection
-            $this->updateAutoincrement($entity, $pdo->query("SELECT LAST_INSERT_ID()")->fetchColumn());
-        }
-
-        return $this->entityManager->sync($entity, true);
-    }
-
-    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
-        $statement = $this->buildInsertStatement(...$entities);
+        static::assertSameType($entities);
+
+        $entity = reset($entities);
+        $table = $this->escapeIdentifier($entity::getTableName());
+        $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
         $pdo = $this->entityManager->getConnection();
-        $pdo->query($statement);
+        $pdo->beginTransaction();
+        $pdo->query($this->buildInsertStatement(...$entities));
+        $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
+            ->fetchAll(\PDO::FETCH_ASSOC);
+        $pdo->commit();
 
-        if ($update) {
-            $entity = reset($entities);
-            if ($useAutoIncrement && $entity::isAutoIncremented()) {
-                $table = $this->escapeIdentifier($entity::getTableName());
-                $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
-                $pdo->beginTransaction();
-                $pdo->query($statement);
-                $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
-                    ->fetchAll(\PDO::FETCH_ASSOC);
-                $pdo->commit();
-
-                /** @var Entity $entity */
-                foreach (array_values($entities) as $key => $entity) {
-                    $entity->setOriginalData($rows[$key]);
-                    $entity->reset();
-                    $this->entityManager->map($entity, true);
-                }
-                return true;
-            } else {
-                $pdo->query($statement);
-            }
-
-            $this->syncInserted(...$entities);
-            return true;
+        /** @var Entity $entity */
+        foreach (array_values($entities) as $key => $entity) {
+            $entity->setOriginalData($rows[$key]);
+            $entity->reset();
+            $this->entityManager->map($entity, true);
         }
 
-        $pdo->query($statement);
         return true;
     }
 

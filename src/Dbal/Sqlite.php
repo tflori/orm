@@ -35,69 +35,31 @@ class Sqlite extends Dbal
         'time'     => Type\Time::class,
     ];
 
-    public function insert(Entity $entity, $useAutoIncrement = true)
-    {
-        $statement = $this->buildInsertStatement($entity);
-        $pdo       = $this->entityManager->getConnection();
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $pdo->query($statement);
-            $this->updateAutoincrement($entity, $pdo->lastInsertId());
-        } else {
-            $pdo->query($statement);
-        }
-
-        return $this->entityManager->sync($entity, true);
-    }
-
-    /**
-     * Inserts $entities in one query
-     *
-     * If update is false the entities will not be synchronized after insert.
-     *
-     * **WARNING**: This implementation assumes that the rows with the highest ids are the just inserted rows.
-     *
-     * @param Entity[] $entities
-     * @param bool $update
-     * @param bool $useAutoIncrement
-     * @return bool
-     */
-    public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
-        $statement = $this->buildInsertStatement(...$entities);
+        static::assertSameType($entities);
+
+        $entity = reset($entities);
         $pdo = $this->entityManager->getConnection();
+        $table = $this->escapeIdentifier($entity::getTableName());
+        $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
+        $pdo->beginTransaction();
+        $pdo->query($this->buildInsertStatement(...$entities));
+        $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
+                            ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
+            ->fetchAll(\PDO::FETCH_ASSOC);
+        $pdo->commit();
 
-        if ($update) {
-            $entity = reset($entities);
-            if ($useAutoIncrement && $entity::isAutoIncremented()) {
-                $table = $this->escapeIdentifier($entity::getTableName());
-                $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
-                $pdo->beginTransaction();
-                $pdo->query($statement);
-                $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
-                    ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
-                    ->fetchAll(\PDO::FETCH_ASSOC);
-                $pdo->commit();
-
-                /** @var Entity $entity */
-                foreach (array_reverse($entities) as $key => $entity) {
-                    $entity->setOriginalData($rows[$key]);
-                    $entity->reset();
-                    $this->entityManager->map($entity, true);
-                }
-                return true;
-            } else {
-                $pdo->query($statement);
-            }
-
-            $this->syncInserted(...$entities);
-            return true;
+        /** @var Entity $entity */
+        foreach (array_reverse($entities) as $key => $entity) {
+            $entity->setOriginalData($rows[$key]);
+            $entity->reset();
+            $this->entityManager->map($entity, true);
         }
 
-        $pdo->query($statement);
         return true;
     }
 
