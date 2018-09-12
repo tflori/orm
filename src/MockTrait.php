@@ -25,8 +25,8 @@ trait MockTrait
      * accepts `quote(string)`, `setAttribute(*)` and `getAttribute(ATTR_DRIVER_NAME)`. To retrieve and expect other
      * calls you can use `getConnection()` from EntityManager mock object.
      *
-     * @param array  $options Options passed to EntityManager constructor
-     * @param string $driver  Database driver you are using (results in different dbal instance)
+     * @param array $options Options passed to EntityManager constructor
+     * @param string $driver Database driver you are using (results in different dbal instance)
      * @return m\MockInterface|EntityManager
      */
     public function ormInitMock($options = [], $driver = 'mysql')
@@ -87,7 +87,6 @@ trait MockTrait
      * @param array         $defaultValues The default values that came from database (for example: the created column
      *                                     has by the default the current timestamp; the id is auto incremented...)
      * @param EntityManager $em
-     * @throws Exception
      */
     public function ormExpectInsert($class, $defaultValues = [], $em = null)
     {
@@ -131,7 +130,6 @@ trait MockTrait
      * @param array         $entities The entities that get returned from fetcher
      * @param EntityManager $em
      * @return m\MockInterface|EntityFetcher
-     * @throws Exception
      */
     public function ormExpectFetch($class, $entities = [], $em = null)
     {

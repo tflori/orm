@@ -4,7 +4,6 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\EntityManager;
-use ORM\Exception\InvalidArgument;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
 
@@ -92,7 +91,6 @@ abstract class Dbal
      *
      * @param  mixed $value The variable that should be returned in SQL syntax
      * @return string
-     * @throws NotScalar
      */
     public function escapeValue($value)
     {
@@ -111,7 +109,6 @@ abstract class Dbal
      *
      * @param string $table
      * @return Table|Column[]
-     * @throws UnsupportedDriver
      */
     public function describe($table)
     {
@@ -124,9 +121,8 @@ abstract class Dbal
      * Returns whether the insert was successful or not.
      *
      * @param Entity $entity
-     * @param bool   $useAutoIncrement
+     * @param bool $useAutoIncrement
      * @return bool
-     * @throws UnsupportedDriver
      */
     public function insert(Entity $entity, $useAutoIncrement = true)
     {
@@ -149,7 +145,6 @@ abstract class Dbal
      * @param bool $update
      * @param bool $useAutoIncrement
      * @return bool
-     * @throws UnsupportedDriver
      */
     public function bulkInsert(array $entities, $update = true, $useAutoIncrement = true)
     {

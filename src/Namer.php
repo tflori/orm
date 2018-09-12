@@ -87,7 +87,6 @@ class Namer
      * @param string $template
      * @param string $namingScheme
      * @return string
-     * @throws InvalidName
      */
     public function getTableName($class, $template = null, $namingScheme = null)
     {
@@ -100,6 +99,7 @@ class Namer
                 $namingScheme = $this->tableNameScheme;
             }
 
+            /** @noinspection PhpUnhandledExceptionInspection */
             $reflection = new ReflectionClass($class);
 
             $name = $this->substitute(
@@ -201,7 +201,6 @@ class Namer
      * @param string $name         The name of the var / column
      * @param string $namingScheme The naming scheme to use
      * @return string
-     * @throws InvalidConfiguration
      */
     public function forceNamingScheme($name, $namingScheme)
     {
@@ -260,7 +259,6 @@ class Namer
      * @param array  $values
      * @param string $arrayGlue
      * @return string
-     * @throws InvalidConfiguration
      */
     protected function getValue($attribute, $values, $arrayGlue)
     {

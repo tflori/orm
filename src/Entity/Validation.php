@@ -6,7 +6,6 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\EntityManager as EM;
-use ORM\Exception;
 
 trait Validation
 {
@@ -61,9 +60,8 @@ trait Validation
      * Validate $value for $attribute
      *
      * @param string $attribute
-     * @param mixed  $value
+     * @param mixed $value
      * @return bool|Error
-     * @throws Exception
      */
     public static function validate($attribute, $value)
     {

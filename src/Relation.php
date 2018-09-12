@@ -46,7 +46,7 @@ abstract class Relation
      * Factory for relation definition object
      *
      * @param string $name
-     * @param array  $relDef
+     * @param array $relDef
      * @return Relation
      */
     public static function createRelation($name, $relDef)
@@ -79,7 +79,6 @@ abstract class Relation
      * @param string $name
      * @param array  $relDef
      * @return array
-     * @throws InvalidConfiguration
      */
     protected static function convertShort($name, $relDef)
     {
@@ -187,7 +186,6 @@ abstract class Relation
      * @param Entity $me
      * @param array  $reference
      * @return array
-     * @throws IncompletePrimaryKey
      */
     protected function getForeignKey(Entity $me, $reference)
     {
@@ -211,7 +209,6 @@ abstract class Relation
      *
      * @param Entity      $me
      * @param Entity|null $entity
-     * @throws InvalidRelation
      */
     public function setRelated(Entity $me, Entity $entity = null)
     {
@@ -224,7 +221,6 @@ abstract class Relation
      * @param Entity        $me
      * @param Entity[]      $entities
      * @param EntityManager $entityManager
-     * @throws InvalidRelation
      */
     public function addRelated(Entity $me, array $entities, EntityManager $entityManager)
     {
@@ -237,7 +233,6 @@ abstract class Relation
      * @param Entity        $me
      * @param Entity[]      $entities
      * @param EntityManager $entityManager
-     * @throws InvalidRelation
      */
     public function deleteRelated(Entity $me, array $entities, EntityManager $entityManager)
     {

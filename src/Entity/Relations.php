@@ -1,15 +1,10 @@
-<?php
+<?php /** @noinspection PhpParamsInspection */
 
 namespace ORM\Entity;
 
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager as EM;
-use ORM\Exception;
-use ORM\Exception\IncompletePrimaryKey;
-use ORM\Exception\InvalidConfiguration;
-use ORM\Exception\InvalidRelation;
-use ORM\Exception\NoEntityManager;
 use ORM\Exception\UndefinedRelation;
 use ORM\Relation;
 
@@ -34,8 +29,6 @@ trait Relations
      *
      * @param string $relation
      * @return Relation
-     * @throws InvalidConfiguration
-     * @throws UndefinedRelation
      */
     public static function getRelation($relation)
     {
@@ -61,12 +54,6 @@ trait Relations
      * @param string $relation
      * @param bool   $refresh
      * @return mixed
-     * @throws Exception\NoConnection
-     * @throws Exception\NoEntity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoEntityManager
-     * @throws UndefinedRelation
      */
     public function getRelated($relation, $refresh = false)
     {
@@ -84,8 +71,6 @@ trait Relations
      *
      * @param string $relation
      * @param Entity $entity
-     * @throws IncompletePrimaryKey
-     * @throws InvalidRelation
      */
     public function setRelated($relation, Entity $entity = null)
     {
@@ -101,9 +86,8 @@ trait Relations
      *
      * This method does not take care about already existing relations and will fail hard.
      *
-     * @param string   $relation
+     * @param string $relation
      * @param Entity[] $entities
-     * @throws NoEntityManager
      */
     public function addRelated($relation, array $entities)
     {
@@ -124,9 +108,8 @@ trait Relations
      *
      * This method is only for many-to-many relations.
      *
-     * @param string   $relation
+     * @param string $relation
      * @param Entity[] $entities
-     * @throws NoEntityManager
      */
     public function deleteRelated($relation, $entities)
     {
@@ -150,9 +133,8 @@ trait Relations
      * It will throw an error for non owner when the key is incomplete.
      *
      * @param string $relation The relation to fetch
-     * @param bool   $getAll
+     * @param bool $getAll
      * @return Entity|Entity[]|EntityFetcher
-     * @throws NoEntityManager
      */
     public function fetch($relation, $getAll = false)
     {

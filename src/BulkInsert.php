@@ -49,7 +49,6 @@ class BulkInsert
      * Add an entity to the bulk insert.
      *
      * @param Entity ...$entities
-     * @throws InvalidArgument
      */
     public function add(Entity ...$entities)
     {

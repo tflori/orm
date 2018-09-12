@@ -8,9 +8,6 @@ use ORM\Entity\Relations;
 use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
 use ORM\Exception\IncompletePrimaryKey;
-use ORM\Exception\InvalidConfiguration;
-use ORM\Exception\InvalidName;
-use ORM\Exception\NoEntityManager;
 use ORM\Exception\UnknownColumn;
 
 /**
@@ -132,7 +129,6 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute
      * @return string
-     * @throws InvalidConfiguration
      */
     public static function getColumnName($attribute)
     {
@@ -164,7 +160,6 @@ abstract class Entity implements \Serializable
      * $tableName.
      *
      * @return string
-     * @throws InvalidName|InvalidConfiguration
      */
     public static function getTableName()
     {
@@ -203,8 +198,6 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute The variable to get
      * @return mixed|null
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __get($attribute)
@@ -264,7 +257,6 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute The variable to change
      * @param mixed  $value     The value to store
-     * @throws Error
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
     public function __set($attribute, $value)
@@ -280,10 +272,11 @@ abstract class Entity implements \Serializable
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
         } else {
-            if (static::isValidatorEnabled() &&
-                ($error = static::validate($attribute, $value)) instanceof Error
-            ) {
-                throw $error;
+            if (static::isValidatorEnabled()) {
+                $error = static::validate($attribute, $value);
+                if ($error instanceof Error) {
+                    throw $error;
+                }
             }
 
             $oldValue         = $this->__get($attribute);
@@ -304,8 +297,6 @@ abstract class Entity implements \Serializable
      * @param array $data
      * @param bool  $ignoreUnknown
      * @param bool  $checkMissing
-     * @throws Error
-     * @throws UnknownColumn
      */
     public function fill(array $data, $ignoreUnknown = false, $checkMissing = false)
     {
@@ -328,7 +319,6 @@ abstract class Entity implements \Serializable
      * Resets the entity or $attribute to original data
      *
      * @param string $attribute Reset only this variable or all variables
-     * @throws InvalidConfiguration
      */
     public function reset($attribute = null)
     {
@@ -349,14 +339,6 @@ abstract class Entity implements \Serializable
      * Save the entity to EntityManager
      *
      * @return Entity
-     * @throws Exception\NoConnection
-     * @throws Exception\NoEntity
-     * @throws Exception\NotScalar
-     * @throws Exception\UnsupportedDriver
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws InvalidName
-     * @throws NoEntityManager
      */
     public function save()
     {
@@ -416,7 +398,6 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute Check only this variable or all variables
      * @return bool
-     * @throws InvalidConfiguration
      */
     public function isDirty($attribute = null)
     {
@@ -507,7 +488,6 @@ abstract class Entity implements \Serializable
      * Get the primary key
      *
      * @return array
-     * @throws IncompletePrimaryKey
      */
     public function getPrimaryKey()
     {

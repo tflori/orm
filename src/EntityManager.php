@@ -84,7 +84,6 @@ class EntityManager
      * Constructor
      *
      * @param array $options Options for the new EntityManager
-     * @throws InvalidConfiguration
      */
     public function __construct($options = [])
     {
@@ -157,6 +156,7 @@ class EntityManager
             return null;
         }
 
+        /** @noinspection PhpUnhandledExceptionInspection */
         $reflection = new \ReflectionClass($class);
         foreach (self::$emMapping['byParent'] as $parentClass => $em) {
             if ($reflection->isSubclassOf($parentClass)) {
@@ -195,7 +195,7 @@ class EntityManager
      * Set $option to $value
      *
      * @param string $option One of OPT_* constants
-     * @param mixed  $value
+     * @param mixed $value
      * @return self
      */
     public function setOption($option, $value)
@@ -242,7 +242,6 @@ class EntityManager
      * When it is not a PDO instance the connection get established on first use.
      *
      * @param mixed $connection A configuration for (or a) PDO instance
-     * @throws InvalidConfiguration
      */
     public function setConnection($connection)
     {
@@ -253,8 +252,7 @@ class EntityManager
                 $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
                 $this->connection = $connection;
             } elseif (is_array($connection)) {
-                $dbConfigReflection = new \ReflectionClass(DbConfig::class);
-                $this->connection   = $dbConfigReflection->newInstanceArgs($connection);
+                $this->connection = new DbConfig(...$connection);
             } else {
                 throw new InvalidConfiguration(
                     'Connection must be callable, DbConfig, PDO or an array of parameters for DbConfig::__constructor'
@@ -267,7 +265,6 @@ class EntityManager
      * Get the pdo connection.
      *
      * @return \PDO
-     * @throws NoConnection
      */
     public function getConnection()
     {
@@ -342,12 +339,8 @@ class EntityManager
      * If $reset is true it also calls reset() on $entity.
      *
      * @param Entity $entity
-     * @param bool   $reset Reset entities current data
+     * @param bool $reset Reset entities current data
      * @return bool
-     * @throws IncompletePrimaryKey
-     * @throws InvalidConfiguration
-     * @throws NoConnection
-     * @throws NoEntity
      */
     public function sync(Entity $entity, $reset = false)
     {
@@ -376,7 +369,7 @@ class EntityManager
      * Returns boolean if it is not auto incremented or the value of auto incremented column otherwise.
      *
      * @param Entity $entity
-     * @param bool   $useAutoIncrement
+     * @param bool $useAutoIncrement
      * @return bool
      * @internal
      */
@@ -460,8 +453,8 @@ class EntityManager
      * ```
      *
      * @param Entity $entity
-     * @param bool   $update Update the entity map
-     * @param string $class  Overwrite the class
+     * @param bool $update Update the entity map
+     * @param string $class Overwrite the class
      * @return Entity
      */
     public function map(Entity $entity, $update = false, $class = null)
@@ -488,11 +481,10 @@ class EntityManager
      * @param string $class      The entity class you want to fetch
      * @param mixed  $primaryKey The primary key of the entity you want to fetch
      * @return Entity|EntityFetcher
-     * @throws IncompletePrimaryKey
-     * @throws NoEntity
      */
     public function fetch($class, $primaryKey = null)
     {
+        /** @noinspection PhpUnhandledExceptionInspection */
         $reflection = new \ReflectionClass($class);
         if (!$reflection->isSubclassOf(Entity::class)) {
             throw new NoEntity($class . ' is not a subclass of Entity');
@@ -506,6 +498,7 @@ class EntityManager
             $primaryKey = [ $primaryKey ];
         }
 
+        /** @noinspection PhpUndefinedMethodInspection */
         $primaryKeyVars = $class::getPrimaryKeyVars();
         if (count($primaryKeyVars) !== count($primaryKey)) {
             throw new IncompletePrimaryKey(

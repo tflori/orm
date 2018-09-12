@@ -40,7 +40,6 @@ class Table extends ArrayObject
      * @param string $col
      * @param mixed  $value
      * @return bool|Error
-     * @throws UnknownColumn
      */
     public function validate($col, $value)
     {
