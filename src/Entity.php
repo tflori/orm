@@ -411,6 +411,18 @@ abstract class Entity implements \Serializable
     /**
      * Empty event handler
      *
+     * Get called when the entity get initialized.
+     *
+     * @param bool $new Whether or not the entity is new or from database
+     * @codeCoverageIgnore dummy event handler
+     */
+    public function onInit($new)
+    {
+    }
+
+    /**
+     * Empty event handler
+     *
      * Get called when something is changed with magic setter.
      *
      * @param string $attribute The variable that got changed.merge(node.inheritedProperties)
@@ -425,12 +437,11 @@ abstract class Entity implements \Serializable
     /**
      * Empty event handler
      *
-     * Get called when the entity get initialized.
+     * Get called before the entity get inserted in database.
      *
-     * @param bool $new Whether or not the entity is new or from database
      * @codeCoverageIgnore dummy event handler
      */
-    public function onInit($new)
+    public function prePersist()
     {
     }
 
@@ -444,18 +455,6 @@ abstract class Entity implements \Serializable
     public function preUpdate()
     {
     }
-
-    /**
-     * Empty event handler
-     *
-     * Get called before the entity get inserted in database.
-     *
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function prePersist()
-    {
-    }
-
 
     /**
      * Empty event handler
