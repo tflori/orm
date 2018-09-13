@@ -98,31 +98,22 @@ class Mysql extends Dbal
         $definition = [];
 
         $definition['data_type'] = $this->normalizeType($rawColumn['Type']);
-        if (isset(static::$typeMapping[$definition['data_type']])) {
-            $definition['type'] = static::$typeMapping[$definition['data_type']];
-        }
+        $definition['type'] = isset(static::$typeMapping[$definition['data_type']]) ?
+            static::$typeMapping[$definition['data_type']] : null;
 
-        $definition['column_name']              = $rawColumn['Field'];
-        $definition['is_nullable']              = $rawColumn['Null'] === 'YES';
-        $definition['column_default']           = $rawColumn['Default'] !== null ? $rawColumn['Default'] :
-            ($rawColumn['Extra'] === 'auto_increment' ? 'sequence(AUTO_INCREMENT)' : null);
+        $definition['column_name'] = $rawColumn['Field'];
+        $definition['is_nullable'] = $rawColumn['Null'] === 'YES';
         $definition['character_maximum_length'] = null;
-        $definition['datetime_precision']       = null;
+        $definition['datetime_precision'] = null;
+        $definition['column_default'] = $rawColumn['Default'] === null && $rawColumn['Extra'] === 'auto_increment' ?
+            'sequence(AUTO_INCREMENT)' : $rawColumn['Default'];
 
-        switch ($definition['data_type']) {
-            case 'varchar':
-            case 'char':
-                $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['Type']);
-                break;
-            case 'datetime':
-            case 'timestamp':
-            case 'time':
-                $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['Type']);
-                break;
-            case 'set':
-            case 'enum':
-                $definition['enumeration_values'] = $this->extractParenthesis($rawColumn['Type']);
-                break;
+        if (in_array($definition['data_type'], ['varchar', 'char'])) {
+            $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['Type']);
+        } elseif (in_array($definition['data_type'], ['datetime', 'timestamp', 'time'])) {
+            $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['Type']);
+        } elseif (in_array($definition['data_type'], ['set', 'enum'])) {
+            $definition['enumeration_values'] = $this->extractParenthesis($rawColumn['Type']);
         }
 
         return $definition;

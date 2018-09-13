@@ -119,9 +119,8 @@ class Sqlite extends Dbal
         $definition = [];
 
         $definition['data_type'] = $this->normalizeType($rawColumn['type']);
-        if (isset(static::$typeMapping[$definition['data_type']])) {
-            $definition['type'] = static::$typeMapping[$definition['data_type']];
-        }
+        $definition['type'] = isset(static::$typeMapping[$definition['data_type']]) ?
+            static::$typeMapping[$definition['data_type']] : null;
 
         $definition['column_name']              = $rawColumn['name'];
         $definition['is_nullable']              = $rawColumn['notnull'] === '0';
@@ -129,21 +128,14 @@ class Sqlite extends Dbal
         $definition['character_maximum_length'] = null;
         $definition['datetime_precision']       = null;
 
-        switch ($definition['data_type']) {
-            case 'varchar':
-            case 'char':
-                $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['type']);
-                break;
-            case 'datetime':
-            case 'timestamp':
-            case 'time':
-                $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
-                break;
-            case 'integer':
-                if (!$definition['column_default'] && $rawColumn['pk'] === '1' && !$compositeKey) {
-                    $definition['column_default'] = 'sequence(rowid)';
-                }
-                break;
+        if (in_array($definition['data_type'], ['varchar', 'char'])) {
+            $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['type']);
+        } elseif (in_array($definition['data_type'], ['datetime', 'timestamp', 'time'])) {
+            $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
+        } elseif ($definition['data_type'] === 'integer' && !$definition['column_default'] &&
+                  $rawColumn['pk'] === '1' && !$compositeKey
+        ) {
+            $definition['column_default'] = 'sequence(rowid)';
         }
 
         return $definition;
