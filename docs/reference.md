@@ -8,6 +8,7 @@ permalink: /reference.html
 
 ### ORM
 
+* [BulkInsert](#ormbulkinsert)
 * [DbConfig](#ormdbconfig)
 * [Entity](#ormentity)
 * [EntityFetcher](#ormentityfetcher)
@@ -31,20 +32,6 @@ permalink: /reference.html
 * [TypeInterface](#ormdbaltypeinterface)
 
 
-### ORM\Dbal\Error
-
-* [InvalidJson](#ormdbalerrorinvalidjson)
-* [NoBoolean](#ormdbalerrornoboolean)
-* [NoDateTime](#ormdbalerrornodatetime)
-* [NoNumber](#ormdbalerrornonumber)
-* [NoString](#ormdbalerrornostring)
-* [NotAllowed](#ormdbalerrornotallowed)
-* [NoTime](#ormdbalerrornotime)
-* [NotNullable](#ormdbalerrornotnullable)
-* [NotValid](#ormdbalerrornotvalid)
-* [TooLong](#ormdbalerrortoolong)
-
-
 ### ORM\Dbal\Type
 
 * [Boolean](#ormdbaltypeboolean)
@@ -61,6 +48,7 @@ permalink: /reference.html
 ### ORM\Exception
 
 * [IncompletePrimaryKey](#ormexceptionincompleteprimarykey)
+* [InvalidArgument](#ormexceptioninvalidargument)
 * [InvalidConfiguration](#ormexceptioninvalidconfiguration)
 * [InvalidName](#ormexceptioninvalidname)
 * [InvalidRelation](#ormexceptioninvalidrelation)
@@ -75,6 +63,19 @@ permalink: /reference.html
 * [UnsupportedDriver](#ormexceptionunsupporteddriver)
 
 
+### ORM\QueryBuilder
+
+* [Parenthesis](#ormquerybuilderparenthesis)
+* [ParenthesisInterface](#ormquerybuilderparenthesisinterface)
+* [QueryBuilder](#ormquerybuilderquerybuilder)
+* [QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
+
+
+### ORM\Entity
+
+* [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
+
+
 ### ORM\Relation
 
 * [ManyToMany](#ormrelationmanytomany)
@@ -83,12 +84,18 @@ permalink: /reference.html
 * [Owner](#ormrelationowner)
 
 
-### ORM\QueryBuilder
+### ORM\Dbal\Error
 
-* [Parenthesis](#ormquerybuilderparenthesis)
-* [ParenthesisInterface](#ormquerybuilderparenthesisinterface)
-* [QueryBuilder](#ormquerybuilderquerybuilder)
-* [QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
+* [InvalidJson](#ormdbalerrorinvalidjson)
+* [NoBoolean](#ormdbalerrornoboolean)
+* [NoDateTime](#ormdbalerrornodatetime)
+* [NoNumber](#ormdbalerrornonumber)
+* [NoString](#ormdbalerrornostring)
+* [NotAllowed](#ormdbalerrornotallowed)
+* [NoTime](#ormdbalerrornotime)
+* [NotNullable](#ormdbalerrornotnullable)
+* [NotValid](#ormdbalerrornotvalid)
+* [TooLong](#ormdbalerrortoolong)
 
 
 ---
@@ -237,6 +244,261 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\BulkInsert
+
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$class` | **string** |  |
+| **protected** | `$dbal` | **Dbal \ Dbal** |  |
+| **protected** | `$limit` | **integer** |  |
+| **protected** | `$onSync` | **callable** |  |
+| **protected** | `$useAutoIncrement` | **boolean** |  |
+| **protected** | `$update` | **boolean** |  |
+| **protected** | `$new` | **array&lt;Entity>** |  |
+| **protected** | `$synced` | **array&lt;Entity>** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormbulkinsert__construct) BulkInsert constructor.
+* [add](#ormbulkinsertadd) Add an entity to the bulk insert.
+* [execute](#ormbulkinsertexecute) Executes the bulk insert.
+* [finish](#ormbulkinsertfinish) Insert the outstanding entities and return all synced objects.
+* [getLimit](#ormbulkinsertgetlimit) 
+* [limit](#ormbulkinsertlimit) Limit the amount of entities inserted at once.
+* [noAutoincrement](#ormbulkinsertnoautoincrement) Disable updating the primary key by auto increment.
+* [noUpdates](#ormbulkinsertnoupdates) Disable updating entities after insert
+* [onSync](#ormbulkinsertonsync) Executes $callback after insert
+* [updateEntities](#ormbulkinsertupdateentities) Enable updating entities after insert
+* [useAutoincrement](#ormbulkinsertuseautoincrement) Enable updating the primary keys from autoincrement
+
+#### ORM\BulkInsert::__construct
+
+```php?start_inline=true
+public function __construct(
+    \ORM\Dbal\Dbal $dbal, string $class, integer $limit = 20
+): BulkInsert
+```
+
+##### BulkInsert constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dbal` | **Dbal\Dbal**  |  |
+| `$class` | **string**  |  |
+| `$limit` | **integer**  |  |
+
+
+
+#### ORM\BulkInsert::add
+
+```php?start_inline=true
+public function add( \ORM\Entity $entities )
+```
+
+##### Add an entity to the bulk insert.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **Entity**  |  |
+
+
+
+#### ORM\BulkInsert::execute
+
+```php?start_inline=true
+protected function execute()
+```
+
+##### Executes the bulk insert.
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+
+
+#### ORM\BulkInsert::finish
+
+```php?start_inline=true
+public function finish(): array<\ORM\Entity>
+```
+
+##### Insert the outstanding entities and return all synced objects.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+
+
+#### ORM\BulkInsert::getLimit
+
+```php?start_inline=true
+public function getLimit(): integer
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\BulkInsert::limit
+
+```php?start_inline=true
+public function limit( integer $limit ): $this
+```
+
+##### Limit the amount of entities inserted at once.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$limit` | **integer**  |  |
+
+
+
+#### ORM\BulkInsert::noAutoincrement
+
+```php?start_inline=true
+public function noAutoincrement(): $this
+```
+
+##### Disable updating the primary key by auto increment.
+
+**Caution**: If this is disabled updating could cause a IncompletePrimaryKey exception.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
+#### ORM\BulkInsert::noUpdates
+
+```php?start_inline=true
+public function noUpdates(): $this
+```
+
+##### Disable updating entities after insert
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
+#### ORM\BulkInsert::onSync
+
+```php?start_inline=true
+public function onSync( callable $callback ): $this
+```
+
+##### Executes $callback after insert
+
+Provides an array of the just inserted entities in first argument.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$callback` | **callable**  |  |
+
+
+
+#### ORM\BulkInsert::updateEntities
+
+```php?start_inline=true
+public function updateEntities(): $this
+```
+
+##### Enable updating entities after insert
+
+**Caution**: This option will need to update the primary key by autoincrement which maybe is not supported
+by your db access layer (DBAL).
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
+#### ORM\BulkInsert::useAutoincrement
+
+```php?start_inline=true
+public function useAutoincrement(): $this
+```
+
+##### Enable updating the primary keys from autoincrement
+
+**Caution**: Your db access layer (DBAL) may not support this feature.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
 
 
 
@@ -605,18 +867,19 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$typeMapping` | **array** |  |
-| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$booleanTrue` | **string** |  |
 | **protected** | `$booleanFalse` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 
 
 
 #### Methods
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
+* [assertSameType](#ormdbaldbalassertsametype) 
 * [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbaldbaldelete) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
@@ -629,9 +892,12 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeString](#ormdbaldbalescapestring) Escape a string for query
 * [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbaldbalinsert) Inserts $entity in database and returns success
+* [insert](#ormdbaldbalinsert) 
+* [insertAndSync](#ormdbaldbalinsertandsync) 
+* [insertAndSyncWithAutoInc](#ormdbaldbalinsertandsyncwithautoinc) 
 * [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
 * [setOption](#ormdbaldbalsetoption) Set $option to $value
+* [syncInserted](#ormdbaldbalsyncinserted) Sync the $entities after insert
 * [updateAutoincrement](#ormdbaldbalupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Dbal::__construct
@@ -659,10 +925,37 @@ public function __construct(
 
 
 
+#### ORM\Dbal\Dbal::assertSameType
+
+```php?start_inline=true
+protected static function assertSameType(
+    array<\ORM\Entity> $entities
+): boolean
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
 #### ORM\Dbal\Dbal::buildInsertStatement
 
 ```php?start_inline=true
-protected function buildInsertStatement( \ORM\Entity $entity ): string
+protected function buildInsertStatement(
+    \ORM\Entity $entity, array<\ORM\Entity> $entities
+): string
 ```
 
 ##### Build the insert statement for $entity
@@ -679,6 +972,7 @@ protected function buildInsertStatement( \ORM\Entity $entity ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
 
 
 
@@ -720,7 +1014,7 @@ public function describe(
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Dbal\Table|array&lt;mixed,\ORM\Dbal\Column&gt;**
-<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver** or **\ORM\Exception**<br />
 
 ##### Parameters
 
@@ -934,26 +1228,66 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Dbal::insert
 
 ```php?start_inline=true
-public function insert(
-    \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean
+public function insert( \ORM\Entity $entities )
 ```
 
-##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Dbal::insertAndSync
+
+```php?start_inline=true
+public function insertAndSync( \ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Dbal::insertAndSyncWithAutoInc
+
+```php?start_inline=true
+public function insertAndSyncWithAutoInc(
+    \ORM\Entity $entities
+): integer|boolean
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer|boolean**
 <br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$useAutoIncrement` | **boolean**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -1001,6 +1335,28 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Dbal::syncInserted
+
+```php?start_inline=true
+protected function syncInserted( \ORM\Entity $entities )
+```
+
+##### Sync the $entities after insert
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -1155,6 +1511,12 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
+| **protected static** | `$enableValidator` | **boolean** | Whether or not the validator for this class is enabled. |
+| **protected static** | `$enabledValidators` | **array&lt;boolean>** | Whether or not the validator for a class got enabled during runtime. |
+| **protected static** | `$relations` | **array** | Relation definitions |
+| **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
+| **protected** | `$relatedObjects` | **array** | Related objects for getRelated |
 | **protected static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
 | **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
 | **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
@@ -1164,13 +1526,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
-| **protected static** | `$enableValidator` | **boolean** | Whether or not the validator for this class is enabled. |
-| **protected static** | `$enabledValidators` | **array&lt;boolean>** | Whether or not the validator for a class got enabled during runtime. |
-| **protected static** | `$relations` | **array** | Relation definitions |
-| **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
-| **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
-| **protected** | `$relatedObjects` | **array** | Related objects for getRelated |
 
 
 
@@ -1178,6 +1534,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) Get the value from $attribute
+* [__isset](#ormentity__isset) Check if a column is defined
 * [__set](#ormentity__set) Set $attribute to $value
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
@@ -1186,6 +1543,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [enableValidator](#ormentityenablevalidator) Enable validator
 * [fetch](#ormentityfetch) Fetches related objects
 * [fill](#ormentityfill) Fill the entity with $data
+* [generatePrimaryKey](#ormentitygenerateprimarykey) Generates a primary key
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $attribute
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
@@ -1259,7 +1617,7 @@ If there is a custom getter this method get called instead.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed|null**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -1272,6 +1630,29 @@ If there is a custom getter this method get called instead.
 **See Also:**
 
 * [Working with entities](https://tflori.github.io/orm/entities.html)
+
+#### ORM\Entity::__isset
+
+```php?start_inline=true
+public function __isset( $attribute ): boolean
+```
+
+##### Check if a column is defined
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$attribute` |   |  |
+
+
 
 #### ORM\Entity::__set
 
@@ -1322,7 +1703,7 @@ This method does not take care about already existing relations and will fail ha
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
+
 
 ##### Parameters
 
@@ -1347,7 +1728,7 @@ This method is only for many-to-many relations.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
+
 
 ##### Parameters
 
@@ -1439,7 +1820,7 @@ It will throw an error for non owner when the key is incomplete.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity|array&lt;mixed,\ORM\Entity&gt;|\ORM\EntityFetcher**
-<br />**Throws:** this method may throw **\ORM\Exception\NoEntityManager**<br />
+<br />
 
 ##### Parameters
 
@@ -1464,7 +1845,7 @@ When $checkMissing is set to true it also proves that the absent columns are nul
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Dbal\Error** or **\ORM\Exception\UnknownColumn**<br />
+**Throws:** this method may throw **\ORM\Exception\UnknownColumn**<br />
 
 ##### Parameters
 
@@ -1473,6 +1854,22 @@ When $checkMissing is set to true it also proves that the absent columns are nul
 | `$data` | **array**  |  |
 | `$ignoreUnknown` | **boolean**  |  |
 | `$checkMissing` | **boolean**  |  |
+
+
+
+#### ORM\Entity::generatePrimaryKey
+
+```php?start_inline=true
+protected function generatePrimaryKey()
+```
+
+##### Generates a primary key
+
+This method should only be executed from save method.
+
+**Visibility:** this method is **protected**.
+<br />
+
 
 
 
@@ -1494,7 +1891,7 @@ the same as getColumnName($name).
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -1608,7 +2005,7 @@ $refresh to true.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity** or **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoEntityManager** or **\ORM\Exception\UndefinedRelation**<br />
+<br />
 
 ##### Parameters
 
@@ -1633,7 +2030,7 @@ It normalize the short definition form and create a Relation object from it.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\UndefinedRelation**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UndefinedRelation**<br />
 
 ##### Parameters
 
@@ -1658,7 +2055,7 @@ $tableName.
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidName** or **\ORM\Exception\InvalidConfiguration**<br />
+<br />
 
 
 
@@ -1711,7 +2108,7 @@ public function isDirty( string $attribute = null ): boolean
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+<br />
 
 ##### Parameters
 
@@ -1878,7 +2275,7 @@ public function reset( string $attribute = null )
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -1901,7 +2298,7 @@ public function save(): \ORM\Entity
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity** or **\ORM\Exception\NotScalar** or **\ORM\Exception\UnsupportedDriver** or **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\InvalidName** or **\ORM\Exception\NoEntityManager**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 
 
@@ -2029,7 +2426,7 @@ This method is only for the owner of a relation.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidRelation**<br />
+
 
 ##### Parameters
 
@@ -2105,7 +2502,7 @@ public static function validate(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean|\ORM\Dbal\Error**
-<br />**Throws:** this method may throw **\ORM\Exception**<br />
+<br />
 
 ##### Parameters
 
@@ -2244,7 +2641,7 @@ It uses static::$defaultEntityManager if $entityManager is not given.
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\InvalidName**<br />
+
 
 ##### Parameters
 
@@ -2268,7 +2665,7 @@ When no $limit is set it fetches all entities in result set.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection**<br />
+<br />
 
 ##### Parameters
 
@@ -2442,7 +2839,7 @@ $translateCols is true (default).
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
+<br />
 
 ##### Parameters
 
@@ -2601,7 +2998,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\EntityFetcher::getStatement
 
 ```php?start_inline=true
-private function getStatement(): \PDOStatement
+private function getStatement(): \PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -2613,8 +3010,8 @@ change the result.
 
 **Visibility:** this method is **private**.
 <br />
- **Returns**: this method returns **\PDOStatement**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection**<br />
+ **Returns**: this method returns **\PDOStatement|boolean**
+<br />
 
 
 
@@ -2832,7 +3229,7 @@ If there is no more entity in the result set it returns null.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Entity**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection**<br />
+<br />
 
 
 
@@ -2983,7 +3380,7 @@ For easier use and against sql injection it allows question mark placeholders.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **$this**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
+<br />
 
 ##### Parameters
 
@@ -3081,6 +3478,7 @@ where('name = ?', ['John Doe'])
 | **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
 | **protected** | `$options` | **array** | The options set for this instance |
 | **protected** | `$descriptions` | **array&lt;Dbal \ Table> &#124; array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
+| **protected** | `$bulkInserts` | **array&lt;BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | **EntityManager[string] &#124; EntityManager[string][string]** | Mapping for EntityManager instances |
 
 
@@ -3095,6 +3493,7 @@ where('name = ?', ['John Doe'])
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
+* [finishBulkInserts](#ormentitymanagerfinishbulkinserts) Finish the bulk insert for $class.
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection.
 * [getDbal](#ormentitymanagergetdbal) Get the Datbase Abstraction Layer
 * [getInstance](#ormentitymanagergetinstance) Get an instance of the EntityManager.
@@ -3106,6 +3505,7 @@ where('name = ?', ['John Doe'])
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
 * [sync](#ormentitymanagersync) Synchronizing $entity with database
+* [useBulkInserts](#ormentitymanagerusebulkinserts) Force $class to use bulk insert.
 
 #### ORM\EntityManager::__construct
 
@@ -3119,7 +3519,7 @@ public function __construct( array $options = array() ): EntityManager
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
 
 ##### Parameters
 
@@ -3299,6 +3699,29 @@ Without $primaryKey it creates an entityFetcher and returns this.
 
 
 
+#### ORM\EntityManager::finishBulkInserts
+
+```php?start_inline=true
+public function finishBulkInserts( $class ): array<\ORM\Entity>
+```
+
+##### Finish the bulk insert for $class.
+
+Returns an array of entities added.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
 #### ORM\EntityManager::getConnection
 
 ```php?start_inline=true
@@ -3312,7 +3735,7 @@ public function getConnection(): \PDO
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\PDO**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoConnection**<br />
 
 
 
@@ -3542,7 +3965,7 @@ If $reset is true it also calls reset() on $entity.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidConfiguration** or **\ORM\Exception\NoConnection** or **\ORM\Exception\NoEntity**<br />
+<br />
 
 ##### Parameters
 
@@ -3550,6 +3973,32 @@ If $reset is true it also calls reset() on $entity.
 |-----------|------|-------------|
 | `$entity` | **Entity**  |  |
 | `$reset` | **boolean**  | Reset entities current data |
+
+
+
+#### ORM\EntityManager::useBulkInserts
+
+```php?start_inline=true
+public function useBulkInserts(
+    string $class, integer $limit = 20
+): \ORM\BulkInsert
+```
+
+##### Force $class to use bulk insert.
+
+At the end you should call finish bulk insert otherwise you may loose data.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\BulkInsert**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$limit` | **integer**  | Maximum number of rows per insert |
 
 
 
@@ -3781,7 +4230,39 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
+### ORM\Entity\GeneratesPrimaryKeys
+
+
+
+#### Interface GeneratesPrimaryKeys
+
+Describes a class that generates primary keys in the protected method generatePrimaryKey()
+
+
+
+
+
+
+
+---
+
 ### ORM\Exception\IncompletePrimaryKey
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
+### ORM\Exception\InvalidArgument
 
 **Extends:** [ORM\Exception](#ormexception)
 
@@ -4074,7 +4555,7 @@ public function addJoin(
 
 ```php?start_inline=true
 public function addRelated(
-    \ORM\Entity $me, array $entities, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, array $entities, \ORM\EntityManager $entityManager
 )
 ```
 
@@ -4084,13 +4565,13 @@ public function addRelated(
 
 **Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidRelation** or **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -4152,7 +4633,7 @@ public static function createRelation(
 
 ```php?start_inline=true
 public function deleteRelated(
-    \ORM\Entity $me, array $entities, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, array $entities, \ORM\EntityManager $entityManager
 )
 ```
 
@@ -4162,13 +4643,13 @@ public function deleteRelated(
 
 **Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey** or **\ORM\Exception\InvalidRelation** or **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -4178,7 +4659,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -4195,7 +4676,7 @@ Runs fetch on the EntityManager and returns its result.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -4204,7 +4685,7 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php?start_inline=true
 public function fetchAll(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): array<\ORM\Entity>|\ORM\Entity
 ```
 
@@ -4221,7 +4702,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -4245,7 +4726,7 @@ public function getClass(): string
 #### ORM\Relation\ManyToMany::getForeignKey
 
 ```php?start_inline=true
-protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -4261,7 +4742,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$reference` | **array**  |  |
 
 
@@ -4317,7 +4798,7 @@ public function getTable(): string
 #### ORM\Relation\ManyToMany::setRelated
 
 ```php?start_inline=true
-public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -4332,7 +4813,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity &#124; null**  |  |
 
 
@@ -4369,6 +4850,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 #### Methods
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
+* [assertSameType](#ormdbalmysqlassertsametype) 
 * [buildInsertStatement](#ormdbalmysqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalmysqldelete) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
@@ -4381,10 +4863,13 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 * [escapeString](#ormdbalmysqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalmysqlinsert) Inserts $entity in database and returns success
+* [insert](#ormdbalmysqlinsert) 
+* [insertAndSync](#ormdbalmysqlinsertandsync) 
+* [insertAndSyncWithAutoInc](#ormdbalmysqlinsertandsyncwithautoinc) 
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
+* [syncInserted](#ormdbalmysqlsyncinserted) Sync the $entities after insert
 * [updateAutoincrement](#ormdbalmysqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Mysql::__construct
@@ -4412,10 +4897,37 @@ public function __construct(
 
 
 
+#### ORM\Dbal\Mysql::assertSameType
+
+```php?start_inline=true
+protected static function assertSameType(
+    array<\ORM\Entity> $entities
+): boolean
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
 #### ORM\Dbal\Mysql::buildInsertStatement
 
 ```php?start_inline=true
-protected function buildInsertStatement( \ORM\Entity $entity ): string
+protected function buildInsertStatement(
+    \ORM\Entity $entity, array<\ORM\Entity> $entities
+): string
 ```
 
 ##### Build the insert statement for $entity
@@ -4432,6 +4944,7 @@ protected function buildInsertStatement( \ORM\Entity $entity ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
 
 
 
@@ -4687,26 +5200,66 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Mysql::insert
 
 ```php?start_inline=true
-public function insert(
-    \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean
+public function insert( \ORM\Entity $entities )
 ```
 
-##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Mysql::insertAndSync
+
+```php?start_inline=true
+public function insertAndSync( \ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Mysql::insertAndSyncWithAutoInc
+
+```php?start_inline=true
+public function insertAndSyncWithAutoInc(
+    \ORM\Entity $entities
+): integer|boolean
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer|boolean**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$useAutoIncrement` | **boolean**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -4778,6 +5331,28 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Mysql::syncInserted
+
+```php?start_inline=true
+protected function syncInserted( \ORM\Entity $entities )
+```
+
+##### Sync the $entities after insert
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -5669,7 +6244,7 @@ public function addJoin(
 
 ```php?start_inline=true
 public function addRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -5686,7 +6261,7 @@ public function addRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -5748,7 +6323,7 @@ public static function createRelation(
 
 ```php?start_inline=true
 public function deleteRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -5765,7 +6340,7 @@ public function deleteRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -5775,7 +6350,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -5786,13 +6361,13 @@ Runs fetch on the EntityManager and returns its result.
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **mixed**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -5801,7 +6376,7 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php?start_inline=true
 public function fetchAll(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): array<\ORM\Entity>|\ORM\Entity
 ```
 
@@ -5818,7 +6393,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -5842,7 +6417,7 @@ public function getClass(): string
 #### ORM\Relation\OneToMany::getForeignKey
 
 ```php?start_inline=true
-protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -5858,7 +6433,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$reference` | **array**  |  |
 
 
@@ -5898,7 +6473,7 @@ public function getReference(): array
 #### ORM\Relation\OneToMany::setRelated
 
 ```php?start_inline=true
-public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -5913,7 +6488,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity &#124; null**  |  |
 
 
@@ -6018,7 +6593,7 @@ abstract public function addJoin(
 
 ```php?start_inline=true
 public function addRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -6035,7 +6610,7 @@ public function addRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -6097,7 +6672,7 @@ public static function createRelation(
 
 ```php?start_inline=true
 public function deleteRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -6114,7 +6689,7 @@ public function deleteRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -6124,7 +6699,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -6141,7 +6716,7 @@ Runs fetch on the EntityManager and returns its result.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -6150,7 +6725,7 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php?start_inline=true
 public function fetchAll(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): array<\ORM\Entity>|\ORM\Entity
 ```
 
@@ -6167,7 +6742,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -6191,7 +6766,7 @@ public function getClass(): string
 #### ORM\Relation\OneToOne::getForeignKey
 
 ```php?start_inline=true
-protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -6207,7 +6782,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$reference` | **array**  |  |
 
 
@@ -6247,7 +6822,7 @@ public function getReference(): array
 #### ORM\Relation\OneToOne::setRelated
 
 ```php?start_inline=true
-public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -6262,7 +6837,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity &#124; null**  |  |
 
 
@@ -6395,7 +6970,7 @@ public function addJoin(
 
 ```php?start_inline=true
 public function addRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -6412,7 +6987,7 @@ public function addRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -6474,7 +7049,7 @@ public static function createRelation(
 
 ```php?start_inline=true
 public function deleteRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -6491,7 +7066,7 @@ public function deleteRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
@@ -6501,7 +7076,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -6518,7 +7093,7 @@ Runs fetch on the EntityManager and returns its result.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -6527,7 +7102,7 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php?start_inline=true
 public function fetchAll(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): array<\ORM\Entity>|\ORM\Entity
 ```
 
@@ -6544,7 +7119,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
 
 
@@ -6568,7 +7143,7 @@ public function getClass(): string
 #### ORM\Relation\Owner::getForeignKey
 
 ```php?start_inline=true
-protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -6584,7 +7159,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$reference` | **array**  |  |
 
 
@@ -6624,7 +7199,7 @@ public function getReference(): array
 #### ORM\Relation\Owner::setRelated
 
 ```php?start_inline=true
-public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -6633,13 +7208,13 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 **Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation** or **\ORM\Exception\IncompletePrimaryKey**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **\ORM\Entity**  |  |
+| `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity**  |  |
 
 
@@ -7180,14 +7755,15 @@ where('name = ?', ['John Doe'])
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` | **string** |  |
-| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$booleanTrue` |  |  |
+| **protected** | `$booleanFalse` |  |  |
 
 
 
 #### Methods
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
+* [assertSameType](#ormdbalpgsqlassertsametype) 
 * [buildInsertStatement](#ormdbalpgsqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalpgsqldelete) Delete $entity from database
 * [describe](#ormdbalpgsqldescribe) Describe a table
@@ -7200,9 +7776,12 @@ where('name = ?', ['John Doe'])
 * [escapeString](#ormdbalpgsqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalpgsqlinsert) Inserts $entity in database and returns success
+* [insert](#ormdbalpgsqlinsert) 
+* [insertAndSync](#ormdbalpgsqlinsertandsync) 
+* [insertAndSyncWithAutoInc](#ormdbalpgsqlinsertandsyncwithautoinc) 
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
 * [setOption](#ormdbalpgsqlsetoption) Set $option to $value
+* [syncInserted](#ormdbalpgsqlsyncinserted) Sync the $entities after insert
 * [updateAutoincrement](#ormdbalpgsqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Pgsql::__construct
@@ -7230,10 +7809,37 @@ public function __construct(
 
 
 
+#### ORM\Dbal\Pgsql::assertSameType
+
+```php?start_inline=true
+protected static function assertSameType(
+    array<\ORM\Entity> $entities
+): boolean
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
 #### ORM\Dbal\Pgsql::buildInsertStatement
 
 ```php?start_inline=true
-protected function buildInsertStatement( \ORM\Entity $entity ): string
+protected function buildInsertStatement(
+    \ORM\Entity $entity, array<\ORM\Entity> $entities
+): string
 ```
 
 ##### Build the insert statement for $entity
@@ -7250,6 +7856,7 @@ protected function buildInsertStatement( \ORM\Entity $entity ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
 
 
 
@@ -7505,26 +8112,66 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Pgsql::insert
 
 ```php?start_inline=true
-public function insert(
-    \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean
+public function insert( \ORM\Entity $entities )
 ```
 
-##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::insertAndSync
+
+```php?start_inline=true
+public function insertAndSync( \ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::insertAndSyncWithAutoInc
+
+```php?start_inline=true
+public function insertAndSyncWithAutoInc(
+    \ORM\Entity $entities
+): integer|boolean
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer|boolean**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$useAutoIncrement` | **boolean**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -7572,6 +8219,28 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::syncInserted
+
+```php?start_inline=true
+protected function syncInserted( \ORM\Entity $entities )
+```
+
+##### Sync the $entities after insert
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -7866,7 +8535,7 @@ protected function convertPlaceholders(
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **string**
-<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NotScalar**<br />
+<br />
 
 ##### Parameters
 
@@ -8971,7 +9640,7 @@ abstract public function addJoin(
 
 ```php?start_inline=true
 public function addRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -8988,7 +9657,7 @@ public function addRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
 | `$entityManager` | **EntityManager**  |  |
 
@@ -9050,7 +9719,7 @@ public static function createRelation(
 
 ```php?start_inline=true
 public function deleteRelated(
-    \ORM\Entity $me, array<\ORM\Entity> $entities, 
+    \ORM\Entity $self, array<\ORM\Entity> $entities, 
     \ORM\EntityManager $entityManager
 )
 ```
@@ -9067,7 +9736,7 @@ public function deleteRelated(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
 | `$entityManager` | **EntityManager**  |  |
 
@@ -9077,7 +9746,7 @@ public function deleteRelated(
 
 ```php?start_inline=true
 abstract public function fetch(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -9094,7 +9763,7 @@ Runs fetch on the EntityManager and returns its result.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$entityManager` | **EntityManager**  |  |
 
 
@@ -9103,7 +9772,7 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php?start_inline=true
 public function fetchAll(
-    \ORM\Entity $me, \ORM\EntityManager $entityManager
+    \ORM\Entity $self, \ORM\EntityManager $entityManager
 ): array<\ORM\Entity>|\ORM\Entity
 ```
 
@@ -9120,7 +9789,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$entityManager` | **EntityManager**  |  |
 
 
@@ -9144,7 +9813,7 @@ public function getClass(): string
 #### ORM\Relation::getForeignKey
 
 ```php?start_inline=true
-protected function getForeignKey( \ORM\Entity $me, array $reference ): array
+protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -9160,7 +9829,7 @@ protected function getForeignKey( \ORM\Entity $me, array $reference ): array
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$reference` | **array**  |  |
 
 
@@ -9200,7 +9869,7 @@ public function getReference(): array
 #### ORM\Relation::setRelated
 
 ```php?start_inline=true
-public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
+public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -9215,7 +9884,7 @@ public function setRelated( \ORM\Entity $me, \ORM\Entity $entity = null )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$me` | **Entity**  |  |
+| `$self` | **Entity**  |  |
 | `$entity` | **Entity &#124; null**  |  |
 
 
@@ -9397,6 +10066,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 #### Methods
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
+* [assertSameType](#ormdbalsqliteassertsametype) 
 * [buildInsertStatement](#ormdbalsqlitebuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalsqlitedelete) Delete $entity from database
 * [describe](#ormdbalsqlitedescribe) Describe a table
@@ -9409,11 +10079,14 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeString](#ormdbalsqliteescapestring) Escape a string for query
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
-* [hasMultiplePrimaryKey](#ormdbalsqlitehasmultipleprimarykey) Checks $rawColumns for a multiple primary key
-* [insert](#ormdbalsqliteinsert) Inserts $entity in database and returns success
+* [hasCompositeKey](#ormdbalsqlitehascompositekey) Checks $rawColumns for a multiple primary key
+* [insert](#ormdbalsqliteinsert) 
+* [insertAndSync](#ormdbalsqliteinsertandsync) 
+* [insertAndSyncWithAutoInc](#ormdbalsqliteinsertandsyncwithautoinc) 
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
+* [syncInserted](#ormdbalsqlitesyncinserted) Sync the $entities after insert
 * [updateAutoincrement](#ormdbalsqliteupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Sqlite::__construct
@@ -9441,10 +10114,37 @@ public function __construct(
 
 
 
+#### ORM\Dbal\Sqlite::assertSameType
+
+```php?start_inline=true
+protected static function assertSameType(
+    array<\ORM\Entity> $entities
+): boolean
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
 #### ORM\Dbal\Sqlite::buildInsertStatement
 
 ```php?start_inline=true
-protected function buildInsertStatement( \ORM\Entity $entity ): string
+protected function buildInsertStatement(
+    \ORM\Entity $entity, array<\ORM\Entity> $entities
+): string
 ```
 
 ##### Build the insert statement for $entity
@@ -9461,6 +10161,7 @@ protected function buildInsertStatement( \ORM\Entity $entity ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entity` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
 
 
 
@@ -9713,10 +10414,10 @@ protected function extractParenthesis( string $type ): string
 
 
 
-#### ORM\Dbal\Sqlite::hasMultiplePrimaryKey
+#### ORM\Dbal\Sqlite::hasCompositeKey
 
 ```php?start_inline=true
-protected function hasMultiplePrimaryKey( array $rawColumns ): boolean
+protected function hasCompositeKey( array $rawColumns ): boolean
 ```
 
 ##### Checks $rawColumns for a multiple primary key
@@ -9739,26 +10440,66 @@ protected function hasMultiplePrimaryKey( array $rawColumns ): boolean
 #### ORM\Dbal\Sqlite::insert
 
 ```php?start_inline=true
-public function insert(
-    \ORM\Entity $entity, boolean $useAutoIncrement = true
-): boolean
+public function insert( \ORM\Entity $entities )
 ```
 
-##### Inserts $entity in database and returns success
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::insertAndSync
+
+```php?start_inline=true
+public function insertAndSync( \ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::insertAndSyncWithAutoInc
+
+```php?start_inline=true
+public function insertAndSyncWithAutoInc(
+    \ORM\Entity $entities
+): integer|boolean
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer|boolean**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$useAutoIncrement` | **boolean**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -9766,7 +10507,7 @@ public function insert(
 
 ```php?start_inline=true
 protected function normalizeColumnDefinition(
-    array $rawColumn, boolean $hasMultiplePrimaryKey = false
+    array $rawColumn, boolean $compositeKey = false
 ): array
 ```
 
@@ -9785,7 +10526,7 @@ ANSI-SQL style.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$rawColumn` | **array**  |  |
-| `$hasMultiplePrimaryKey` | **boolean**  |  |
+| `$compositeKey` | **boolean**  |  |
 
 
 
@@ -9833,6 +10574,28 @@ public function setOption( string $option, $value ): Dbal
 |-----------|------|-------------|
 | `$option` | **string**  |  |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::syncInserted
+
+```php?start_inline=true
+protected function syncInserted( \ORM\Entity $entities )
+```
+
+##### Sync the $entities after insert
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
 
 
 

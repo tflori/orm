@@ -127,7 +127,7 @@ abstract class Dbal
         $type = get_class(reset($entities));
         foreach ($entities as $i => $entity) {
             if (get_class($entity) !== $type) {
-                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type'));
+                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
             }
         }
 
