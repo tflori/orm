@@ -134,6 +134,15 @@ abstract class Dbal
         return true;
     }
 
+    /**
+     * Insert $entities into database
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
+     * @param Entity ...$entities
+     * @return bool
+     * @throws Exception\InvalidArgument
+     */
     public function insert(Entity ...$entities)
     {
         if (count($entities) === 0) {
@@ -145,6 +154,15 @@ abstract class Dbal
         return true;
     }
 
+    /**
+     * Insert $entities and update with default values from database
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
+     * @param Entity ...$entities
+     * @return bool
+     * @throws Exception\InvalidArgument
+     */
     public function insertAndSync(Entity ...$entities)
     {
         if (count($entities) === 0) {
@@ -157,9 +175,14 @@ abstract class Dbal
     }
 
     /**
+     * Insert $entities and sync with auto increment primary key
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
      * @param Entity ...$entities
      * @return int|bool
      * @throws UnsupportedDriver
+     * @throws Exception\InvalidArgument
      */
     public function insertAndSyncWithAutoInc(Entity ...$entities)
     {

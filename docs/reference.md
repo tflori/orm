@@ -18,6 +18,11 @@ permalink: /reference.html
 * [Relation](#ormrelation)
 
 
+### ORM\Entity
+
+* [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
+
+
 ### ORM\Dbal
 
 * [Column](#ormdbalcolumn)
@@ -30,6 +35,20 @@ permalink: /reference.html
 * [Table](#ormdbaltable)
 * [Type](#ormdbaltype)
 * [TypeInterface](#ormdbaltypeinterface)
+
+
+### ORM\Dbal\Error
+
+* [InvalidJson](#ormdbalerrorinvalidjson)
+* [NoBoolean](#ormdbalerrornoboolean)
+* [NoDateTime](#ormdbalerrornodatetime)
+* [NoNumber](#ormdbalerrornonumber)
+* [NoString](#ormdbalerrornostring)
+* [NotAllowed](#ormdbalerrornotallowed)
+* [NoTime](#ormdbalerrornotime)
+* [NotNullable](#ormdbalerrornotnullable)
+* [NotValid](#ormdbalerrornotvalid)
+* [TooLong](#ormdbalerrortoolong)
 
 
 ### ORM\Dbal\Type
@@ -63,19 +82,6 @@ permalink: /reference.html
 * [UnsupportedDriver](#ormexceptionunsupporteddriver)
 
 
-### ORM\QueryBuilder
-
-* [Parenthesis](#ormquerybuilderparenthesis)
-* [ParenthesisInterface](#ormquerybuilderparenthesisinterface)
-* [QueryBuilder](#ormquerybuilderquerybuilder)
-* [QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
-
-
-### ORM\Entity
-
-* [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
-
-
 ### ORM\Relation
 
 * [ManyToMany](#ormrelationmanytomany)
@@ -84,18 +90,12 @@ permalink: /reference.html
 * [Owner](#ormrelationowner)
 
 
-### ORM\Dbal\Error
+### ORM\QueryBuilder
 
-* [InvalidJson](#ormdbalerrorinvalidjson)
-* [NoBoolean](#ormdbalerrornoboolean)
-* [NoDateTime](#ormdbalerrornodatetime)
-* [NoNumber](#ormdbalerrornonumber)
-* [NoString](#ormdbalerrornostring)
-* [NotAllowed](#ormdbalerrornotallowed)
-* [NoTime](#ormdbalerrornotime)
-* [NotNullable](#ormdbalerrornotnullable)
-* [NotValid](#ormdbalerrornotvalid)
-* [TooLong](#ormdbalerrortoolong)
+* [Parenthesis](#ormquerybuilderparenthesis)
+* [ParenthesisInterface](#ormquerybuilderparenthesisinterface)
+* [QueryBuilder](#ormquerybuilderquerybuilder)
+* [QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
 
 
 ---
@@ -892,9 +892,9 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeString](#ormdbaldbalescapestring) Escape a string for query
 * [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbaldbalinsert) 
-* [insertAndSync](#ormdbaldbalinsertandsync) 
-* [insertAndSyncWithAutoInc](#ormdbaldbalinsertandsyncwithautoinc) 
+* [insert](#ormdbaldbalinsert) Insert $entities into database
+* [insertAndSync](#ormdbaldbalinsertandsync) Insert $entities and update with default values from database
+* [insertAndSyncWithAutoInc](#ormdbaldbalinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
 * [setOption](#ormdbaldbalsetoption) Set $option to $value
 * [syncInserted](#ormdbaldbalsyncinserted) Sync the $entities after insert
@@ -1228,15 +1228,17 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Dbal::insert
 
 ```php?start_inline=true
-public function insert( \ORM\Entity $entities )
+public function insert( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities into database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -1249,15 +1251,17 @@ public function insert( \ORM\Entity $entities )
 #### ORM\Dbal\Dbal::insertAndSync
 
 ```php?start_inline=true
-public function insertAndSync( \ORM\Entity $entities )
+public function insertAndSync( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities and update with default values from database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -1275,13 +1279,14 @@ public function insertAndSyncWithAutoInc(
 ): integer|boolean
 ```
 
+##### Insert $entities and sync with auto increment primary key
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **integer|boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
+<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver** or **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -4863,9 +4868,9 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 * [escapeString](#ormdbalmysqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalmysqlinsert) 
-* [insertAndSync](#ormdbalmysqlinsertandsync) 
-* [insertAndSyncWithAutoInc](#ormdbalmysqlinsertandsyncwithautoinc) 
+* [insert](#ormdbalmysqlinsert) Insert $entities into database
+* [insertAndSync](#ormdbalmysqlinsertandsync) Insert $entities and update with default values from database
+* [insertAndSyncWithAutoInc](#ormdbalmysqlinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
@@ -5200,15 +5205,17 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Mysql::insert
 
 ```php?start_inline=true
-public function insert( \ORM\Entity $entities )
+public function insert( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities into database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -5221,15 +5228,17 @@ public function insert( \ORM\Entity $entities )
 #### ORM\Dbal\Mysql::insertAndSync
 
 ```php?start_inline=true
-public function insertAndSync( \ORM\Entity $entities )
+public function insertAndSync( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities and update with default values from database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -5247,8 +5256,9 @@ public function insertAndSyncWithAutoInc(
 ): integer|boolean
 ```
 
+##### Insert $entities and sync with auto increment primary key
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
@@ -7776,9 +7786,9 @@ where('name = ?', ['John Doe'])
 * [escapeString](#ormdbalpgsqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalpgsqlinsert) 
-* [insertAndSync](#ormdbalpgsqlinsertandsync) 
-* [insertAndSyncWithAutoInc](#ormdbalpgsqlinsertandsyncwithautoinc) 
+* [insert](#ormdbalpgsqlinsert) Insert $entities into database
+* [insertAndSync](#ormdbalpgsqlinsertandsync) Insert $entities and update with default values from database
+* [insertAndSyncWithAutoInc](#ormdbalpgsqlinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
 * [setOption](#ormdbalpgsqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalpgsqlsyncinserted) Sync the $entities after insert
@@ -8112,15 +8122,17 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Pgsql::insert
 
 ```php?start_inline=true
-public function insert( \ORM\Entity $entities )
+public function insert( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities into database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -8133,15 +8145,17 @@ public function insert( \ORM\Entity $entities )
 #### ORM\Dbal\Pgsql::insertAndSync
 
 ```php?start_inline=true
-public function insertAndSync( \ORM\Entity $entities )
+public function insertAndSync( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities and update with default values from database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -8159,8 +8173,9 @@ public function insertAndSyncWithAutoInc(
 ): integer|boolean
 ```
 
+##### Insert $entities and sync with auto increment primary key
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
@@ -10080,9 +10095,9 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
 * [hasCompositeKey](#ormdbalsqlitehascompositekey) Checks $rawColumns for a multiple primary key
-* [insert](#ormdbalsqliteinsert) 
-* [insertAndSync](#ormdbalsqliteinsertandsync) 
-* [insertAndSyncWithAutoInc](#ormdbalsqliteinsertandsyncwithautoinc) 
+* [insert](#ormdbalsqliteinsert) Insert $entities into database
+* [insertAndSync](#ormdbalsqliteinsertandsync) Insert $entities and update with default values from database
+* [insertAndSyncWithAutoInc](#ormdbalsqliteinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
@@ -10440,15 +10455,17 @@ protected function hasCompositeKey( array $rawColumns ): boolean
 #### ORM\Dbal\Sqlite::insert
 
 ```php?start_inline=true
-public function insert( \ORM\Entity $entities )
+public function insert( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities into database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -10461,15 +10478,17 @@ public function insert( \ORM\Entity $entities )
 #### ORM\Dbal\Sqlite::insertAndSync
 
 ```php?start_inline=true
-public function insertAndSync( \ORM\Entity $entities )
+public function insertAndSync( \ORM\Entity $entities ): boolean
 ```
 
+##### Insert $entities and update with default values from database
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **boolean**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
 
@@ -10487,8 +10506,9 @@ public function insertAndSyncWithAutoInc(
 ): integer|boolean
 ```
 
+##### Insert $entities and sync with auto increment primary key
 
-
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
 
 **Visibility:** this method is **public**.
 <br />
