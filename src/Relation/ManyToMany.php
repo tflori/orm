@@ -49,10 +49,10 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager)
+    public function fetch(Entity $self, EntityManager $entityManager)
     {
 
-        $foreignKey = $this->getForeignKey($me, $this->reference);
+        $foreignKey = $this->getForeignKey($self, $this->reference);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $table   = $entityManager->escapeIdentifier($this->table);
@@ -71,9 +71,9 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritdoc} */
-    public function fetchAll(Entity $me, EntityManager $entityManager)
+    public function fetchAll(Entity $self, EntityManager $entityManager)
     {
-        $foreignKey = $this->getForeignKey($me, $this->reference);
+        $foreignKey = $this->getForeignKey($self, $this->reference);
         $table      = $entityManager->escapeIdentifier($this->table);
 
         $query = new QueryBuilder($table, '', $entityManager);
@@ -92,8 +92,8 @@ class ManyToMany extends Relation
         /** @var Entity[] $result */
         $result = [];
         foreach ($primaryKeys as $primaryKey) {
-            if ($me = $entityManager->fetch($this->class, $primaryKey)) {
-                $result[] = $me;
+            if ($self = $entityManager->fetch($this->class, $primaryKey)) {
+                $result[] = $self;
             }
         }
 
@@ -105,7 +105,7 @@ class ManyToMany extends Relation
      * @throws InvalidRelation
      * @throws IncompletePrimaryKey
      */
-    public function addRelated(Entity $me, array $entities, EntityManager $entityManager)
+    public function addRelated(Entity $self, array $entities, EntityManager $entityManager)
     {
         if (empty($entities)) {
             return;
@@ -117,7 +117,7 @@ class ManyToMany extends Relation
         $baseAssociation = [];
         foreach ($this->reference as $myVar => $fkCol) {
             $cols[] = $entityManager->escapeIdentifier($fkCol);
-            $value  = $me->__get($myVar);
+            $value  = $self->__get($myVar);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
@@ -158,7 +158,7 @@ class ManyToMany extends Relation
      * @throws InvalidRelation
      * @throws IncompletePrimaryKey
      */
-    public function deleteRelated(Entity $me, array $entities, EntityManager $entityManager)
+    public function deleteRelated(Entity $self, array $entities, EntityManager $entityManager)
     {
         if (empty($entities)) {
             return;
@@ -168,7 +168,7 @@ class ManyToMany extends Relation
         $where = [];
 
         foreach ($this->reference as $myVar => $fkCol) {
-            $value = $me->__get($myVar);
+            $value = $self->__get($myVar);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');

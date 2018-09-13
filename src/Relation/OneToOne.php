@@ -14,8 +14,8 @@ use ORM\EntityManager;
 class OneToOne extends OneToMany
 {
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager)
+    public function fetch(Entity $self, EntityManager $entityManager)
     {
-        return parent::fetch($me, $entityManager)->one();
+        return parent::fetch($self, $entityManager)->one();
     }
 }

@@ -209,8 +209,8 @@ class Namer
         $words = explode('_', preg_replace(
             '/([a-z0-9])([A-Z])/',
             '$1_$2',
-            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($d) {
-                return ($d[1] ? $d[1] . '_' : '') . $d[2] . '_' . $d[3];
+            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($match) {
+                return ($match[1] ? $match[1] . '_' : '') . $match[2] . '_' . $match[3];
             }, $name)
         ));
 

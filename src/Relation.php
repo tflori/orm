@@ -155,24 +155,24 @@ abstract class Relation
      *
      * Runs fetch on the EntityManager and returns its result.
      *
-     * @param Entity        $me
+     * @param Entity        $self
      * @param EntityManager $entityManager
      * @return mixed
      */
-    abstract public function fetch(Entity $me, EntityManager $entityManager);
+    abstract public function fetch(Entity $self, EntityManager $entityManager);
 
     /**
      * Fetch all from the relation
      *
      * Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
      *
-     * @param Entity        $me
+     * @param Entity        $self
      * @param EntityManager $entityManager
      * @return Entity[]|Entity
      */
-    public function fetchAll(Entity $me, EntityManager $entityManager)
+    public function fetchAll(Entity $self, EntityManager $entityManager)
     {
-        $fetcher = $this->fetch($me, $entityManager);
+        $fetcher = $this->fetch($self, $entityManager);
 
         if ($fetcher instanceof EntityFetcher) {
             return $fetcher->all();
@@ -184,17 +184,17 @@ abstract class Relation
     /**
      * Get the foreign key for the given reference
      *
-     * @param Entity $me
+     * @param Entity $self
      * @param array $reference
      * @return array
      * @throws IncompletePrimaryKey
      */
-    protected function getForeignKey(Entity $me, $reference)
+    protected function getForeignKey(Entity $self, $reference)
     {
         $foreignKey = [];
 
         foreach ($reference as $attribute => $fkAttribute) {
-            $value = $me->__get($attribute);
+            $value = $self->__get($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete for join');
@@ -209,11 +209,11 @@ abstract class Relation
     /**
      * Set the relation to $entity
      *
-     * @param Entity $me
+     * @param Entity $self
      * @param Entity|null $entity
      * @throws InvalidRelation
      */
-    public function setRelated(Entity $me, Entity $entity = null)
+    public function setRelated(Entity $self, Entity $entity = null)
     {
         throw new InvalidRelation('This is not the owner of the relation');
     }
@@ -221,12 +221,12 @@ abstract class Relation
     /**
      * Add $entities to association table
      *
-     * @param Entity $me
+     * @param Entity $self
      * @param Entity[] $entities
      * @param EntityManager $entityManager
      * @throws InvalidRelation
      */
-    public function addRelated(Entity $me, array $entities, EntityManager $entityManager)
+    public function addRelated(Entity $self, array $entities, EntityManager $entityManager)
     {
         throw new InvalidRelation('This is not a many-to-many relation');
     }
@@ -234,12 +234,12 @@ abstract class Relation
     /**
      * Delete $entities from association table
      *
-     * @param Entity $me
+     * @param Entity $self
      * @param Entity[] $entities
      * @param EntityManager $entityManager
      * @throws InvalidRelation
      */
-    public function deleteRelated(Entity $me, array $entities, EntityManager $entityManager)
+    public function deleteRelated(Entity $self, array $entities, EntityManager $entityManager)
     {
         throw new InvalidRelation('This is not a many-to-many relation');
     }

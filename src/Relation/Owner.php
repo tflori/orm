@@ -36,9 +36,9 @@ class Owner extends Relation
     }
 
     /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager)
+    public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $key = array_map([ $me, '__get' ], array_keys($this->reference));
+        $key = array_map([$self, '__get' ], array_keys($this->reference));
 
         if (in_array(null, $key)) {
             return null;
@@ -52,7 +52,7 @@ class Owner extends Relation
      * @throws InvalidRelation
      * @throws IncompletePrimaryKey
      */
-    public function setRelated(Entity $me, Entity $entity = null)
+    public function setRelated(Entity $self, Entity $entity = null)
     {
         if ($entity !== null && !$entity instanceof $this->class) {
             throw new InvalidRelation('Invalid entity for relation ' . $this->name);
@@ -60,7 +60,7 @@ class Owner extends Relation
 
         foreach ($this->reference as $fkAttribute => $attribute) {
             if ($entity === null) {
-                $me->__set($fkAttribute, null);
+                $self->__set($fkAttribute, null);
                 continue;
             }
 
@@ -70,7 +70,7 @@ class Owner extends Relation
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
-            $me->__set($fkAttribute, $value);
+            $self->__set($fkAttribute, $value);
         }
     }
 

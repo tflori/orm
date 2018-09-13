@@ -78,10 +78,10 @@ class Sqlite extends Dbal
             throw new Exception('Unknown table ' . $table);
         }
 
-        $hasMultiplePrimaryKey = $this->hasMultiplePrimaryKey($rawColumns);
+        $compositeKey = $this->hasCompositeKey($rawColumns);
 
-        $cols = array_map(function ($rawColumn) use ($hasMultiplePrimaryKey) {
-            $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
+        $cols = array_map(function ($rawColumn) use ($compositeKey) {
+            $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $compositeKey);
             return new Column($this, $columnDefinition);
         }, $rawColumns);
 
@@ -94,7 +94,7 @@ class Sqlite extends Dbal
      * @param array $rawColumns
      * @return bool
      */
-    protected function hasMultiplePrimaryKey($rawColumns)
+    protected function hasCompositeKey($rawColumns)
     {
         return count(array_filter(array_map(
             function ($rawColumn) {
@@ -111,10 +111,10 @@ class Sqlite extends Dbal
      * ANSI-SQL style.
      *
      * @param array $rawColumn
-     * @param bool  $hasMultiplePrimaryKey
+     * @param bool  $compositeKey
      * @return array
      */
-    protected function normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey = false)
+    protected function normalizeColumnDefinition($rawColumn, $compositeKey = false)
     {
         $definition = [];
 
@@ -140,7 +140,7 @@ class Sqlite extends Dbal
                 $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
                 break;
             case 'integer':
-                if (!$definition['column_default'] && $rawColumn['pk'] === '1' && !$hasMultiplePrimaryKey) {
+                if (!$definition['column_default'] && $rawColumn['pk'] === '1' && !$compositeKey) {
                     $definition['column_default'] = 'sequence(rowid)';
                 }
                 break;

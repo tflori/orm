@@ -230,8 +230,8 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $c         = $this->class;
-        $newEntity = new $c($data, $this->entityManager, true);
+        $class         = $this->class;
+        $newEntity = new $class($data, $this->entityManager, true);
         $entity    = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
