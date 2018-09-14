@@ -284,7 +284,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 * [finish](#ormbulkinsertfinish) Insert the outstanding entities and return all synced objects.
 * [getLimit](#ormbulkinsertgetlimit) 
 * [limit](#ormbulkinsertlimit) Limit the amount of entities inserted at once.
-* [noAutoincrement](#ormbulkinsertnoautoincrement) Disable updating the primary key by auto increment.
+* [noAutoIncrement](#ormbulkinsertnoautoincrement) Disable updating the primary key by auto increment.
 * [noUpdates](#ormbulkinsertnoupdates) Disable updating entities after insert
 * [onSync](#ormbulkinsertonsync) Executes $callback after insert
 * [updateEntities](#ormbulkinsertupdateentities) Enable updating entities after insert
@@ -410,10 +410,10 @@ public function limit( integer $limit ): $this
 
 
 
-#### ORM\BulkInsert::noAutoincrement
+#### ORM\BulkInsert::noAutoIncrement
 
 ```php?start_inline=true
-public function noAutoincrement(): $this
+public function noAutoIncrement(): $this
 ```
 
 ##### Disable updating the primary key by auto increment.

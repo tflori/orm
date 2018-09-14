@@ -6,6 +6,7 @@ use ORM\BulkInsert;
 use ORM\Exception\InvalidArgument;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
 
 class BulkInsertTest extends TestCase
 {
@@ -99,5 +100,41 @@ class BulkInsertTest extends TestCase
             ->once();
 
         $bulk->add(...$articles);
+    }
+
+    /** @test */
+    public function usesPlainInsertWithoutUpdate()
+    {
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2)->noUpdates();
+        $articles = [new Article, new Article];
+
+        $this->dbal->shouldReceive('insert')->with(...$articles)
+            ->once()->andReturn(true);
+
+        $bulk->add(...$articles);
+    }
+
+    /** @test */
+    public function doesNotUseAutoincrement()
+    {
+        $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2)->noAutoIncrement();
+        $articles = [new Article(['id' => 23]), new Article(['id' => 42])];
+
+        $this->dbal->shouldReceive('insertAndSync')->with(...$articles)
+            ->once()->andReturn(true);
+
+        $bulk->add(...$articles);
+    }
+
+    /** @test */
+    public function doesNotUseAutoincrementByDefault()
+    {
+        $bulk = (new BulkInsert($this->dbal, Psr0_StudlyCaps::class))->limit(2);
+        $entities = [new Psr0_StudlyCaps(['id' => 23]), new Psr0_StudlyCaps(['id' => 42])];
+
+        $this->dbal->shouldReceive('insertAndSync')->with(...$entities)
+            ->once()->andReturn(true);
+
+        $bulk->add(...$entities);
     }
 }

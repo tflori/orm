@@ -144,7 +144,7 @@ class BulkInsert
      * @return $this
      * @codeCoverageIgnore trivial
      */
-    public function noAutoincrement()
+    public function noAutoIncrement()
     {
         $this->useAutoIncrement = false;
         return $this;
