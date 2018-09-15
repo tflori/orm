@@ -20,8 +20,7 @@ The advantage of this solution is that you don't have to change existing code bu
 have a complete primary key they would still cause a select before they get added to bulk insert. If your entities don't
 have a primary key yet (for example auto incremented rows) this method is perfectly fine for you:
 
-```php
-<?php
+```php?start_inline=true
 $em = ORM\EntityManager::getInstance(Recipient::class);
 $em->useBulkInserts(Recipient::class, 50);
 
@@ -51,8 +50,7 @@ for this entity type gets created and inserts for this type are redirected to th
 The `BulkInsert` has several options that also can be used with the other method (`EntityManager::useBulkInserts()` 
 returns the `BulkInsert` object):
 
-```php
-<?php
+```php?start_inline=true
 $em = ORM\EntityManager::getInstance(Recipient::class);
 $bulkInsert = new ORM\BulkInsert($em->getDbal(), Recipient::class, 50);
 $bulkInsert->limit(20); // change the limit afterwards
@@ -77,8 +75,7 @@ $recipients = $bulkInsert->finish();
 
 The option setter return the bulk insert object and can be chained what makes it easier for setup:
 
-```php
-<?php
+```php?start_inline=true
 $em = ORM\EntityManager::getInstance(Recipient::class);
 $bulkInsert = $em->useBulkInserts(Recipient::class)->noUpdates();
 // add the entities
