@@ -159,7 +159,7 @@ class BulkInsert
      * @return $this
      * @codeCoverageIgnore trivial
      */
-    public function onSync(callable $callback)
+    public function onSync(callable $callback = null)
     {
         $this->onSync = $callback;
         return $this;
