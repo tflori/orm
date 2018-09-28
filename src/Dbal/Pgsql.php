@@ -42,20 +42,23 @@ class Pgsql extends Dbal
     protected $booleanTrue  = 'true';
     protected $booleanFalse = 'false';
 
-    public function insert(Entity $entity, $useAutoIncrement = true)
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
-        $statement = $this->buildInsertStatement($entity);
-        $pdo       = $this->entityManager->getConnection();
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $statement .= ' RETURNING ' . $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-            $result    = $pdo->query($statement);
-            $this->updateAutoincrement($entity, $result->fetchColumn());
-        } else {
-            $pdo->query($statement);
+        if (count($entities) === 0) {
+            return false;
         }
+        static::assertSameType($entities);
 
-        return $this->entityManager->sync($entity, true);
+        $entity = reset($entities);
+        $pdo = $this->entityManager->getConnection();
+        $col = $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
+        $result = $pdo->query($this->buildInsertStatement(...$entities) . ' RETURNING ' . $col);
+        while ($id = $result->fetchColumn()) {
+            $this->updateAutoincrement($entity, $id);
+            $entity = next($entity);
+        }
+        $this->syncInserted(...$entities);
+        return true;
     }
 
     public function describe($schemaTable)

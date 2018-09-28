@@ -52,9 +52,7 @@ class EntityFetcher extends QueryBuilder
      * Constructor
      *
      * @param EntityManager $entityManager EntityManager where to store the fetched entities
-     * @param Entity|string $class         Class to fetch
-     * @throws Exception\InvalidConfiguration
-     * @throws Exception\InvalidName
+     * @param Entity|string $class Class to fetch
      */
     public function __construct(EntityManager $entityManager, $class)
     {
@@ -96,8 +94,6 @@ class EntityFetcher extends QueryBuilder
      * @param array|mixed $args          Argument(s) to insert
      * @param bool        $translateCols Whether or not column names should be translated
      * @return string
-     * @throws Exception\NoConnection
-     * @throws Exception\NotScalar
      */
     protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
@@ -145,17 +141,13 @@ class EntityFetcher extends QueryBuilder
      *
      * Additionally this method replaces class name with table name and forces an alias.
      *
-     * @param string      $join       The join type (e. g. `LEFT JOIN`)
-     * @param string      $class      Class to join
-     * @param string      $expression Expression to use in on clause or single column for USING
-     * @param string      $alias      Alias for the table
-     * @param array|mixed $args       Arguments to use in $expression
-     * @param bool        $empty      Create an empty join (without USING and ON)
+     * @param string $join The join type (e. g. `LEFT JOIN`)
+     * @param string $class Class to join
+     * @param string $expression Expression to use in on clause or single column for USING
+     * @param string $alias Alias for the table
+     * @param array|mixed $args Arguments to use in $expression
+     * @param bool $empty Create an empty join (without USING and ON)
      * @return EntityFetcher|ParenthesisInterface
-     * @throws Exception\InvalidConfiguration
-     * @throws Exception\InvalidName
-     * @throws Exception\NoConnection
-     * @throws Exception\NotScalar
      * @internal
      */
     protected function createJoin($join, $class, $expression, $alias, $args, $empty)
@@ -224,9 +216,6 @@ class EntityFetcher extends QueryBuilder
      * If there is no more entity in the result set it returns null.
      *
      * @return Entity
-     * @throws Exception\IncompletePrimaryKey
-     * @throws Exception\InvalidConfiguration
-     * @throws Exception\NoConnection
      */
     public function one()
     {
@@ -241,8 +230,8 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $c         = $this->class;
-        $newEntity = new $c($data, $this->entityManager, true);
+        $class         = $this->class;
+        $newEntity = new $class($data, $this->entityManager, true);
         $entity    = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
@@ -263,9 +252,6 @@ class EntityFetcher extends QueryBuilder
      *
      * @param int $limit Maximum number of entities to fetch
      * @return Entity[]
-     * @throws Exception\IncompletePrimaryKey
-     * @throws Exception\InvalidConfiguration
-     * @throws Exception\NoConnection
      */
     public function all($limit = 0)
     {
@@ -306,8 +292,7 @@ class EntityFetcher extends QueryBuilder
      * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
      * change the result.
      *
-     * @return \PDOStatement
-     * @throws Exception\NoConnection
+     * @return \PDOStatement|bool
      */
     private function getStatement()
     {
@@ -334,8 +319,6 @@ class EntityFetcher extends QueryBuilder
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders
      * @return $this
-     * @throws Exception\NoConnection
-     * @throws Exception\NotScalar
      */
     public function setQuery($query, $args = null)
     {

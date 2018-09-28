@@ -35,19 +35,32 @@ class Sqlite extends Dbal
         'time'     => Type\Time::class,
     ];
 
-    public function insert(Entity $entity, $useAutoIncrement = true)
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
-        $statement = $this->buildInsertStatement($entity);
-        $pdo       = $this->entityManager->getConnection();
+        if (count($entities) === 0) {
+            return false;
+        }
+        static::assertSameType($entities);
 
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            $pdo->query($statement);
-            $this->updateAutoincrement($entity, $pdo->lastInsertId());
-        } else {
-            $pdo->query($statement);
+        $entity = reset($entities);
+        $pdo = $this->entityManager->getConnection();
+        $table = $this->escapeIdentifier($entity::getTableName());
+        $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
+        $pdo->beginTransaction();
+        $pdo->query($this->buildInsertStatement(...$entities));
+        $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
+                            ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
+            ->fetchAll(\PDO::FETCH_ASSOC);
+        $pdo->commit();
+
+        /** @var Entity $entity */
+        foreach (array_reverse($entities) as $key => $entity) {
+            $entity->setOriginalData($rows[$key]);
+            $entity->reset();
+            $this->entityManager->map($entity, true);
         }
 
-        return $this->entityManager->sync($entity, true);
+        return true;
     }
 
     public function describe($schemaTable)
@@ -65,10 +78,10 @@ class Sqlite extends Dbal
             throw new Exception('Unknown table ' . $table);
         }
 
-        $hasMultiplePrimaryKey = $this->hasMultiplePrimaryKey($rawColumns);
+        $compositeKey = $this->hasCompositeKey($rawColumns);
 
-        $cols = array_map(function ($rawColumn) use ($hasMultiplePrimaryKey) {
-            $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey);
+        $cols = array_map(function ($rawColumn) use ($compositeKey) {
+            $columnDefinition = $this->normalizeColumnDefinition($rawColumn, $compositeKey);
             return new Column($this, $columnDefinition);
         }, $rawColumns);
 
@@ -81,7 +94,7 @@ class Sqlite extends Dbal
      * @param array $rawColumns
      * @return bool
      */
-    protected function hasMultiplePrimaryKey($rawColumns)
+    protected function hasCompositeKey($rawColumns)
     {
         return count(array_filter(array_map(
             function ($rawColumn) {
@@ -98,17 +111,16 @@ class Sqlite extends Dbal
      * ANSI-SQL style.
      *
      * @param array $rawColumn
-     * @param bool  $hasMultiplePrimaryKey
+     * @param bool  $compositeKey
      * @return array
      */
-    protected function normalizeColumnDefinition($rawColumn, $hasMultiplePrimaryKey = false)
+    protected function normalizeColumnDefinition($rawColumn, $compositeKey = false)
     {
         $definition = [];
 
         $definition['data_type'] = $this->normalizeType($rawColumn['type']);
-        if (isset(static::$typeMapping[$definition['data_type']])) {
-            $definition['type'] = static::$typeMapping[$definition['data_type']];
-        }
+        $definition['type'] = isset(static::$typeMapping[$definition['data_type']]) ?
+            static::$typeMapping[$definition['data_type']] : null;
 
         $definition['column_name']              = $rawColumn['name'];
         $definition['is_nullable']              = $rawColumn['notnull'] === '0';
@@ -116,21 +128,14 @@ class Sqlite extends Dbal
         $definition['character_maximum_length'] = null;
         $definition['datetime_precision']       = null;
 
-        switch ($definition['data_type']) {
-            case 'varchar':
-            case 'char':
-                $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['type']);
-                break;
-            case 'datetime':
-            case 'timestamp':
-            case 'time':
-                $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
-                break;
-            case 'integer':
-                if (!$definition['column_default'] && $rawColumn['pk'] === '1' && !$hasMultiplePrimaryKey) {
-                    $definition['column_default'] = 'sequence(rowid)';
-                }
-                break;
+        if (in_array($definition['data_type'], ['varchar', 'char'])) {
+            $definition['character_maximum_length'] = $this->extractParenthesis($rawColumn['type']);
+        } elseif (in_array($definition['data_type'], ['datetime', 'timestamp', 'time'])) {
+            $definition['datetime_precision'] = $this->extractParenthesis($rawColumn['type']);
+        } elseif ($definition['data_type'] === 'integer' && !$definition['column_default'] &&
+                  $rawColumn['pk'] === '1' && !$compositeKey
+        ) {
+            $definition['column_default'] = 'sequence(rowid)';
         }
 
         return $definition;

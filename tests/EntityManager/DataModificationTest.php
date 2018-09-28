@@ -199,7 +199,8 @@ class DataModificationTest extends TestCase
      * @test */
     public function insertStatement($entity, $statement)
     {
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast(1)->andReturn('mysql');
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
+        $this->pdo->shouldReceive('beginTransaction')->with()->once();
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -215,7 +216,10 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('query')
             ->with('INSERT INTO "psr0_studly_caps" ("id","foo") VALUES (42,\'bar\')')
             ->once()->andReturn(m::mock(\PDOStatement::class));
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+        $this->pdo->shouldReceive('query')->with('SELECT * FROM "psr0_studly_caps" WHERE "id" IN (42)')
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+            ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
         $result = $this->em->insert($entity);
 
@@ -238,12 +242,15 @@ class DataModificationTest extends TestCase
     {
         $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar']);
 
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
         $this->em->shouldReceive('getDbal')->passthru();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->atLeast()->once()
-            ->andReturn($driver);
-        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
-                  ->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)
+            ->atLeast()->once()->andReturn($driver);
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
+            ->once()->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT \* FROM .* WHERE .* IN (.*)/'))
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+            ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
         $result = $this->em->insert($entity, false);
 
@@ -251,15 +258,22 @@ class DataModificationTest extends TestCase
     }
 
     /** @test */
-    public function insertReturnsAutoIncrementSqlite()
+    public function insertUpdatesAutoIncrementSqlite()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
-        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
-            ->andReturn(m::mock(\PDOStatement::class));
-        $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42');
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
+            ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
+        $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42')->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern(
+            '/SELECT \* FROM .* WHERE "id" <= 42 ORDER BY "id" DESC LIMIT 1/'
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
+            ->once()->andReturn([['id' => '42', 'foo' => 'bar']])->ordered();
+        $this->pdo->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
@@ -271,13 +285,18 @@ class DataModificationTest extends TestCase
     public function insertReturnsAutoIncrementMysql()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
+        $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
-        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))->once()
-            ->andReturn(m::mock(\PDOStatement::class));
-        $statement = m::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with('SELECT LAST_INSERT_ID()')->once()->andReturn($statement);
-        $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
+            ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern(
+            '/SELECT \* FROM .* WHERE "id" >= LAST_INSERT_ID()/'
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
+            ->once()->andReturn([['id' => 42, 'foo' => 'bar']])->ordered();
+        $this->pdo->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
@@ -291,11 +310,16 @@ class DataModificationTest extends TestCase
         $entity = new StudlyCaps(['foo' => 'bar']);
         $this->em->shouldReceive('getDbal')->passthru();
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('pgsql');
-        $statement = m::mock(\PDOStatement::class);
-        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES .* RETURNING id$/'))->once()
-            ->andReturn($statement);
-        $statement->shouldReceive('fetchColumn')->once()->andReturn(42);
-        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES .* RETURNING id$/'))
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('fetchColumn')->with()
+            ->twice()->andReturn(42, false)->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern(
+            '/SELECT \* FROM .* WHERE "id" IN \(42\)/'
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+            ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false)->ordered();
 
         $result = $this->em->insert($entity);
 

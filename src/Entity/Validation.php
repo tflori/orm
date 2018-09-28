@@ -6,7 +6,6 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Error;
 use ORM\Dbal\Table;
 use ORM\EntityManager as EM;
-use ORM\Exception;
 
 trait Validation
 {
@@ -14,6 +13,14 @@ trait Validation
     /** The current data of a row.
      * @var mixed[] */
     protected $data = [];
+
+    /** Whether or not the validator for this class is enabled.
+     * @var bool */
+    protected static $enableValidator = false;
+
+    /** Whether or not the validator for a class got enabled during runtime.
+     * @var bool[] */
+    protected static $enabledValidators = [];
 
     /**
      * Check if the validator is enabled
@@ -61,9 +68,8 @@ trait Validation
      * Validate $value for $attribute
      *
      * @param string $attribute
-     * @param mixed  $value
+     * @param mixed $value
      * @return bool|Error
-     * @throws Exception
      */
     public static function validate($attribute, $value)
     {

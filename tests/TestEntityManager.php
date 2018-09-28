@@ -2,6 +2,7 @@
 
 namespace ORM\Test;
 
+use ORM\BulkInsert;
 use ORM\EntityManager;
 
 class TestEntityManager extends EntityManager
@@ -14,5 +15,10 @@ class TestEntityManager extends EntityManager
             'byParent' => [],
             'last' => null,
         ];
+    }
+
+    public function setBulkInsert($class, BulkInsert $bulkInsert)
+    {
+        $this->bulkInserts[$class] = $bulkInsert;
     }
 }

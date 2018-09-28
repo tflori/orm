@@ -4,6 +4,7 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exception;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
 
@@ -15,19 +16,13 @@ use ORM\Exception\UnsupportedDriver;
  */
 abstract class Dbal
 {
+    use Escaping;
+
     /** @var array */
     protected static $typeMapping = [];
 
     /** @var EntityManager */
     protected $entityManager;
-    /** @var string */
-    protected $quotingCharacter = '"';
-    /** @var string */
-    protected $identifierDivider = '.';
-    /** @var string */
-    protected $booleanTrue = '1';
-    /** @var string */
-    protected $booleanFalse = '0';
 
     /**
      * Dbal constructor.
@@ -111,6 +106,7 @@ abstract class Dbal
      * @param string $table
      * @return Table|Column[]
      * @throws UnsupportedDriver
+     * @throws Exception
      */
     public function describe($table)
     {
@@ -118,23 +114,83 @@ abstract class Dbal
     }
 
     /**
-     * Inserts $entity in database and returns success
-     *
-     * @param Entity $entity
-     * @param bool   $useAutoIncrement
+     * @param Entity[] $entities
      * @return bool
-     * @throws UnsupportedDriver
+     * @throws Exception\InvalidArgument
      */
-    public function insert(Entity $entity, $useAutoIncrement = true)
+    protected static function assertSameType(array $entities)
     {
-        $statement = $this->buildInsertStatement($entity);
-
-        if ($useAutoIncrement && $entity::isAutoIncremented()) {
-            throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
+        if (count($entities) < 2) {
+            return true;
         }
 
-        $this->entityManager->getConnection()->query($statement);
-        return $this->entityManager->sync($entity, true);
+        $type = get_class(reset($entities));
+        foreach ($entities as $i => $entity) {
+            if (get_class($entity) !== $type) {
+                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Insert $entities into database
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
+     * @param Entity ...$entities
+     * @return bool
+     * @throws Exception\InvalidArgument
+     */
+    public function insert(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        static::assertSameType($entities);
+        $insert = $this->buildInsertStatement(...$entities);
+        $this->entityManager->getConnection()->query($insert);
+        return true;
+    }
+
+    /**
+     * Insert $entities and update with default values from database
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
+     * @param Entity ...$entities
+     * @return bool
+     * @throws Exception\InvalidArgument
+     */
+    public function insertAndSync(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        self::assertSameType($entities);
+        $this->insert(...$entities);
+        $this->syncInserted(...$entities);
+        return true;
+    }
+
+    /**
+     * Insert $entities and sync with auto increment primary key
+     *
+     * The entities have to be from same type otherwise a InvalidArgument will be thrown.
+     *
+     * @param Entity ...$entities
+     * @return int|bool
+     * @throws UnsupportedDriver
+     * @throws Exception\InvalidArgument
+     */
+    public function insertAndSyncWithAutoInc(Entity ...$entities)
+    {
+        if (count($entities) === 0) {
+            return false;
+        }
+        self::assertSameType($entities);
+        throw new UnsupportedDriver('Auto incremented column for this driver is not supported');
     }
 
     /**
@@ -199,28 +255,32 @@ abstract class Dbal
      * Build the insert statement for $entity
      *
      * @param Entity $entity
+     * @param Entity[] $entities
      * @return string
      */
-    protected function buildInsertStatement($entity)
+    protected function buildInsertStatement(Entity $entity, Entity ...$entities)
     {
-        $data = $entity->getData();
+        array_unshift($entities, $entity);
+        $cols = [];
+        $rows = [];
+        foreach ($entities as $entity) {
+            $data = $entity->getData();
+            $cols = array_unique(array_merge($cols, array_keys($data)));
+            $rows[] = $data;
+        }
 
-        $cols = array_map(
-            function ($key) {
-                return $this->escapeIdentifier($key);
-            },
-            array_keys($data)
-        );
-
-        $values = array_map(
-            function ($value) use ($entity) {
-                return $this->escapeValue($value);
-            },
-            array_values($data)
-        );
+        $cols = array_combine($cols, array_map([$this, 'escapeIdentifier'], $cols));
 
         $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES (' . implode(',', $values) . ')';
+                     '(' . implode(',', $cols) . ') VALUES ';
+
+        $statement .= implode(',', array_map(function ($values) use ($cols) {
+            $result = [];
+            foreach ($cols as $key => $col) {
+                $result[] = isset($values[$key]) ? $this->escapeValue($values[$key]) : $this->escapeNULL();
+            }
+            return '(' . implode(',', $result) . ')';
+        }, $rows));
 
         return $statement;
     }
@@ -241,6 +301,49 @@ abstract class Dbal
     }
 
     /**
+     * Sync the $entities after insert
+     *
+     * @param Entity ...$entities
+     */
+    protected function syncInserted(Entity ...$entities)
+    {
+        $entity = reset($entities);
+        $vars = $entity::getPrimaryKeyVars();
+        $cols = array_map([$entity, 'getColumnName'], $vars);
+        $primary = array_combine($vars, $cols);
+
+        $query = "SELECT * FROM " . $this->escapeIdentifier($entity::getTableName()) . " WHERE ";
+        $query .= count($cols) > 1 ?
+            '(' . implode(',', array_map([$this, 'escapeIdentifier'], $cols)) . ')' :
+            $this->escapeIdentifier($cols[0]);
+        $query .= ' IN (';
+        $pKeys = [];
+        foreach ($entities as $entity) {
+            $pKey = array_map([$this, 'escapeValue'], $entity->getPrimaryKey());
+            $pKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
+        }
+        $query .= implode(',', $pKeys) . ')';
+
+        $statement = $this->entityManager->getConnection()->query($query);
+        $left = $entities;
+        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            foreach ($left as $k => $entity) {
+                foreach ($primary as $var => $col) {
+                    if ($entity->$var != $row[$col]) {
+                        continue 2;
+                    }
+                }
+
+                $this->entityManager->map($entity, true);
+                $entity->setOriginalData($row);
+                $entity->reset();
+                unset($left[$k]);
+                break;
+            }
+        }
+    }
+
+    /**
      * Normalize $type
      *
      * The type returned by mysql is for example VARCHAR(20) - this function converts it to varchar
@@ -252,91 +355,10 @@ abstract class Dbal
     {
         $type = strtolower($type);
 
-        if (($p = strpos($type, '(')) !== false && $p > 0) {
-            $type = substr($type, 0, $p);
+        if (($pos = strpos($type, '(')) !== false && $pos > 0) {
+            $type = substr($type, 0, $pos);
         }
 
         return trim($type);
-    }
-
-    /**
-     * Extract content from parenthesis in $type
-     *
-     * @param string $type
-     * @return string
-     */
-    protected function extractParenthesis($type)
-    {
-        if (preg_match('/\((.+)\)/', $type, $match)) {
-            return $match[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Escape a string for query
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function escapeString($value)
-    {
-        return $this->entityManager->getConnection()->quote($value);
-    }
-
-    /**
-     * Escape an integer for query
-     *
-     * @param int $value
-     * @return string
-     */
-    protected function escapeInteger($value)
-    {
-        return (string) $value;
-    }
-
-    /**
-     * Escape a double for Query
-     *
-     * @param double $value
-     * @return string
-     */
-    protected function escapeDouble($value)
-    {
-        return (string) $value;
-    }
-
-    /**
-     * Escape NULL for query
-     *
-     * @return string
-     */
-    protected function escapeNULL()
-    {
-        return 'NULL';
-    }
-
-    /**
-     * Escape a boolean for query
-     *
-     * @param bool $value
-     * @return string
-     */
-    protected function escapeBoolean($value)
-    {
-        return ($value) ? $this->booleanTrue : $this->booleanFalse;
-    }
-
-    /**
-     * Escape a date time object for query
-     *
-     * @param \DateTime $value
-     * @return mixed
-     */
-    protected function escapeDateTime(\DateTime $value)
-    {
-        $value->setTimezone(new \DateTimeZone('UTC'));
-        return $this->escapeString($value->format('Y-m-d\TH:i:s.u\Z'));
     }
 }

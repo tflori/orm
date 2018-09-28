@@ -30,14 +30,17 @@ class OneToMany extends Relation
         $this->opponent = $opponent;
     }
 
-    /** {@inheritdoc} */
-    public function fetch(Entity $me, EntityManager $entityManager)
+    /**
+     * {@inheritdoc}
+     * @throws InvalidConfiguration
+     */
+    public function fetch(Entity $self, EntityManager $entityManager)
     {
         $reference = $this->getOpponent()->getReference();
         if (empty($reference)) {
             throw new InvalidConfiguration('Reference is not defined in opponent');
         }
-        $foreignKey = $this->getForeignKey($me, array_flip($reference));
+        $foreignKey = $this->getForeignKey($self, array_flip($reference));
 
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);

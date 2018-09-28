@@ -70,6 +70,7 @@ class PointTest extends TestCase
         Column::registerType($point);
         $point->shouldReceive('fits')->once()->with([
             'data_type' => 'point',
+            'type' => null,
             'column_name' => 'another_point',
             'is_nullable' => true,
             'column_default' => null,

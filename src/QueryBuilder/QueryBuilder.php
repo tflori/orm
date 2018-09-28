@@ -3,7 +3,6 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
-use ORM\Exception\NoOperator;
 
 /**
  * Build a ansi sql query / select statement
@@ -94,8 +93,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param string      $expression Expression with placeholders
      * @param array|mixed $args       Arguments for placeholders
      * @return string
-     * @throws \ORM\Exception\NoConnection
-     * @throws \ORM\Exception\NotScalar
      */
     protected function convertPlaceholders(
         $expression,
@@ -138,7 +135,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param string $operator Operator or value if operator is omited
      * @param string $value    Value or array of values
      * @return string
-     * @throws NoOperator
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
@@ -224,8 +220,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @param array|mixed $args       Arguments to use in $expression
      * @param bool        $empty      Create an empty join (without USING and ON)
      * @return ParenthesisInterface|QueryBuilder
-     * @throws \ORM\Exception\NoConnection
-     * @throws \ORM\Exception\NotScalar
      * @internal
      */
     protected function createJoin($join, $tableName, $expression, $alias, $args, $empty)

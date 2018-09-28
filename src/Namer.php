@@ -100,6 +100,7 @@ class Namer
                 $namingScheme = $this->tableNameScheme;
             }
 
+            /** @noinspection PhpUnhandledExceptionInspection */
             $reflection = new ReflectionClass($class);
 
             $name = $this->substitute(
@@ -198,7 +199,7 @@ class Namer
      * Supported naming schemes: snake_case, snake_lower, SNAKE_UPPER, Snake_Ucfirst, camelCase, StudlyCaps, lower
      * and UPPER.
      *
-     * @param string $name         The name of the var / column
+     * @param string $name The name of the var / column
      * @param string $namingScheme The naming scheme to use
      * @return string
      * @throws InvalidConfiguration
@@ -208,8 +209,8 @@ class Namer
         $words = explode('_', preg_replace(
             '/([a-z0-9])([A-Z])/',
             '$1_$2',
-            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($d) {
-                return ($d[1] ? $d[1] . '_' : '') . $d[2] . '_' . $d[3];
+            preg_replace_callback('/([a-z0-9])?([A-Z]+)([A-Z][a-z])/', function ($match) {
+                return ($match[1] ? $match[1] . '_' : '') . $match[2] . '_' . $match[3];
             }, $name)
         ));
 
@@ -257,7 +258,7 @@ class Namer
      * Get the value for $attribute from $values using $arrayGlue
      *
      * @param string $attribute The key for $values
-     * @param array  $values
+     * @param array $values
      * @param string $arrayGlue
      * @return string
      * @throws InvalidConfiguration
