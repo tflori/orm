@@ -175,7 +175,7 @@ abstract class Entity implements \Serializable
 
     /**
      * @param EM $entityManager
-     * @return self
+     * @return static
      */
     public function setEntityManager(EM $entityManager)
     {

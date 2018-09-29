@@ -203,8 +203,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
-    /** @internal
-     * @return self */
+    /**
+     * @internal
+     * @return static
+     */
     public function close()
     {
         return $this;

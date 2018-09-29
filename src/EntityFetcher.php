@@ -68,7 +68,7 @@ class EntityFetcher extends QueryBuilder
         $this->classMapping['byAlias']['t0']   = $class;
     }
 
-    /** @return self
+    /** @return static
      * @internal
      */
     public function columns(array $columns = null)
@@ -76,7 +76,7 @@ class EntityFetcher extends QueryBuilder
         return $this;
     }
 
-    /** @return self
+    /** @return static
      * @internal
      */
     public function column($column, $args = [], $alias = '')

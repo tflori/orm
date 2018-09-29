@@ -55,7 +55,7 @@ class Namer
      *
      * @param string $option
      * @param mixed  $value
-     * @return self
+     * @return static
      */
     public function setOption($option, $value)
     {

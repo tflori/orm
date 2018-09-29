@@ -33,7 +33,7 @@ interface ParenthesisInterface
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return self
+     * @return static
      */
     public function where($column, $operator = '', $value = '');
 
@@ -59,7 +59,7 @@ interface ParenthesisInterface
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return self
+     * @return static
      */
     public function andWhere($column, $operator = '', $value = '');
 
@@ -85,7 +85,7 @@ interface ParenthesisInterface
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return self
+     * @return static
      */
     public function orWhere($column, $operator = '', $value = '');
 
@@ -93,21 +93,21 @@ interface ParenthesisInterface
      * Alias for andParenthesis
      *
      * @see ParenthesisInterface::andWhere()
-     * @return ParenthesisInterface
+     * @return static
      */
     public function parenthesis();
 
     /**
      * Add a parenthesis with AND
      *
-     * @return ParenthesisInterface
+     * @return static
      */
     public function andParenthesis();
 
     /**
      * Add a parenthesis with OR
      *
-     * @return ParenthesisInterface
+     * @return static
      */
     public function orParenthesis();
 
