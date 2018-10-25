@@ -71,3 +71,19 @@ echo $user->username;
 ```
 
 Read [the docs](https://tflori.github.io/orm) for more information.
+
+## Contribute
+
+Please follow PSR-2 style guide and use this command to update the api reference documentation:
+
+```console
+$ docker run --rm --user $(id -u) -v $(pwd):/app -v $(pwd)/docs/_reference:/phpdoc2/data/templates/_reference iras/phpdoc2 phpdoc -c phpdoc.xml
+```
+
+Before creating a pull request please make sure that the unit tests are green and the coverage remains the same:
+
+```console
+$ docker run --rm --user $(id -u) -v $(pwd):/app -w /app iras/php7 vendor/bin/phpunit
+# with coverage:
+$ docker run --rm --user $(id -u) -v $(pwd):/app -w /app iras/php7 php -dzend_extension=xdebug.so vendor/bin/phpunit
+```

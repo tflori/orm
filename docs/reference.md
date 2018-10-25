@@ -18,9 +18,12 @@ permalink: /reference.html
 * [Relation](#ormrelation)
 
 
-### ORM\Entity
+### ORM\Relation
 
-* [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
+* [ManyToMany](#ormrelationmanytomany)
+* [OneToMany](#ormrelationonetomany)
+* [OneToOne](#ormrelationonetoone)
+* [Owner](#ormrelationowner)
 
 
 ### ORM\Dbal
@@ -37,6 +40,19 @@ permalink: /reference.html
 * [TypeInterface](#ormdbaltypeinterface)
 
 
+### ORM\Dbal\Type
+
+* [Boolean](#ormdbaltypeboolean)
+* [DateTime](#ormdbaltypedatetime)
+* [Enum](#ormdbaltypeenum)
+* [Json](#ormdbaltypejson)
+* [Number](#ormdbaltypenumber)
+* [Set](#ormdbaltypeset)
+* [Text](#ormdbaltypetext)
+* [Time](#ormdbaltypetime)
+* [VarChar](#ormdbaltypevarchar)
+
+
 ### ORM\Dbal\Error
 
 * [InvalidJson](#ormdbalerrorinvalidjson)
@@ -51,17 +67,9 @@ permalink: /reference.html
 * [TooLong](#ormdbalerrortoolong)
 
 
-### ORM\Dbal\Type
+### ORM\Entity
 
-* [Boolean](#ormdbaltypeboolean)
-* [DateTime](#ormdbaltypedatetime)
-* [Enum](#ormdbaltypeenum)
-* [Json](#ormdbaltypejson)
-* [Number](#ormdbaltypenumber)
-* [Set](#ormdbaltypeset)
-* [Text](#ormdbaltypetext)
-* [Time](#ormdbaltypetime)
-* [VarChar](#ormdbaltypevarchar)
+* [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
 
 
 ### ORM\Exception
@@ -80,14 +88,6 @@ permalink: /reference.html
 * [UndefinedRelation](#ormexceptionundefinedrelation)
 * [UnknownColumn](#ormexceptionunknowncolumn)
 * [UnsupportedDriver](#ormexceptionunsupporteddriver)
-
-
-### ORM\Relation
-
-* [ManyToMany](#ormrelationmanytomany)
-* [OneToMany](#ormrelationonetomany)
-* [OneToOne](#ormrelationonetoone)
-* [Owner](#ormrelationowner)
 
 
 ### ORM\QueryBuilder
@@ -447,7 +447,7 @@ public function noUpdates(): $this
 #### ORM\BulkInsert::onSync
 
 ```php?start_inline=true
-public function onSync( callable $callback ): $this
+public function onSync( callable $callback = null ): $this
 ```
 
 ##### Executes $callback after insert
@@ -872,6 +872,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 | **protected** | `$booleanTrue` | **string** |  |
 | **protected** | `$booleanFalse` | **string** |  |
 | **protected static** | `$typeMapping` | **array** |  |
+| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 
 
@@ -880,6 +881,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
 * [assertSameType](#ormdbaldbalassertsametype) 
+* [buildCompositeWhereInStatement](#ormdbaldbalbuildcompositewhereinstatement) Build a where in statement for composite primary keys
 * [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbaldbaldelete) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
@@ -947,6 +949,32 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Dbal::buildCompositeWhereInStatement
+
+```php?start_inline=true
+protected function buildCompositeWhereInStatement(
+    array $cols, array $entities
+): string
+```
+
+##### Build a where in statement for composite primary keys
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$cols` | **array**  |  |
+| `$entities` | **array**  |  |
 
 
 
@@ -1322,7 +1350,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Dbal::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): Dbal
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -1331,7 +1359,7 @@ public function setOption( string $option, $value ): Dbal
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Dbal**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -2331,7 +2359,7 @@ public function serialize(): string
 #### ORM\Entity::setEntityManager
 
 ```php?start_inline=true
-public function setEntityManager( \ORM\EntityManager $entityManager ): Entity
+public function setEntityManager( \ORM\EntityManager $entityManager ): static
 ```
 
 
@@ -2339,7 +2367,7 @@ public function setEntityManager( \ORM\EntityManager $entityManager ): Entity
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Entity**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -2683,7 +2711,7 @@ When no $limit is set it fetches all entities in result set.
 #### ORM\EntityFetcher::andParenthesis
 
 ```php?start_inline=true
-public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function andParenthesis(): static
 ```
 
 ##### Add a parenthesis with AND
@@ -2692,7 +2720,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -2702,7 +2730,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function andWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with AND.
@@ -2725,7 +2753,7 @@ andWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -2808,7 +2836,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\EntityFetcher::columns
 
 ```php?start_inline=true
-public function columns( array $columns = null ): QueryBuilder
+public function columns( array $columns = null ): static
 ```
 
 ##### Set $columns
@@ -2817,7 +2845,7 @@ public function columns( array $columns = null ): QueryBuilder
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -2903,7 +2931,7 @@ public function createRelatedJoin( $join, $relation ): $this
 public function fullJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -2915,7 +2943,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3023,7 +3051,7 @@ change the result.
 #### ORM\EntityFetcher::groupBy
 
 ```php?start_inline=true
-public function groupBy( string $column, array $args = array() ): QueryBuilder
+public function groupBy( string $column, array $args = array() ): static
 ```
 
 ##### Group By $column
@@ -3032,7 +3060,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3050,7 +3078,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -3061,7 +3089,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3104,7 +3132,7 @@ public function joinRelated( $relation ): $this
 public function leftJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -3115,7 +3143,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3155,7 +3183,7 @@ public function leftJoinRelated( $relation ): $this
 #### ORM\EntityFetcher::limit
 
 ```php?start_inline=true
-public function limit( integer $limit ): QueryBuilder
+public function limit( integer $limit ): static
 ```
 
 ##### Set $limit
@@ -3164,7 +3192,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3178,7 +3206,7 @@ Limits the amount of rows fetched from database.
 #### ORM\EntityFetcher::modifier
 
 ```php?start_inline=true
-public function modifier( string $modifier ): QueryBuilder
+public function modifier( string $modifier ): static
 ```
 
 ##### Add $modifier
@@ -3187,7 +3215,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3201,7 +3229,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\EntityFetcher::offset
 
 ```php?start_inline=true
-public function offset( integer $offset ): QueryBuilder
+public function offset( integer $offset ): static
 ```
 
 ##### Set $offset
@@ -3210,7 +3238,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3244,7 +3272,7 @@ If there is no more entity in the result set it returns null.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): QueryBuilder
+): static
 ```
 
 ##### Order By $column in $direction
@@ -3253,7 +3281,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3269,7 +3297,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\EntityFetcher::orParenthesis
 
 ```php?start_inline=true
-public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function orParenthesis(): static
 ```
 
 ##### Add a parenthesis with OR
@@ -3278,7 +3306,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -3288,7 +3316,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function orWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with OR.
@@ -3311,7 +3339,7 @@ orWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3327,7 +3355,7 @@ orWhere('name = ?', ['John Doe'])
 #### ORM\EntityFetcher::parenthesis
 
 ```php?start_inline=true
-public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function parenthesis(): static
 ```
 
 ##### Alias for andParenthesis
@@ -3336,7 +3364,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -3347,7 +3375,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 public function rightJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -3358,7 +3386,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3401,7 +3429,7 @@ For easier use and against sql injection it allows question mark placeholders.
 ```php?start_inline=true
 public function where(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Alias for andWhere
@@ -3424,7 +3452,7 @@ where('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityFetcher**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3537,7 +3565,7 @@ public function __construct( array $options = array() ): EntityManager
 #### ORM\EntityManager::defineForNamespace
 
 ```php?start_inline=true
-public function defineForNamespace( $nameSpace ): EntityManager
+public function defineForNamespace( $nameSpace ): static
 ```
 
 ##### Define $this EntityManager as the default EntityManager for $nameSpace
@@ -3546,7 +3574,7 @@ public function defineForNamespace( $nameSpace ): EntityManager
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityManager**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3560,7 +3588,7 @@ public function defineForNamespace( $nameSpace ): EntityManager
 #### ORM\EntityManager::defineForParent
 
 ```php?start_inline=true
-public function defineForParent( $class ): EntityManager
+public function defineForParent( $class ): static
 ```
 
 ##### Define $this EntityManager as the default EntityManager for subClasses of $class
@@ -3569,7 +3597,7 @@ public function defineForParent( $class ): EntityManager
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityManager**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3936,7 +3964,7 @@ When it is not a PDO instance the connection get established on first use.
 #### ORM\EntityManager::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): EntityManager
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -3945,7 +3973,7 @@ public function setOption( string $option, $value ): EntityManager
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **EntityManager**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -4844,6 +4872,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected static** | `$typeMapping` | **array** |  |
+| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
@@ -4856,6 +4885,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
 * [assertSameType](#ormdbalmysqlassertsametype) 
+* [buildCompositeWhereInStatement](#ormdbalmysqlbuildcompositewhereinstatement) Build a where in statement for composite primary keys
 * [buildInsertStatement](#ormdbalmysqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalmysqldelete) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
@@ -4924,6 +4954,32 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildCompositeWhereInStatement
+
+```php?start_inline=true
+protected function buildCompositeWhereInStatement(
+    array $cols, array $entities
+): string
+```
+
+##### Build a where in statement for composite primary keys
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$cols` | **array**  |  |
+| `$entities` | **array**  |  |
 
 
 
@@ -5323,7 +5379,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Mysql::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): Dbal
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -5332,7 +5388,7 @@ public function setOption( string $option, $value ): Dbal
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Mysql**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -5615,7 +5671,7 @@ protected function getValue(
 #### ORM\Namer::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): Namer
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -5624,7 +5680,7 @@ public function setOption( string $option, $value ): Namer
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Namer**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -6873,6 +6929,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected static** | `$typeMapping` | **array** |  |
+| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
@@ -7294,7 +7351,7 @@ Create a parenthesis inside another parenthesis or a query.
 #### ORM\QueryBuilder\Parenthesis::andParenthesis
 
 ```php?start_inline=true
-public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function andParenthesis(): static
 ```
 
 ##### Add a parenthesis with AND
@@ -7303,7 +7360,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7313,7 +7370,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function andWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with AND.
@@ -7336,7 +7393,7 @@ andWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Parenthesis**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7386,7 +7443,7 @@ Returns the complete expression inside this parenthesis.
 #### ORM\QueryBuilder\Parenthesis::orParenthesis
 
 ```php?start_inline=true
-public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function orParenthesis(): static
 ```
 
 ##### Add a parenthesis with OR
@@ -7395,7 +7452,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7405,7 +7462,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function orWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with OR.
@@ -7428,7 +7485,7 @@ orWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Parenthesis**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7444,7 +7501,7 @@ orWhere('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\Parenthesis::parenthesis
 
 ```php?start_inline=true
-public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function parenthesis(): static
 ```
 
 ##### Alias for andParenthesis
@@ -7453,7 +7510,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7463,7 +7520,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function where(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Alias for andWhere
@@ -7486,7 +7543,7 @@ where('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Parenthesis**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7530,7 +7587,7 @@ where('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\ParenthesisInterface::andParenthesis
 
 ```php?start_inline=true
-public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function andParenthesis(): static
 ```
 
 ##### Add a parenthesis with AND
@@ -7539,7 +7596,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7549,7 +7606,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Add a where condition with AND.
@@ -7572,7 +7629,7 @@ andWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7622,7 +7679,7 @@ Returns the complete expression inside this parenthesis.
 #### ORM\QueryBuilder\ParenthesisInterface::orParenthesis
 
 ```php?start_inline=true
-public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function orParenthesis(): static
 ```
 
 ##### Add a parenthesis with OR
@@ -7631,7 +7688,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7641,7 +7698,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Add a where condition with OR.
@@ -7664,7 +7721,7 @@ orWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7680,7 +7737,7 @@ orWhere('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\ParenthesisInterface::parenthesis
 
 ```php?start_inline=true
-public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function parenthesis(): static
 ```
 
 ##### Alias for andParenthesis
@@ -7689,7 +7746,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -7702,7 +7759,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Alias for andWhere
@@ -7725,7 +7782,7 @@ where('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -7762,6 +7819,7 @@ where('name = ?', ['John Doe'])
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected static** | `$typeMapping` | **array** |  |
+| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
@@ -7774,6 +7832,7 @@ where('name = ?', ['John Doe'])
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
 * [assertSameType](#ormdbalpgsqlassertsametype) 
+* [buildCompositeWhereInStatement](#ormdbalpgsqlbuildcompositewhereinstatement) Build a where in statement for composite primary keys
 * [buildInsertStatement](#ormdbalpgsqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalpgsqldelete) Delete $entity from database
 * [describe](#ormdbalpgsqldescribe) Describe a table
@@ -7841,6 +7900,32 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::buildCompositeWhereInStatement
+
+```php?start_inline=true
+protected function buildCompositeWhereInStatement(
+    array $cols, array $entities
+): string
+```
+
+##### Build a where in statement for composite primary keys
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$cols` | **array**  |  |
+| `$entities` | **array**  |  |
 
 
 
@@ -8216,7 +8301,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Pgsql::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): Dbal
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -8225,7 +8310,7 @@ public function setOption( string $option, $value ): Dbal
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Pgsql**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8390,7 +8475,7 @@ It uses static::$defaultEntityManager if $entityManager is not given.
 #### ORM\QueryBuilder\QueryBuilder::andParenthesis
 
 ```php?start_inline=true
-public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function andParenthesis(): static
 ```
 
 ##### Add a parenthesis with AND
@@ -8399,7 +8484,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -8409,7 +8494,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function andWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with AND.
@@ -8432,7 +8517,7 @@ andWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8515,7 +8600,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\QueryBuilder\QueryBuilder::columns
 
 ```php?start_inline=true
-public function columns( array $columns = null ): QueryBuilder
+public function columns( array $columns = null ): static
 ```
 
 ##### Set $columns
@@ -8524,7 +8609,7 @@ public function columns( array $columns = null ): QueryBuilder
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8567,7 +8652,7 @@ protected function convertPlaceholders(
 public function fullJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -8579,7 +8664,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -8667,7 +8752,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\QueryBuilder\QueryBuilder::groupBy
 
 ```php?start_inline=true
-public function groupBy( string $column, array $args = array() ): QueryBuilder
+public function groupBy( string $column, array $args = array() ): static
 ```
 
 ##### Group By $column
@@ -8676,7 +8761,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8694,7 +8779,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -8705,7 +8790,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -8725,7 +8810,7 @@ can be set to true.
 public function leftJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -8736,7 +8821,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -8753,7 +8838,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilder::limit
 
 ```php?start_inline=true
-public function limit( integer $limit ): QueryBuilder
+public function limit( integer $limit ): static
 ```
 
 ##### Set $limit
@@ -8762,7 +8847,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8776,7 +8861,7 @@ Limits the amount of rows fetched from database.
 #### ORM\QueryBuilder\QueryBuilder::modifier
 
 ```php?start_inline=true
-public function modifier( string $modifier ): QueryBuilder
+public function modifier( string $modifier ): static
 ```
 
 ##### Add $modifier
@@ -8785,7 +8870,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8799,7 +8884,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\QueryBuilder\QueryBuilder::offset
 
 ```php?start_inline=true
-public function offset( integer $offset ): QueryBuilder
+public function offset( integer $offset ): static
 ```
 
 ##### Set $offset
@@ -8808,7 +8893,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8825,7 +8910,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): QueryBuilder
+): static
 ```
 
 ##### Order By $column in $direction
@@ -8834,7 +8919,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8850,7 +8935,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\QueryBuilder\QueryBuilder::orParenthesis
 
 ```php?start_inline=true
-public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function orParenthesis(): static
 ```
 
 ##### Add a parenthesis with OR
@@ -8859,7 +8944,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -8869,7 +8954,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function orWhere(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Add a where condition with OR.
@@ -8892,7 +8977,7 @@ orWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -8908,7 +8993,7 @@ orWhere('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\QueryBuilder::parenthesis
 
 ```php?start_inline=true
-public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function parenthesis(): static
 ```
 
 ##### Alias for andParenthesis
@@ -8917,7 +9002,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -8928,7 +9013,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 public function rightJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilder
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -8939,7 +9024,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -8958,7 +9043,7 @@ can be set to true.
 ```php?start_inline=true
 public function where(
     string $column, string $operator = null, string $value = null
-): Parenthesis
+): static
 ```
 
 ##### Alias for andWhere
@@ -8981,7 +9066,7 @@ where('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilder**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9045,7 +9130,7 @@ where('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\QueryBuilderInterface::andParenthesis
 
 ```php?start_inline=true
-public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function andParenthesis(): static
 ```
 
 ##### Add a parenthesis with AND
@@ -9054,7 +9139,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -9064,7 +9149,7 @@ public function andParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function andWhere(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Add a where condition with AND.
@@ -9087,7 +9172,7 @@ andWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9147,7 +9232,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\QueryBuilder\QueryBuilderInterface::columns
 
 ```php?start_inline=true
-public function columns( $columns = null ): QueryBuilderInterface
+public function columns( $columns = null ): static
 ```
 
 ##### Set $columns
@@ -9156,7 +9241,7 @@ public function columns( $columns = null ): QueryBuilderInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9173,7 +9258,7 @@ public function columns( $columns = null ): QueryBuilderInterface
 public function fullJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilderInterface
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -9185,7 +9270,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -9236,9 +9321,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\QueryBuilder\QueryBuilderInterface::groupBy
 
 ```php?start_inline=true
-public function groupBy(
-    string $column, array $args = array()
-): QueryBuilderInterface
+public function groupBy( string $column, array $args = array() ): static
 ```
 
 ##### Group By $column
@@ -9247,7 +9330,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9265,7 +9348,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilderInterface
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -9276,7 +9359,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -9296,7 +9379,7 @@ can be set to true.
 public function leftJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilderInterface
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -9307,7 +9390,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -9324,7 +9407,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilderInterface::limit
 
 ```php?start_inline=true
-public function limit( integer $limit ): QueryBuilderInterface
+public function limit( integer $limit ): static
 ```
 
 ##### Set $limit
@@ -9333,7 +9416,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9347,7 +9430,7 @@ Limits the amount of rows fetched from database.
 #### ORM\QueryBuilder\QueryBuilderInterface::modifier
 
 ```php?start_inline=true
-public function modifier( string $modifier ): QueryBuilderInterface
+public function modifier( string $modifier ): static
 ```
 
 ##### Add $modifier
@@ -9356,7 +9439,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9370,7 +9453,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\QueryBuilder\QueryBuilderInterface::offset
 
 ```php?start_inline=true
-public function offset( integer $offset ): QueryBuilderInterface
+public function offset( integer $offset ): static
 ```
 
 ##### Set $offset
@@ -9379,7 +9462,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9396,7 +9479,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): QueryBuilderInterface
+): static
 ```
 
 ##### Order By $column in $direction
@@ -9405,7 +9488,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9421,7 +9504,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\QueryBuilder\QueryBuilderInterface::orParenthesis
 
 ```php?start_inline=true
-public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function orParenthesis(): static
 ```
 
 ##### Add a parenthesis with OR
@@ -9430,7 +9513,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -9440,7 +9523,7 @@ public function orParenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 ```php?start_inline=true
 public function orWhere(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Add a where condition with OR.
@@ -9463,7 +9546,7 @@ orWhere('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -9479,7 +9562,7 @@ orWhere('name = ?', ['John Doe'])
 #### ORM\QueryBuilder\QueryBuilderInterface::parenthesis
 
 ```php?start_inline=true
-public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
+public function parenthesis(): static
 ```
 
 ##### Alias for andParenthesis
@@ -9488,7 +9571,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -9502,7 +9585,7 @@ public function parenthesis(): \ORM\QueryBuilder\ParenthesisInterface
 public function rightJoin(
     string $tableName, string $expression = '', string $alias = '', 
     array $args = array()
-): QueryBuilderInterface
+): static|\ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -9513,7 +9596,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -9532,7 +9615,7 @@ can be set to true.
 ```php?start_inline=true
 public function where(
     string $column, string $operator = '', string $value = ''
-): ParenthesisInterface
+): static
 ```
 
 ##### Alias for andWhere
@@ -9555,7 +9638,7 @@ where('name = ?', ['John Doe'])
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **QueryBuilderInterface**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -10070,6 +10153,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected static** | `$typeMapping` | **array** |  |
+| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
@@ -10082,6 +10166,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
 * [assertSameType](#ormdbalsqliteassertsametype) 
+* [buildCompositeWhereInStatement](#ormdbalsqlitebuildcompositewhereinstatement) Build a where in statement for composite primary keys
 * [buildInsertStatement](#ormdbalsqlitebuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalsqlitedelete) Delete $entity from database
 * [describe](#ormdbalsqlitedescribe) Describe a table
@@ -10151,6 +10236,32 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::buildCompositeWhereInStatement
+
+```php?start_inline=true
+protected function buildCompositeWhereInStatement(
+    array $cols, array $entities
+): string
+```
+
+##### Build a where in statement for composite primary keys
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$cols` | **array**  |  |
+| `$entities` | **array**  |  |
 
 
 
@@ -10576,7 +10687,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Sqlite::setOption
 
 ```php?start_inline=true
-public function setOption( string $option, $value ): Dbal
+public function setOption( string $option, $value ): static
 ```
 
 ##### Set $option to $value
@@ -10585,7 +10696,7 @@ public function setOption( string $option, $value ): Dbal
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **Sqlite**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
