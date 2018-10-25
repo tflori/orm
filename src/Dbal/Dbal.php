@@ -21,6 +21,8 @@ abstract class Dbal
     /** @var array */
     protected static $typeMapping = [];
 
+    protected static $compositeWHereInTemplate = '(%s) IN (VALUES %s)';
+
     /** @var EntityManager */
     protected $entityManager;
 
@@ -313,16 +315,10 @@ abstract class Dbal
         $primary = array_combine($vars, $cols);
 
         $query = "SELECT * FROM " . $this->escapeIdentifier($entity::getTableName()) . " WHERE ";
-        $query .= count($cols) > 1 ?
-            '(' . implode(',', array_map([$this, 'escapeIdentifier'], $cols)) . ')' :
-            $this->escapeIdentifier($cols[0]);
-        $query .= ' IN (';
-        $pKeys = [];
-        foreach ($entities as $entity) {
-            $pKey = array_map([$this, 'escapeValue'], $entity->getPrimaryKey());
-            $pKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
-        }
-        $query .= implode(',', $pKeys) . ')';
+        $query .= count($cols) > 1 ? $this->buildCompositeWhereInStatement($cols, $entities) :
+            $this->escapeIdentifier($cols[0]) . ' IN (' . implode(',', array_map(function (Entity $entity) {
+                return $this->escapeValue(array_values($entity->getPrimaryKey())[0]);
+            }, $entities)) . ')';
 
         $statement = $this->entityManager->getConnection()->query($query);
         $left = $entities;
@@ -341,6 +337,28 @@ abstract class Dbal
                 break;
             }
         }
+    }
+
+    /**
+     * Build a where in statement for composite primary keys
+     *
+     * @param array $cols
+     * @param array $entities
+     * @return string
+     */
+    protected function buildCompositeWhereInStatement(array $cols, array $entities)
+    {
+        $primaryKeys = [];
+        foreach ($entities as $entity) {
+            $pKey = array_map([$this, 'escapeValue'], $entity->getPrimaryKey());
+            $primaryKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
+        }
+
+        return sprintf(
+            static::$compositeWHereInTemplate,
+            implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
+            implode(',', $primaryKeys) . ')'
+        );
     }
 
     /**
