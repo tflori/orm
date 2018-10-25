@@ -357,7 +357,7 @@ abstract class Dbal
         return sprintf(
             static::$compositeWhereInTemplate,
             implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
-            implode(',', $primaryKeys) . ')'
+            implode(',', $primaryKeys)
         );
     }
 
