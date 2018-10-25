@@ -41,7 +41,7 @@ class Mysql extends Dbal
         'json' => Type\Json::class,
     ];
 
-    protected static $compositeWHereInTemplate = '(%s) IN (%s)';
+    protected static $compositeWhereInTemplate = '(%s) IN (%s)';
 
     public function insertAndSyncWithAutoInc(Entity ...$entities)
     {

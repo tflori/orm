@@ -21,7 +21,7 @@ abstract class Dbal
     /** @var array */
     protected static $typeMapping = [];
 
-    protected static $compositeWHereInTemplate = '(%s) IN (VALUES %s)';
+    protected static $compositeWhereInTemplate = '(%s) IN (VALUES %s)';
 
     /** @var EntityManager */
     protected $entityManager;
@@ -355,7 +355,7 @@ abstract class Dbal
         }
 
         return sprintf(
-            static::$compositeWHereInTemplate,
+            static::$compositeWhereInTemplate,
             implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
             implode(',', $primaryKeys) . ')'
         );
