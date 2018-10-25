@@ -72,6 +72,12 @@ echo $user->username;
 
 Read [the docs](https://tflori.github.io/orm) for more information.
 
+## Known Issues
+
+### Composite Primary Keys
+
+[#52](https://github.com/tflori/orm/issues/52) Composite primary keys require SQLite >= 3.15 (or another database) to get the synchronization after insert working. The syntax used got added in [SQLite 3.15](https://www.sqlite.org/changes.html#version_3_15_0).
+
 ## Contribute
 
 Please follow PSR-2 style guide and use this command to update the api reference documentation:
