@@ -84,6 +84,6 @@ Before creating a pull request please make sure that the unit tests are green an
 
 ```console
 $ docker run --rm --user $(id -u) -v $(pwd):/app -w /app iras/php7 vendor/bin/phpunit
-# with coverage:
+### with coverage:
 $ docker run --rm --user $(id -u) -v $(pwd):/app -w /app iras/php7 php -dzend_extension=xdebug.so vendor/bin/phpunit
 ```
