@@ -5,7 +5,7 @@ permalink: /reference.html
 ---
 ## API Reference
 
-{% for namespace in project.indexes.namespaces %}
+{% for namespace in project.indexes.namespaces|sort %}
 {% if not namespace.classes.merge(namespace.interfaces) is empty %}
 
 ### {{ namespace|trim('\\') }}
@@ -19,6 +19,6 @@ permalink: /reference.html
 
 ---
 
-{% for node in project.indexes.classes.merge(project.indexes.interfaces)|sort_asc %}
+{% for node in project.indexes.classes.merge(project.indexes.interfaces)|sort %}
 {% include 'class.md.twig' %}
 {% endfor %}

@@ -18,14 +18,6 @@ permalink: /reference.html
 * [Relation](#ormrelation)
 
 
-### ORM\Relation
-
-* [ManyToMany](#ormrelationmanytomany)
-* [OneToMany](#ormrelationonetomany)
-* [OneToOne](#ormrelationonetoone)
-* [Owner](#ormrelationowner)
-
-
 ### ORM\Dbal
 
 * [Column](#ormdbalcolumn)
@@ -40,19 +32,6 @@ permalink: /reference.html
 * [TypeInterface](#ormdbaltypeinterface)
 
 
-### ORM\Dbal\Type
-
-* [Boolean](#ormdbaltypeboolean)
-* [DateTime](#ormdbaltypedatetime)
-* [Enum](#ormdbaltypeenum)
-* [Json](#ormdbaltypejson)
-* [Number](#ormdbaltypenumber)
-* [Set](#ormdbaltypeset)
-* [Text](#ormdbaltypetext)
-* [Time](#ormdbaltypetime)
-* [VarChar](#ormdbaltypevarchar)
-
-
 ### ORM\Dbal\Error
 
 * [InvalidJson](#ormdbalerrorinvalidjson)
@@ -65,6 +44,19 @@ permalink: /reference.html
 * [NotNullable](#ormdbalerrornotnullable)
 * [NotValid](#ormdbalerrornotvalid)
 * [TooLong](#ormdbalerrortoolong)
+
+
+### ORM\Dbal\Type
+
+* [Boolean](#ormdbaltypeboolean)
+* [DateTime](#ormdbaltypedatetime)
+* [Enum](#ormdbaltypeenum)
+* [Json](#ormdbaltypejson)
+* [Number](#ormdbaltypenumber)
+* [Set](#ormdbaltypeset)
+* [Text](#ormdbaltypetext)
+* [Time](#ormdbaltypetime)
+* [VarChar](#ormdbaltypevarchar)
 
 
 ### ORM\Entity
@@ -96,6 +88,14 @@ permalink: /reference.html
 * [ParenthesisInterface](#ormquerybuilderparenthesisinterface)
 * [QueryBuilder](#ormquerybuilderquerybuilder)
 * [QueryBuilderInterface](#ormquerybuilderquerybuilderinterface)
+
+
+### ORM\Relation
+
+* [ManyToMany](#ormrelationmanytomany)
+* [OneToMany](#ormrelationonetomany)
+* [OneToOne](#ormrelationonetoone)
+* [Owner](#ormrelationowner)
 
 
 ---
