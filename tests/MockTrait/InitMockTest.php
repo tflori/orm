@@ -5,6 +5,7 @@ namespace ORM\Test\MockTrait;
 use Mockery\MockInterface;
 use ORM\EntityManager;
 use ORM\MockTrait;
+use ORM\Test\Entity\Examples\Article;
 use PHPUnit\Framework\TestCase;
 
 class InitMockTest extends TestCase
@@ -25,6 +26,14 @@ class InitMockTest extends TestCase
         $em = $this->ormInitMock();
 
         self::assertInstanceOf(MockInterface::class, $em);
+    }
+
+    /** @test */
+    public function setsOptions()
+    {
+        $em = $this->ormInitMock(['tableNameTemplate' => '%short%s']);
+
+        self::assertSame('articles', $em->getNamer()->getTableName(Article::class));
     }
 
     /** @test */

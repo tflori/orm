@@ -13,7 +13,6 @@ use ORM\Exception\IncompletePrimaryKey;
  */
 trait MockTrait
 {
-
     /**
      * Initialize an EntityManager mock object
      *
@@ -32,7 +31,8 @@ trait MockTrait
     public function ormInitMock($options = [], $driver = 'mysql')
     {
         /** @var EntityManager|m\Mock $em */
-        $em = m::mock(EntityManager::class, [ $options ])->makePartial();
+        $em = m::mock(EntityManager::class)->makePartial();
+        $em->__construct($options);
         /** @var \PDO|m\Mock $pdo */
         $pdo = m::mock(\PDO::class);
 
