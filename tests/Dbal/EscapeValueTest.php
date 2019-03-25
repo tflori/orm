@@ -4,6 +4,7 @@ namespace ORM\Test\Dbal;
 
 use ORM\Dbal;
 use ORM\Exception\NotScalar;
+use ORM\Test\Examples\DateTimeDerivate;
 use ORM\Test\TestCase;
 
 class EscapeValueTest extends TestCase
@@ -93,5 +94,15 @@ class EscapeValueTest extends TestCase
         $result = $this->dbal->escapeValue('1.1234567890123456');
 
         self::assertSame('\'1.1234567890123456\'', $result);
+    }
+
+    /** @test */
+    public function dateTimeDerivate()
+    {
+        $dateTime = DateTimeDerivate::createFromFormat('U.u', '1496163695.123456');
+
+        $result = $this->dbal->escapeValue($dateTime);
+
+        self::assertSame('\'2017-05-30T17:01:35.123456Z\'', $result);
     }
 }

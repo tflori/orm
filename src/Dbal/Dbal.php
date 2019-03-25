@@ -92,7 +92,10 @@ abstract class Dbal
      */
     public function escapeValue($value)
     {
-        $type   = is_object($value) ? get_class($value) : gettype($value);
+        $type = is_object($value) ? get_class($value) : gettype($value);
+        if ($value instanceof \DateTime) {
+            $type = 'DateTime';
+        }
         $method = [ $this, 'escape' . ucfirst($type) ];
 
         if (is_callable($method)) {
