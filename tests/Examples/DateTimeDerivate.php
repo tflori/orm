@@ -14,7 +14,9 @@ class DateTimeDerivate extends \DateTime
      */
     public static function createFromFormat($format, $time, $timezone = null)
     {
-        $dt = parent::createFromFormat($format, $time, $timezone);
+        $dt = $timezone === null ? 
+          parent::createFromFormat($format, $time) :
+          parent::createFromFormat($format, $time, $timezone);
         return new static($dt->format('Y-m-d H:i:s.u'), $dt->getTimezone());
     }
 }
