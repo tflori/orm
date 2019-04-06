@@ -91,11 +91,32 @@ trait MockTrait
      */
     public function ormExpectInsert($class, $defaultValues = [], $em = null)
     {
+        $expectation = $this->ormAllowInsert($class, $defaultValues, $em);
+        $expectation->once();
+    }
+
+    /**
+     * Allow an insert for $class
+     *
+     * Mocks the calls to sync and insert as they came for `save()` method for a new Entity.
+     *
+     * If you omit the auto incremented id in defaultValues it is set to a random value between 1 and 2147483647.
+     *
+     * The EntityManager gets determined the same way as in Entity and can be overwritten by third parameter here.
+     *
+     * @param string        $class         The class that should get created
+     * @param array         $defaultValues The default values that came from database (for example: the created column
+     *                                     has by the default the current timestamp; the id is auto incremented...)
+     * @param EntityManager $em
+     * @return m\Expectation
+     */
+    public function ormAllowInsert($class, $defaultValues = [], $em = null)
+    {
         /** @var EntityManager|m\Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
         /** @scrutinizer ignore-call */
-        $em->shouldReceive('sync')->with(m::type($class))->once()
+        $expectation = $em->shouldReceive('sync')->with(m::type($class))
             ->andReturnUsing(
                 function (Entity $entity) use ($class, $defaultValues, $em) {
                     /** @scrutinizer ignore-call */
@@ -122,6 +143,8 @@ trait MockTrait
                     }
                 }
             );
+
+        return $expectation;
     }
 
     /**
@@ -136,19 +159,38 @@ trait MockTrait
      */
     public function ormExpectFetch($class, $entities = [], $em = null)
     {
+        list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities, $em);
+        $expectation->once();
+        return $fetcher;
+    }
+
+    /**
+     * Allow fetch for $class
+     *
+     * Mocks an EntityFetcher with $entities as result.
+     *
+     * Returns the Expectation for fetch on entityManager and the mocked EntityFetcher
+     *
+     * @param string        $class    The class that should be fetched
+     * @param array         $entities The entities that get returned from fetcher
+     * @param EntityManager $em
+     * @return m\Expectation|EntityFetcher|m\Mock[]
+     */
+    public function ormAllowFetch($class, $entities = [], $em = null)
+    {
         /** @var EntityManager|m\Mock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
         /** @var m\Mock|EntityFetcher $fetcher */
         $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
-        $em->shouldReceive('fetch')->with($class)->once()->andReturn($fetcher);
+        $expectation = $em->shouldReceive('fetch')->with($class)->andReturn($fetcher);
 
         /** @scrutinizer ignore-call */
         $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
         array_push($entities, null);
         $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
 
-        return $fetcher;
+        return [$expectation, $fetcher];
     }
 
     /**
@@ -162,8 +204,24 @@ trait MockTrait
      */
     public function ormExpectUpdate(Entity $entity, $changingData = [], $updatedData = [])
     {
+        $expectation = $this->ormAllowUpdate($entity, $changingData, $updatedData);
+        $expectation->once();
+    }
+
+    /**
+     * Allow save on $entity
+     *
+     * Entity has to be a mock use `emCreateMockedEntity()` to create it.
+     *
+     * @param Entity|m\Mock $entity
+     * @param array $changingData Emulate changing data during update statement (triggers etc)
+     * @param array $updatedData Emulate data changes in database
+     * @return m\Expectation
+     */
+    public function ormAllowUpdate(Entity $entity, $changingData = [], $updatedData = [])
+    {
         /** @scrutinizer ignore-call */
-        $entity->shouldReceive('save')->once()->andReturnUsing(
+        $expectation = $entity->shouldReceive('save')->andReturnUsing(
             function () use ($entity, $updatedData, $changingData) {
                 // sync with database using $updatedData
                 if (!empty($updatedData)) {
@@ -186,6 +244,8 @@ trait MockTrait
                 return $entity;
             }
         );
+
+        return $expectation;
     }
 
     /**
@@ -199,6 +259,23 @@ trait MockTrait
      * @param EntityManager $em
      */
     public function ormExpectDelete($entity, $em = null)
+    {
+        $expectation = $this->ormAllowDelete($entity, $em);
+        $expectation->once();
+    }
+
+    /**
+     * Allow delete on $em
+     *
+     * If $em is not given it is determined by get_class($entity).
+     *
+     * If $entity is a string then it is assumed to be a class name.
+     *
+     * @param string|Entity $entity
+     * @param EntityManager $em
+     * @return m\Expectation
+     */
+    public function ormAllowDelete($entity, $em = null)
     {
         $class = is_string($entity) ? $entity : get_class($entity);
 
@@ -217,5 +294,7 @@ trait MockTrait
                 return true;
             }
         );
+
+        return $expectation;
     }
 }
