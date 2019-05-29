@@ -133,6 +133,16 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * Create an entityFetcher for this entity
+     *
+     * @return EntityFetcher
+     */
+    public static function query()
+    {
+        return EM::getInstance(static::class)->fetch(static::class);
+    }
+
+    /**
      * Get the primary key vars
      *
      * The primary key can consist of multiple columns. You should configure the vars that are translated to these
