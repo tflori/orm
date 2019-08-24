@@ -44,6 +44,15 @@ class CreateMockedEntityTest extends MockeryTestCase
     }
 
     /** @test */
+    public function allowsUsingAttributeKeys()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'wordCount' => 3231]);
+
+        self::assertSame(['id' => 42, 'word_count' => 3231], $article->getData());
+        self::assertSame(3231, $article->wordCount);
+    }
+
+    /** @test */
     public function updateTheMock()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);

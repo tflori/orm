@@ -49,6 +49,28 @@ trait MockTrait
     }
 
     /**
+     * Convert an array with $attributes as keys to an array of columns for $class
+     *
+     * e. g. : `assertSame(['first_name' => 'John'], ormAttributesToArray(User::class, ['firstName' => 'John'])`
+     *
+     * *Note: this method is idempotent*
+     *
+     * @param string $class
+     * @param array  $attributes
+     * @return array
+     */
+    public function ormAttributesToData($class, array $attributes)
+    {
+        $data = [];
+
+        foreach ($attributes as $attribute => $value) {
+            $data[call_user_func([$class, 'getColumnName'], $attribute)] = $value;
+        }
+
+        return $data;
+    }
+
+    /**
      * Create a partial mock of Entity $class
      *
      * @param string        $class
@@ -63,7 +85,7 @@ trait MockTrait
         /** @var Entity|m\Mock $entity */
         $entity = m::mock($class)->makePartial();
         $entity->setEntityManager($em);
-        $entity->setOriginalData($data);
+        $entity->setOriginalData($this->ormAttributesToData($class, $data));
         $entity->reset();
 
         try {
@@ -122,11 +144,14 @@ trait MockTrait
                     /** @scrutinizer ignore-call */
                     $expectation = $em->shouldReceive('insert')->once()
                         ->andReturnUsing(
-                            function (Entity $entity, $useAutoIncrement = true) use ($defaultValues, $em) {
+                            function (Entity $entity, $useAutoIncrement = true) use ($class, $defaultValues, $em) {
                                 if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
                                     $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
                                 }
-                                $entity->setOriginalData(array_merge($defaultValues, $entity->getData()));
+                                $entity->setOriginalData(array_merge(
+                                    $this->ormAttributesToData($class, $defaultValues),
+                                    $entity->getData()
+                                ));
                                 $entity->reset();
                                 $em->map($entity);
                                 return true;
@@ -223,11 +248,15 @@ trait MockTrait
         /** @scrutinizer ignore-call */
         $expectation = $entity->shouldReceive('save')->andReturnUsing(
             function () use ($entity, $updatedData, $changingData) {
+                $class = get_class($entity);
                 // sync with database using $updatedData
                 if (!empty($updatedData)) {
                     $newData = $entity->getData();
                     $entity->reset();
-                    $entity->setOriginalData(array_merge($entity->getData(), $updatedData));
+                    $entity->setOriginalData(array_merge(
+                        $entity->getData(),
+                        $this->ormAttributesToData($class, $updatedData)
+                    ));
                     $entity->fill($newData);
                 }
 
@@ -237,7 +266,10 @@ trait MockTrait
 
                 // update the entity using $changingData
                 $entity->preUpdate();
-                $entity->setOriginalData(array_merge($entity->getData(), $changingData));
+                $entity->setOriginalData(array_merge(
+                    $entity->getData(),
+                    $this->ormAttributesToData($class, $changingData)
+                ));
                 $entity->reset();
                 $entity->postUpdate();
 
