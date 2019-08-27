@@ -46,7 +46,7 @@ In the `setUp()` method for your test case you have to mock the access to the da
 ```php?start_inline=true
 abstract class TestCase extends MockeryTestCase
 {
-    use \ORM\MockTrait;
+    use \ORM\Testing\MocksEntityManager;
     
     /** @var \Mockery\Mock[] */
     protected $mocks;
@@ -139,8 +139,8 @@ function createArticle($title)
     return json_encode($article);
 }
 
-class ArticleControllerTest extends TestCase // uses ORM\MockTrait
-{
+class ArticleControllerTest extends TestCase
+{    
     public function testSavesTheArticle()
     {
         $this->ormExpectInsert(Article::class, ['created' => date('c')]);
@@ -193,7 +193,7 @@ function getArticles($search = '')
 }
 
 class ArticleControllerTest extends TestCase
-{
+{    
     // expect a call
     public function testGetsTheArticle()
     {
@@ -265,7 +265,7 @@ function updateArticle($id, $newTitle)
 }
 
 class ArticleControllerTest extends TestCase
-{
+{    
     public function testCallsSave()
     {
         $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
@@ -307,7 +307,7 @@ function deleteArticle($id)
 }
 
 class ArticleControllerTest extends TestCase
-{
+{    
     public function testDeleteWithoutHelper()
     {
         $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
@@ -352,7 +352,7 @@ function getFirstArticleCategory($articleId)
 }
 
 class ArticleControllerTest extends TestCase
-{
+{    
     public function testFetchWithGetAll()
     {
         $categories = [new Category(), new Category()];

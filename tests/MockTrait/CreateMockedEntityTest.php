@@ -2,16 +2,16 @@
 
 namespace ORM\Test\MockTrait;
 
+use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
-use Mockery as m;
 use ORM\EntityManager;
-use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Testing\MocksEntityManager;
 
 class CreateMockedEntityTest extends MockeryTestCase
 {
-    use MockTrait;
+    use MocksEntityManager;
 
     /** @var EntityManager|MockInterface */
     protected $em;

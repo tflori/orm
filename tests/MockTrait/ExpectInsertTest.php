@@ -5,13 +5,13 @@ namespace ORM\Test\MockTrait;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use ORM\EntityManager;
-use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Testing\MocksEntityManager;
 
 class ExpectInsertTest extends MockeryTestCase
 {
-    use MockTrait;
+    use MocksEntityManager;
 
     /** @var EntityManager|MockInterface */
     protected $em;

@@ -6,13 +6,13 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Testing\MocksEntityManager;
 
 class ExpectFetchTest extends MockeryTestCase
 {
-    use MockTrait;
+    use MocksEntityManager;
 
     /** @var EntityManager|MockInterface */
     protected $em;

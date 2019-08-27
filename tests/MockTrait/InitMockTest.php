@@ -4,13 +4,13 @@ namespace ORM\Test\MockTrait;
 
 use Mockery\MockInterface;
 use ORM\EntityManager;
-use ORM\MockTrait;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Testing\MocksEntityManager;
 use PHPUnit\Framework\TestCase;
 
 class InitMockTest extends TestCase
 {
-    use MockTrait;
+    use MocksEntityManager;
 
     /** @test */
     public function returnsAnEntityManager()
