@@ -18,41 +18,6 @@ use PDO;
 trait MocksEntityManager
 {
     /**
-     * Initialize an EntityManager mock object
-     *
-     * The mock is partial and you can map and act with it as usual. You should overwrite your dependency injector
-     * with the returned mock object. You can also call `defineFor*()` on this mock to use this mock for specific
-     * classes.
-     *
-     * The PDO object is mocked too. This object should not receive any calls except for quoting. By default it
-     * accepts `quote(string)`, `setAttribute(*)` and `getAttribute(ATTR_DRIVER_NAME)`. To retrieve and expect other
-     * calls you can use `getConnection()` from EntityManager mock object.
-     *
-     * @param array $options Options passed to EntityManager constructor
-     * @param string $driver Database driver you are using (results in different dbal instance)
-     * @return m\Mock|EntityManager
-     */
-    public function ormInitMock($options = [], $driver = 'mysql')
-    {
-        /** @var EntityManager|m\Mock $em */
-        $em = m::mock(EntityManager::class)->makePartial();
-        $em->__construct($options);
-        /** @var PDO|m\Mock $pdo */
-        $pdo = m::mock(PDO::class);
-
-        $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
-        $pdo->shouldReceive('getAttribute')->with(PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
-        $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(
-            function ($str) {
-                return '\'' . addcslashes($str, '\'') . '\'';
-            }
-        )->byDefault();
-
-        $em->setConnection($pdo);
-        return $em;
-    }
-
-    /**
      * Convert an array with $attributes as keys to an array of columns for $class
      *
      * e. g. : `assertSame(['first_name' => 'John'], ormAttributesToArray(User::class, ['firstName' => 'John'])`
@@ -99,6 +64,88 @@ trait MocksEntityManager
             // we tried to map but ignore primary key missing
         }
         return $entity;
+    }
+
+    /**
+     * Initialize an EntityManager mock object
+     *
+     * The mock is partial and you can map and act with it as usual. You should overwrite your dependency injector
+     * with the returned mock object. You can also call `defineFor*()` on this mock to use this mock for specific
+     * classes.
+     *
+     * The PDO object is mocked too. This object should not receive any calls except for quoting. By default it
+     * accepts `quote(string)`, `setAttribute(*)` and `getAttribute(ATTR_DRIVER_NAME)`. To retrieve and expect other
+     * calls you can use `getConnection()` from EntityManager mock object.
+     *
+     * @param array $options Options passed to EntityManager constructor
+     * @param string $driver Database driver you are using (results in different dbal instance)
+     * @return m\Mock|EntityManager
+     */
+    public function ormInitMock($options = [], $driver = 'mysql')
+    {
+        /** @var EntityManager|m\Mock $em */
+        $em = m::mock(EntityManager::class)->makePartial();
+        $em->__construct($options);
+        /** @var PDO|m\Mock $pdo */
+        $pdo = m::mock(PDO::class);
+
+        $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
+        $pdo->shouldReceive('getAttribute')->with(PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
+        $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(
+            function ($str) {
+                return '\'' . addcslashes($str, '\'') . '\'';
+            }
+        )->byDefault();
+
+        $em->setConnection($pdo);
+        return $em;
+    }
+
+    /**
+     * Expect fetch for $class
+     *
+     * Mocks and expects an EntityFetcher with $entities as result.
+     *
+     * @param string        $class    The class that should be fetched
+     * @param array         $entities The entities that get returned from fetcher
+     * @param EntityManager $em
+     * @return m\Mock|EntityFetcher
+     */
+    public function ormExpectFetch($class, $entities = [], $em = null)
+    {
+        /**  */
+        list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities, $em);
+        $expectation->once();
+        return $fetcher;
+    }
+
+    /**
+     * Allow fetch for $class
+     *
+     * Mocks an EntityFetcher with $entities as result.
+     *
+     * Returns the Expectation for fetch on entityManager and the mocked EntityFetcher
+     *
+     * @param string        $class    The class that should be fetched
+     * @param array         $entities The entities that get returned from fetcher
+     * @param EntityManager $em
+     * @return m\Expectation[]|EntityFetcher[]|m\Mock[]
+     */
+    public function ormAllowFetch($class, $entities = [], $em = null)
+    {
+        /** @var EntityManager|m\Mock $em */
+        $em = $em ?: EntityManager::getInstance($class);
+
+        /** @var m\Mock|EntityFetcher $fetcher */
+        $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
+        $expectation = $em->shouldReceive('fetch')->with($class)->andReturn($fetcher);
+
+        /** @scrutinizer ignore-call */
+        $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
+        array_push($entities, null);
+        $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
+
+        return [$expectation, $fetcher];
     }
 
     /**
@@ -174,53 +221,6 @@ trait MocksEntityManager
             );
 
         return $expectation;
-    }
-
-    /**
-     * Expect fetch for $class
-     *
-     * Mocks and expects an EntityFetcher with $entities as result.
-     *
-     * @param string        $class    The class that should be fetched
-     * @param array         $entities The entities that get returned from fetcher
-     * @param EntityManager $em
-     * @return m\Mock|EntityFetcher
-     */
-    public function ormExpectFetch($class, $entities = [], $em = null)
-    {
-        /**  */
-        list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities, $em);
-        $expectation->once();
-        return $fetcher;
-    }
-
-    /**
-     * Allow fetch for $class
-     *
-     * Mocks an EntityFetcher with $entities as result.
-     *
-     * Returns the Expectation for fetch on entityManager and the mocked EntityFetcher
-     *
-     * @param string        $class    The class that should be fetched
-     * @param array         $entities The entities that get returned from fetcher
-     * @param EntityManager $em
-     * @return m\Expectation[]|EntityFetcher[]|m\Mock[]
-     */
-    public function ormAllowFetch($class, $entities = [], $em = null)
-    {
-        /** @var EntityManager|m\Mock $em */
-        $em = $em ?: EntityManager::getInstance($class);
-
-        /** @var m\Mock|EntityFetcher $fetcher */
-        $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
-        $expectation = $em->shouldReceive('fetch')->with($class)->andReturn($fetcher);
-
-        /** @scrutinizer ignore-call */
-        $fetcher->shouldReceive('count')->with()->andReturn(count($entities))->byDefault();
-        array_push($entities, null);
-        $fetcher->shouldReceive('one')->with()->andReturnValues($entities)->byDefault();
-
-        return [$expectation, $fetcher];
     }
 
     /**
