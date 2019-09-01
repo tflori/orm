@@ -357,11 +357,10 @@ abstract class Dbal
             $primaryKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
         }
 
-        return sprintf(
-            static::$compositeWhereInTemplate,
-            implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
-            implode(',', $primaryKeys)
-        );
+        return vsprintf(static::$compositeWhereInTemplate, [
+                implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
+                implode(',', $primaryKeys)
+        ]);
     }
 
     /**
