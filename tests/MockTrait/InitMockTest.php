@@ -4,7 +4,9 @@ namespace ORM\Test\MockTrait;
 
 use Mockery\MockInterface;
 use ORM\EntityManager;
+use ORM\Exception\NoEntity;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Testing\EntityFetcherMock;
 use ORM\Testing\MocksEntityManager;
 use PHPUnit\Framework\TestCase;
 
@@ -76,5 +78,46 @@ class InitMockTest extends TestCase
         $result = $connection->quote('Wayne\'s World!');
 
         self::assertSame('\'Wayne\\\'s World!\'', $result);
+    }
+
+    /** @test */
+    public function createsAnEntityFetcherMock()
+    {
+        $em = $this->ormInitMock();
+
+        $fetcher = $em->fetch(Article::class);
+
+        self::assertInstanceOf(EntityFetcherMock::class, $fetcher);
+    }
+
+    /** @test */
+    public function returnsMappedEntities()
+    {
+        $em = $this->ormInitMock();
+        $em->map($original = new Article(['id' => 23]));
+
+        $article = $em->fetch(Article::class, 23);
+
+        self::assertSame($original, $article);
+    }
+
+    /** @test */
+    public function returnsNullWithPrimaryKey()
+    {
+        $em = $this->ormInitMock();
+
+        $article = $em->fetch(Article::class, 23);
+
+        self::assertNull($article);
+    }
+
+    /** @test */
+    public function throwsWhenTheClassIsNotAnEntity()
+    {
+        $em = $this->ormInitMock();
+
+        self::expectException(NoEntity::class);
+
+        $em->fetch(NoEntity::class);
     }
 }

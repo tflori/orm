@@ -42,6 +42,8 @@ trait MocksEntityManager
     /**
      * Create a partial mock of Entity $class
      *
+     * *Note: the entity will get a random primary key if not predefined.*
+     *
      * @param string        $class
      * @param array         $data
      * @param EntityManager $em
@@ -51,18 +53,13 @@ trait MocksEntityManager
     {
         $em = $em ?: EntityManager::getInstance($class);
 
-        /** @var Entity|m\Mock $entity */
+        /** @var Entity|m\MockInterface $entity */
         $entity = m::mock($class)->makePartial();
         $entity->setEntityManager($em);
         $entity->setOriginalData($this->ormAttributesToData($class, $data));
         $entity->reset();
 
-        try {
-            /** @scrutinizer ignore-type */
-            $em->map($entity, true, $class);
-        } catch (IncompletePrimaryKey $ex) {
-            // we tried to map but ignore primary key missing
-        }
+        EntityFetcherMock::addEntity($entity);
         return $entity;
     }
 
@@ -84,11 +81,11 @@ trait MocksEntityManager
     public function ormInitMock($options = [], $driver = 'mysql')
     {
         /** @var EntityManager|m\Mock $em */
-        $em = m::mock(EntityManager::class)->makePartial();
+        $em = m::mock(EntityManagerMock::class)->makePartial();
         $em->__construct($options);
+
         /** @var PDO|m\Mock $pdo */
         $pdo = m::mock(PDO::class);
-
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
         $pdo->shouldReceive('getAttribute')->with(PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
         $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(
@@ -96,9 +93,40 @@ trait MocksEntityManager
                 return '\'' . addcslashes($str, '\'') . '\'';
             }
         )->byDefault();
-
         $em->setConnection($pdo);
+
+        EntityFetcherMock::reset();
         return $em;
+    }
+
+    /**
+     * Add a result to EntityFetcher for $class
+     *
+     * You can specify the query that you expect in the returned result.
+     *
+     * Example:
+     * ```php
+     * $this->ormAddResult(Article::class, $em, new Article(['title' => 'Foo']))
+     *   ->where('deleted_at IS NULL')
+     *   ->where('title', 'Foo');
+     *
+     * $entity = $em->fetch('Article::class')
+     *   ->where('deleted_at IS NULL')
+     *   ->where('title', 'Foo')
+     *   ->one();
+     * ```
+     *
+     * @param string $class The class of an Entity
+     * @param EntityManager $em The EntityManager that will fetch the class
+     * @param Entity ...$entities The entities that will be returned
+     * @return EntityFetcherMock\Result
+     * @codeCoverageIgnore trivial code
+     */
+    public function ormAddResult($class, $em = null, Entity ...$entities)
+    {
+        /** @var EntityManager|m\Mock $em */
+        $em = $em ?: EntityManager::getInstance($class);
+        return EntityFetcherMock::addResult($class, $em, ...$entities);
     }
 
     /**
@@ -110,10 +138,11 @@ trait MocksEntityManager
      * @param array         $entities The entities that get returned from fetcher
      * @param EntityManager $em
      * @return m\Mock|EntityFetcher
+     * @deprecated use $em->shouldReceive('fetch')->once()->passthru()
      */
     public function ormExpectFetch($class, $entities = [], $em = null)
     {
-        /**  */
+        /** @var m\Mock|EntityFetcher $fetcher */
         list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities, $em);
         $expectation->once();
         return $fetcher;
@@ -130,6 +159,7 @@ trait MocksEntityManager
      * @param array         $entities The entities that get returned from fetcher
      * @param EntityManager $em
      * @return m\Expectation[]|EntityFetcher[]|m\Mock[]
+     * @deprecated every fetch is allowed now (change with $em->shouldNotReceive('fetch'))
      */
     public function ormAllowFetch($class, $entities = [], $em = null)
     {
