@@ -465,7 +465,7 @@ class EntityManager
     public function map(Entity $entity, $update = false, $class = null)
     {
         $class = $class ?: get_class($entity);
-        $key   = md5(serialize($entity->getPrimaryKey()));
+        $key   = static::buildChecksum($entity->getPrimaryKey());
 
         if ($update || !isset($this->map[$class][$key])) {
             $this->map[$class][$key] = $entity;
@@ -491,32 +491,21 @@ class EntityManager
      */
     public function fetch($class, $primaryKey = null)
     {
-        /** @noinspection PhpUnhandledExceptionInspection */
         $reflection = new \ReflectionClass($class);
         if (!$reflection->isSubclassOf(Entity::class)) {
             throw new NoEntity($class . ' is not a subclass of Entity');
         }
+        /** @var string|Entity $class */
 
         if ($primaryKey === null) {
             return new EntityFetcher($this, $class);
         }
 
-        if (!is_array($primaryKey)) {
-            $primaryKey = [ $primaryKey ];
-        }
+        $primaryKey = $this::buildPrimaryKey($class, (array)$primaryKey);
+        $checksum = $this::buildChecksum($primaryKey);
 
-        /** @noinspection PhpUndefinedMethodInspection */
-        $primaryKeyVars = $class::getPrimaryKeyVars();
-        if (count($primaryKeyVars) !== count($primaryKey)) {
-            throw new IncompletePrimaryKey(
-                'Primary key consist of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
-            );
-        }
-
-        $primaryKey = array_combine($primaryKeyVars, $primaryKey);
-
-        if (isset($this->map[$class][md5(serialize($primaryKey))])) {
-            return $this->map[$class][md5(serialize($primaryKey))];
+        if (isset($this->map[$class][$checksum])) {
+            return $this->map[$class][$checksum];
         }
 
         $fetcher = new EntityFetcher($this, $class);
@@ -563,5 +552,36 @@ class EntityManager
             $this->descriptions[$table] = $this->getDbal()->describe($table);
         }
         return $this->descriptions[$table];
+    }
+
+    /**
+     * Build a checksum from $primaryKey
+     *
+     * @param array $primaryKey
+     * @return string
+     */
+    protected static function buildChecksum(array $primaryKey)
+    {
+        return md5(serialize($primaryKey));
+    }
+
+    /**
+     * Builds the primary key with column names as keys
+     *
+     * @param string|Entity $class
+     * @param array $primaryKey
+     * @return array
+     * @throws IncompletePrimaryKey
+     */
+    protected static function buildPrimaryKey($class, array $primaryKey)
+    {
+        $primaryKeyVars = $class::getPrimaryKeyVars();
+        if (count($primaryKeyVars) !== count($primaryKey)) {
+            throw new IncompletePrimaryKey(
+                'Primary key consist of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
+            );
+        }
+
+        return array_combine($primaryKeyVars, $primaryKey);
     }
 }
