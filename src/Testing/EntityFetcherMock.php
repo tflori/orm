@@ -87,10 +87,10 @@ class EntityFetcherMock extends EntityFetcher
      * The EntityFetcherMock\Result gets a quality for matching this query. Only the highest quality will be used.
      *
      * @param string $class
-     * @param string $query
+     * @param EntityFetcher $fetcher
      * @return array
      */
-    public static function getResults($class, $query)
+    public static function getResults($class, EntityFetcher $fetcher)
     {
         if (!isset(static::$results[$class])) {
             return [];
@@ -98,7 +98,7 @@ class EntityFetcherMock extends EntityFetcher
 
         $results = [];
         foreach (static::$results[$class] as $objHash => $result) {
-            if ($quality = $result->matchesQuery($query)) {
+            if ($quality = $result->compare($fetcher)) {
                 $results[$objHash] = $quality;
             }
         }
@@ -148,7 +148,7 @@ class EntityFetcherMock extends EntityFetcher
     public function one()
     {
         if ($this->currentResult === null) {
-            $this->currentResult = static::getResults($this->class, $this->getQuery());
+            $this->currentResult = static::getResults($this->class, $this);
         }
 
         return array_shift($this->currentResult);
@@ -157,7 +157,7 @@ class EntityFetcherMock extends EntityFetcher
     /** {@inheritDoc} */
     public function count()
     {
-        return count(static::getResults($this->class, $this->getQuery()));
+        return count(static::getResults($this->class, $this));
     }
 
     /**

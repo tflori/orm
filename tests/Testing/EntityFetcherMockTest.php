@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Test\MockTrait;
+namespace ORM\Test\Testing;
 
 use Mockery as m;
 use ORM\EntityManager;
