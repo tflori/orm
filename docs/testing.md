@@ -335,7 +335,7 @@ the relation name as first and `true` as second parameter. It has to return an a
 to the definition of the relation. If you expecting fetch without the second parameter you can use the `ormExpectFetch`
 helper.
 
-```php?start_inline=true
+```php
 function getArticleCategories($articleId)
 {
     $em = $GLOBALS['di']->get('entityManager');
