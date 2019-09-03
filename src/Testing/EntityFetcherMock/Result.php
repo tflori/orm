@@ -29,36 +29,13 @@ class Result extends EntityFetcher
     {
         $result = 1;
 
-        // check if joins match
-        foreach ($this->joins as $condition) {
-            if (!in_array($condition, $fetcher->joins)) {
-                return 0;
+        foreach (['joins', 'where', 'groupBy', 'orderBy'] as $attribute) {
+            foreach ($this->$attribute as $condition) {
+                if (!in_array($condition, $fetcher->$attribute)) {
+                    return 0;
+                }
+                $result++;
             }
-            $result++;
-        }
-
-        // check if where conditions match
-        foreach ($this->where as $condition) {
-            if (!in_array($condition, $fetcher->where)) {
-                return 0;
-            }
-            $result++;
-        }
-
-        // check if grouping matches
-        foreach ($this->groupBy as $condition) {
-            if (!in_array($condition, $fetcher->groupBy)) {
-                return 0;
-            }
-            $result++;
-        }
-
-        // check if order matches
-        foreach ($this->orderBy as $condition) {
-            if (!in_array($condition, $fetcher->orderBy)) {
-                return 0;
-            }
-            $result++;
         }
 
         // check if limit and offset matches
