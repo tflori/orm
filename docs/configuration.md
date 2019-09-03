@@ -22,7 +22,7 @@ when it is required.
 A project without dependency injection, different databases, database cluster or anything else can just use configure
 with the parameters from `DbConfig`. Or create a `DbConfig` and pass it.
 
-```php?start_inline=true
+```php
 use ORM\EntityManager;
 
 $entitymanager = new EntityManager([
@@ -37,7 +37,7 @@ $entitymanager = new EntityManager([
 
 If you are using dependency injection you can pass a function that has to return a `PDO` instance.
 
-```php?start_inline=true
+```php
 $diContainer = $GLOBALS['DI']; // sorry we don't know how you get your depenency injection container
 
 $entityManager = new ORM\EntityManager([
@@ -56,7 +56,7 @@ $diContainer->set('entityManager', $entityManager);
 
 You can define PDO attributes in `DbConfig`. We highly recommend two settings for mysql and we set them by default:
 
-```php?start_inline=true
+```php
 [
     // Change sql_mode to ANSI_QUOTES and communication to utf8 on connect
     PDO::MYSQL_ATTR_INIT_COMMAND => "SET sql_mode ='ANSI_QUOTES', NAMES utf8",
@@ -125,7 +125,7 @@ is a subclass of this class. This is done due to `ReflectionClass::isSubclassOf(
 
 If you have legacy tables that you don't want to migrate you may want to create an own `EntityManager` for it:
 
-```php?start_inline=true
+```php
 use ORM\EntityManager;
 use ORM\Entity;
 
@@ -158,7 +158,7 @@ The above example uses the last `EntityManager` for other classes. You might wan
 defining the last `EntityManager` for the Namespace `App`. The parent matching has precedents so that the following
 example will achieve the same:
 
-```php?start_inline=true
+```php
 namespace App;
 
 use ORM\EntityManager;

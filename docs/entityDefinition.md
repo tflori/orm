@@ -7,7 +7,7 @@ permalink: /entityDefinition.html
 
 Nothing is required and everything should work out of the box. It is like using `PDO` alone.
 
-```php?start_inline=true
+```php
 class User extends ORM\Entity {}
 
 $user = $entityManager->fetch(User::class, 1);
@@ -33,7 +33,7 @@ This orm library also handles relations - for more information about configuring
 
 The easiest way to define the table name is by adding the property `$tableName`.
 
-```php?start_inline=true
+```php
 use ORM\Entity;
 
 class User extends Entity
@@ -51,7 +51,7 @@ method in an abstract class.
 The table name template can be configured in the `Namer` but you should better pass it to the options for the 
 EntityManager during initialization:
 
-```php?start_inline=true
+```php
 // only short class name (without namespace; this is the default)
 new ORM\EntityManager(['tableNameTemplate' => '%short%']);
 namespace App\Models { class User extends \ORM\Entity {} }
@@ -89,7 +89,7 @@ naming scheme is `snake_lower` what means that your StudlyCaps class name `Custo
 The name of a table can be obtained by the public static method `getTableName()`. You can overwrite this function if you
 need to or have a different logic to get your table name. 
 
-```php?start_inline=true
+```php
 namespace App\Model;
 
 abstract class Entity extends \ORM\Entity {
@@ -113,7 +113,7 @@ getters and setters for each property. It's up to you.
 Column names follow the naming scheme for columns defined for the EntityManager. You can also define a prefix per 
 entity. When you use prefixes than the prefix have to be in the correct naming scheme for columns.
 
-```php?start_inline=true
+```php
 /**
  * @property int id
  * @property string username
@@ -133,7 +133,7 @@ User::getColumnName('usrUsername'); // usr_usr_username
 
 You can also provide column aliases:
  
-```php?start_inline=true
+```php
 /**
  * @property foo
  * @property gender
@@ -157,7 +157,7 @@ if you need to or have a logic for your column prefixing.
 
 **IMPORTANT: `getColumnName(getColumnName($name))` should always return the same as `getColumnName($name)`.**
 
-```php?start_inline=true
+```php
 namespace App\Model;
 
 abstract class Entity extends \ORM\Entity {
@@ -178,7 +178,7 @@ The identifier can also be non auto incremental (as it is automatically when it 
 a non auto incremental identifier you set the protected static property `$autoIncrement` to false. To save an entity the
 primary key has to be filled.
 
-```php?start_inline=true
+```php
 // Naming scheme: snake_lower
 
 class A extends ORM\Entity {
@@ -203,7 +203,7 @@ A primary key can also be generated or fetched from a sequence just before `preP
 protected method `generatePrimaryKey()`, implement `ORM\Entity\GeneratesPrimaryKeys` and generate your primary key
 there:
 
-```php?start_inline=true
+```php
 class Tree extends ORM\Entity implements ORM\Entity\GeneratesPrimaryKeys {
     protected function generatePrimaryKey()
     {

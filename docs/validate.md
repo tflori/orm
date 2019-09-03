@@ -25,7 +25,7 @@ The `Type` has to implement `TypeInterface` and can be registered through `Colum
 
 Example for the type `point`:
 
-```php?start_inline=true
+```php
 namespace App\Type;
 
 use ORM\Dbal\TypeInterface;
@@ -63,7 +63,7 @@ method.
 
 Here is a small example for a user Table:
 
-```php?start_inline=true
+```php
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Dbal\Table;
@@ -120,7 +120,7 @@ When the validator is enabled each call to the magic setter that is not handled 
 an Error is returned it will throw an `ORM\Dbal\Error` exception. This is also executed for the fill method. The
 Idea behind this is that you can just fill your entity from unvalidated data source (such as `$_POST` or `php://input`).
 
-```php?start_inline=true
+```php
 /** @var User $user **/
 if (isset($_SESSION['user']) && $user = $_SESSION['user']) {
     Article::enableValidator();

@@ -23,7 +23,7 @@ For testing you need to be able to inject a mock object into your code. We assum
 
 The production bootstrap could look like this:
 
-```php?start_inline=true
+```php
 $di = new DependencyInjector();
 
 $di->set('config', function () {
@@ -43,7 +43,7 @@ $di->set('entityManager', function () use ($di) {
 
 In the `setUp()` method for your test case you have to mock the access to the database:
 
-```php?start_inline=true
+```php
 abstract class TestCase extends MockeryTestCase
 {
     use \ORM\Testing\MocksEntityManager;
@@ -87,7 +87,7 @@ the orignal object is wrapped but the magic getter not.
 You have to initialize the object without using the original constructor, set the entity manager manually, set the
 original data and reset the entity. We created a helper for this to make it easier.
 
-```php?start_inline=true
+```php
 class ArticleControllerTest extends TestCase
 {
     public function testMockEntity()
@@ -129,7 +129,7 @@ makes two calls methods on `EntiyManager` for a new `Entiy`:
 
 For an easier use we provide a method to expect exactly this. You can use it as follows:
 
-```php?start_inline=true
+```php
 // the function that creates the entity
 function createArticle($title)
 {
@@ -167,29 +167,18 @@ class ArticleControllerTest extends TestCase
 #### Reading Entities
 
 Reading entities should be much easier. Basically you expect that `EntityManager::fetch()` is called. If you expect a
-specific primary key you can just create the the entity and provide it through `EntityManager::map(Entity)` or you
-just expect fetch to be called once with `$class` ans `$primaryKey` and return `$entity`. We think for fetching a
-specific entity by primary key you don't need a helper method.
+specific primary key you can just create the entity and provide it through `EntityManager::map(Entity)` or you just
+expect fetch to be called with `$class` and `$primaryKey` and return `$entity`. If you just want the EntityManager
+to return the corresponding entity you don't have to mock it at all. Every entity created with `ormCreateMockedEntity`
+will be available through `$entityManager->fetch($class, $primaryKey`. We think for fetching a specific entity by
+primary key you don't need a helper method.
 
-For mocking an `EntityFetcher` the procedure will be more complicated. Therefore we created a helper method that act
-like a real `EntityFetcher` by default. This method returns the mock from `EntityFetcher` this way you can expect
-specific calls.
-
-```php?start_inline=true
+```php
 // the function that reads one article
 function getArticle($id)
 {
     $article = $GLOBALS['di']->get('entityManager')->fetch(Article::class, $id);
     return $article;
-}
-
-function getArticles($search = '')
-{
-    $fetcher = $GLOBALS['di']->get('entityManager')->fetch(Article::class);
-    if (!empty($search)) {
-        $fetcher->where('title', 'LIKE', '%' . $search . '%');
-    }
-    return $fetcher->all();
 }
 
 class ArticleControllerTest extends TestCase
@@ -205,14 +194,93 @@ class ArticleControllerTest extends TestCase
     // provide and use it (we don't need to mock this functionality)
     public function testGetsTheArticleFromMap()
     {
-         $article = new Article(['id' => 42, 'title' => 'Hello World!', 'created' => date('c')]);
-         $this->mocks['em']->map($article);
+        $article = $this->ormCreateMockedEntity(Article::class, [
+            'id' => 42,
+            'title' => 'Hello World!',
+            'created' => date('c')
+        ]);
          
-         $result = getArticle(42);
+        $result = getArticle(42);
          
-         self::assertSame($article, $result);
+        self::assertSame($article, $result);
+    }
+}
+```
+
+The EntityFetcher get's mocked with an empty result automatically. You can provide results for an fetcher of an entity
+with `ormAddResult($class, $em = null, Entity ...$entities)`. This returns an `ORM\Testing\EntityFetcherMock\Result` and
+can then be specified to met the expected where conditions, joins, grouping and ordering. Also the limit and offset
+can be specified and if necessary you can force the query to match your regular expressions. Basically the `Result` is
+an `EntityFetcher`. So you can use it like an `EntityFetcher` to specify the conditions.
+
+Expecting something specific can be more hard overall we recommend to just provide a basic result in the `setUp` method
+of your TestCase. A result without conditions will be used if no other result matches.
+
+```php
+use ORM\Test\Entity\Examples\Article;function getArticles($search = '')
+{
+    $fetcher = $GLOBALS['di']->get('entityManager')->fetch(Article::class);
+    if (!empty($search)) {
+        $fetcher->where('title', 'LIKE', '%' . $search . '%');
+    }
+    return $fetcher->all();
+}
+
+class ArticleControllerTest extends TestCase
+{   
+    // expect fetch
+    public function testFetchesArticles()
+    {
+        $this->mocks['em']->shouldReceive('fetch')->with(Article::class)->once()->passthru();
+        
+        getArticles();
     }
     
+    // expect where condition
+    public function testSearchesForTitle()
+    {
+        $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
+        $this->ormAddResult(Article::class, null, ...$articles)
+            ->where('title', 'LIKE', '%cambozola%');
+        
+        $result = getArticles('cambozola');
+        
+        self::assertSame($articles, $result);
+    }
+    
+    // assert empty result
+    public function testReturnsEmptyResult()
+    {
+        $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
+        $this->ormAddResult(Article::class, null, ...$articles); // any non matching query
+        $this->ormAddResult(Article::class)->where('title', 'LIKE', '%cambozola%');
+        
+        $result = getArticles('cambozola');
+        
+        self::assertEmpty($result);
+    }
+}
+```
+
+##### Warning! The following content is outdated and should not be used
+
+*For mocking an `EntityFetcher` the procedure will be more complicated. Therefore we created a helper method that act
+like a real `EntityFetcher` by default. This method returns the mock from `EntityFetcher` this way you can expect
+specific calls.*
+
+```php
+/*
+function getArticles($search = '')
+{
+    $fetcher = $GLOBALS['di']->get('entityManager')->fetch(Article::class);
+    if (!empty($search)) {
+        $fetcher->where('title', 'LIKE', '%' . $search . '%');
+    }
+    return $fetcher->all();
+}
+
+class ArticleControllerTest extends TestCase
+{   
     // expect fetch
     public function testFetchesArticles()
     {
@@ -243,6 +311,7 @@ class ArticleControllerTest extends TestCase
         self::assertSame($articles, $result);
     }
 }
+*/
 ```
 
 #### Updating an Entity
@@ -256,7 +325,7 @@ But it might be neccessary that the entity is not dirty afterwards, to emulate t
 and the entity got new data while updated (triggers like `ON UPDATE CURRENT TIMESTAMP`). To make the save method act
 like the original method act (without using the database) there is a helper method for it. 
 
-```php?start_inline=true
+```php
 function updateArticle($id, $newTitle)
 {
     $article = $GLOBALS['di']->get('entityManager')->fetch(Article::class, $id);
@@ -298,7 +367,7 @@ When you deleting an Entity you will have to know which entity will come or at l
 expect delete with `$em->shouldReceive('delete')->with($entity)->once()->andReturn(true)`. The helper for it just
 removes the the original data like the delete method generally does.
 
-```php?start_inline=true
+```php
 function deleteArticle($id)
 {
     $em = $GLOBALS['di']->get('entityManager');
@@ -335,7 +404,7 @@ the relation name as first and `true` as second parameter. It has to return an a
 to the definition of the relation. If you expecting fetch without the second parameter you can use the `ormExpectFetch`
 helper.
 
-```php?start_inline=true
+```php
 function getArticleCategories($articleId)
 {
     $em = $GLOBALS['di']->get('entityManager');

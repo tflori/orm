@@ -4,7 +4,6 @@ namespace ORM\Testing\EntityFetcherMock;
 
 use ORM\Entity;
 use ORM\EntityFetcher;
-use ORM\QueryBuilder\QueryBuilder;
 
 class Result extends EntityFetcher
 {

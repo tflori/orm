@@ -11,7 +11,7 @@ permalink: /relationDefinition.html
 
 #### One-To-Many Relation
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'comments' => [ArticleComments::class, 'article']
@@ -34,7 +34,7 @@ echo $article === $comment->article ? 'true' : 'false', "\n"; // true
 
 #### One-To-One Relation
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'additionalData' => ['one', ArticleAdditionalData::class, 'article']
@@ -57,7 +57,7 @@ echo $article === $additionalData->article ? 'true' : 'false', "\n"; // true
 
 #### Many-To-Many Relation
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']
@@ -95,7 +95,7 @@ you have to stick to the order we show in the following examples.
 
 Here are three examples with the same relations:
 
-```php?start_inline=true
+```php
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user'     => [User::class, ['userId' => 'id']],   // owner
@@ -104,7 +104,7 @@ class Article extends ORM\ENtity {
 }
 ```
 
-```php?start_inline=true
+```php
 class Article extends ORM\ENtity {
   protected static $relations = [
     'user' => [
@@ -120,7 +120,7 @@ class Article extends ORM\ENtity {
 }
 ```
 
-```php?start_inline=true
+```php
 use ORM\Relation;
 
 class Article extends ORM\ENtity {
@@ -170,7 +170,7 @@ To define the **owner** the **required** attributes are `'class'` and `'referenc
 
 Lets see an example (one article has many comments):
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'comments' => [ArticleComments::class, 'article']
@@ -202,7 +202,7 @@ To define the **owner** the **required** attributes are `'class'` and `'referenc
 
 Example (one article has additional data):
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'additionalData' => ['one', ArticleAdditionalData::class, 'article']
@@ -256,7 +256,7 @@ the column name and not the variable name.
 
 Here comes again an example:
 
-```php?start_inline=true
+```php
 class Article extends ORM\Entity {
     protected static $relations = [
         'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']
