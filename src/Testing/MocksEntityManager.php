@@ -46,11 +46,12 @@ trait MocksEntityManager
      *
      * @param string        $class
      * @param array         $data
-     * @param EntityManager $em
+     * @param EntityManagerMock $em
      * @return m\Mock|Entity
      */
     public function ormCreateMockedEntity($class, $data = [], $em = null)
     {
+        /** @var EntityManagerMock $em */
         $em = $em ?: EntityManager::getInstance($class);
 
         /** @var Entity|m\MockInterface $entity */
@@ -59,7 +60,7 @@ trait MocksEntityManager
         $entity->setOriginalData($this->ormAttributesToData($class, $data));
         $entity->reset();
 
-        EntityFetcherMock::addEntity($entity);
+        $em->addEntity($entity);
         return $entity;
     }
 
@@ -95,7 +96,6 @@ trait MocksEntityManager
         )->byDefault();
         $em->setConnection($pdo);
 
-        EntityFetcherMock::reset();
         return $em;
     }
 
@@ -117,16 +117,15 @@ trait MocksEntityManager
      * ```
      *
      * @param string $class The class of an Entity
-     * @param EntityManager $em The EntityManager that will fetch the class
      * @param Entity ...$entities The entities that will be returned
      * @return EntityFetcherMock\Result
      * @codeCoverageIgnore trivial code
      */
-    public function ormAddResult($class, $em = null, Entity ...$entities)
+    public function ormAddResult($class, Entity ...$entities)
     {
-        /** @var EntityManager|m\Mock $em */
-        $em = $em ?: EntityManager::getInstance($class);
-        return EntityFetcherMock::addResult($class, $em, ...$entities);
+        /** @var EntityManagerMock|m\Mock $em */
+        $em = EntityManager::getInstance($class);
+        return $em->addResult($class, ...$entities);
     }
 
     /**

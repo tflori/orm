@@ -3,17 +3,17 @@
 namespace ORM\Test\Testing;
 
 use Mockery as m;
-use ORM\EntityManager;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\TestCase;
 use ORM\Testing\EntityFetcherMock;
+use ORM\Testing\EntityManagerMock;
 use ORM\Testing\MocksEntityManager;
 
 class EntityFetcherMockTest extends TestCase
 {
     use MocksEntityManager;
 
-    /** @var EntityManager|m\MockInterface */
+    /** @var EntityManagerMock|m\MockInterface */
     protected $em;
 
     protected function setUp()
@@ -24,9 +24,9 @@ class EntityFetcherMockTest extends TestCase
     /** @test */
     public function returnsStoredEntity()
     {
-        EntityFetcherMock::addEntity($original = new Article(['id' => 23]));
+        $this->em->addEntity($original = new Article(['id' => 23]));
 
-        $article = EntityFetcherMock::retrieve(Article::class, ['id' => 23]);
+        $article = $this->em->retrieve(Article::class, ['id' => 23]);
 
         self::assertSame($original, $article);
     }
@@ -36,9 +36,9 @@ class EntityFetcherMockTest extends TestCase
     {
         $original = m::mock(Article::class)->makePartial();
         $original->__construct(['id' => 23]);
-        EntityFetcherMock::addEntity($original);
+        $this->em->addEntity($original);
 
-        $article = EntityFetcherMock::retrieve(Article::class, ['id' => 23]);
+        $article = $this->em->retrieve(Article::class, ['id' => 23]);
 
         self::assertSame($original, $article);
     }
@@ -47,7 +47,7 @@ class EntityFetcherMockTest extends TestCase
     public function returnsDefinedResults()
     {
         $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
         $articles = $query->all();
@@ -67,7 +67,7 @@ class EntityFetcherMockTest extends TestCase
     /** @test */
     public function returnsAnEmptyArrayIfNoResultsMatch()
     {
-        EntityFetcherMock::addResult(Article::class, $this->em, new Article(['title' => 'Foo']))
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
             ->where('title', 'Foo');
 
         $query = new EntityFetcherMock($this->em, Article::class);
@@ -79,10 +79,10 @@ class EntityFetcherMockTest extends TestCase
     /** @test */
     public function returnsEntitiesWithoutConditions()
     {
-        EntityFetcherMock::addResult(Article::class, $this->em, new Article(['title' => 'Baz']))
+        $this->em->addResult(Article::class, new Article(['title' => 'Baz']))
             ->where('title', 'Baz');
         $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
         $articles = $query->all();
@@ -93,11 +93,11 @@ class EntityFetcherMockTest extends TestCase
     /** @test */
     public function returnsEntitiesThatMatchTheConditions()
     {
-        EntityFetcherMock::addResult(Article::class, $this->em, ...[
+        $this->em->addResult(Article::class, ...[
             new Article(['title' => 'Foo']),
             new Article(['title' => 'Bar']),
         ]);
-        EntityFetcherMock::addResult(Article::class, $this->em, $baz = new Article(['title' => 'Baz']))
+        $this->em->addResult(Article::class, $baz = new Article(['title' => 'Baz']))
             ->where('title', 'Baz');
 
         $query = new EntityFetcherMock($this->em, Article::class);
@@ -113,7 +113,7 @@ class EntityFetcherMockTest extends TestCase
         $entities = array_map(function ($i) {
             return new Article(['title' => 'Article ' . $i]);
         }, range(1, 10));
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
         $articles = $query->all(5);
@@ -127,7 +127,7 @@ class EntityFetcherMockTest extends TestCase
         $entities = array_map(function ($i) {
             return new Article(['title' => 'Article ' . $i]);
         }, range(1, 10));
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
         $query->all(5);
@@ -142,7 +142,7 @@ class EntityFetcherMockTest extends TestCase
         $entities = array_map(function ($i) {
             return new Article(['title' => 'Article ' . $i]);
         }, range(1, 10));
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
 
@@ -156,7 +156,7 @@ class EntityFetcherMockTest extends TestCase
         $entities = array_map(function ($i) {
             return new Article(['title' => 'Article ' . $i]);
         }, range(1, 10));
-        EntityFetcherMock::addResult(Article::class, $this->em, ...$entities);
+        $this->em->addResult(Article::class, ...$entities);
 
         $query = new EntityFetcherMock($this->em, Article::class);
         $query->all(5);
