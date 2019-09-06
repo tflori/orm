@@ -46,13 +46,12 @@ trait MocksEntityManager
      *
      * @param string        $class
      * @param array         $data
-     * @param EntityManagerMock $em
      * @return m\Mock|Entity
      */
-    public function ormCreateMockedEntity($class, $data = [], $em = null)
+    public function ormCreateMockedEntity($class, $data = [])
     {
         /** @var EntityManagerMock $em */
-        $em = $em ?: EntityManager::getInstance($class);
+        $em = EntityManager::getInstance($class);
 
         /** @var Entity|m\MockInterface $entity */
         $entity = m::mock($class)->makePartial();
@@ -135,14 +134,13 @@ trait MocksEntityManager
      *
      * @param string        $class    The class that should be fetched
      * @param array         $entities The entities that get returned from fetcher
-     * @param EntityManager $em
      * @return m\Mock|EntityFetcher
      * @deprecated use $em->shouldReceive('fetch')->once()->passthru()
      */
-    public function ormExpectFetch($class, $entities = [], $em = null)
+    public function ormExpectFetch($class, $entities = [])
     {
         /** @var m\Mock|EntityFetcher $fetcher */
-        list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities, $em);
+        list($expectation, $fetcher) = $this->ormAllowFetch($class, $entities);
         $expectation->once();
         return $fetcher;
     }
@@ -156,14 +154,13 @@ trait MocksEntityManager
      *
      * @param string        $class    The class that should be fetched
      * @param array         $entities The entities that get returned from fetcher
-     * @param EntityManager $em
      * @return m\Expectation[]|EntityFetcher[]|m\Mock[]
      * @deprecated every fetch is allowed now (change with $em->shouldNotReceive('fetch'))
      */
-    public function ormAllowFetch($class, $entities = [], $em = null)
+    public function ormAllowFetch($class, $entities = [])
     {
         /** @var EntityManager|m\Mock $em */
-        $em = $em ?: EntityManager::getInstance($class);
+        $em = EntityManager::getInstance($class);
 
         /** @var m\Mock|EntityFetcher $fetcher */
         $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
@@ -189,11 +186,10 @@ trait MocksEntityManager
      * @param string        $class         The class that should get created
      * @param array         $defaultValues The default values that came from database (for example: the created column
      *                                     has by the default the current timestamp; the id is auto incremented...)
-     * @param EntityManager $em
      */
-    public function ormExpectInsert($class, $defaultValues = [], $em = null)
+    public function ormExpectInsert($class, $defaultValues = [])
     {
-        $expectation = $this->ormAllowInsert($class, $defaultValues, $em);
+        $expectation = $this->ormAllowInsert($class, $defaultValues);
         $expectation->once();
     }
 
@@ -209,13 +205,12 @@ trait MocksEntityManager
      * @param string        $class         The class that should get created
      * @param array         $defaultValues The default values that came from database (for example: the created column
      *                                     has by the default the current timestamp; the id is auto incremented...)
-     * @param EntityManager $em
      * @return m\Expectation
      */
-    public function ormAllowInsert($class, $defaultValues = [], $em = null)
+    public function ormAllowInsert($class, $defaultValues = [])
     {
         /** @var EntityManager|m\Mock $em */
-        $em = $em ?: EntityManager::getInstance($class);
+        $em = EntityManager::getInstance($class);
 
         /** @scrutinizer ignore-call */
         $expectation = $em->shouldReceive('sync')->with(m::type($class))
@@ -322,11 +317,10 @@ trait MocksEntityManager
      * If $entity is a string then it is assumed to be a class name.
      *
      * @param string|Entity $entity
-     * @param EntityManager $em
      */
-    public function ormExpectDelete($entity, $em = null)
+    public function ormExpectDelete($entity)
     {
-        $expectation = $this->ormAllowDelete($entity, $em);
+        $expectation = $this->ormAllowDelete($entity);
         $expectation->once();
     }
 
@@ -338,15 +332,14 @@ trait MocksEntityManager
      * If $entity is a string then it is assumed to be a class name.
      *
      * @param string|Entity $entity
-     * @param EntityManager $em
      * @return m\Expectation
      */
-    public function ormAllowDelete($entity, $em = null)
+    public function ormAllowDelete($entity)
     {
         $class = is_string($entity) ? $entity : get_class($entity);
 
         /** @var EntityManager|m\Mock $em */
-        $em = $em ?: EntityManager::getInstance($class);
+        $em = EntityManager::getInstance($class);
 
         $expectation = $em->shouldReceive('delete');
         if (is_string($entity)) {

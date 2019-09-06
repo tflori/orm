@@ -15,6 +15,12 @@ class EntityManagerMock extends EntityManager
 
     public function __construct($options = [])
     {
+        static::$emMapping = [
+            'byClass'     => [],
+            'byNameSpace' => [],
+            'byParent'    => [],
+            'last'        => null,
+        ];
         parent::__construct($options);
         $this->resultRepository = new ResultRepository($this);
     }
