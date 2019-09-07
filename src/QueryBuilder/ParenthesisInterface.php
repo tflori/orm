@@ -22,7 +22,7 @@ interface ParenthesisInterface
      *
      * These calls are equal:
      *
-     * ```php?start_inline=true
+     * ```php
      * where('name', '=' , 'John Doe')
      * where('name = ?', 'John Doe')
      * where('name', 'John Doe')
@@ -49,7 +49,7 @@ interface ParenthesisInterface
      *
      * These calls are equal:
      *
-     * ```php?start_inline=true
+     * ```php
      * andWhere('name', '=' , 'John Doe')
      * andWhere('name = ?', 'John Doe')
      * andWhere('name', 'John Doe')
@@ -75,7 +75,7 @@ interface ParenthesisInterface
      *
      * These calls are equal:
      *
-     * ```php?start_inline=true
+     * ```php
      * orWhere('name', '=' , 'John Doe')
      * orWhere('name = ?', 'John Doe')
      * orWhere('name', 'John Doe')

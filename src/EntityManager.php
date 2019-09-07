@@ -453,7 +453,7 @@ class EntityManager
      * Returns the given entity or an entity that previously got mapped. This is useful to work in every function with
      * the same object.
      *
-     * ```php?start_inline=true
+     * ```php
      * $user = $enitityManager->map(new User(['id' => 42]));
      * ```
      *
