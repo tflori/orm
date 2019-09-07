@@ -72,7 +72,7 @@ class Result extends EntityFetcher
     /**
      * Add entities to the result
      *
-     * @param Entity ...$entities
+     * @param Entity[] $entities
      * @return $this
      * @codeCoverageIgnore trivial code
      */
@@ -83,7 +83,7 @@ class Result extends EntityFetcher
     }
 
     /**
-     * Get the entites for this result
+     * Get the entities for this result
      *
      * @return Entity[]
      * @codeCoverageIgnore trivial code

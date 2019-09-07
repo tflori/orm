@@ -18,6 +18,18 @@ use PDO;
 trait MocksEntityManager
 {
     /**
+     * Get the EntityManagerMock for $class
+     *
+     * @param $class
+     * @return EntityManagerMock|m\MockInterface|EntityManager
+     * @codeCoverageIgnore proxy method
+     */
+    public function ormGetEntityManagerInstance($class)
+    {
+        return EntityManager::getInstance($class);
+    }
+
+    /**
      * Convert an array with $attributes as keys to an array of columns for $class
      *
      * e. g. : `assertSame(['first_name' => 'John'], ormAttributesToArray(User::class, ['firstName' => 'John'])`
@@ -51,7 +63,7 @@ trait MocksEntityManager
     public function ormCreateMockedEntity($class, $data = [])
     {
         /** @var EntityManagerMock $em */
-        $em = EntityManager::getInstance($class);
+        $em = $this->ormGetEntityManagerInstance($class);
 
         /** @var Entity|m\MockInterface $entity */
         $entity = m::mock($class)->makePartial();
@@ -123,7 +135,7 @@ trait MocksEntityManager
     public function ormAddResult($class, Entity ...$entities)
     {
         /** @var EntityManagerMock|m\Mock $em */
-        $em = EntityManager::getInstance($class);
+        $em = $this->ormGetEntityManagerInstance($class);
         return $em->addResult($class, ...$entities);
     }
 
@@ -160,7 +172,7 @@ trait MocksEntityManager
     public function ormAllowFetch($class, $entities = [])
     {
         /** @var EntityManager|m\Mock $em */
-        $em = EntityManager::getInstance($class);
+        $em = $this->ormGetEntityManagerInstance($class);
 
         /** @var m\Mock|EntityFetcher $fetcher */
         $fetcher = m::mock(EntityFetcher::class, [ $em, $class ])->makePartial();
@@ -210,7 +222,7 @@ trait MocksEntityManager
     public function ormAllowInsert($class, $defaultValues = [])
     {
         /** @var EntityManager|m\Mock $em */
-        $em = EntityManager::getInstance($class);
+        $em = $this->ormGetEntityManagerInstance($class);
 
         /** @scrutinizer ignore-call */
         $expectation = $em->shouldReceive('sync')->with(m::type($class))
@@ -339,7 +351,7 @@ trait MocksEntityManager
         $class = is_string($entity) ? $entity : get_class($entity);
 
         /** @var EntityManager|m\Mock $em */
-        $em = EntityManager::getInstance($class);
+        $em = $this->ormGetEntityManagerInstance($class);
 
         $expectation = $em->shouldReceive('delete');
         if (is_string($entity)) {

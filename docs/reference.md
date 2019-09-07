@@ -98,6 +98,18 @@ permalink: /reference.html
 * [Owner](#ormrelationowner)
 
 
+### ORM\Testing
+
+* [EntityFetcherMock](#ormtestingentityfetchermock)
+* [EntityManagerMock](#ormtestingentitymanagermock)
+
+
+### ORM\Testing\EntityFetcherMock
+
+* [Result](#ormtestingentityfetchermockresult)
+* [ResultRepository](#ormtestingentityfetchermockresultrepository)
+
+
 ---
 
 ### ORM\Dbal\Type\Boolean
@@ -1597,6 +1609,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [postUpdate](#ormentitypostupdate) Empty event handler
 * [prePersist](#ormentityprepersist) Empty event handler
 * [preUpdate](#ormentitypreupdate) Empty event handler
+* [query](#ormentityquery) Create an entityFetcher for this entity
 * [reset](#ormentityreset) Resets the entity or $attribute to original data
 * [save](#ormentitysave) Save the entity to EntityManager
 * [serialize](#ormentityserialize) String representation of data
@@ -2296,6 +2309,24 @@ Get called before the entity get updated in database.
 
 
 
+#### ORM\Entity::query
+
+```php
+public static function query(): \ORM\EntityFetcher
+```
+
+##### Create an entityFetcher for this entity
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityFetcher**
+<br />
+
+
+
 #### ORM\Entity::reset
 
 ```php
@@ -2745,10 +2776,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-andWhere('name', '=' , 'John Doe')
-andWhere('name = ?', 'John Doe')
-andWhere('name', 'John Doe')
-andWhere('name = ?', ['John Doe'])
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -3331,10 +3362,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-orWhere('name', '=' , 'John Doe')
-orWhere('name = ?', 'John Doe')
-orWhere('name', 'John Doe')
-orWhere('name = ?', ['John Doe'])
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -3444,10 +3475,902 @@ the second parameter.
 These calls are equal:
 
 ```php
-where('name', '=' , 'John Doe')
-where('name = ?', 'John Doe')
-where('name', 'John Doe')
-where('name = ?', ['John Doe'])
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+
+
+---
+
+### ORM\Testing\EntityFetcherMock
+
+**Extends:** [ORM\EntityFetcher](#ormentityfetcher)
+
+
+#### Fetch entities from database
+
+If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+them to the *where() methods.
+
+Supported:
+ - joins with on clause (and alias)
+ - joins with using (and alias)
+ - where conditions
+ - parenthesis
+ - order by one or more columns / expressions
+ - group by one or more columns / expressions
+ - limit and offset
+ - modifiers
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
+| **protected** | `$limit` | **integer** | Limit amount of rows |
+| **protected** | `$offset` | **integer** | Offset to start from |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
+| **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
+| **public** | `$entityManager` | **EntityManagerMock** |  |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$parent` | ** \ ORM \ QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$currentResult` | **array** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormtestingentityfetchermock__construct) Constructor
+* [all](#ormtestingentityfetchermockall) Fetch an array of entities
+* [andParenthesis](#ormtestingentityfetchermockandparenthesis) Add a parenthesis with AND
+* [andWhere](#ormtestingentityfetchermockandwhere) Add a where condition with AND.
+* [buildExpression](#ormtestingentityfetchermockbuildexpression) 
+* [close](#ormtestingentityfetchermockclose) Close parenthesis
+* [column](#ormtestingentityfetchermockcolumn) Add $column
+* [columns](#ormtestingentityfetchermockcolumns) Set $columns
+* [convertPlaceholders](#ormtestingentityfetchermockconvertplaceholders) Replaces question marks in $expression with $args
+* [count](#ormtestingentityfetchermockcount) Get the count of the resulting items
+* [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
+* [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
+* [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) 
+* [getEntityManager](#ormtestingentityfetchermockgetentitymanager) 
+* [getExpression](#ormtestingentityfetchermockgetexpression) Get the expression
+* [getQuery](#ormtestingentityfetchermockgetquery) Get the query / select statement
+* [getStatement](#ormtestingentityfetchermockgetstatement) Query database and return result
+* [groupBy](#ormtestingentityfetchermockgroupby) Group By $column
+* [join](#ormtestingentityfetchermockjoin) (Inner) join $tableName with $options
+* [joinRelated](#ormtestingentityfetchermockjoinrelated) Join $relation
+* [leftJoin](#ormtestingentityfetchermockleftjoin) Left (outer) join $tableName with $options
+* [leftJoinRelated](#ormtestingentityfetchermockleftjoinrelated) Left outer join $relation
+* [limit](#ormtestingentityfetchermocklimit) Set $limit
+* [modifier](#ormtestingentityfetchermockmodifier) Add $modifier
+* [offset](#ormtestingentityfetchermockoffset) Set $offset
+* [one](#ormtestingentityfetchermockone) Fetch one entity
+* [orderBy](#ormtestingentityfetchermockorderby) Order By $column in $direction
+* [orParenthesis](#ormtestingentityfetchermockorparenthesis) Add a parenthesis with OR
+* [orWhere](#ormtestingentityfetchermockorwhere) Add a where condition with OR.
+* [parenthesis](#ormtestingentityfetchermockparenthesis) Alias for andParenthesis
+* [rightJoin](#ormtestingentityfetchermockrightjoin) Right (outer) join $tableName with $options
+* [setQuery](#ormtestingentityfetchermocksetquery) Set a raw query or use different QueryBuilder
+* [where](#ormtestingentityfetchermockwhere) Alias for andWhere
+
+#### ORM\Testing\EntityFetcherMock::__construct
+
+```php
+public function __construct(
+    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
+): Parenthesis
+```
+
+##### Constructor
+
+Create a parenthesis inside another parenthesis or a query.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$onClose` | **callable**  | Callable that gets executed when the parenthesis get closed |
+| `$parent` | **\ORM\QueryBuilder\ParenthesisInterface**  | Parent where createWhereCondition get executed |
+
+
+
+#### ORM\Testing\EntityFetcherMock::all
+
+```php
+public function all( integer $limit ): array<\ORM\Entity>
+```
+
+##### Fetch an array of entities
+
+When no $limit is set it fetches all entities in result set.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$limit` | **integer**  | Maximum number of entities to fetch |
+
+
+
+#### ORM\Testing\EntityFetcherMock::andParenthesis
+
+```php
+public function andParenthesis(): static
+```
+
+##### Add a parenthesis with AND
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::andWhere
+
+```php
+public function andWhere(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Add a where condition with AND.
+
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock::buildExpression
+
+```php
+private function buildExpression( $column, $value, $operator = null )
+```
+
+
+
+
+**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` |   |  |
+| `$value` |   |  |
+| `$operator` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::close
+
+```php
+public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Close parenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::column
+
+```php
+public function column(
+    string $column, array $args = array(), string $alias = ''
+): \ORM\QueryBuilder\QueryBuilder
+```
+
+##### Add $column
+
+Optionally you can provide an expression with question marks as placeholders filled with $args.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression to fetch |
+| `$args` | **array**  | Arguments for expression |
+| `$alias` | **string**  | Alias for the column |
+
+
+
+#### ORM\Testing\EntityFetcherMock::columns
+
+```php
+public function columns( array $columns = null ): static
+```
+
+##### Set $columns
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columns` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::convertPlaceholders
+
+```php
+protected function convertPlaceholders(
+    string $expression, array $args
+): string
+```
+
+##### Replaces question marks in $expression with $args
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  | Expression with placeholders |
+| `$args` | **array &#124; mixed**  | Arguments for placeholders |
+
+
+
+#### ORM\Testing\EntityFetcherMock::count
+
+```php
+public function count(): integer
+```
+
+##### Get the count of the resulting items
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::createRelatedJoin
+
+```php
+public function createRelatedJoin( $join, $relation ): $this
+```
+
+##### Create the join with $join type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` |   |  |
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::fullJoin
+
+```php
+public function fullJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Full (outer) join $tableName with $options
+
+When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
+can be set to false.
+
+ATTENTION: here the default value of empty got changed - defaults to yes
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::getDefaultOperator
+
+```php
+private function getDefaultOperator( $value )
+```
+
+
+
+
+**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::getEntityManager
+
+```php
+public function getEntityManager(): \ORM\EntityManager
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::getExpression
+
+```php
+public function getExpression(): string
+```
+
+##### Get the expression
+
+Returns the complete expression inside this parenthesis.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::getQuery
+
+```php
+public function getQuery(): string
+```
+
+##### Get the query / select statement
+
+Builds the statement from current where conditions, joins, columns and so on.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::getStatement
+
+```php
+private function getStatement(): \PDOStatement|boolean
+```
+
+##### Query database and return result
+
+Queries the database with current query and returns the resulted PDOStatement.
+
+If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+change the result.
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\PDOStatement|boolean**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::groupBy
+
+```php
+public function groupBy( string $column, array $args = array() ): static
+```
+
+##### Group By $column
+
+Optionally you can provide an expression in $column with question marks as placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression for groups |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::join
+
+```php
+public function join(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### (Inner) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::joinRelated
+
+```php
+public function joinRelated( $relation ): $this
+```
+
+##### Join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::leftJoin
+
+```php
+public function leftJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Left (outer) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::leftJoinRelated
+
+```php
+public function leftJoinRelated( $relation ): $this
+```
+
+##### Left outer join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::limit
+
+```php
+public function limit( integer $limit ): static
+```
+
+##### Set $limit
+
+Limits the amount of rows fetched from database.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$limit` | **integer**  | The limit to set |
+
+
+
+#### ORM\Testing\EntityFetcherMock::modifier
+
+```php
+public function modifier( string $modifier ): static
+```
+
+##### Add $modifier
+
+Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$modifier` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::offset
+
+```php
+public function offset( integer $offset ): static
+```
+
+##### Set $offset
+
+Changes the offset (only with limit) where fetching starts in the query.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$offset` | **integer**  | The offset to set |
+
+
+
+#### ORM\Testing\EntityFetcherMock::one
+
+```php
+public function one(): \ORM\Entity
+```
+
+##### Fetch one entity
+
+If there is no more entity in the result set it returns null.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::orderBy
+
+```php
+public function orderBy(
+    string $column, string $direction = self::DIRECTION_ASCENDING, 
+    array $args = array()
+): static
+```
+
+##### Order By $column in $direction
+
+Optionally you can provide an expression in $column with question marks as placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression for order |
+| `$direction` | **string**  | Direction (default: `ASC`) |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::orParenthesis
+
+```php
+public function orParenthesis(): static
+```
+
+##### Add a parenthesis with OR
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::orWhere
+
+```php
+public function orWhere(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Add a where condition with OR.
+
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock::parenthesis
+
+```php
+public function parenthesis(): static
+```
+
+##### Alias for andParenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::rightJoin
+
+```php
+public function rightJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Right (outer) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::setQuery
+
+```php
+public function setQuery( string $query, array $args = null ): $this
+```
+
+##### Set a raw query or use different QueryBuilder
+
+For easier use and against sql injection it allows question mark placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$query` | **string &#124; \ORM\QueryBuilder\QueryBuilderInterface**  | Raw query string or a QueryBuilderInterface |
+| `$args` | **array**  | The arguments for placeholders |
+
+
+
+#### ORM\Testing\EntityFetcherMock::where
+
+```php
+public function where(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Alias for andWhere
+
+QueryBuilderInterface where($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -3519,6 +4442,8 @@ where('name = ?', ['John Doe'])
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
+* [buildChecksum](#ormentitymanagerbuildchecksum) Build a checksum from $primaryKey
+* [buildPrimaryKey](#ormentitymanagerbuildprimarykey) Builds the primary key with column names as keys
 * [defineForNamespace](#ormentitymanagerdefinefornamespace) Define $this EntityManager as the default EntityManager for $nameSpace
 * [defineForParent](#ormentitymanagerdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormentitymanagerdelete) Delete $entity from database
@@ -3559,6 +4484,57 @@ public function __construct( array $options = array() ): EntityManager
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$options` | **array**  | Options for the new EntityManager |
+
+
+
+#### ORM\EntityManager::buildChecksum
+
+```php
+protected static function buildChecksum( array $primaryKey ): string
+```
+
+##### Build a checksum from $primaryKey
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\EntityManager::buildPrimaryKey
+
+```php
+protected static function buildPrimaryKey(
+    string $class, array $primaryKey
+): array
+```
+
+##### Builds the primary key with column names as keys
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string &#124; Entity**  |  |
+| `$primaryKey` | **array**  |  |
 
 
 
@@ -4010,6 +4986,713 @@ If $reset is true it also calls reset() on $entity.
 
 
 #### ORM\EntityManager::useBulkInserts
+
+```php
+public function useBulkInserts(
+    string $class, integer $limit = 20
+): \ORM\BulkInsert
+```
+
+##### Force $class to use bulk insert.
+
+At the end you should call finish bulk insert otherwise you may loose data.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\BulkInsert**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$limit` | **integer**  | Maximum number of rows per insert |
+
+
+
+
+
+---
+
+### ORM\Testing\EntityManagerMock
+
+**Extends:** [ORM\EntityManager](#ormentitymanager)
+
+
+#### The EntityManager that manages the instances of Entities.
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$connection` | ** \ PDO &#124; callable &#124;  \ ORM \ DbConfig** | Connection to database |
+| **protected** | `$dbal` | ** \ ORM \ Dbal \ Dbal** | The Database Abstraction Layer |
+| **protected** | `$namer` | ** \ ORM \ Namer** | The Namer instance |
+| **protected** | `$map` | **array&lt; \ ORM \ Entity[]>** | The Entity map |
+| **protected** | `$options` | **array** | The options set for this instance |
+| **protected** | `$descriptions` | **array&lt; \ ORM \ Dbal \ Table> &#124; array&lt; \ ORM \ Dbal \ Column[]>** | Already fetched column descriptions |
+| **protected** | `$bulkInserts` | **array&lt; \ ORM \ BulkInsert>** | Classes forcing bulk insert |
+| **protected static** | `$emMapping` | ** \ ORM \ EntityManager[string] &#124;  \ ORM \ EntityManager[string][string]** | Mapping for EntityManager instances |
+| **protected** | `$resultRepository` |  |  |
+
+
+
+#### Methods
+
+* [__construct](#ormtestingentitymanagermock__construct) Constructor
+* [addEntity](#ormtestingentitymanagermockaddentity) Add an entity to be fetched by primary key
+* [addResult](#ormtestingentitymanagermockaddresult) Create and add a EntityFetcherMock\Result for $class
+* [buildChecksum](#ormtestingentitymanagermockbuildchecksum) Build a checksum from $primaryKey
+* [buildPrimaryKey](#ormtestingentitymanagermockbuildprimarykey) Builds the primary key with column names as keys
+* [defineForNamespace](#ormtestingentitymanagermockdefinefornamespace) Define $this EntityManager as the default EntityManager for $nameSpace
+* [defineForParent](#ormtestingentitymanagermockdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
+* [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
+* [describe](#ormtestingentitymanagermockdescribe) Returns an array of columns from $table.
+* [escapeIdentifier](#ormtestingentitymanagermockescapeidentifier) Returns $identifier quoted for use in a sql statement
+* [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
+* [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
+* [finishBulkInserts](#ormtestingentitymanagermockfinishbulkinserts) Finish the bulk insert for $class.
+* [getConnection](#ormtestingentitymanagermockgetconnection) Get the pdo connection.
+* [getDbal](#ormtestingentitymanagermockgetdbal) Get the Datbase Abstraction Layer
+* [getInstance](#ormtestingentitymanagermockgetinstance) Get an instance of the EntityManager.
+* [getInstanceByNameSpace](#ormtestingentitymanagermockgetinstancebynamespace) Get the instance by NameSpace mapping
+* [getInstanceByParent](#ormtestingentitymanagermockgetinstancebyparent) Get the instance by Parent class mapping
+* [getNamer](#ormtestingentitymanagermockgetnamer) Get the Namer instance
+* [getOption](#ormtestingentitymanagermockgetoption) Get $option
+* [getResults](#ormtestingentitymanagermockgetresults) Get the results for $class and $query
+* [map](#ormtestingentitymanagermockmap) Map $entity in the entity map
+* [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
+* [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
+* [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
+* [sync](#ormtestingentitymanagermocksync) Synchronizing $entity with database
+* [useBulkInserts](#ormtestingentitymanagermockusebulkinserts) Force $class to use bulk insert.
+
+#### ORM\Testing\EntityManagerMock::__construct
+
+```php
+public function __construct( array $options = array() ): EntityManagerMock
+```
+
+##### Constructor
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$options` | **array**  | Options for the new EntityManager |
+
+
+
+#### ORM\Testing\EntityManagerMock::addEntity
+
+```php
+public function addEntity( \ORM\Entity $entity )
+```
+
+##### Add an entity to be fetched by primary key
+
+The entity needs to have a primary key if not it will be filled with random values between RANDOM_KEY_MIN and
+RANDOM_KEY_MAX (at the time writing this it is 1000000000 and 1000999999).
+
+You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::addResult
+
+```php
+public function addResult(
+    $class, \ORM\Entity $entities
+): \ORM\Testing\EntityFetcherMock\Result
+```
+
+##### Create and add a EntityFetcherMock\Result for $class
+
+As the results are mocked to come from the database they will also get a primary key if they don't have already.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::buildChecksum
+
+```php
+protected static function buildChecksum( array $primaryKey ): string
+```
+
+##### Build a checksum from $primaryKey
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::buildPrimaryKey
+
+```php
+protected static function buildPrimaryKey(
+    string $class, array $primaryKey
+): array
+```
+
+##### Builds the primary key with column names as keys
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string &#124; \ORM\Entity**  |  |
+| `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::defineForNamespace
+
+```php
+public function defineForNamespace( $nameSpace ): static
+```
+
+##### Define $this EntityManager as the default EntityManager for $nameSpace
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$nameSpace` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::defineForParent
+
+```php
+public function defineForParent( $class ): static
+```
+
+##### Define $this EntityManager as the default EntityManager for subClasses of $class
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::delete
+
+```php
+public function delete( \ORM\Entity $entity ): boolean
+```
+
+##### Delete $entity from database
+
+This method does not delete from the map - you can still receive the entity via fetch.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::describe
+
+```php
+public function describe(
+    string $table
+): array<\ORM\Dbal\Column>|\ORM\Dbal\Table
+```
+
+##### Returns an array of columns from $table.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Dbal\Column&gt;|\ORM\Dbal\Table**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::escapeIdentifier
+
+```php
+public function escapeIdentifier( string $identifier ): string
+```
+
+##### Returns $identifier quoted for use in a sql statement
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$identifier` | **string**  | Identifier to quote |
+
+
+
+#### ORM\Testing\EntityManagerMock::escapeValue
+
+```php
+public function escapeValue( $value ): string
+```
+
+##### Returns $value formatted to use in a sql statement.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` | **mixed**  | The variable that should be returned in SQL syntax |
+
+
+
+#### ORM\Testing\EntityManagerMock::fetch
+
+```php
+public function fetch(
+    string $class, $primaryKey = null
+): \ORM\Entity|\ORM\EntityFetcher
+```
+
+##### Fetch one or more entities
+
+With $primaryKey it tries to find this primary key in the entity map (carefully: mostly the database returns a
+string and we do not convert them). If there is no entity in the entity map it tries to fetch the entity from
+the database. The return value is then null (not found) or the entity.
+
+Without $primaryKey it creates an entityFetcher and returns this.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity|\ORM\EntityFetcher**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  | The entity class you want to fetch |
+| `$primaryKey` | **mixed**  | The primary key of the entity you want to fetch |
+
+
+
+#### ORM\Testing\EntityManagerMock::finishBulkInserts
+
+```php
+public function finishBulkInserts( $class ): array<\ORM\Entity>
+```
+
+##### Finish the bulk insert for $class.
+
+Returns an array of entities added.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::getConnection
+
+```php
+public function getConnection(): \PDO
+```
+
+##### Get the pdo connection.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\PDO**
+<br />**Throws:** this method may throw **\ORM\Exception\NoConnection** or **\ORM\Exception\NoConnection**<br />
+
+
+
+#### ORM\Testing\EntityManagerMock::getDbal
+
+```php
+public function getDbal(): \ORM\Dbal\Dbal
+```
+
+##### Get the Datbase Abstraction Layer
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Dbal\Dbal**
+<br />
+
+
+
+#### ORM\Testing\EntityManagerMock::getInstance
+
+```php
+public static function getInstance( string $class = null ): \ORM\EntityManager
+```
+
+##### Get an instance of the EntityManager.
+
+If no class is given it gets $class from backtrace.
+
+It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::getInstanceByNameSpace
+
+```php
+private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
+```
+
+##### Get the instance by NameSpace mapping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::getInstanceByParent
+
+```php
+private static function getInstanceByParent( $class ): \ORM\EntityManager
+```
+
+##### Get the instance by Parent class mapping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::getNamer
+
+```php
+public function getNamer(): \ORM\Namer
+```
+
+##### Get the Namer instance
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Namer**
+<br />
+
+
+
+#### ORM\Testing\EntityManagerMock::getOption
+
+```php
+public function getOption( $option ): mixed
+```
+
+##### Get $option
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::getResults
+
+```php
+public function getResults( string $class, \ORM\EntityFetcher $fetcher ): array
+```
+
+##### Get the results for $class and $query
+
+The EntityFetcherMock\Result gets a quality for matching this query. Only the highest quality will be used.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::map
+
+```php
+public function map(
+    \ORM\Entity $entity, boolean $update = false, string $class = null
+): \ORM\Entity
+```
+
+##### Map $entity in the entity map
+
+Returns the given entity or an entity that previously got mapped. This is useful to work in every function with
+the same object.
+
+```php
+$user = $enitityManager->map(new User(['id' => 42]));
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$update` | **boolean**  | Update the entity map |
+| `$class` | **string**  | Overwrite the class |
+
+
+
+#### ORM\Testing\EntityManagerMock::retrieve
+
+```php
+public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
+```
+
+##### Retrieve an entity by $primaryKey
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::setConnection
+
+```php
+public function setConnection( $connection )
+```
+
+##### Add connection after instantiation
+
+The connection can be an array of parameters for DbConfig::__construct(), a callable function that returns a PDO
+instance, an instance of DbConfig or a PDO instance itself.
+
+When it is not a PDO instance the connection get established on first use.
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$connection` | **mixed**  | A configuration for (or a) PDO instance |
+
+
+
+#### ORM\Testing\EntityManagerMock::setOption
+
+```php
+public function setOption( string $option, $value ): static
+```
+
+##### Set $option to $value
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$option` | **string**  | One of OPT_* constants |
+| `$value` | **mixed**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::sync
+
+```php
+public function sync( \ORM\Entity $entity, boolean $reset = false ): boolean
+```
+
+##### Synchronizing $entity with database
+
+If $reset is true it also calls reset() on $entity.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$reset` | **boolean**  | Reset entities current data |
+
+
+
+#### ORM\Testing\EntityManagerMock::useBulkInserts
 
 ```php
 public function useBulkInserts(
@@ -7385,10 +9068,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-andWhere('name', '=' , 'John Doe')
-andWhere('name = ?', 'John Doe')
-andWhere('name', 'John Doe')
-andWhere('name = ?', ['John Doe'])
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -7477,10 +9160,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-orWhere('name', '=' , 'John Doe')
-orWhere('name = ?', 'John Doe')
-orWhere('name', 'John Doe')
-orWhere('name = ?', ['John Doe'])
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -7535,10 +9218,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-where('name', '=' , 'John Doe')
-where('name = ?', 'John Doe')
-where('name', 'John Doe')
-where('name = ?', ['John Doe'])
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -7621,10 +9304,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-andWhere('name', '=' , 'John Doe')
-andWhere('name = ?', 'John Doe')
-andWhere('name', 'John Doe')
-andWhere('name = ?', ['John Doe'])
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -7713,10 +9396,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-orWhere('name', '=' , 'John Doe')
-orWhere('name = ?', 'John Doe')
-orWhere('name', 'John Doe')
-orWhere('name = ?', ['John Doe'])
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -7774,10 +9457,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-where('name', '=' , 'John Doe')
-where('name = ?', 'John Doe')
-where('name', 'John Doe')
-where('name = ?', ['John Doe'])
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -8509,10 +10192,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-andWhere('name', '=' , 'John Doe')
-andWhere('name = ?', 'John Doe')
-andWhere('name', 'John Doe')
-andWhere('name = ?', ['John Doe'])
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -8969,10 +10652,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-orWhere('name', '=' , 'John Doe')
-orWhere('name = ?', 'John Doe')
-orWhere('name', 'John Doe')
-orWhere('name = ?', ['John Doe'])
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -9058,10 +10741,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-where('name', '=' , 'John Doe')
-where('name = ?', 'John Doe')
-where('name', 'John Doe')
-where('name = ?', ['John Doe'])
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -9164,10 +10847,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-andWhere('name', '=' , 'John Doe')
-andWhere('name = ?', 'John Doe')
-andWhere('name', 'John Doe')
-andWhere('name = ?', ['John Doe'])
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -9538,10 +11221,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-orWhere('name', '=' , 'John Doe')
-orWhere('name = ?', 'John Doe')
-orWhere('name', 'John Doe')
-orWhere('name = ?', ['John Doe'])
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -9630,10 +11313,10 @@ the second parameter.
 These calls are equal:
 
 ```php
-where('name', '=' , 'John Doe')
-where('name = ?', 'John Doe')
-where('name', 'John Doe')
-where('name = ?', ['John Doe'])
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
 ```
 
 **Visibility:** this method is **public**.
@@ -9984,6 +11667,1205 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 |-----------|------|-------------|
 | `$self` | **Entity**  |  |
 | `$entity` | **Entity &#124; null**  |  |
+
+
+
+
+
+---
+
+### ORM\Testing\EntityFetcherMock\Result
+
+**Extends:** [ORM\EntityFetcher](#ormentityfetcher)
+
+
+#### Fetch entities from database
+
+If you need more specific queries you write them yourself. If you need just more specific where clause you can pass
+them to the *where() methods.
+
+Supported:
+ - joins with on clause (and alias)
+ - joins with using (and alias)
+ - where conditions
+ - parenthesis
+ - order by one or more columns / expressions
+ - group by one or more columns / expressions
+ - limit and offset
+ - modifiers
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
+| **protected** | `$limit` | **integer** | Limit amount of rows |
+| **protected** | `$offset` | **integer** | Offset to start from |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
+| **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$parent` | ** \ ORM \ QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
+| **protected** | `$regularExpressions` | **array&lt;string>** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormtestingentityfetchermockresult__construct) Constructor
+* [addEntities](#ormtestingentityfetchermockresultaddentities) Add entities to the result
+* [all](#ormtestingentityfetchermockresultall) Fetch an array of entities
+* [andParenthesis](#ormtestingentityfetchermockresultandparenthesis) Add a parenthesis with AND
+* [andWhere](#ormtestingentityfetchermockresultandwhere) Add a where condition with AND.
+* [buildExpression](#ormtestingentityfetchermockresultbuildexpression) 
+* [close](#ormtestingentityfetchermockresultclose) Close parenthesis
+* [column](#ormtestingentityfetchermockresultcolumn) Add $column
+* [columns](#ormtestingentityfetchermockresultcolumns) Set $columns
+* [compare](#ormtestingentityfetchermockresultcompare) Check if $fetcher matches the current query
+* [convertPlaceholders](#ormtestingentityfetchermockresultconvertplaceholders) Replaces question marks in $expression with $args
+* [count](#ormtestingentityfetchermockresultcount) Get the count of the resulting items
+* [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
+* [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
+* [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) 
+* [getEntities](#ormtestingentityfetchermockresultgetentities) Get the entities for this result
+* [getEntityManager](#ormtestingentityfetchermockresultgetentitymanager) 
+* [getExpression](#ormtestingentityfetchermockresultgetexpression) Get the expression
+* [getQuery](#ormtestingentityfetchermockresultgetquery) Get the query / select statement
+* [getStatement](#ormtestingentityfetchermockresultgetstatement) Query database and return result
+* [groupBy](#ormtestingentityfetchermockresultgroupby) Group By $column
+* [join](#ormtestingentityfetchermockresultjoin) (Inner) join $tableName with $options
+* [joinRelated](#ormtestingentityfetchermockresultjoinrelated) Join $relation
+* [leftJoin](#ormtestingentityfetchermockresultleftjoin) Left (outer) join $tableName with $options
+* [leftJoinRelated](#ormtestingentityfetchermockresultleftjoinrelated) Left outer join $relation
+* [limit](#ormtestingentityfetchermockresultlimit) Set $limit
+* [matches](#ormtestingentityfetchermockresultmatches) Add a regular expression that has to match
+* [modifier](#ormtestingentityfetchermockresultmodifier) Add $modifier
+* [offset](#ormtestingentityfetchermockresultoffset) Set $offset
+* [one](#ormtestingentityfetchermockresultone) Fetch one entity
+* [orderBy](#ormtestingentityfetchermockresultorderby) Order By $column in $direction
+* [orParenthesis](#ormtestingentityfetchermockresultorparenthesis) Add a parenthesis with OR
+* [orWhere](#ormtestingentityfetchermockresultorwhere) Add a where condition with OR.
+* [parenthesis](#ormtestingentityfetchermockresultparenthesis) Alias for andParenthesis
+* [rightJoin](#ormtestingentityfetchermockresultrightjoin) Right (outer) join $tableName with $options
+* [setQuery](#ormtestingentityfetchermockresultsetquery) Set a raw query or use different QueryBuilder
+* [where](#ormtestingentityfetchermockresultwhere) Alias for andWhere
+
+#### ORM\Testing\EntityFetcherMock\Result::__construct
+
+```php
+public function __construct(
+    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
+): Parenthesis
+```
+
+##### Constructor
+
+Create a parenthesis inside another parenthesis or a query.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$onClose` | **callable**  | Callable that gets executed when the parenthesis get closed |
+| `$parent` | **\ORM\QueryBuilder\ParenthesisInterface**  | Parent where createWhereCondition get executed |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::addEntities
+
+```php
+public function addEntities( array<\ORM\Entity> $entities ): $this
+```
+
+##### Add entities to the result
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::all
+
+```php
+public function all( integer $limit ): array<\ORM\Entity>
+```
+
+##### Fetch an array of entities
+
+When no $limit is set it fetches all entities in result set.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$limit` | **integer**  | Maximum number of entities to fetch |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::andParenthesis
+
+```php
+public function andParenthesis(): static
+```
+
+##### Add a parenthesis with AND
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::andWhere
+
+```php
+public function andWhere(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Add a where condition with AND.
+
+QueryBuilderInterface andWhere($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->andWhere('name', '=' , 'John Doe');
+$query->andWhere('name = ?', 'John Doe');
+$query->andWhere('name', 'John Doe');
+$query->andWhere('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::buildExpression
+
+```php
+private function buildExpression( $column, $value, $operator = null )
+```
+
+
+
+
+**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` |   |  |
+| `$value` |   |  |
+| `$operator` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::close
+
+```php
+public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Close parenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::column
+
+```php
+public function column(
+    string $column, array $args = array(), string $alias = ''
+): \ORM\QueryBuilder\QueryBuilder
+```
+
+##### Add $column
+
+Optionally you can provide an expression with question marks as placeholders filled with $args.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression to fetch |
+| `$args` | **array**  | Arguments for expression |
+| `$alias` | **string**  | Alias for the column |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::columns
+
+```php
+public function columns( array $columns = null ): static
+```
+
+##### Set $columns
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$columns` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::compare
+
+```php
+public function compare( \ORM\EntityFetcher $fetcher ): integer
+```
+
+##### Check if $fetcher matches the current query
+
+Returns the score for the given EntityFetcher. The more conditions match the higher the score:
+- 0 = the query does not match one of the conditions
+- 1 = no conditions required to match the query
+- n = n-1 conditions matched the query
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::convertPlaceholders
+
+```php
+protected function convertPlaceholders(
+    string $expression, array $args
+): string
+```
+
+##### Replaces question marks in $expression with $args
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  | Expression with placeholders |
+| `$args` | **array &#124; mixed**  | Arguments for placeholders |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::count
+
+```php
+public function count(): integer
+```
+
+##### Get the count of the resulting items
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::createRelatedJoin
+
+```php
+public function createRelatedJoin( $join, $relation ): $this
+```
+
+##### Create the join with $join type
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` |   |  |
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::fullJoin
+
+```php
+public function fullJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Full (outer) join $tableName with $options
+
+When no expression got provided self get returned. If you want to get a parenthesis the parameter empty
+can be set to false.
+
+ATTENTION: here the default value of empty got changed - defaults to yes
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getDefaultOperator
+
+```php
+private function getDefaultOperator( $value )
+```
+
+
+
+
+**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$value` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getEntities
+
+```php
+public function getEntities(): array<\ORM\Entity>
+```
+
+##### Get the entities for this result
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getEntityManager
+
+```php
+public function getEntityManager(): \ORM\EntityManager
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\EntityManager**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getExpression
+
+```php
+public function getExpression(): string
+```
+
+##### Get the expression
+
+Returns the complete expression inside this parenthesis.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getQuery
+
+```php
+public function getQuery(): string
+```
+
+##### Get the query / select statement
+
+Builds the statement from current where conditions, joins, columns and so on.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getStatement
+
+```php
+private function getStatement(): \PDOStatement|boolean
+```
+
+##### Query database and return result
+
+Queries the database with current query and returns the resulted PDOStatement.
+
+If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+change the result.
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\PDOStatement|boolean**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::groupBy
+
+```php
+public function groupBy( string $column, array $args = array() ): static
+```
+
+##### Group By $column
+
+Optionally you can provide an expression in $column with question marks as placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression for groups |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::join
+
+```php
+public function join(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### (Inner) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::joinRelated
+
+```php
+public function joinRelated( $relation ): $this
+```
+
+##### Join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::leftJoin
+
+```php
+public function leftJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Left (outer) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::leftJoinRelated
+
+```php
+public function leftJoinRelated( $relation ): $this
+```
+
+##### Left outer join $relation
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::limit
+
+```php
+public function limit( integer $limit ): static
+```
+
+##### Set $limit
+
+Limits the amount of rows fetched from database.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$limit` | **integer**  | The limit to set |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::matches
+
+```php
+public function matches( string $expression ): $this
+```
+
+##### Add a regular expression that has to match
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::modifier
+
+```php
+public function modifier( string $modifier ): static
+```
+
+##### Add $modifier
+
+Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$modifier` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::offset
+
+```php
+public function offset( integer $offset ): static
+```
+
+##### Set $offset
+
+Changes the offset (only with limit) where fetching starts in the query.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$offset` | **integer**  | The offset to set |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::one
+
+```php
+public function one(): \ORM\Entity
+```
+
+##### Fetch one entity
+
+If there is no more entity in the result set it returns null.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::orderBy
+
+```php
+public function orderBy(
+    string $column, string $direction = self::DIRECTION_ASCENDING, 
+    array $args = array()
+): static
+```
+
+##### Order By $column in $direction
+
+Optionally you can provide an expression in $column with question marks as placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression for order |
+| `$direction` | **string**  | Direction (default: `ASC`) |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::orParenthesis
+
+```php
+public function orParenthesis(): static
+```
+
+##### Add a parenthesis with OR
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::orWhere
+
+```php
+public function orWhere(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Add a where condition with OR.
+
+QueryBuilderInterface orWhere($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->orWhere('name', '=' , 'John Doe');
+$query->orWhere('name = ?', 'John Doe');
+$query->orWhere('name', 'John Doe');
+$query->orWhere('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::parenthesis
+
+```php
+public function parenthesis(): static
+```
+
+##### Alias for andParenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::rightJoin
+
+```php
+public function rightJoin(
+    string $tableName, string $expression = '', string $alias = '', 
+    array $args = array()
+): static|\ORM\QueryBuilder\ParenthesisInterface
+```
+
+##### Right (outer) join $tableName with $options
+
+When no expression got provided a ParenthesisInterface get returned. If this parenthesis not get filled you
+will most likely get an error from your database. If you don't want to get a parenthesis the parameter empty
+can be set to true.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$tableName` | **string**  | Table to join |
+| `$expression` | **string &#124; boolean**  | Expression, single column name or boolean to create an empty join |
+| `$alias` | **string**  | Alias for the table |
+| `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::setQuery
+
+```php
+public function setQuery( string $query, array $args = null ): $this
+```
+
+##### Set a raw query or use different QueryBuilder
+
+For easier use and against sql injection it allows question mark placeholders.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$query` | **string &#124; \ORM\QueryBuilder\QueryBuilderInterface**  | Raw query string or a QueryBuilderInterface |
+| `$args` | **array**  | The arguments for placeholders |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::where
+
+```php
+public function where(
+    string $column, string $operator = null, string $value = null
+): static
+```
+
+##### Alias for andWhere
+
+QueryBuilderInterface where($column[, $operator[, $value]]);
+
+If $column has the same amount of question marks as $value - $value is the second parameter.
+
+If there is no third parameter and no question mark in $column then the default operator is '=' and $value is
+the second parameter.
+
+These calls are equal:
+
+```php
+$query->where('name', '=' , 'John Doe');
+$query->where('name = ?', 'John Doe');
+$query->where('name', 'John Doe');
+$query->where('name = ?', ['John Doe']);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  | Column or expression with placeholders |
+| `$operator` | **string &#124; array**  | Operator, value or array of values |
+| `$value` | **string**  | Value (required when used with operator) |
+
+
+
+
+
+---
+
+### ORM\Testing\EntityFetcherMock\ResultRepository
+
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| RANDOM_KEY_MIN | `1000000000` |
+| RANDOM_KEY_MAX | `1000999999` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$primaryKeyMap` | **array&lt; \ ORM \ Entity[]>** |  |
+| **protected** | `$results` | **array&lt;Result[]>** |  |
+| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormtestingentityfetchermockresultrepository__construct) ResultRepository constructor.
+* [addEntity](#ormtestingentityfetchermockresultrepositoryaddentity) Add an entity to be fetched by primary key
+* [addResult](#ormtestingentityfetchermockresultrepositoryaddresult) Create and add a EntityFetcherMock\Result for $class
+* [buildChecksum](#ormtestingentityfetchermockresultrepositorybuildchecksum) Build a checksum from $primaryKey
+* [completePrimaryKeys](#ormtestingentityfetchermockresultrepositorycompleteprimarykeys) Fill the primary keys of $entities
+* [getResults](#ormtestingentityfetchermockresultrepositorygetresults) Get the results for $class and $query
+* [retrieve](#ormtestingentityfetchermockresultrepositoryretrieve) Retrieve an entity by $primaryKey
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::__construct
+
+```php
+public function __construct( \ORM\EntityManager $em ): ResultRepository
+```
+
+##### ResultRepository constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::addEntity
+
+```php
+public function addEntity( \ORM\Entity $entity )
+```
+
+##### Add an entity to be fetched by primary key
+
+The entity needs to have a primary key if not it will be filled with random values between RANDOM_KEY_MIN and
+RANDOM_KEY_MAX (at the time writing this it is 1000000000 and 1000999999).
+
+You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`.
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::addResult
+
+```php
+public function addResult(
+    $class, \ORM\Entity $entities
+): \ORM\Testing\EntityFetcherMock\Result
+```
+
+##### Create and add a EntityFetcherMock\Result for $class
+
+As the results are mocked to come from the database they will also get a primary key if they don't have already.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::buildChecksum
+
+```php
+protected static function buildChecksum( array $primaryKey ): string
+```
+
+##### Build a checksum from $primaryKey
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::completePrimaryKeys
+
+```php
+public static function completePrimaryKeys(
+    \ORM\Entity $entities
+): array<\ORM\Entity>
+```
+
+##### Fill the primary keys of $entities
+
+If the primary key is incomplete the missing attributes will be filled with a random integer between
+RANDOM_KEY_MIN and RANDOM_KEY_MAX (at the time writing this it is 1000000000 and 1000999999).
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::getResults
+
+```php
+public function getResults( string $class, \ORM\EntityFetcher $fetcher ): array
+```
+
+##### Get the results for $class and $query
+
+The EntityFetcherMock\Result gets a quality for matching this query. Only the highest quality will be used.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\ResultRepository::retrieve
+
+```php
+public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
+```
+
+##### Retrieve an entity by $primaryKey
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Entity|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$primaryKey` | **array**  |  |
 
 
 

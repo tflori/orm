@@ -77,12 +77,17 @@ abstract class TestCase extends MockeryTestCase
 }
 ```
 
+**Note:** The following methods (defined in `MocksEntityManager` trait) rely on the `EntityManager::getInstance()` to
+retrieve the responsible `EntityManagerMock` for the given `$class`. If you have multiple database connections and 
+`EntityManager` instances and you use a different method to get the responsible `EntityManager` you have to adapt the
+`MocksEntityManager::ormGetInstance($class): EntityManagerMock` method.
+
 ### Create a Partial Mock Entity
 
 Due to the fact that the entity constructor is final and calls an internal method (`onInit()`) you can not just create
 the mock with `Mockery::mock(Article::class, [['id' => 42, 'title' => 'Hello World!']])->makePartial()`. Also creating
 a passive mock with `Mockery::mock(new Article(['id' => 42, 'title' => 'Hello world!']))` does not work because
-the orignal object is wrapped but the magic getter not.
+the original object is wrapped but the magic getter not.
 
 You have to initialize the object without using the original constructor, set the entity manager manually, set the
 original data and reset the entity. We created a helper for this to make it easier.
@@ -208,7 +213,7 @@ class ArticleControllerTest extends TestCase
 ```
 
 The EntityFetcher get's mocked with an empty result automatically. You can provide results for an fetcher of an entity
-with `ormAddResult($class, $em = null, Entity ...$entities)`. This returns an `ORM\Testing\EntityFetcherMock\Result` and
+with `ormAddResult($class, Entity ...$entities)`. This returns an `ORM\Testing\EntityFetcherMock\Result` and
 can then be specified to met the expected where conditions, joins, grouping and ordering. Also the limit and offset
 can be specified and if necessary you can force the query to match your regular expressions. Basically the `Result` is
 an `EntityFetcher`. So you can use it like an `EntityFetcher` to specify the conditions.
@@ -240,7 +245,7 @@ class ArticleControllerTest extends TestCase
     public function testSearchesForTitle()
     {
         $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
-        $this->ormAddResult(Article::class, null, ...$articles)
+        $this->ormAddResult(Article::class, ...$articles)
             ->where('title', 'LIKE', '%cambozola%');
         
         $result = getArticles('cambozola');
@@ -252,7 +257,7 @@ class ArticleControllerTest extends TestCase
     public function testReturnsEmptyResult()
     {
         $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
-        $this->ormAddResult(Article::class, null, ...$articles); // any non matching query
+        $this->ormAddResult(Article::class, ...$articles); // any non matching query
         $this->ormAddResult(Article::class)->where('title', 'LIKE', '%cambozola%');
         
         $result = getArticles('cambozola');
@@ -321,7 +326,7 @@ There is no need for complicated stuff:
 1. [Create a mock](#createapartialmockentity)
 2. Expect save method and maybe return the entity
 
-But it might be neccessary that the entity is not dirty afterwards, to emulate the data has changed in the database
+But it might be necessary that the entity is not dirty afterwards, to emulate the data has changed in the database
 and the entity got new data while updated (triggers like `ON UPDATE CURRENT TIMESTAMP`). To make the save method act
 like the original method act (without using the database) there is a helper method for it. 
 
@@ -401,8 +406,8 @@ class ArticleControllerTest extends TestCase
 
 Relations are always taken from `$entity->fetch($relation[, true])`. You can easily mock this method with expecting 
 the relation name as first and `true` as second parameter. It has to return an array or a single relation appropriate
-to the definition of the relation. If you expecting fetch without the second parameter you can use the `ormExpectFetch`
-helper.
+to the definition of the relation. If you expecting fetch without the second parameter you can add the expected results
+with `ormAddResult($class, ...$entities)`.
 
 ```php
 function getArticleCategories($articleId)
@@ -437,7 +442,7 @@ class ArticleControllerTest extends TestCase
     {
         $categories = [new Category(), new Category()];
         $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
-        $this->ormExpectFetch(Category::class, $categories);
+        $this->ormAddResult(Category::class, ...$categories);
         
         $result = getFirstArticleCategory(42);
         

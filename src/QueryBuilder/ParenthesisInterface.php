@@ -23,10 +23,10 @@ interface ParenthesisInterface
      * These calls are equal:
      *
      * ```php
-     * where('name', '=' , 'John Doe')
-     * where('name = ?', 'John Doe')
-     * where('name', 'John Doe')
-     * where('name = ?', ['John Doe'])
+     * $query->where('name', '=' , 'John Doe');
+     * $query->where('name = ?', 'John Doe');
+     * $query->where('name', 'John Doe');
+     * $query->where('name = ?', ['John Doe']);
      * ```
      *
      * @see ParenthesisInterface::andWhere()
@@ -50,10 +50,10 @@ interface ParenthesisInterface
      * These calls are equal:
      *
      * ```php
-     * andWhere('name', '=' , 'John Doe')
-     * andWhere('name = ?', 'John Doe')
-     * andWhere('name', 'John Doe')
-     * andWhere('name = ?', ['John Doe'])
+     * $query->andWhere('name', '=' , 'John Doe');
+     * $query->andWhere('name = ?', 'John Doe');
+     * $query->andWhere('name', 'John Doe');
+     * $query->andWhere('name = ?', ['John Doe']);
      * ```
      *
      * @param string       $column   Column or expression with placeholders
@@ -76,10 +76,10 @@ interface ParenthesisInterface
      * These calls are equal:
      *
      * ```php
-     * orWhere('name', '=' , 'John Doe')
-     * orWhere('name = ?', 'John Doe')
-     * orWhere('name', 'John Doe')
-     * orWhere('name = ?', ['John Doe'])
+     * $query->orWhere('name', '=' , 'John Doe');
+     * $query->orWhere('name = ?', 'John Doe');
+     * $query->orWhere('name', 'John Doe');
+     * $query->orWhere('name = ?', ['John Doe']);
      * ```
      *
      * @param string       $column   Column or expression with placeholders
