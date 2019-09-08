@@ -28,13 +28,28 @@ class Result extends EntityFetcher
     {
         $result = 1;
 
-        foreach (['joins', 'where', 'groupBy', 'orderBy'] as $attribute) {
+        // joins, grouping and ordering are just lists so they have to exist
+        foreach (['joins', 'groupBy', 'orderBy'] as $attribute) {
             foreach ($this->$attribute as $condition) {
                 if (!in_array($condition, $fetcher->$attribute)) {
                     return 0;
                 }
                 $result++;
             }
+        }
+
+        // where conditions can have 'AND ' or 'OR ' in front
+        // there is a lot of logic behind these keywords that we ignore here
+        foreach ($this->where as $condition) {
+            $condition = preg_replace('/^(AND |OR )/', '', $condition);
+            foreach ($fetcher->where as $fetcherCondition) {
+                $fetcherCondition = preg_replace('/^(AND |OR )/', '', $fetcherCondition);
+                if ($condition === $fetcherCondition) {
+                    $result++;
+                    continue 2; // continue the outer foreach to not execute return 0
+                }
+            }
+            return 0; // this is only reached when no condition matched
         }
 
         // check if limit and offset matches

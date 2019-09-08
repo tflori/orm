@@ -108,6 +108,19 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
+    public function findsMatchedWhereConditions()
+    {
+        $this->em->addResult(Article::class, $entity = new Article(['title' => 'Foo Bar']))
+            ->where('title', 'LIKE', '%foo%');
+
+        $query = new EntityFetcherMock($this->em, Article::class);
+        $query->where('deleted_at', 'IS', null)
+            ->where('title', 'LIKE', '%foo%');
+
+        self::assertSame($entity, $query->one());
+    }
+
+    /** @test */
     public function returnsTheFirstEntities()
     {
         $entities = array_map(function ($i) {
