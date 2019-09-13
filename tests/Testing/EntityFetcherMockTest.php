@@ -77,6 +77,19 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
+    public function returnsAnEmptyResultIfMatched()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']));
+        $this->em->addResult(Article::class)->where('title', 'Bar');
+
+        $query = new EntityFetcherMock($this->em, Article::class);
+        $query->where('title', 'Bar');
+        $articles = $query->all();
+
+        self::assertEmpty($articles);
+    }
+
+    /** @test */
     public function returnsEntitiesWithoutConditions()
     {
         $this->em->addResult(Article::class, new Article(['title' => 'Baz']))

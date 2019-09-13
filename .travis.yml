@@ -5,6 +5,7 @@ php:
   - 5.6
   - 7.1
   - 7.2
+  - 7.3
 
 sudo: false
 
@@ -23,4 +24,6 @@ before_script:
 script:
   - composer code-style
   - vendor/bin/phpunit -c phpunit.xml --coverage-clover=build/logs/clover.xml --coverage-text --color=always
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "7.0" ]; then php vendor/bin/coveralls -v; fi;'
+
+after_success:
+  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then php vendor/bin/coveralls -v; fi;'

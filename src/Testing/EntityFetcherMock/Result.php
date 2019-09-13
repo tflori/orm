@@ -93,7 +93,9 @@ class Result extends EntityFetcher
      */
     public function addEntities(Entity ...$entities)
     {
-        array_push($this->entities, ...$entities);
+        if (!empty($entities)) {
+            array_push($this->entities, ...$entities);
+        }
         return $this;
     }
 
