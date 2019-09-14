@@ -2,7 +2,7 @@
 
 namespace ORM\Testing\EntityFetcherMock;
 
-use Mockery\MockInterface;
+use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
@@ -68,7 +68,7 @@ class ResultRepository
     {
         static::completePrimaryKeys($entity);
         $class = get_class($entity);
-        if ($entity instanceof MockInterface) {
+        if ($entity instanceof m\MockInterface) {
             $class = (new \ReflectionClass($entity))->getParentClass()->getName();
         }
 
@@ -96,11 +96,12 @@ class ResultRepository
      *
      * @param $class
      * @param Entity ...$entities
-     * @return Result
+     * @return Result|m\MockInterface
      */
     public function addResult($class, Entity ...$entities)
     {
-        $result = new Result($this->em, $class);
+        /** @var Result|m\MockInterface $result */
+        $result = m::mock(Result::class, [$this->em, $class])->makePartial();
         $result->addEntities(...static::completePrimaryKeys(...$entities));
 
         if (!isset($this->results[$class])) {
