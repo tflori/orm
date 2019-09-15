@@ -45,7 +45,7 @@ class DbConfig
      *
      * Example:
      *
-     * ```php?start_inline=true
+     * ```php
      * $dbConfig = new DbConfig('mysql', 'my_db', 'my_user', 'my_secret', null, null, [
      *     \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
      * ]);

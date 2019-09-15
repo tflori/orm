@@ -9,7 +9,7 @@ One of the most important things for an ORM: how to fetch an object from databas
 related objects? It should be easy what means it should not need much lines to get an entity by primary key or even by
 different where conditions.
 
-```php?start_inline=true
+```php
 /** @var \ORM\EntityManager $entityManager */
 $entityManager = $diContainer->get('entityManager'); // or what ever
 
@@ -44,7 +44,7 @@ already. This means that fetching by query will always query the database.
 
 Fetching by primary key is a shortcut for the first row:
 
-```php?start_inline=true
+```php
 $entityManager->fetch(User::class)->where('id', 1)->one();
 $entityManager->fetch(User::class, 1);
 ```
@@ -73,7 +73,7 @@ Every column is available by magic getter and using the column naming previously
 entity definitions. All values are stored twice and you can check if a column got changed and reset the whole entity
 or a part of the entity.
 
-```php?start_inline=true
+```php
 $user = $entityManager->fetch(User::class, 1);
 echo $user->email . PHP_EOL; // someone@example.com
 var_dump($user->isDirty()); // false
@@ -95,7 +95,7 @@ setter will check if there is a method `setCreated($value)`<sup>*</sup> and will
 
 The data is stored in protected property $data.
  
-```php?start_inline=true
+```php
 class User extends ORM\Entity
 {
     /** @var DateTime */
@@ -139,7 +139,7 @@ are executed immediately.
 The init event get a boolean that says whether the entity is new or not. A new entity is an entity that get created
 by you without data or even with data. If you got the data from database add the second parameter to the constructor.
 
-```php?start_inline=true
+```php
 class User extends ORM\Entity
 {
    public function onInit($new) {}
@@ -151,7 +151,7 @@ class User extends ORM\Entity
 The change event get three parameters: the `$var` (string) that got changed, the `$oldValue` (mixed) and the current 
 `$value` (mixed).
 
-```php?start_inline=true
+```php
 class User extends ORM\Entity
 {
    public function onChange($var, $oldValue, $value) {}
@@ -164,7 +164,7 @@ These events don't get any parameters. Because the pre update/persist events get
 created you can modify the data here. The post update/persist get called very late, the id is now available and the own
 data is resynchronized. You can persist other entities that are related - there is no magic that is doing it for you.
 
-```php?start_inline=true
+```php
 class User extends ORM\Entity
 {
     public function prePersist() {}
