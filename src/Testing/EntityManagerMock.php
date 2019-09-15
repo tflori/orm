@@ -2,6 +2,7 @@
 
 namespace ORM\Testing;
 
+use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
@@ -56,7 +57,7 @@ class EntityManagerMock extends EntityManager
      *
      * @param $class
      * @param Entity ...$entities
-     * @return Result
+     * @return Result|m\MockInterface
      * @codeCoverageIgnore proxy method
      */
     public function addResult($class, Entity ...$entities)
