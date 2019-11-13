@@ -292,7 +292,7 @@ abstract class Entity implements \Serializable
      */
     public function __set($attribute, $value)
     {
-        $this->setAttribute($attribute);
+        $this->setAttribute($attribute, $value);
     }
 
     /**
