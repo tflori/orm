@@ -38,6 +38,10 @@ class Namer
      * @var string */
     protected $methodNameScheme = 'camelCase';
 
+    /** The naming scheme used for attributes.
+     * @var string */
+    protected $attributeNameScheme = 'camelCase';
+
     /**
      * Namer constructor.
      *
@@ -152,7 +156,7 @@ class Namer
     }
 
     /**
-     * Get the column name with $namingScheme or default naming scheme
+     * Get the method name with $namingScheme or default naming scheme
      *
      * @param string $name
      * @param string $namingScheme
@@ -162,6 +166,27 @@ class Namer
     {
         if ($namingScheme === null) {
             $namingScheme = $this->methodNameScheme;
+        }
+
+        return $this->forceNamingScheme($name, $namingScheme);
+    }
+
+
+    /**
+     * Get the attribute name with $namingScheme or default naming scheme
+     *
+     * @param string $name
+     * @param string $namingScheme
+     * @return string
+     */
+    public function getAttributeName($name, $prefix = null, $namingScheme = null)
+    {
+        if ($namingScheme === null) {
+            $namingScheme = $this->attributeNameScheme;
+        }
+
+        if ($prefix !== null) {
+            $name = preg_replace('~^' . preg_quote($prefix) . '~', '', $name);
         }
 
         return $this->forceNamingScheme($name, $namingScheme);

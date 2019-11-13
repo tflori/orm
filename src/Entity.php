@@ -54,6 +54,10 @@ abstract class Entity implements \Serializable
      * @var string */
     protected static $namingSchemeMethods;
 
+    /** The naming scheme to use for attributes.
+     * @var string */
+    protected static $namingSchemeAttributes;
+
     /** Fixed table name (ignore other settings)
      * @var string */
     protected static $tableName;
@@ -133,6 +137,29 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * Get the column name of $attribute
+     *
+     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
+     * to $namingSchemeColumn.
+     *
+     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
+     * the same as getColumnName($name).
+     *
+     * @param string $column
+     * @return string
+     */
+    public static function getAttributeName($column)
+    {
+        $attributeName = array_search($column, static::$columnAliases);
+        if ($attributeName !== false) {
+            return $attributeName;
+        }
+
+        return EM::getInstance(static::class)->getNamer()
+            ->getAttributeName($column, static::$columnPrefix, static::$namingSchemeColumn);
+    }
+
+    /**
      * Create an entityFetcher for this entity
      *
      * @return EntityFetcher
@@ -194,6 +221,17 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * @param string $attribute
+     * @return mixed|null
+     * @see self::getAttribute
+     * @codeCoverageIgnore Alias for getAttribute
+     */
+    public function __get($attribute)
+    {
+        return $this->getAttribute($attribute);
+    }
+
+    /**
      * Get the value from $attribute
      *
      * If there is a custom getter this method get called instead.
@@ -202,7 +240,7 @@ abstract class Entity implements \Serializable
      * @return mixed|null
      * @link https://tflori.github.io/orm/entities.html Working with entities
      */
-    public function __get($attribute)
+    public function getAttribute($attribute)
     {
         $em     = EM::getInstance(static::class);
         $getter = $em->getNamer()->getMethodName('get' . ucfirst($attribute), self::$namingSchemeMethods);
@@ -247,6 +285,17 @@ abstract class Entity implements \Serializable
     }
 
     /**
+     * @param string $attribute The variable to change
+     * @param mixed $value The value to store
+     * @see self::getAttribute
+     * @codeCoverageIgnore Alias for getAttribute
+     */
+    public function __set($attribute, $value)
+    {
+        $this->setAttribute($attribute);
+    }
+
+    /**
      * Set $attribute to $value
      *
      * Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
@@ -259,10 +308,11 @@ abstract class Entity implements \Serializable
      *
      * @param string $attribute The variable to change
      * @param mixed $value The value to store
+     * @return static
      * @link https://tflori.github.io/orm/entities.html Working with entities
      * @throws Error
      */
-    public function __set($attribute, $value)
+    public function setAttribute($attribute, $value)
     {
         $col = $this->getColumnName($attribute);
 
@@ -290,6 +340,8 @@ abstract class Entity implements \Serializable
         if ($changed) {
             $this->onChange($attribute, $oldValue, $this->__get($attribute));
         }
+
+        return $this;
     }
 
     /**
@@ -527,6 +579,41 @@ abstract class Entity implements \Serializable
     public function setOriginalData(array $data)
     {
         $this->originalData = $data;
+    }
+
+    /**
+     * Get an array of the entity
+     *
+     * @param array $attributes
+     * @param bool $includeRelations
+     * @return array
+     */
+    public function toArray(array $attributes = [], $includeRelations = true)
+    {
+        if (empty($attributes)) {
+            $attributes = array_keys(static::$columnAliases);
+            $attributes = array_merge($attributes, array_map([$this, 'getAttributeName'], array_keys($this->data)));
+        }
+
+        $values = array_map(function ($attribute) {
+            return $this->getAttribute($attribute);
+        }, $attributes);
+
+        $result = array_combine($attributes, $values);
+
+        if ($includeRelations) {
+            foreach ($this->relatedObjects as $relation => $relatedObject) {
+                if (is_array($relatedObject)) {
+                    $result[$relation] = array_map(function (Entity $relatedObject) {
+                        return $relatedObject->toArray();
+                    }, $relatedObject);
+                } elseif ($relatedObject instanceof Entity) {
+                    $result[$relation] = $relatedObject->toArray();
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
