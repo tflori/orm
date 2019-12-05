@@ -54,16 +54,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="173.96043"
-     inkscape:cy="-45.916435"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="212.25033"
+     inkscape:cy="104.55532"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
      showborder="true"
      inkscape:showpageshadow="false"
-     inkscape:pagecheckerboard="false"
+     inkscape:pagecheckerboard="true"
      inkscape:snap-bbox="true"
      inkscape:bbox-paths="true"
      inkscape:bbox-nodes="true"
@@ -101,7 +101,7 @@
      transform="translate(0,-229.26659)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46666622px;line-height:4.32064581px;font-family:'mononoki Nerd Font';-inkscape-font-specification:'mononoki Nerd Font';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46666622px;line-height:4.32064581px;font-family:'mononoki Nerd Font';-inkscape-font-specification:'mononoki Nerd Font';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.26458333;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;paint-order:markers stroke fill;"
        x="33.726109"
        y="279.80923"
        id="text817"><tspan
@@ -109,17 +109,27 @@
          id="tspan815"
          x="33.726109"
          y="279.80923"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'mononoki Nerd Font';-inkscape-font-specification:'mononoki Nerd Font';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332">tflori/orm</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'mononoki Nerd Font';-inkscape-font-specification:'mononoki Nerd Font';fill:#ffffff;fill-opacity:1;stroke-width:0.26458333;stroke:#000000;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round;paint-order:markers stroke fill;">tflori/orm</tspan></text>
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26458332;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect819"
        width="8.5526247"
        height="16.036171"
        x="11.102593"
        y="244.8367"
        ry="1.679485e-08" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.52916667;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 38.987007,252.85479 c 9.091107,-1e-5 9.091107,-1e-5 9.091107,-1e-5"
+       id="path942"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path944"
+       d="m 19.985948,252.85479 c 10.425225,-1e-5 10.425225,-1e-5 10.425225,-1e-5"
+       style="fill:none;stroke:#000000;stroke-width:0.52916667;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26458332;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect821"
        width="6.2366071"
        height="6.2366071"
@@ -134,7 +144,7 @@
        height="16.036171"
        width="8.5526247"
        id="rect825"
-       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" />
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26458332;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill" />
     <path
        style="fill:none;stroke:#ffffff;stroke-width:0.26803675;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="M 30.411174,252.85478 H 19.579166"
@@ -144,7 +154,7 @@
        inkscape:connector-curvature="0"
        id="path1137"
        d="M 48.865862,252.85478 H 38.033854"
-       style="fill:none;stroke:#ffffff;stroke-width:0.26803675;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.26458332;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        style="opacity:1;fill:#18ba89;fill-opacity:1;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="rect1139"
