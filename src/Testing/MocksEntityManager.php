@@ -67,6 +67,7 @@ trait MocksEntityManager
 
         /** @var Entity|m\MockInterface $entity */
         $entity = m::mock($class)->makePartial();
+        $entity->shouldReceive('validate')->andReturn(true)->byDefault();
         $entity->setEntityManager($em);
         $entity->setOriginalData($this->ormAttributesToData($class, $data));
         $entity->reset();
