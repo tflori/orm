@@ -78,6 +78,14 @@ abstract class Entity implements \Serializable
      * @var bool */
     protected static $autoIncrement = true;
 
+    /** Additional attributes to show in toArray method
+     * @var array  */
+    protected static $includedAttributes = [];
+
+    /** Attributes to hide for toArray method (overruled by $attributes parameter)
+     * @var array  */
+    protected static $excludedAttributes = [];
+
     /** The reflections of the classes.
      * @internal
      * @var \ReflectionClass[] */
@@ -593,6 +601,8 @@ abstract class Entity implements \Serializable
         if (empty($attributes)) {
             $attributes = array_keys(static::$columnAliases);
             $attributes = array_merge($attributes, array_map([$this, 'getAttributeName'], array_keys($this->data)));
+            $attributes = array_merge($attributes, static::$includedAttributes);
+            $attributes = array_diff($attributes, static::$excludedAttributes);
         }
 
         $values = array_map(function ($attribute) {
