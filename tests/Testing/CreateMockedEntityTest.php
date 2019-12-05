@@ -7,6 +7,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use ORM\EntityManager;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Test\Entity\Examples\Category;
 use ORM\Testing\MocksEntityManager;
 
 class CreateMockedEntityTest extends MockeryTestCase
@@ -68,5 +69,10 @@ class CreateMockedEntityTest extends MockeryTestCase
         $entity = $this->em->fetch($class, $id);
         $entity->fill($data);
         $entity->save();
+    }
+
+    public function testWithValidationEnabled()
+    {
+        $entity = $this->ormCreateMockedEntity(Category::class, ['name' => 'Foo Bar']);
     }
 }
