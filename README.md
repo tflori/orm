@@ -7,6 +7,8 @@
 [![Total Downloads](https://poser.pugx.org/tflori/orm/downloads.svg)](https://packagist.org/packages/tflori/orm) 
 [![License](https://poser.pugx.org/tflori/orm/license.svg)](https://packagist.org/packages/tflori/orm)
 
+![Logo](logo.svg)
+
 **TL;DR** Others suck, we can do it better.
 
 Why to create another ORM? There are not enough ORM implementations for PHP already?
