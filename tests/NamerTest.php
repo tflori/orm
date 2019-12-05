@@ -49,6 +49,16 @@ class NamerTest extends TestCase
     }
 
     /** @test */
+    public function defaultAttributeNamingScheme()
+    {
+        $namer = new Namer();
+
+        $result = $namer->getAttributeName('user_id');
+
+        self::assertSame('userId', $result); // camelCase
+    }
+
+    /** @test */
     public function tableNameTemplateOption()
     {
         $namer = new Namer([
@@ -97,6 +107,18 @@ class NamerTest extends TestCase
     }
 
     /** @test */
+    public function attributeNamingSchemeOption()
+    {
+        $namer = new Namer([
+            EntityManager::OPT_NAMING_SCHEME_ATTRIBUTE => 'StudlyCaps'
+        ]);
+
+        $result = $namer->getAttributeName('valid_until');
+
+        self::assertSame('ValidUntil', $result);
+    }
+
+    /** @test */
     public function substituteEscaping()
     {
         $namer = new Namer();
@@ -104,5 +126,15 @@ class NamerTest extends TestCase
         $result = $namer->substitute('%%%a%', ['a' => 'short%']);
 
         self::assertSame('%short%', $result);
+    }
+
+    /** @test */
+    public function removesPrefixFromColumnNames()
+    {
+        $namer = new Namer();
+
+        $result = $namer->getAttributeName('usr_remember_token', 'usr_');
+
+        self::assertSame('rememberToken', $result);
     }
 }

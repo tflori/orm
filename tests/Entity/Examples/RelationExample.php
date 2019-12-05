@@ -3,22 +3,23 @@
 namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
+use ORM\Relation;
 
 class RelationExample extends Entity
 {
     protected static $relations = [
         'studlyCaps' => [
-            self::OPT_RELATION_CARDINALITY => 'many',
-            self::OPT_RELATION_CLASS => StudlyCaps::class,
-            self::OPT_RELATION_REFERENCE => ['studlyCapsId' => 'id'],
+            Relation::OPT_CARDINALITY => 'many',
+            Relation::OPT_CLASS => StudlyCaps::class,
+            Relation::OPT_REFERENCE => ['studlyCapsId' => 'id'],
         ],
         'psr0StudlyCaps' => [
-            self::OPT_RELATION_CLASS => Psr0_StudlyCaps::class,
-            self::OPT_RELATION_REFERENCE => ['psr0StudlyCaps' => 'id'],
+            Relation::OPT_CLASS => Psr0_StudlyCaps::class,
+            Relation::OPT_REFERENCE => ['psr0StudlyCaps' => 'id'],
         ],
         'contactPhones' => [
-            self::OPT_RELATION_CLASS => ContactPhone::class,
-            self::OPT_RELATION_OPPONENT => 'relation',
+            Relation::OPT_CLASS => ContactPhone::class,
+            Relation::OPT_OPPONENT => 'relation',
         ],
         'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
         'invalid' => ['many', StudlyCaps::class, 'opponent'], // many has to be omitted

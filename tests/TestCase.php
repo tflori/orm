@@ -7,6 +7,7 @@ use Mockery\Mock;
 use ORM\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
+use ReflectionClass;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -73,5 +74,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function closeMockery()
     {
         \Mockery::close();
+    }
+
+    protected static function setProtectedProperty($object, $property, $value)
+    {
+        $reflection = new ReflectionClass($object);
+        $propertyReflection = $reflection->getProperty($property);
+        $propertyReflection->setAccessible(true);
+        $propertyReflection->setValue($object, $value);
+        $propertyReflection->setAccessible(false);
     }
 }
