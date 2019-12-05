@@ -164,7 +164,7 @@ abstract class Entity implements \Serializable
         }
 
         return EM::getInstance(static::class)->getNamer()
-            ->getAttributeName($column, static::$columnPrefix, static::$namingSchemeColumn);
+            ->getAttributeName($column, static::$columnPrefix, static::$namingSchemeAttributes);
     }
 
     /**

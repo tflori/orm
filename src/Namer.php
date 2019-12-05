@@ -79,6 +79,10 @@ class Namer
             case EntityManager::OPT_NAMING_SCHEME_METHODS:
                 $this->methodNameScheme = $value;
                 break;
+
+            case EntityManager::OPT_NAMING_SCHEME_ATTRIBUTE:
+                $this->attributeNameScheme = $value;
+                break;
         }
 
         return $this;

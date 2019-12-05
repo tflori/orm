@@ -19,16 +19,17 @@ use ORM\Exception\NoEntity;
  */
 class EntityManager
 {
-    const OPT_CONNECTION            = 'connection';
-    const OPT_TABLE_NAME_TEMPLATE   = 'tableNameTemplate';
-    const OPT_NAMING_SCHEME_TABLE   = 'namingSchemeTable';
-    const OPT_NAMING_SCHEME_COLUMN  = 'namingSchemeColumn';
+    const OPT_CONNECTION = 'connection';
+    const OPT_TABLE_NAME_TEMPLATE = 'tableNameTemplate';
+    const OPT_NAMING_SCHEME_TABLE = 'namingSchemeTable';
+    const OPT_NAMING_SCHEME_COLUMN = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS = 'namingSchemeMethods';
-    const OPT_QUOTING_CHARACTER     = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER    = 'identifierDivider';
-    const OPT_BOOLEAN_TRUE          = 'true';
-    const OPT_BOOLEAN_FALSE         = 'false';
-    const OPT_DBAL_CLASS            = 'dbalClass';
+    const OPT_NAMING_SCHEME_ATTRIBUTE = 'namingSchemeAttribute';
+    const OPT_QUOTING_CHARACTER = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE = 'true';
+    const OPT_BOOLEAN_FALSE = 'false';
+    const OPT_DBAL_CLASS = 'dbalClass';
 
     /** @deprecated */
     const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
