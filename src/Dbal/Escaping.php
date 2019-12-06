@@ -2,6 +2,9 @@
 
 namespace ORM\Dbal;
 
+use DateTime;
+use DateTimeZone;
+
 trait Escaping
 {
     /** @var string */
@@ -85,12 +88,12 @@ trait Escaping
     /**
      * Escape a date time object for query
      *
-     * @param \DateTime $value
+     * @param DateTime $value
      * @return mixed
      */
-    protected function escapeDateTime(\DateTime $value)
+    protected function escapeDateTime(DateTime $value)
     {
-        $value->setTimezone(new \DateTimeZone('UTC'));
+        $value->setTimezone(new DateTimeZone('UTC'));
         return $this->escapeString($value->format('Y-m-d\TH:i:s.u\Z'));
     }
 }

@@ -1,4 +1,4 @@
-<?php /** @noinspection PhpDocMissingThrowsInspection */
+<?php
 
 namespace ORM\Testing;
 
@@ -226,7 +226,7 @@ trait MocksEntityManager
         $em = $this->ormGetEntityManagerInstance($class);
 
         /** @scrutinizer ignore-call */
-        $expectation = $em->shouldReceive('sync')->with(m::type($class))
+        return $em->shouldReceive('sync')->with(m::type($class))
             ->andReturnUsing(
                 function (Entity $entity) use ($class, $defaultValues, $em) {
                     /** @scrutinizer ignore-call */
@@ -256,8 +256,6 @@ trait MocksEntityManager
                     }
                 }
             );
-
-        return $expectation;
     }
 
     /**
@@ -288,7 +286,7 @@ trait MocksEntityManager
     public function ormAllowUpdate(Entity $entity, $changingData = [], $updatedData = [])
     {
         /** @scrutinizer ignore-call */
-        $expectation = $entity->shouldReceive('save')->andReturnUsing(
+        return $entity->shouldReceive('save')->andReturnUsing(
             function () use ($entity, $updatedData, $changingData) {
                 $class = get_class($entity);
                 // sync with database using $updatedData
@@ -318,8 +316,6 @@ trait MocksEntityManager
                 return $entity;
             }
         );
-
-        return $expectation;
     }
 
     /**

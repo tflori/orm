@@ -2,6 +2,8 @@
 
 namespace ORM;
 
+use PDO;
+
 /**
  * Describes a database configuration
  *
@@ -82,10 +84,10 @@ class DbConfig
         switch ($type) {
             case 'mysql':
                 $this->port = $port ?: '3306';
-                isset($this->attributes[\PDO::ATTR_EMULATE_PREPARES])
-                    || $this->attributes[\PDO::ATTR_EMULATE_PREPARES] = false;
-                isset($this->attributes[\PDO::MYSQL_ATTR_INIT_COMMAND])
-                    || $this->attributes[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET sql_mode ='ANSI_QUOTES', NAMES utf8";
+                isset($this->attributes[PDO::ATTR_EMULATE_PREPARES])
+                    || $this->attributes[PDO::ATTR_EMULATE_PREPARES] = false;
+                isset($this->attributes[PDO::MYSQL_ATTR_INIT_COMMAND])
+                    || $this->attributes[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET sql_mode ='ANSI_QUOTES', NAMES utf8";
                 break;
 
             case 'pgsql':

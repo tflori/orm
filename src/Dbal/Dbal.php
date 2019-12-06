@@ -2,11 +2,13 @@
 
 namespace ORM\Dbal;
 
+use DateTime;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
+use PDO;
 
 /**
  * Base class for database abstraction
@@ -93,7 +95,7 @@ abstract class Dbal
     public function escapeValue($value)
     {
         $type = is_object($value) ? get_class($value) : gettype($value);
-        if ($value instanceof \DateTime) {
+        if ($value instanceof DateTime) {
             $type = 'DateTime';
         }
         $method = [ $this, 'escape' . ucfirst($type) ];
@@ -325,7 +327,7 @@ abstract class Dbal
 
         $statement = $this->entityManager->getConnection()->query($query);
         $left = $entities;
-        while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             foreach ($left as $k => $entity) {
                 foreach ($primary as $var => $col) {
                     if ($entity->$var != $row[$col]) {

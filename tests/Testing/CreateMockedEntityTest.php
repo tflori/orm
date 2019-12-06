@@ -71,8 +71,11 @@ class CreateMockedEntityTest extends MockeryTestCase
         $entity->save();
     }
 
-    public function testWithValidationEnabled()
+    /** @test */
+    public function allowsValidationInSetAttribute()
     {
         $entity = $this->ormCreateMockedEntity(Category::class, ['name' => 'Foo Bar']);
+
+        $entity->name = 'This could be limited to 20 chars but here it is not...';
     }
 }

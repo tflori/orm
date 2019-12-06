@@ -6,6 +6,8 @@ use ORM\Exception\NotJoined;
 use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\QueryBuilderInterface;
+use PDO;
+use PDOStatement;
 
 /**
  * Fetch entities from database
@@ -33,7 +35,7 @@ class EntityFetcher extends QueryBuilder
     protected $class;
 
     /** The result object from PDO
-     * @var \PDOStatement */
+     * @var PDOStatement */
     protected $result;
 
     /** The query to execute (overwrites other settings)
@@ -224,7 +226,7 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $data = $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(PDO::FETCH_ASSOC);
 
         if (!$data) {
             return null;
@@ -292,7 +294,7 @@ class EntityFetcher extends QueryBuilder
      * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
      * change the result.
      *
-     * @return \PDOStatement|bool
+     * @return PDOStatement|bool
      */
     private function getStatement()
     {

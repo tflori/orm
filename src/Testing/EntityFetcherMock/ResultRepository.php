@@ -6,6 +6,7 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
+use ReflectionClass;
 
 class ResultRepository
 {
@@ -69,7 +70,7 @@ class ResultRepository
         static::completePrimaryKeys($entity);
         $class = get_class($entity);
         if ($entity instanceof m\MockInterface) {
-            $class = (new \ReflectionClass($entity))->getParentClass()->getName();
+            $class = (new ReflectionClass($entity))->getParentClass()->getName();
         }
 
         $this->primaryKeyMap[$class][static::buildChecksum($entity->getPrimaryKey())] = $entity;

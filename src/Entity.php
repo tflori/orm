@@ -9,6 +9,8 @@ use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnknownColumn;
+use ReflectionClass;
+use Serializable;
 
 /**
  * Definition of an entity
@@ -23,7 +25,7 @@ use ORM\Exception\UnknownColumn;
  * @link    https://tflori.github.io/orm/entityDefinition.html Entity Definition
  * @author  Thomas Flori <thflori@gmail.com>
  */
-abstract class Entity implements \Serializable
+abstract class Entity implements Serializable
 {
     use Validation, Relations;
 
@@ -88,7 +90,7 @@ abstract class Entity implements \Serializable
 
     /** The reflections of the classes.
      * @internal
-     * @var \ReflectionClass[] */
+     * @var ReflectionClass[] */
     protected static $reflections = [];
 
     /** The current data of a row.
@@ -361,6 +363,7 @@ abstract class Entity implements \Serializable
      * @param bool $ignoreUnknown
      * @param bool $checkMissing
      * @throws UnknownColumn
+     * @throws Error
      */
     public function fill(array $data, $ignoreUnknown = false, $checkMissing = false)
     {

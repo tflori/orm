@@ -9,6 +9,7 @@ use ORM\EntityManager;
 use ORM\Exception\NoEntity;
 use ORM\Testing\EntityFetcherMock\Result;
 use ORM\Testing\EntityFetcherMock\ResultRepository;
+use ReflectionClass;
 
 class EntityManagerMock extends EntityManager
 {
@@ -83,7 +84,7 @@ class EntityManagerMock extends EntityManager
     /** {@inheritDoc} */
     public function fetch($class, $primaryKey = null)
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
         if (!$reflection->isSubclassOf(Entity::class)) {
             throw new NoEntity($class . ' is not a subclass of Entity');
         }

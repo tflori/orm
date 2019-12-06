@@ -4,6 +4,7 @@ namespace ORM\Test\Entity;
 
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\Entity\Examples\GeneratesUuid;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\User;
@@ -145,5 +146,15 @@ class ToArrayTest extends TestCase
         $result = $entity->toArray();
 
         self::assertArrayHasKey('foo', $result);
+    }
+
+    /** @test */
+    public function returnsEmptyArrayWhenNoAttributesAreDefined()
+    {
+        $entity = new GeneratesUuid();
+
+        $result = $entity->toArray();
+
+        self::assertSame([], $result);
     }
 }

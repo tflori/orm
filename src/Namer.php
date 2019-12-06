@@ -108,7 +108,6 @@ class Namer
                 $namingScheme = $this->tableNameScheme;
             }
 
-            /** @noinspection PhpUnhandledExceptionInspection */
             $reflection = new ReflectionClass($class);
 
             $name = $this->substitute(
