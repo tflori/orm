@@ -27,7 +27,10 @@
     }
   },
   "scripts": {
-    "code-style": "phpcs --standard=PSR2 src && phpcs --standard=PSR2 --ignore=Examples tests",
+    "code-style": [
+      "phpcs --standard=PSR2 src",
+      "phpcs --standard=PSR2 --ignore=Examples tests"
+    ],
     "coverage": "phpunit --coverage-text",
     "test": "phpunit --color=always"
   }
