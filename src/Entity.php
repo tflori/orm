@@ -3,7 +3,9 @@
 namespace ORM;
 
 use ORM\Dbal\Error;
+use ORM\Entity\EventHandlers;
 use ORM\Entity\GeneratesPrimaryKeys;
+use ORM\Entity\Naming;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
@@ -27,7 +29,7 @@ use Serializable;
  */
 abstract class Entity implements Serializable
 {
-    use Validation, Relations;
+    use Validation, Relations, Naming, EventHandlers;
 
     /** @deprecated Use Relation::OPT_CLASS instead */
     const OPT_RELATION_CLASS       = 'class';
@@ -40,41 +42,9 @@ abstract class Entity implements Serializable
     /** @deprecated Use Relation::OPT_TABLE instead */
     const OPT_RELATION_TABLE       = 'table';
 
-    /** The template to use to calculate the table name.
-     * @var string */
-    protected static $tableNameTemplate;
-
-    /** The naming scheme to use for table names.
-     * @var string */
-    protected static $namingSchemeTable;
-
-    /** The naming scheme to use for column names.
-     * @var string */
-    protected static $namingSchemeColumn;
-
-    /** The naming scheme to use for method names.
-     * @var string */
-    protected static $namingSchemeMethods;
-
-    /** The naming scheme to use for attributes.
-     * @var string */
-    protected static $namingSchemeAttributes;
-
-    /** Fixed table name (ignore other settings)
-     * @var string */
-    protected static $tableName;
-
     /** The variable(s) used for primary key.
      * @var string[]|string */
     protected static $primaryKey = ['id'];
-
-    /** Fixed column names (ignore other settings)
-     * @var string[] */
-    protected static $columnAliases = [];
-
-    /** A prefix for column names.
-     * @var string */
-    protected static $columnPrefix;
 
     /** Whether or not the primary key is auto incremented.
      * @var bool */
@@ -125,51 +95,6 @@ abstract class Entity implements Serializable
     }
 
     /**
-     * Get the column name of $attribute
-     *
-     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
-     * to $namingSchemeColumn.
-     *
-     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
-     * the same as getColumnName($name).
-     *
-     * @param string $attribute
-     * @return string
-     */
-    public static function getColumnName($attribute)
-    {
-        if (isset(static::$columnAliases[$attribute])) {
-            return static::$columnAliases[$attribute];
-        }
-
-        return EM::getInstance(static::class)->getNamer()
-            ->getColumnName(static::class, $attribute, static::$columnPrefix, static::$namingSchemeColumn);
-    }
-
-    /**
-     * Get the column name of $attribute
-     *
-     * The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
-     * to $namingSchemeColumn.
-     *
-     * **ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
-     * the same as getColumnName($name).
-     *
-     * @param string $column
-     * @return string
-     */
-    public static function getAttributeName($column)
-    {
-        $attributeName = array_search($column, static::$columnAliases);
-        if ($attributeName !== false) {
-            return $attributeName;
-        }
-
-        return EM::getInstance(static::class)->getNamer()
-            ->getAttributeName($column, static::$columnPrefix, static::$namingSchemeAttributes);
-    }
-
-    /**
      * Create an entityFetcher for this entity
      *
      * @return EntityFetcher
@@ -190,24 +115,6 @@ abstract class Entity implements Serializable
     public static function getPrimaryKeyVars()
     {
         return !is_array(static::$primaryKey) ? [ static::$primaryKey ] : static::$primaryKey;
-    }
-
-    /**
-     * Get the table name
-     *
-     * The table name is constructed by $tableNameTemplate and $namingSchemeTable. It can be overwritten by
-     * $tableName.
-     *
-     * @return string
-     */
-    public static function getTableName()
-    {
-        if (static::$tableName) {
-            return static::$tableName;
-        }
-
-        return EM::getInstance(static::class)->getNamer()
-            ->getTableName(static::class, static::$tableNameTemplate, static::$namingSchemeTable);
     }
 
     /**
@@ -482,76 +389,6 @@ abstract class Entity implements Serializable
     }
 
     /**
-     * Empty event handler
-     *
-     * Get called when the entity get initialized.
-     *
-     * @param bool $new Whether or not the entity is new or from database
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function onInit($new)
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called when something is changed with magic setter.
-     *
-     * @param string $attribute The variable that got changed.merge(node.inheritedProperties)
-     * @param mixed  $oldValue  The old value of the variable
-     * @param mixed  $value     The new value of the variable
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function onChange($attribute, $oldValue, $value)
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called before the entity get inserted in database.
-     *
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function prePersist()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called before the entity get updated in database.
-     *
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function preUpdate()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called after the entity got inserted in database.
-     *
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function postPersist()
-    {
-    }
-
-    /**
-     * Empty event handler
-     *
-     * Get called after the entity got updated in database.
-     *
-     * @codeCoverageIgnore dummy event handler
-     */
-    public function postUpdate()
-    {
-    }
-
-    /**
      * Get the primary key
      *
      * @return array
@@ -651,87 +488,5 @@ abstract class Entity implements Serializable
         list($this->data, $this->relatedObjects) = unserialize($serialized);
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
-    }
-
-    // DEPRECATED stuff
-
-    /**
-     * @return string
-     * @deprecated         use getOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function getTableNameTemplate()
-    {
-        return static::$tableNameTemplate;
-    }
-
-    /**
-     * @param string $tableNameTemplate
-     * @deprecated         use setOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function setTableNameTemplate($tableNameTemplate)
-    {
-        static::$tableNameTemplate = $tableNameTemplate;
-    }
-
-    /**
-     * @return string
-     * @deprecated         use getOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function getNamingSchemeTable()
-    {
-        return static::$namingSchemeTable;
-    }
-
-    /**
-     * @param string $namingSchemeTable
-     * @deprecated         use setOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function setNamingSchemeTable($namingSchemeTable)
-    {
-        static::$namingSchemeTable = $namingSchemeTable;
-    }
-
-    /**
-     * @return string
-     * @deprecated         use getOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function getNamingSchemeColumn()
-    {
-        return static::$namingSchemeColumn;
-    }
-
-    /**
-     * @param string $namingSchemeColumn
-     * @deprecated         use setOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function setNamingSchemeColumn($namingSchemeColumn)
-    {
-        static::$namingSchemeColumn = $namingSchemeColumn;
-    }
-
-    /**
-     * @return string
-     * @deprecated         use getOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function getNamingSchemeMethods()
-    {
-        return static::$namingSchemeMethods;
-    }
-
-    /**
-     * @param string $namingSchemeMethods
-     * @deprecated         use setOption from EntityManager
-     * @codeCoverageIgnore deprecated
-     */
-    public static function setNamingSchemeMethods($namingSchemeMethods)
-    {
-        static::$namingSchemeMethods = $namingSchemeMethods;
     }
 }
