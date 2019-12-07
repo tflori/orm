@@ -145,14 +145,13 @@ class EntityFetcher extends QueryBuilder
      *
      * @param string $join The join type (e. g. `LEFT JOIN`)
      * @param string $class Class to join
-     * @param string $expression Expression to use in on clause or single column for USING
+     * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string $alias Alias for the table
-     * @param array|mixed $args Arguments to use in $expression
-     * @param bool $empty Create an empty join (without USING and ON)
+     * @param array $args Arguments for expression
      * @return EntityFetcher|ParenthesisInterface
      * @internal
      */
-    protected function createJoin($join, $class, $expression, $alias, $args, $empty)
+    protected function createJoin($join, $class, $expression = '', $alias = '', $args = [])
     {
         if (class_exists($class)) {
             /** @var Entity|string $class */
@@ -165,7 +164,7 @@ class EntityFetcher extends QueryBuilder
             $tableName = $class;
         }
 
-        return parent::createJoin($join, $tableName, $expression, $alias, $args, $empty);
+        return parent::createJoin($join, $tableName, $expression, $alias, $args);
     }
 
     /**

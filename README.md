@@ -1,8 +1,8 @@
 # tflori/orm
 
 [![Build Status](https://travis-ci.org/tflori/orm.svg?branch=master)](https://travis-ci.org/tflori/orm)
-[![Coverage Status](https://coveralls.io/repos/github/tflori/orm/badge.svg?branch=master)](https://coveralls.io/github/tflori/orm?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tflori/orm/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tflori/orm/?branch=master)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/9434ba649634cb577b87/test_coverage)](https://codeclimate.com/github/tflori/orm/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9434ba649634cb577b87/maintainability)](https://codeclimate.com/github/tflori/orm/maintainability)
 [![Latest Stable Version](https://poser.pugx.org/tflori/orm/v/stable.svg)](https://packagist.org/packages/tflori/orm) 
 [![Total Downloads](https://poser.pugx.org/tflori/orm/downloads.svg)](https://packagist.org/packages/tflori/orm) 
 [![License](https://poser.pugx.org/tflori/orm/license.svg)](https://packagist.org/packages/tflori/orm)
