@@ -612,7 +612,7 @@ abstract class Entity implements Serializable
             return $this->getAttribute($attribute);
         }, $attributes);
 
-        $result = array_combine($attributes, $values);
+        $result = (array)array_combine($attributes, $values);
 
         if ($includeRelations) {
             foreach ($this->relatedObjects as $relation => $relatedObject) {
