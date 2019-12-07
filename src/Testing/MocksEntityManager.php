@@ -282,36 +282,42 @@ trait MocksEntityManager
      */
     public function ormAllowUpdate(m\MockInterface $entity, $changingData = [], $updatedData = [])
     {
-        return $entity->shouldReceive('save')->andReturnUsing(
-            function () use ($entity, $updatedData, $changingData) {
-                $class = get_class($entity);
-                // sync with database using $updatedData
-                if (!empty($updatedData)) {
-                    $newData = $entity->getData();
-                    $entity->reset();
+        $expectation = $entity->shouldReceive('save');
+
+        if ($expectation instanceof m\CompositeExpectation) {
+            $expectation->andReturnUsing(
+                function () use ($entity, $updatedData, $changingData) {
+                    $class = get_class($entity);
+                    // sync with database using $updatedData
+                    if (!empty($updatedData)) {
+                        $newData = $entity->getData();
+                        $entity->reset();
+                        $entity->setOriginalData(array_merge(
+                            $entity->getData(),
+                            $this->ormAttributesToData($class, $updatedData)
+                        ));
+                        $entity->fill($newData);
+                    }
+
+                    if (!$entity->isDirty()) {
+                        return $entity;
+                    }
+
+                    // update the entity using $changingData
+                    $entity->preUpdate();
                     $entity->setOriginalData(array_merge(
                         $entity->getData(),
-                        $this->ormAttributesToData($class, $updatedData)
+                        $this->ormAttributesToData($class, $changingData)
                     ));
-                    $entity->fill($newData);
-                }
+                    $entity->reset();
+                    $entity->postUpdate();
 
-                if (!$entity->isDirty()) {
                     return $entity;
                 }
+            );
+        }
 
-                // update the entity using $changingData
-                $entity->preUpdate();
-                $entity->setOriginalData(array_merge(
-                    $entity->getData(),
-                    $this->ormAttributesToData($class, $changingData)
-                ));
-                $entity->reset();
-                $entity->postUpdate();
-
-                return $entity;
-            }
-        );
+        return $expectation;
     }
 
     /**
