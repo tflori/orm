@@ -4,6 +4,7 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\Exception;
+use PDO;
 
 /**
  * Database abstraction for SQLite databases
@@ -50,7 +51,7 @@ class Sqlite extends Dbal
         $pdo->query($this->buildInsertStatement(...$entities));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
                             ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
-            ->fetchAll(\PDO::FETCH_ASSOC);
+            ->fetchAll(PDO::FETCH_ASSOC);
         $pdo->commit();
 
         /** @var Entity $entity */
@@ -72,7 +73,7 @@ class Sqlite extends Dbal
         $result     = $this->entityManager->getConnection()->query(
             'PRAGMA ' . $schema . 'table_info(' . $this->escapeIdentifier($table) . ')'
         );
-        $rawColumns = $result->fetchAll(\PDO::FETCH_ASSOC);
+        $rawColumns = $result->fetchAll(PDO::FETCH_ASSOC);
 
         if (count($rawColumns) === 0) {
             throw new Exception('Unknown table ' . $table);

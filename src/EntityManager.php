@@ -10,6 +10,8 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
+use PDO;
+use ReflectionClass;
 
 /**
  * The EntityManager that manages the instances of Entities.
@@ -19,16 +21,17 @@ use ORM\Exception\NoEntity;
  */
 class EntityManager
 {
-    const OPT_CONNECTION            = 'connection';
-    const OPT_TABLE_NAME_TEMPLATE   = 'tableNameTemplate';
-    const OPT_NAMING_SCHEME_TABLE   = 'namingSchemeTable';
-    const OPT_NAMING_SCHEME_COLUMN  = 'namingSchemeColumn';
+    const OPT_CONNECTION = 'connection';
+    const OPT_TABLE_NAME_TEMPLATE = 'tableNameTemplate';
+    const OPT_NAMING_SCHEME_TABLE = 'namingSchemeTable';
+    const OPT_NAMING_SCHEME_COLUMN = 'namingSchemeColumn';
     const OPT_NAMING_SCHEME_METHODS = 'namingSchemeMethods';
-    const OPT_QUOTING_CHARACTER     = 'quotingChar';
-    const OPT_IDENTIFIER_DIVIDER    = 'identifierDivider';
-    const OPT_BOOLEAN_TRUE          = 'true';
-    const OPT_BOOLEAN_FALSE         = 'false';
-    const OPT_DBAL_CLASS            = 'dbalClass';
+    const OPT_NAMING_SCHEME_ATTRIBUTE = 'namingSchemeAttribute';
+    const OPT_QUOTING_CHARACTER = 'quotingChar';
+    const OPT_IDENTIFIER_DIVIDER = 'identifierDivider';
+    const OPT_BOOLEAN_TRUE = 'true';
+    const OPT_BOOLEAN_FALSE = 'false';
+    const OPT_DBAL_CLASS = 'dbalClass';
 
     /** @deprecated */
     const OPT_MYSQL_BOOLEAN_TRUE = 'mysqlTrue';
@@ -44,7 +47,7 @@ class EntityManager
     const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
     /** Connection to database
-     * @var \PDO|callable|DbConfig */
+     * @var PDO|callable|DbConfig */
     protected $connection;
 
     /** The Database Abstraction Layer
@@ -156,8 +159,7 @@ class EntityManager
             return null;
         }
 
-        /** @noinspection PhpUnhandledExceptionInspection */
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
         foreach (self::$emMapping['byParent'] as $parentClass => $em) {
             if ($reflection->isSubclassOf($parentClass)) {
                 return $em;
@@ -249,8 +251,8 @@ class EntityManager
         if (is_callable($connection) || $connection instanceof DbConfig) {
             $this->connection = $connection;
         } else {
-            if ($connection instanceof \PDO) {
-                $connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            if ($connection instanceof PDO) {
+                $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 $this->connection = $connection;
             } elseif (is_array($connection)) {
                 $this->connection = new DbConfig(...$connection);
@@ -265,7 +267,7 @@ class EntityManager
     /**
      * Get the pdo connection.
      *
-     * @return \PDO
+     * @return PDO
      * @throws NoConnection
      * @throws NoConnection
      */
@@ -275,11 +277,11 @@ class EntityManager
             throw new NoConnection('No database connection');
         }
 
-        if (!$this->connection instanceof \PDO) {
+        if (!$this->connection instanceof PDO) {
             if ($this->connection instanceof DbConfig) {
                 /** @var DbConfig $dbConfig */
                 $dbConfig         = $this->connection;
-                $this->connection = new \PDO(
+                $this->connection = new PDO(
                     $dbConfig->getDsn(),
                     $dbConfig->user,
                     $dbConfig->pass,
@@ -287,12 +289,12 @@ class EntityManager
                 );
             } else {
                 $pdo = call_user_func($this->connection);
-                if (!$pdo instanceof \PDO) {
+                if (!$pdo instanceof PDO) {
                     throw new NoConnection('Getter does not return PDO instance');
                 }
                 $this->connection = $pdo;
             }
-            $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
 
         return $this->connection;
@@ -306,7 +308,7 @@ class EntityManager
     public function getDbal()
     {
         if (!$this->dbal) {
-            $connectionType = $this->getConnection()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            $connectionType = $this->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
             $options        = &$this->options;
             $dbalClass      = isset($options[self::OPT_DBAL_CLASS]) ?
                 $options[self::OPT_DBAL_CLASS] : __NAMESPACE__ . '\\Dbal\\' . ucfirst($connectionType);
@@ -356,7 +358,7 @@ class EntityManager
         }
 
         $result = $this->getConnection()->query($fetcher->getQuery());
-        if ($originalData = $result->fetch(\PDO::FETCH_ASSOC)) {
+        if ($originalData = $result->fetch(PDO::FETCH_ASSOC)) {
             $entity->setOriginalData($originalData);
             if ($reset) {
                 $entity->reset();
@@ -491,7 +493,7 @@ class EntityManager
      */
     public function fetch($class, $primaryKey = null)
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
         if (!$reflection->isSubclassOf(Entity::class)) {
             throw new NoEntity($class . ' is not a subclass of Entity');
         }

@@ -9,6 +9,7 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Relation;
+use PDO;
 
 /**
  * ManyToMany Relation
@@ -87,7 +88,7 @@ class ManyToMany extends Relation
         }
 
         $result      = $entityManager->getConnection()->query($query->getQuery());
-        $primaryKeys = $result->fetchAll(\PDO::FETCH_NUM);
+        $primaryKeys = $result->fetchAll(PDO::FETCH_NUM);
 
         /** @var Entity[] $result */
         $result = [];

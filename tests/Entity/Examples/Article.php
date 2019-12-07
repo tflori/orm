@@ -6,8 +6,17 @@ use ORM\Entity;
 
 class Article extends Entity
 {
+    protected static $includedAttributes = [
+        'intro',
+    ];
+
+    protected static $excludedAttributes = [
+        'userId',
+    ];
+    
     protected static $relations = [
         'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category'],
+        'writer' => [User::class, ['user_id' => 'id']],
     ];
 
     public function getIntro()

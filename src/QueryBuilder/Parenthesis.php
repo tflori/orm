@@ -85,7 +85,7 @@ class Parenthesis implements ParenthesisInterface
     /** {@inheritdoc} */
     public function andParenthesis()
     {
-        $parenthesis = new Parenthesis(
+        return new Parenthesis(
             function (ParenthesisInterface $parenthesis) {
                 $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getExpression();
 
@@ -93,14 +93,12 @@ class Parenthesis implements ParenthesisInterface
             },
             $this
         );
-
-        return $parenthesis;
     }
 
     /** {@inheritdoc} */
     public function orParenthesis()
     {
-        $parenthesis = new Parenthesis(
+        return new Parenthesis(
             function (ParenthesisInterface $parenthesis) {
                 $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getExpression();
 
@@ -108,8 +106,6 @@ class Parenthesis implements ParenthesisInterface
             },
             $this
         );
-
-        return $parenthesis;
     }
 
     /** {@inheritdoc} */

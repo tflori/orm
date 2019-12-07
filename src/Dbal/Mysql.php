@@ -4,6 +4,8 @@ namespace ORM\Dbal;
 
 use ORM\Entity;
 use ORM\Exception;
+use PDO;
+use PDOException;
 
 /**
  * Database abstraction for MySQL databases
@@ -57,7 +59,7 @@ class Mysql extends Dbal
         $pdo->beginTransaction();
         $pdo->query($this->buildInsertStatement(...$entities));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
-            ->fetchAll(\PDO::FETCH_ASSOC);
+            ->fetchAll(PDO::FETCH_ASSOC);
         $pdo->commit();
 
         /** @var Entity $entity */
@@ -74,12 +76,12 @@ class Mysql extends Dbal
     {
         try {
             $result = $this->entityManager->getConnection()->query('DESCRIBE ' . $this->escapeIdentifier($table));
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             throw new Exception('Unknown table ' . $table, 0, $exception);
         }
 
         $cols = [];
-        while ($rawColumn = $result->fetch(\PDO::FETCH_ASSOC)) {
+        while ($rawColumn = $result->fetch(PDO::FETCH_ASSOC)) {
             $cols[] = new Column($this, $this->normalizeColumnDefinition($rawColumn));
         }
 

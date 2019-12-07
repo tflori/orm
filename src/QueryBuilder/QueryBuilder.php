@@ -153,9 +153,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $expression = $this->buildExpression($column, $value, $operator);
         }
 
-        $whereCondition = $this->convertPlaceholders($expression, $value);
-
-        return $whereCondition;
+        return $this->convertPlaceholders($expression, $value);
     }
 
     private function buildExpression($column, $value, $operator = null)
