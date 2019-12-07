@@ -113,19 +113,50 @@ class Column
      */
     public function __get($name)
     {
-        switch ($name) {
-            case 'name':
-                return $this->columnDefinition['column_name'];
-            case 'type':
-                return $this->getType();
-            case 'default':
-                return $this->columnDefinition['column_default'];
-            case 'nullable':
-                return $this->columnDefinition['is_nullable'] === true ||
-                       $this->columnDefinition['is_nullable'] === 'YES';
-            default:
-                return isset($this->columnDefinition[$name]) ? $this->columnDefinition[$name] : null;
-        }
+        $method = [$this, 'get' . ucfirst($name)];
+        return is_callable($method) ? call_user_func($method) :
+            (isset($this->columnDefinition[$name]) ? $this->columnDefinition[$name] : null);
+    }
+
+    /**
+     * Get the name of the column
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->columnDefinition['column_name'];
+    }
+
+    /**
+     * Get the default value of the column
+     *
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->columnDefinition['column_default'];
+    }
+
+    /**
+     * Check if the column is nullable
+     *
+     * @return bool
+     */
+    public function isNullable()
+    {
+        return $this->columnDefinition['is_nullable'] === true ||
+               $this->columnDefinition['is_nullable'] === 'YES';
+    }
+
+    /**
+     * Get the nullable status of the column
+     *
+     * @return bool
+     */
+    public function getNullable()
+    {
+        return $this->isNullable();
     }
 
     /**
