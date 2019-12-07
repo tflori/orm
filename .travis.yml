@@ -18,12 +18,17 @@ matrix:
 
 before_script:
   - composer install --no-interaction
-  - composer require satooshi/php-coveralls:~0.6@stable
-  - mkdir -p build/logs
+  - if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
+      chmod +x ./cc-test-reporter;
+      ./cc-test-reporter before-build;
+    fi
 
 script:
   - composer code-style
-  - vendor/bin/phpunit -c phpunit.xml --coverage-clover=build/logs/clover.xml --coverage-text --color=always
+  - vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always
 
-after_success:
-  - sh -c 'if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then php vendor/bin/coveralls -v; fi;'
+after_script:
+  - if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then
+      ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT;
+    fi
