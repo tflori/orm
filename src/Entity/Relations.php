@@ -154,4 +154,20 @@ trait Relations
         return $getAll ? $relation->fetchAll($this, $this->entityManager) :
             $relation->fetch($this, $this->entityManager);
     }
+
+    /**
+     * Resets all loaded relations or $relation
+     *
+     * Helpful to reduce the size of serializations of the object (for caching, or toArray method etc.)
+     *
+     * @param null $relation
+     */
+    public function resetRelated($relation = null)
+    {
+        if ($relation === null) {
+            $this->relatedObjects = [];
+        } else {
+            unset($this->relatedObjects[$relation]);
+        }
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace ORM\Test\Entity;
 
+use Mockery as m;
+use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
@@ -227,7 +229,7 @@ class RelationsTest extends TestCase
      * @test */
     public function getRelatedReturnsResultFromFetchFor($class, $relation)
     {
-        $entity = \Mockery::mock($class)->makePartial();
+        $entity = m::mock($class)->makePartial();
         $related = new StudlyCaps();
         $entity->shouldReceive('fetch')->with($relation, true)->once()->andReturn($related);
 
@@ -240,7 +242,7 @@ class RelationsTest extends TestCase
      * @test */
     public function getRelatedStoresTheValue($class, $relation)
     {
-        $entity = \Mockery::mock($class)->makePartial();
+        $entity = m::mock($class)->makePartial();
         $related = new StudlyCaps();
         $entity->shouldReceive('fetch')->with($relation, true)->once()->andReturn($related);
         $entity->getRelated($relation);
@@ -254,7 +256,7 @@ class RelationsTest extends TestCase
      * @test */
     public function refreshsRelationWithRefresh($class, $relation)
     {
-        $entity = \Mockery::mock($class)->makePartial();
+        $entity = m::mock($class)->makePartial();
         $related = new StudlyCaps();
         $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn($related);
         $entity->getRelated($relation);
@@ -268,7 +270,7 @@ class RelationsTest extends TestCase
      * @test */
     public function getRelatedDoesNotStoreNullValues($class, $relation)
     {
-        $entity = \Mockery::mock($class)->makePartial();
+        $entity = m::mock($class)->makePartial();
         $related = new StudlyCaps();
         $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn(null, $related);
         $entity->getRelated($relation);
@@ -276,6 +278,39 @@ class RelationsTest extends TestCase
         $result = $entity->getRelated($relation);
 
         self::assertSame($related, $result);
+    }
+
+    /** @test */
+    public function resetsAllLoadedRelations()
+    {
+        /** @var Entity|m\MockInterface $entity */
+        $entity = m::mock(RelationExample::class)->makePartial();
+        foreach (['dmgd', 'mySnake'] as $relation) {
+            $related = new StudlyCaps();
+            $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn($related, $related);
+            $entity->getRelated($relation);
+        }
+
+        $entity->resetRelated();
+        $entity->getRelated('dmgd');
+        $entity->getRelated('mySnake');
+    }
+
+    /** @test */
+    public function resetsSpecificRelation()
+    {
+        /** @var Entity|m\MockInterface $entity */
+        $entity = m::mock(RelationExample::class)->makePartial();
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with('dmgd', true)->twice()->andReturn($related, $related);
+        $entity->getRelated('dmgd');
+        $related = new StudlyCaps();
+        $entity->shouldReceive('fetch')->with('mySnake', true)->once()->andReturn($related, $related);
+        $entity->getRelated('mySnake');
+
+        $entity->resetRelated('dmgd');
+        $entity->getRelated('dmgd');
+        $entity->getRelated('mySnake');
     }
 
     /** @test */
@@ -326,7 +361,7 @@ class RelationsTest extends TestCase
     /** @test */
     public function setRelationStoresTheRelatedObject()
     {
-        $entity = \Mockery::mock(RelationExample::class)->makePartial();
+        $entity = m::mock(RelationExample::class)->makePartial();
         $related = new StudlyCaps(['id' => 42]);
         $entity->shouldNotReceive('fetch')->with('studlyCaps', null, true);
         $entity->setRelated('studlyCaps', $related);
@@ -356,7 +391,7 @@ class RelationsTest extends TestCase
         $category = new Category(['id' => 23]);
         $this->pdo->shouldReceive('query')
             ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
-            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+            ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->addRelated('categories', [$category]);
     }
@@ -369,7 +404,7 @@ class RelationsTest extends TestCase
         $category2 = new Category(['id' => 24]);
         $this->pdo->shouldReceive('query')
                   ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23),(42,24)')
-                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+                  ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->addRelated('categories', [$category1, $category2]);
     }
@@ -434,7 +469,7 @@ class RelationsTest extends TestCase
         $category = new Category(['id' => 23]);
         $this->pdo->shouldReceive('query')
                   ->with('INSERT INTO "article_category" ("article_id","category_id") VALUES (42,23)')
-                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+                  ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->addRelated('categories', [$category]);
     }
@@ -446,7 +481,7 @@ class RelationsTest extends TestCase
         $category = new Category(['id' => 23]);
         $this->pdo->shouldReceive('query')
             ->with('DELETE FROM "article_category" WHERE "article_id" = 42 AND ("category_id" = 23)')
-            ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+            ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->deleteRelated('categories', [$category]);
     }
@@ -460,7 +495,7 @@ class RelationsTest extends TestCase
         $this->pdo->shouldReceive('query')
                   ->with('DELETE FROM "article_category" WHERE "article_id" = 42 ' .
                          'AND ("category_id" = 23 OR "category_id" = 24)')
-                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+                  ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->deleteRelated('categories', [$category1, $category2]);
     }
@@ -526,7 +561,7 @@ class RelationsTest extends TestCase
         $this->pdo->shouldReceive('query')
                   ->with('DELETE FROM "article_category" WHERE "article_id" = 42 ' .
                          'AND ("category_id" = 23)')
-                  ->once()->andReturn(\Mockery::mock(\PDOStatement::class));
+                  ->once()->andReturn(m::mock(\PDOStatement::class));
 
         $article->deleteRelated('categories', [$category]);
     }
