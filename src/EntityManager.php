@@ -46,6 +46,9 @@ class EntityManager
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
+    /** @var callable */
+    protected static $resolver;
+
     /** Connection to database
      * @var PDO|callable|DbConfig */
     protected $connection;
@@ -110,6 +113,10 @@ class EntityManager
      */
     public static function getInstance($class = null)
     {
+        if (self::$resolver) {
+            return call_user_func(self::$resolver, $class);
+        }
+
         if (empty($class)) {
             $trace = debug_backtrace();
             if (empty($trace[1]['class'])) {
@@ -127,6 +134,11 @@ class EntityManager
         }
 
         return self::$emMapping['byClass'][$class];
+    }
+
+    public static function setResolver(callable $resolver)
+    {
+        self::$resolver = $resolver;
     }
 
     /**
