@@ -12,10 +12,25 @@ stable the keys should only change when the meaning changes - so never).
 The entities get defined through classes extending `Entity`. More about this you can read in
 [Entity Definition](entityDefinition.md).
 
-**Attention:** You have to initialize an `EntityManager` before accessing table or column names, creating new entities
-or restoring serialized entities. This is a breaking change in version 1.2. This comes through internal dependencies
-that are managed through `EntityManager`. It is save to initialize `EntityManager` as it only connects to database
-when it is required.
+### Initialize EntityManager
+
+Some static calls need an `EntityManager` object. In order to get one they use an internal API from `EntityManager` to
+get one. See [Multiple EntityManagers and Databases](#Multiple EntityManagers and Databases) to learn more about the 
+internal `EntityManager` resolver.
+
+A drawback is that you need to initialize the `EntityManager` before using the models. This is a breaking change in
+version 1.2 and comes from internal dependencies that are managed through `EntityManager`. To solve this you can
+either initialize the `EntityManagers` during bootstrap or define a resolver callback to resolve `EntityManager`s.
+
+```php
+$diContainer = $GLOBALS['DI']; // sorry we don't know how you get your depenency injection container
+
+EntityManager::setResolver(function (string $model = null) use ($diContainer) {
+  return $diContainer->get('entityManager');
+});
+```
+
+> Note: `EntityManager::setResolver` was introduced in version 1.9
 
 ### Database Configuration
 
