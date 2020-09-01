@@ -11,6 +11,7 @@ use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnknownColumn;
+use ORM\Observer\CallbackObserver;
 use ReflectionClass;
 use Serializable;
 
@@ -86,11 +87,12 @@ abstract class Entity implements Serializable
      */
     final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
     {
-        if ($fromDatabase) {
-            $this->originalData = $data;
-        }
         $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
+        if ($fromDatabase) {
+            $this->originalData = $data;
+            $this->entityManager->fireEntityEvent('fetched', $this);
+        }
         $this->onInit(!$fromDatabase);
     }
 
@@ -102,6 +104,37 @@ abstract class Entity implements Serializable
     public static function query()
     {
         return EM::getInstance(static::class)->fetch(static::class);
+    }
+
+    /**
+     * Observe the class using $observer
+     *
+     * If Observer is omitted it returns a new CallbackObserver. Usage example:
+     * ```php
+     * $em->observe(User::class)
+     *     ->on('inserted', function (User $user) { ... })
+     *     ->on('deleted', function (User $user) { ... });
+     * ```
+     *
+     * For more information about model events please consult the [documentation](https://tflori.github.io/
+     *
+     * @see EntityManager::observe()
+     * @param ?Observer $observer
+     * @return ?CallbackObserver
+     * @codeCoverageIgnore proxy for EntityManager::observe()
+     */
+    public static function observeBy(Observer $observer = null)
+    {
+        return EM::getInstance(static::class)->observe(static::class, $observer);
+    }
+
+    /**
+     * Stop observing
+     * @param Observer $observer
+     */
+    public static function ignoreFor(Observer $observer)
+    {
+        EM::getInstance(static::class)->ignore(static::class, $observer);
     }
 
     /**
@@ -326,23 +359,40 @@ abstract class Entity implements Serializable
         }
         // @codeCoverageIgnoreEnd
 
+        $dirty = $this->getDirty();
+        if ($this->entityManager->fireEntityEvent('saving', $this, $dirty) === false) {
+            return $this;
+        }
+
         $inserted = false;
         $updated  = false;
 
         try {
             // this may throw if the primary key is auto incremented but we using this to omit duplicated code
             if (!$this->entityManager->sync($this)) {
+                if ($this->entityManager->fireEntityEvent('inserting', $this, $dirty) === false) {
+                    return $this;
+                }
                 $this->prePersist();
                 $inserted = $this->entityManager->insert($this, false);
             } elseif ($this->isDirty()) {
+                if ($this->entityManager->fireEntityEvent('updating', $this, $dirty) === false) {
+                    return $this;
+                }
                 $this->preUpdate();
                 $updated = $this->entityManager->update($this);
             }
         } catch (IncompletePrimaryKey $e) {
             if (static::isAutoIncremented()) {
+                if ($this->entityManager->fireEntityEvent('inserting', $this, $dirty) === false) {
+                    return $this;
+                }
                 $this->prePersist();
                 $inserted = $this->entityManager->insert($this);
             } elseif ($this instanceof GeneratesPrimaryKeys) {
+                if ($this->entityManager->fireEntityEvent('inserting', $this, $dirty) === false) {
+                    return $this;
+                }
                 $this->generatePrimaryKey();
                 $this->prePersist();
                 $inserted = $this->entityManager->insert($this);
@@ -351,8 +401,17 @@ abstract class Entity implements Serializable
             }
         }
 
-        $inserted && $this->postPersist();
-        $updated && $this->postUpdate();
+        if ($inserted) {
+            $this->entityManager->fireEntityEvent('inserted', $this, $dirty);
+            $this->postPersist();
+        }
+        if ($updated) {
+            $this->entityManager->fireEntityEvent('updated', $this, $dirty);
+            $this->postUpdate();
+        }
+        if ($inserted || $updated) {
+            $this->entityManager->fireEntityEvent('saved', $this, $dirty);
+        }
 
         return $this;
     }
@@ -378,14 +437,37 @@ abstract class Entity implements Serializable
     {
         if (!empty($attribute)) {
             $col = static::getColumnName($attribute);
-            return (isset($this->data[$col]) ? $this->data[$col] : null) !==
-                   (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
+            return @$this->data[$col] !== @$this->originalData[$col];
         }
 
         ksort($this->data);
         ksort($this->originalData);
 
         return serialize($this->data) !== serialize($this->originalData);
+    }
+
+    public function getDirty()
+    {
+        $current = $this->toArray([], false);
+        if (empty($this->originalData)) {
+            return array_map(function ($value) {
+                return [null, $value];
+            }, $current);
+        }
+
+        $dirty = [];
+        $backupData = $this->data;
+        $this->data = $this->originalData;
+        $old = $this->toArray([], false);
+        $this->data = $backupData;
+        foreach (array_merge(array_keys($current), array_keys($old)) as $key) {
+            if (@$current[$key] === @$old[$key]) {
+                continue;
+            }
+            $dirty[$key] = [@$old[$key], @$current[$key]];
+        }
+
+        return $dirty;
     }
 
     /**

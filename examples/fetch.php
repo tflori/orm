@@ -2,47 +2,13 @@
 
 use ORM\EntityManager;
 
-require __DIR__ . '/vendor/autoload.php';
+require_once 'bootstrap.php';
+require_once 'entities.php';
+
+/** @var EntityManager $em */
 
 $username = 'user_a'; // $_POST['username']
 $password = 'password_a'; // $_POST['password']
-
-/**************************
- * SETUP EXAMPLE DATABASE *
- **************************/
-$em = new EntityManager([
-    EntityManager::OPT_CONNECTION => new \ORM\DbConfig('sqlite', '/tmp/example.sqlite')
-]);
-
-$em->getConnection()->query("DROP TABLE IF EXISTS user");
-
-$em->getConnection()->query("CREATE TABLE user (
-  id INTEGER NOT NULL PRIMARY KEY,
-  username VARCHAR (20) NOT NULL,
-  password VARCHAR (32) NOT NULL
-)");
-
-$em->getConnection()->query("CREATE UNIQUE INDEX user_username ON user (username)");
-
-$em->getConnection()->query("INSERT INTO user (username, password) VALUES
-  ('user_a', '" . md5('password_a') . "'),
-  ('user_b', '" . md5('password_b') . "'),
-  ('user_c', '" . md5('password_c') . "')
-");
-
-/*********************
- * DEFINE THE ENTITY *
- *********************/
-
-/**
- * Class User
- *
- * The following annotations are optional
- * @property int id
- * @property string username
- * @property string password
- */
-class User extends ORM\Entity {}
 
 /*******************************
  * Fetch entity with own query *
@@ -69,18 +35,18 @@ var_dump($user);
  *******************************************/
 try {
     $fetcher = $em->fetch(User::class)
-                  ->where(User::class . '::username LIKE ?', 'USER_A')
-                  ->andWhere('password', '=', md5('password_a'))
-                  ->orParenthesis()
-                      ->where(User::class . '::username = ' . $em->getConnection()->quote('user_b'))
-                      ->andWhere('t0.password = \'' . md5('password_b') . '\'')
-                      ->close()
-                  ->groupBy('id')
-                  ->orderBy(
-                      'CASE WHEN username = ? THEN 1 WHEN username = ? THEN 2 ELSE 3 END',
-                      'ASC',
-                      ['user_a', 'user_b']
-                  );
+        ->where(User::class . '::username LIKE ?', 'USER_A')
+        ->andWhere('password', '=', md5('password_a'))
+        ->orParenthesis()
+        ->where(User::class . '::username = ' . $em->getConnection()->quote('user_b'))
+        ->andWhere('t0.password = \'' . md5('password_b') . '\'')
+        ->close()
+        ->groupBy('id')
+        ->orderBy(
+            'CASE WHEN username = ? THEN 1 WHEN username = ? THEN 2 ELSE 3 END',
+            'ASC',
+            ['user_a', 'user_b']
+        );
     $users = $fetcher->all();
 
     var_dump($users);

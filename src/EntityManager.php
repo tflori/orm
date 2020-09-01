@@ -10,6 +10,7 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
+use ORM\Observer\CallbackObserver;
 use PDO;
 use ReflectionClass;
 
@@ -516,6 +517,73 @@ class EntityManager
         }
 
         return $fetcher->one();
+    }
+
+    /** @var Observer[][] */
+    protected $observers = [];
+
+    /**
+     * Observe $class using $observer
+     *
+     * If Observer is omitted it returns a new CallbackObserver. Usage example:
+     * ```php
+     * $em->observe(User::class)
+     *     ->on('inserted', function (User $user) { ... })
+     *     ->on('deleted', function (User $user) { ... });
+     * ```
+     *
+     * For more information about model events please consult the [documentation](https://tflori.github.io/
+     *
+     * @param string $class
+     * @param ?Observer $observer
+     * @return ?CallbackObserver
+     */
+    public function observe($class, Observer $observer = null)
+    {
+        $returnObserver = $observer ? false : true;
+        $observer || $observer = new CallbackObserver();
+
+        if (!isset($this->observers[$class])) {
+            $this->observers[$class] = [];
+        }
+
+        $this->observers[$class][] = $observer;
+        return $returnObserver ? $observer : null;
+    }
+
+    public function ignore($class, Observer $observer)
+    {
+        $pos = isset($this->observers[$class]) ? array_search($observer, $this->observers[$class]) : false;
+        if ($pos === false) {
+            throw new Exception('$observer is not bound to ' . $class);
+        }
+
+        array_splice($this->observers, $pos, 1);
+    }
+
+    public function fireEntityEvent($event, Entity $entity, array $dirty = null)
+    {
+        $reflection = new ReflectionClass($entity);
+        $classes = [get_class($entity)];
+        do {
+            $parent = $reflection->getParentClass();
+            $classes[] = $parent->getName();
+        } while ($parent->getName() !== Entity::class);
+
+        foreach ($classes as $class) {
+            if (isset($this->observers[$class])) {
+                foreach ($this->observers[$class] as $observer) {
+                    if (!method_exists($observer, $event)) {
+                        continue;
+                    }
+                    if (call_user_func([$observer, $event], $entity, $dirty) === false) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
