@@ -117,3 +117,5 @@ $user = new User();
 $user->username = 'jane.doe';
 $user->password = md5('secret password');
 $user->save(); // note that the password is not shown as it is excluded
+
+$em->delete($user);

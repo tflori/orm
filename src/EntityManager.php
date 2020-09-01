@@ -445,8 +445,12 @@ class EntityManager
      */
     public function delete(Entity $entity)
     {
+        if ($this->fireEntityEvent('deleting', $entity) === false) {
+            return false;
+        }
         $this->getDbal()->delete($entity);
         $entity->setOriginalData([]);
+        $this->fireEntityEvent('deleted', $entity);
         return true;
     }
 
