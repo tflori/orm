@@ -45,12 +45,13 @@ class SaveEntityTest extends TestCase
     }
 
     /** @test */
-    public function usesEntityManagerFromSave()
+    public function usesGivenEntityManager()
     {
         $emMock = m::mock(EntityManager::class);
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
         $emMock->shouldReceive('sync')->with($entity)->once()->andThrow(new IncompletePrimaryKey('Foobar'));
+        $emMock->shouldReceive('fireEntityEvent')->with(m::type('string'), $entity, m::any())->andReturn(true);
         $emMock->shouldReceive('insert')->with($entity)->once()->andReturnUsing(function (Entity $entity) {
             $var = $entity::getPrimaryKeyVars()[0];
             $column = $entity::getColumnName($var);

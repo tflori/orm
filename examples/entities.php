@@ -8,12 +8,13 @@
  * @property string username
  * @property string password
  */
-class User extends ORM\Entity {
+class User extends ORM\Entity
+{
     protected static $excludedAttributes = ['password'];
     protected static $includedAttributes = ['name'];
 
     public function getName()
     {
-        return ucwords(preg_replace('/[^\w\-]+/', ' ', $this->username));
+        return ucwords(preg_replace('/[^A-Za-z0-9\-]+/', ' ', $this->username));
     }
 }

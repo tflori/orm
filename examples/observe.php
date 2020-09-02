@@ -17,8 +17,7 @@ function out($message) {
 $observer = User::observeBy()->on('fetched', function (User $user) {
     out(sprintf('Fetched User %s', $user->username));
 })->on('fetched', function (User $user) {
-    $user->name = ucfirst($user->username);
-    out(sprintf('Set name to %s', $user->name));
+    out(sprintf('Second listner called for %s', $user->name));
 });
 
 $query = User::query();
@@ -33,8 +32,7 @@ $observer1 = User::observeBy()->on('fetched', function (User $user) {
     out(sprintf('Fetched User %s', $user->username));
 });
 $observer2 = User::observeBy()->on('fetched', function (User $user) {
-    $user->name = ucfirst($user->username);
-    out(sprintf('Set name to %s', $user->name));
+    out(sprintf('Second listner called for %s', $user->name));
 });
 
 $query = User::query();
@@ -91,7 +89,7 @@ class AuditLog extends Observer
 
     public function inserted(Entity $entity, array $dirty = null)
     {
-        $this->log('created', $entity, $dirty);
+        $this->log('created', $entity, $entity->toArray());
     }
 
     public function updated(Entity $entity, array $dirty = null)

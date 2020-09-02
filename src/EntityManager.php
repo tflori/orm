@@ -555,22 +555,38 @@ class EntityManager
         return $returnObserver ? $observer : null;
     }
 
+    /**
+     * Remove $observer for $class
+     *
+     * If the observer is attached to multiple classes it keeps attached to them.
+     *
+     * @param $class
+     * @param Observer $observer
+     * @return bool
+     */
     public function ignore($class, Observer $observer)
     {
         $pos = isset($this->observers[$class]) ? array_search($observer, $this->observers[$class]) : false;
-        if ($pos === false) {
-            throw new Exception('$observer is not bound to ' . $class);
+        if ($pos !== false) {
+            array_splice($this->observers, $pos, 1);
         }
 
-        array_splice($this->observers, $pos, 1);
+        return $pos !== false;
     }
 
+    /**
+     * @param $event
+     * @param Entity $entity
+     * @param array|null $dirty
+     * @internal This method is only supposed to be used from entities
+     * @return bool
+     */
     public function fireEntityEvent($event, Entity $entity, array $dirty = null)
     {
-        $reflection = new ReflectionClass($entity);
-        $classes = [get_class($entity)];
+        $parent = new ReflectionClass($entity);
+        $classes = [$parent->getName()];
         do {
-            $parent = $reflection->getParentClass();
+            $parent = $parent->getParentClass();
             $classes[] = $parent->getName();
         } while ($parent->getName() !== Entity::class);
 
