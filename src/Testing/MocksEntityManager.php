@@ -224,35 +224,20 @@ trait MocksEntityManager
         /** @var EntityManager|m\MockInterface $em */
         $em = $this->ormGetEntityManagerInstance($class);
 
-        return $em->shouldReceive('sync')->with(m::type($class))
-            ->andReturnUsing(
-                function (Entity $entity) use ($class, $defaultValues, $em) {
-                    $expectation = $em->shouldReceive('insert')->once()
-                        ->andReturnUsing(
-                            function (Entity $entity, $useAutoIncrement = true) use ($class, $defaultValues, $em) {
-                                if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
-                                    $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
-                                }
-                                $entity->setOriginalData(array_merge(
-                                    $this->ormAttributesToData($class, $defaultValues),
-                                    $entity->getData()
-                                ));
-                                $entity->reset();
-                                $em->map($entity);
-                                return true;
-                            }
-                        );
-
-                    try {
-                        $entity->getPrimaryKey();
-                        $expectation->with(m::type($class), false);
-                        return false;
-                    } catch (IncompletePrimaryKey $ex) {
-                        $expectation->with(m::type($class));
-                        throw $ex;
-                    }
+        $em->shouldReceive('sync')->with(m::type($class))->andReturnFalse();
+        return $em->shouldReceive('insert')->with(m::type($class), m::anyOf(true, false))
+            ->andReturnUsing(function (Entity $entity, $useAutoIncrement = true) use ($class, $defaultValues, $em) {
+                if ($useAutoIncrement && !isset($defaultValues[$entity::getPrimaryKeyVars()[0]])) {
+                    $defaultValues[$entity::getPrimaryKeyVars()[0]] = mt_rand(1, pow(2, 31) - 1);
                 }
-            );
+                $entity->setOriginalData(array_merge(
+                    $this->ormAttributesToData($class, $defaultValues),
+                    $entity->getData()
+                ));
+                $entity->reset();
+                $em->map($entity);
+                return true;
+            });
     }
 
     /**
