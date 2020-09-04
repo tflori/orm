@@ -374,7 +374,8 @@ abstract class Entity implements Serializable
      * @return bool
      * @throws IncompletePrimaryKey
      */
-    private function insertEntity($hasPrimaryKey) {
+    private function insertEntity($hasPrimaryKey)
+    {
         if (!$hasPrimaryKey && !static::isAutoIncremented()) {
             if (!$this instanceof GeneratesPrimaryKeys) {
                 $this->getPrimaryKey(); // this will throw then...
