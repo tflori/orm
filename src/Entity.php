@@ -382,7 +382,7 @@ abstract class Entity implements Serializable
             }
         } else {
             $dirty = $this->getDirty();
-            if (!empty($dirty) && $this->entityManager->fireEntityEvent('updating', $this, $dirty) !== false) {
+            if ($this->isDirty() && $this->entityManager->fireEntityEvent('updating', $this, $dirty) !== false) {
                 $this->preUpdate();
                 if ($this->entityManager->update($this)) {
                     $saved = true;
@@ -429,6 +429,14 @@ abstract class Entity implements Serializable
         return serialize($this->data) !== serialize($this->originalData);
     }
 
+    /**
+     * Get an array of attributes that changed
+     *
+     * This method works on application level. Meaning it is showing additional attributes defined in
+     * ::$includedAttributes and and hiding ::$excludedAttributes.
+     *
+     * @return array
+     */
     public function getDirty()
     {
         $current = $this->toArray([], false);
@@ -451,6 +459,16 @@ abstract class Entity implements Serializable
         }
 
         return $dirty;
+    }
+
+    /**
+     * Check if the entity has has a complete primary key
+     *
+     * @return bool
+     */
+    public function hasPrimaryKey()
+    {
+        return (bool)min(array_map([$this, '__isset'], static::getPrimaryKeyVars()));
     }
 
     /**
@@ -553,10 +571,5 @@ abstract class Entity implements Serializable
         list($this->data, $this->relatedObjects) = unserialize($serialized);
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
-    }
-
-    public function hasPrimaryKey()
-    {
-        return (bool)min(array_map([$this, '__isset'], static::getPrimaryKeyVars()));
     }
 }

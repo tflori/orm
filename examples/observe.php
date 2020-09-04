@@ -9,7 +9,8 @@ require_once 'entities.php';
 
 /** @var EntityManager $em */
 
-function out($message) {
+function out($message)
+{
     echo (new DateTime)->format('[Y-m-d H:i:s.u] ') . $message . PHP_EOL;
 }
 
