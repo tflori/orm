@@ -583,25 +583,16 @@ class EntityManager
      */
     public function fireEntityEvent($event, Entity $entity, array $dirty = null)
     {
-        $parent = new ReflectionClass($entity);
-        $classes = [$parent->getName()];
         do {
-            $parent = $parent->getParentClass();
-            $classes[] = $parent->getName();
-        } while ($parent->getName() !== Entity::class);
-
-        foreach ($classes as $class) {
-            if (isset($this->observers[$class])) {
-                foreach ($this->observers[$class] as $observer) {
-                    if (!method_exists($observer, $event)) {
-                        continue;
-                    }
-                    if (call_user_func([$observer, $event], $entity, $dirty) === false) {
-                        return false;
-                    }
+            $current = isset($current) ? $current->getParentClass() : new ReflectionClass($entity);
+            $class = $current->getName();
+            foreach ((array)@$this->observers[$class] as $observer) {
+                if (method_exists($observer, $event) &&
+                    call_user_func([$observer, $event], $entity, $dirty) === false) {
+                    return false;
                 }
             }
-        }
+        } while ($class !== Entity::class);
 
         return true;
     }
