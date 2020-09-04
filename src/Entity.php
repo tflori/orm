@@ -350,53 +350,68 @@ abstract class Entity implements Serializable
      */
     public function save()
     {
-        // @codeCoverageIgnoreStart
-        if (func_num_args() === 1 && func_get_arg(0) instanceof EM) {
-            trigger_error(
-                'Passing EntityManager to save is deprecated. Use ->setEntityManager() to overwrite',
-                E_USER_DEPRECATED
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
-        if ($this->entityManager->fireEntityEvent('saving', $this) === false) {
-            return $this;
-        }
-
-        $saved = false;
-        $hasPrimaryKey = $this->hasPrimaryKey();
-        if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
-            if (!$hasPrimaryKey && !static::isAutoIncremented()) {
-                if (!$this instanceof GeneratesPrimaryKeys) {
-                    $this->getPrimaryKey(); // this will throw then...
-                }
-                $this->generatePrimaryKey();
+        if ($this->entityManager->fireEntityEvent('saving', $this) !== false) {
+            $hasPrimaryKey = $this->hasPrimaryKey();
+            if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
+                $saved = $this->insertEntity($hasPrimaryKey);
+            } else {
+                $dirty = $this->getDirty();
+                $saved = $this->updateEntity($dirty);
             }
-            if ($this->entityManager->fireEntityEvent('inserting', $this) !== false) {
-                $this->prePersist();
-                if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
-                    $saved = true;
-                    $this->entityManager->fireEntityEvent('inserted', $this);
-                    $this->postPersist();
-                }
-            }
-        } else {
-            $dirty = $this->getDirty();
-            if ($this->isDirty() && $this->entityManager->fireEntityEvent('updating', $this, $dirty) !== false) {
-                $this->preUpdate();
-                if ($this->entityManager->update($this)) {
-                    $saved = true;
-                    $this->entityManager->fireEntityEvent('updated', $this, $dirty);
-                    $this->postUpdate();
-                }
-            }
-        }
 
-        if ($saved) {
-            $this->entityManager->fireEntityEvent('saved', $this, @$dirty);
+            if ($saved) {
+                $this->entityManager->fireEntityEvent('saved', $this, @$dirty);
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * Insert the row in the database
+     *
+     * @param bool $hasPrimaryKey
+     * @return bool
+     * @throws IncompletePrimaryKey
+     */
+    private function insertEntity($hasPrimaryKey) {
+        if (!$hasPrimaryKey && !static::isAutoIncremented()) {
+            if (!$this instanceof GeneratesPrimaryKeys) {
+                $this->getPrimaryKey(); // this will throw then...
+            }
+            $this->generatePrimaryKey();
+        }
+
+        if ($this->entityManager->fireEntityEvent('inserting', $this) !== false) {
+            $this->prePersist();
+            if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
+                $this->entityManager->fireEntityEvent('inserted', $this);
+                $this->postPersist();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Update the row in the database
+     *
+     * @param array $dirty
+     * @return bool
+     */
+    private function updateEntity(array $dirty)
+    {
+        if ($this->isDirty() && $this->entityManager->fireEntityEvent('updating', $this, $dirty) !== false) {
+            $this->preUpdate();
+            if ($this->entityManager->update($this)) {
+                $this->entityManager->fireEntityEvent('updated', $this, $dirty);
+                $this->postUpdate();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
