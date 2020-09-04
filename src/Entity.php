@@ -419,8 +419,12 @@ abstract class Entity implements Serializable
     public function isDirty($attribute = null)
     {
         if (!empty($attribute)) {
-            $col = static::getColumnName($attribute);
-            return @$this->data[$col] !== @$this->originalData[$col];
+            $current = $this->getAttribute($attribute);
+            $backupData = $this->data;
+            $this->data = $this->originalData;
+            $old = $this->getAttribute($attribute);
+            $this->data = $backupData;
+            return $current !== $old;
         }
 
         ksort($this->data);
