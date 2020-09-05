@@ -47,51 +47,50 @@ class CallbackObserver extends Observer
         $this->executeCallbacks('fetched', $model);
     }
 
-    public function saving(Entity $model, array $dirty = null)
+    public function saving(Entity $model)
     {
-        return $this->executeCallbacks('saving', $model, true, $dirty);
+        return $this->executeCallbacks('saving', $model);
     }
 
     public function saved(Entity $model, array $dirty = null)
     {
-        $this->executeCallbacks('saved', $model, false, $dirty);
+        $this->executeCallbacks('saved', $model, $dirty);
     }
 
-    public function inserting(Entity $model, array $dirty = null)
+    public function inserting(Entity $model)
     {
-        return $this->executeCallbacks('inserting', $model, true, $dirty);
+        return $this->executeCallbacks('inserting', $model);
     }
 
-    public function inserted(Entity $model, array $dirty = null)
+    public function inserted(Entity $model)
     {
-        $this->executeCallbacks('inserted', $model, false, $dirty);
+        $this->executeCallbacks('inserted', $model);
     }
 
     public function updating(Entity $model, array $dirty = null)
     {
-        return $this->executeCallbacks('updating', $model, true, $dirty);
+        return $this->executeCallbacks('updating', $model, $dirty);
     }
 
     public function updated(Entity $model, array $dirty = null)
     {
-        $this->executeCallbacks('updated', $model, false, $dirty);
+        $this->executeCallbacks('updated', $model, $dirty);
     }
 
     public function deleting(Entity $model)
     {
-        return $this->executeCallbacks('deleting', $model, true);
+        return $this->executeCallbacks('deleting', $model);
     }
 
     public function deleted(Entity $model)
     {
-        $this->executeCallbacks('deleted', $model, false);
+        $this->executeCallbacks('deleted', $model);
     }
 
-    protected function executeCallbacks($event, $model, $cancelable = false, array $dirty = null)
+    protected function executeCallbacks($event, $model, array $dirty = null)
     {
         foreach ($this->callbacks[$event] as $callback) {
-            $continue = call_user_func($callback, $model, $dirty);
-            if ($cancelable && $continue === false) {
+            if (call_user_func($callback, $model, $dirty) === false) {
                 return false;
             }
         }

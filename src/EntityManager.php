@@ -575,7 +575,9 @@ class EntityManager
     }
 
     /**
-     * @param $event
+     * Fire $event on $entity
+     *
+     * @param string $event
      * @param Entity $entity
      * @param array|null $dirty
      * @internal This method is only supposed to be used from entities
