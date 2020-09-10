@@ -20,17 +20,32 @@ class CallbackObserver extends Observer
         'deleted' => [],
     ];
 
-    public function on($event, callable $callback)
+    /**
+     * Register a new $listener for $event
+     *
+     * @param $event
+     * @param callable $listener
+     * @return $this
+     * @throws InvalidArgument
+     */
+    public function on($event, callable $listener)
     {
         if (!isset($this->callbacks[$event])) {
             throw new InvalidArgument(
                 'Unknown event ' . $event . '. Use one of ' . implode(',', array_keys($this->callbacks))
             );
         }
-        $this->callbacks[$event][] = $callback;
+        $this->callbacks[$event][] = $listener;
         return $this;
     }
 
+    /**
+     * Remove all listeners for $event
+     *
+     * @param $event
+     * @return $this
+     * @throws InvalidArgument
+     */
     public function off($event)
     {
         if (!isset($this->callbacks[$event])) {
