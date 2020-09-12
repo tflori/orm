@@ -129,12 +129,15 @@ abstract class Entity implements Serializable
     }
 
     /**
-     * Stop observing
+     * Stop observing the class by $observer
+     *
      * @param Observer $observer
+     * @codeCoverageIgnore proxy for EntityManager::ignore()
+     *@see EntityManager::detach()
      */
-    public static function ignoreFor(Observer $observer)
+    public static function detachObserver(Observer $observer)
     {
-        EM::getInstance(static::class)->ignore(static::class, $observer);
+        EM::getInstance(static::class)->detach($observer, static::class);
     }
 
     /**

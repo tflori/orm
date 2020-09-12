@@ -7,6 +7,7 @@ use ORM\Dbal\Dbal;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
 use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidArgument;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
@@ -541,6 +542,7 @@ class EntityManager
      * @param string $class
      * @param ?Observer $observer
      * @return ?CallbackObserver
+     * @throws InvalidArgument
      */
     public function observe($class, Observer $observer = null)
     {
@@ -549,6 +551,8 @@ class EntityManager
 
         if (!isset($this->observers[$class])) {
             $this->observers[$class] = [];
+        } elseif (in_array($observer, $this->observers[$class], true)) {
+            throw new InvalidArgument('$observer is already registered to ' . $class);
         }
 
         $this->observers[$class][] = $observer;
@@ -560,15 +564,24 @@ class EntityManager
      *
      * If the observer is attached to multiple classes it keeps attached to them.
      *
-     * @param $class
      * @param Observer $observer
+     * @param ?string $class
      * @return bool
      */
-    public function ignore($class, Observer $observer)
+    public function detach(Observer $observer, $class = null)
     {
-        $pos = isset($this->observers[$class]) ? array_search($observer, $this->observers[$class]) : false;
+        if ($class === null) {
+            foreach ($this->observers as $class => $observers) {
+                $this->observers[$class] = array_filter($observers, function (Observer $obs) use ($observer) {
+                    return $obs !== $observer;
+                });
+            }
+            return true;
+        }
+
+        $pos = isset($this->observers[$class]) ? array_search($observer, $this->observers[$class], true) : false;
         if ($pos !== false) {
-            array_splice($this->observers, $pos, 1);
+            array_splice($this->observers[$class], $pos, 1);
         }
 
         return $pos !== false;

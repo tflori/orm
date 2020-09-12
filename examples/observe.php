@@ -63,12 +63,12 @@ $user->save(); // listener got removed
 $query->one();
 
 // removes the observer itself
-User::ignoreFor($observer);
+User::detachObserver($observer);
 $query->one();
 
 // both method exist for the entity manager too
 $em->observe(User::class, $observer);
-$em->ignore(User::class, $observer);
+$em->detach($observer, User::class);
 
 // It is also possible to assign observer to parent classes (also Entity itself)
 // Check out the following example to get audit log of CRUD operations for all entities:
