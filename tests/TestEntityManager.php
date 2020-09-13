@@ -15,6 +15,8 @@ class TestEntityManager extends EntityManager
             'byParent' => [],
             'last' => null,
         ];
+
+        static::$resolver = null;
     }
 
     public function setBulkInsert($class, BulkInsert $bulkInsert)

@@ -546,9 +546,13 @@ public function useAutoincrement(): $this
 
 * [__construct](#ormdbalcolumn__construct) Column constructor.
 * [__get](#ormdbalcolumn__get) Get attributes from column
+* [getDefault](#ormdbalcolumngetdefault) Get the default value of the column
+* [getName](#ormdbalcolumngetname) Get the name of the column
+* [getNullable](#ormdbalcolumngetnullable) Get the nullable status of the column
 * [getRegisteredType](#ormdbalcolumngetregisteredtype) Get the registered type for $columnDefinition
 * [getType](#ormdbalcolumngettype) Determine and return the type
 * [hasDefault](#ormdbalcolumnhasdefault) Check if default value is given
+* [isNullable](#ormdbalcolumnisnullable) Check if the column is nullable
 * [registerType](#ormdbalcolumnregistertype) Register $type for describe
 * [validate](#ormdbalcolumnvalidate) Check if $value is valid for this type
 
@@ -600,6 +604,57 @@ public function __get( string $name ): mixed
 
 
 
+#### ORM\Dbal\Column::getDefault
+
+```php
+public function getDefault(): mixed
+```
+
+##### Get the default value of the column
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+
+
+#### ORM\Dbal\Column::getName
+
+```php
+public function getName(): string
+```
+
+##### Get the name of the column
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+
+
+#### ORM\Dbal\Column::getNullable
+
+```php
+public function getNullable(): boolean
+```
+
+##### Get the nullable status of the column
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
 #### ORM\Dbal\Column::getRegisteredType
 
 ```php
@@ -648,6 +703,23 @@ public function hasDefault(): boolean
 ```
 
 ##### Check if default value is given
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
+#### ORM\Dbal\Column::isNullable
+
+```php
+public function isNullable(): boolean
+```
+
+##### Check if the column is nullable
 
 
 
@@ -1567,10 +1639,13 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
 | **protected static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
 | **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
-| **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
+| **protected static** | `$namingSchemeAttributes` | **string** | The naming scheme to use for attributes. |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
+| **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$includedAttributes` | **array** | Additional attributes to show in toArray method |
+| **protected static** | `$excludedAttributes` | **array** | Attributes to hide for toArray method (overruled by $attributes parameter) |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
 
 
@@ -1578,9 +1653,9 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 #### Methods
 
 * [__construct](#ormentity__construct) Constructor
-* [__get](#ormentity__get) Get the value from $attribute
+* [__get](#ormentity__get) 
 * [__isset](#ormentity__isset) Check if a column is defined
-* [__set](#ormentity__set) Set $attribute to $value
+* [__set](#ormentity__set) 
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [describe](#ormentitydescribe) Get a description for this table.
@@ -1589,6 +1664,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [fetch](#ormentityfetch) Fetches related objects
 * [fill](#ormentityfill) Fill the entity with $data
 * [generatePrimaryKey](#ormentitygenerateprimarykey) Generates a primary key
+* [getAttribute](#ormentitygetattribute) Get the value from $attribute
+* [getAttributeName](#ormentitygetattributename) Get the column name of $attribute
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $attribute
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
@@ -1611,14 +1688,17 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [preUpdate](#ormentitypreupdate) Empty event handler
 * [query](#ormentityquery) Create an entityFetcher for this entity
 * [reset](#ormentityreset) Resets the entity or $attribute to original data
+* [resetRelated](#ormentityresetrelated) Resets all loaded relations or $relation
 * [save](#ormentitysave) Save the entity to EntityManager
 * [serialize](#ormentityserialize) String representation of data
+* [setAttribute](#ormentitysetattribute) Set $attribute to $value
 * [setEntityManager](#ormentitysetentitymanager) 
 * [setNamingSchemeColumn](#ormentitysetnamingschemecolumn) 
 * [setNamingSchemeMethods](#ormentitysetnamingschememethods) 
 * [setNamingSchemeTable](#ormentitysetnamingschemetable) 
 * [setRelated](#ormentitysetrelated) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
+* [toArray](#ormentitytoarray) Get an array of the entity
 * [unserialize](#ormentityunserialize) Constructs the object
 * [validate](#ormentityvalidate) Validate $value for $attribute
 * [validateArray](#ormentityvalidatearray) Validate $data
@@ -1656,9 +1736,8 @@ It calls ::onInit() after initializing $data and $originalData.
 public function __get( string $attribute ): mixed|null
 ```
 
-##### Get the value from $attribute
 
-If there is a custom getter this method get called instead.
+
 
 **Visibility:** this method is **public**.
 <br />
@@ -1669,14 +1748,13 @@ If there is a custom getter this method get called instead.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$attribute` | **string**  | The variable to get |
+| `$attribute` | **string**  |  |
 
 
 
 **See Also:**
 
-* [Working with entities](https://tflori.github.io/orm/entities.html)
-
+* self::getAttribute 
 #### ORM\Entity::__isset
 
 ```php
@@ -1706,19 +1784,12 @@ public function __isset( $attribute ): boolean
 public function __set( string $attribute, $value )
 ```
 
-##### Set $attribute to $value
 
-Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
-data that should be updated in the database to $data. Do not store data in $originalData as it will not be
-written and give wrong results for dirty checking.
 
-The onChange event is called after something got changed.
-
-The method throws an error when the validation fails (also when the column does not exist).
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Dbal\Error**<br />
+
 
 ##### Parameters
 
@@ -1731,8 +1802,7 @@ The method throws an error when the validation fails (also when the column does 
 
 **See Also:**
 
-* [Working with entities](https://tflori.github.io/orm/entities.html)
-
+* self::getAttribute 
 #### ORM\Entity::addRelated
 
 ```php
@@ -1891,7 +1961,7 @@ When $checkMissing is set to true it also proves that the absent columns are nul
 
 **Visibility:** this method is **public**.
 <br />
-**Throws:** this method may throw **\ORM\Exception\UnknownColumn**<br />
+**Throws:** this method may throw **\ORM\Exception\UnknownColumn** or **\ORM\Dbal\Error**<br />
 
 ##### Parameters
 
@@ -1916,6 +1986,61 @@ This method should only be executed from save method.
 **Visibility:** this method is **protected**.
 <br />
 
+
+
+
+#### ORM\Entity::getAttribute
+
+```php
+public function getAttribute( string $attribute ): mixed|null
+```
+
+##### Get the value from $attribute
+
+If there is a custom getter this method get called instead.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$attribute` | **string**  | The variable to get |
+
+
+
+**See Also:**
+
+* [Working with entities](https://tflori.github.io/orm/entities.html)
+
+#### ORM\Entity::getAttributeName
+
+```php
+public static function getAttributeName( string $column ): string
+```
+
+##### Get the column name of $attribute
+
+The column names can not be specified by template. Instead they are constructed by $columnPrefix and enforced
+to $namingSchemeColumn.
+
+**ATTENTION**: If your overwrite this method remember that getColumnName(getColumnName($name)) have to be exactly
+the same as getColumnName($name).
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string**  |  |
 
 
 
@@ -2349,6 +2474,28 @@ public function reset( string $attribute = null )
 
 
 
+#### ORM\Entity::resetRelated
+
+```php
+public function resetRelated( null $relation = null )
+```
+
+##### Resets all loaded relations or $relation
+
+Helpful to reduce the size of serializations of the object (for caching, or toArray method etc.)
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **null**  |  |
+
+
+
 #### ORM\Entity::save
 
 ```php
@@ -2386,6 +2533,40 @@ public function serialize(): string
 **See Also:**
 
 * [http://php.net/manual/en/serializable.serialize.php](http://php.net/manual/en/serializable.serialize.php)
+
+#### ORM\Entity::setAttribute
+
+```php
+public function setAttribute( string $attribute, $value ): static
+```
+
+##### Set $attribute to $value
+
+Tries to call custom setter before it stores the data directly. If there is a setter the setter needs to store
+data that should be updated in the database to $data. Do not store data in $originalData as it will not be
+written and give wrong results for dirty checking.
+
+The onChange event is called after something got changed.
+
+The method throws an error when the validation fails (also when the column does not exist).
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />**Throws:** this method may throw **\ORM\Dbal\Error**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$attribute` | **string**  | The variable to change |
+| `$value` | **mixed**  | The value to store |
+
+
+
+**See Also:**
+
+* [Working with entities](https://tflori.github.io/orm/entities.html)
 
 #### ORM\Entity::setEntityManager
 
@@ -2521,6 +2702,32 @@ public static function setTableNameTemplate( string $tableNameTemplate )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$tableNameTemplate` | **string**  |  |
+
+
+
+#### ORM\Entity::toArray
+
+```php
+public function toArray(
+    array $attributes = array(), boolean $includeRelations = true
+): array
+```
+
+##### Get an array of the entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$attributes` | **array**  |  |
+| `$includeRelations` | **boolean**  |  |
 
 
 
@@ -4411,6 +4618,7 @@ $query->where('name = ?', ['John Doe']);
 | OPT_NAMING_SCHEME_TABLE | `'namingSchemeTable'` |
 | OPT_NAMING_SCHEME_COLUMN | `'namingSchemeColumn'` |
 | OPT_NAMING_SCHEME_METHODS | `'namingSchemeMethods'` |
+| OPT_NAMING_SCHEME_ATTRIBUTE | `'namingSchemeAttribute'` |
 | OPT_QUOTING_CHARACTER | `'quotingChar'` |
 | OPT_IDENTIFIER_DIVIDER | `'identifierDivider'` |
 | OPT_BOOLEAN_TRUE | `'true'` |
@@ -4428,6 +4636,7 @@ $query->where('name = ?', ['John Doe']);
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected static** | `$resolver` | **callable** |  |
 | **protected** | `$connection` | ** \ PDO &#124; callable &#124; DbConfig** | Connection to database |
 | **protected** | `$dbal` | **Dbal \ Dbal** | The Database Abstraction Layer |
 | **protected** | `$namer` | **Namer** | The Namer instance |
@@ -4462,6 +4671,7 @@ $query->where('name = ?', ['John Doe']);
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
+* [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
 * [sync](#ormentitymanagersync) Synchronizing $entity with database
 * [useBulkInserts](#ormentitymanagerusebulkinserts) Force $class to use bulk insert.
 
@@ -4775,7 +4985,7 @@ public static function getInstance( string $class = null ): \ORM\EntityManager
 
 If no class is given it gets $class from backtrace.
 
-It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+It first tries to get the EntityManager for the Namespace of $class, then for the parents of $class. If no
 EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
 
 **Static:** this method is **static**.
@@ -4961,6 +5171,29 @@ public function setOption( string $option, $value ): static
 
 
 
+#### ORM\EntityManager::setResolver
+
+```php
+public static function setResolver( callable $resolver )
+```
+
+##### Overwrite the functionality of ::getInstance($class) by $resolver($class)
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$resolver` | **callable**  |  |
+
+
+
 #### ORM\EntityManager::sync
 
 ```php
@@ -5031,6 +5264,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected static** | `$resolver` | **callable** |  |
 | **protected** | `$connection` | ** \ PDO &#124; callable &#124;  \ ORM \ DbConfig** | Connection to database |
 | **protected** | `$dbal` | ** \ ORM \ Dbal \ Dbal** | The Database Abstraction Layer |
 | **protected** | `$namer` | ** \ ORM \ Namer** | The Namer instance |
@@ -5070,6 +5304,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
+* [setResolver](#ormtestingentitymanagermocksetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
 * [sync](#ormtestingentitymanagermocksync) Synchronizing $entity with database
 * [useBulkInserts](#ormtestingentitymanagermockusebulkinserts) Force $class to use bulk insert.
 
@@ -5125,7 +5360,7 @@ You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`
 ```php
 public function addResult(
     $class, \ORM\Entity $entities
-): \ORM\Testing\EntityFetcherMock\Result
+): \ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface
 ```
 
 ##### Create and add a EntityFetcherMock\Result for $class
@@ -5134,7 +5369,7 @@ As the results are mocked to come from the database they will also get a primary
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result**
+ **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface**
 <br />
 
 ##### Parameters
@@ -5434,7 +5669,7 @@ public static function getInstance( string $class = null ): \ORM\EntityManager
 
 If no class is given it gets $class from backtrace.
 
-It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+It first tries to get the EntityManager for the Namespace of $class, then for the parents of $class. If no
 EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
 
 **Static:** this method is **static**.
@@ -5665,6 +5900,29 @@ public function setOption( string $option, $value ): static
 |-----------|------|-------------|
 | `$option` | **string**  | One of OPT_* constants |
 | `$value` | **mixed**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::setResolver
+
+```php
+public static function setResolver( callable $resolver )
+```
+
+##### Overwrite the functionality of ::getInstance($class) by $resolver($class)
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$resolver` | **callable**  |  |
 
 
 
@@ -7153,6 +7411,7 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 | **protected** | `$columnNames` | **array&lt;string[]>** |  |
 | **protected** | `$columnNameScheme` | **string** | The naming scheme to use for column names. |
 | **protected** | `$methodNameScheme` | **string** | The naming scheme used for method names. |
+| **protected** | `$attributeNameScheme` | **string** | The naming scheme used for attributes. |
 
 
 
@@ -7161,8 +7420,9 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 * [__construct](#ormnamer__construct) Namer constructor.
 * [arrayToString](#ormnamerarraytostring) Convert array to string using indexes defined by $accessor
 * [forceNamingScheme](#ormnamerforcenamingscheme) Enforce $namingScheme to $name
+* [getAttributeName](#ormnamergetattributename) Get the attribute name with $namingScheme or default naming scheme
 * [getColumnName](#ormnamergetcolumnname) Get the column name with $namingScheme or default naming scheme
-* [getMethodName](#ormnamergetmethodname) Get the column name with $namingScheme or default naming scheme
+* [getMethodName](#ormnamergetmethodname) Get the method name with $namingScheme or default naming scheme
 * [getTableName](#ormnamergettablename) Get the table name for $reflection
 * [getValue](#ormnamergetvalue) Get the value for $attribute from $values using $arrayGlue
 * [setOption](#ormnamersetoption) Set $option to $value
@@ -7242,6 +7502,33 @@ and UPPER.
 
 
 
+#### ORM\Namer::getAttributeName
+
+```php
+public function getAttributeName(
+    string $name, $prefix = null, string $namingScheme = null
+): string
+```
+
+##### Get the attribute name with $namingScheme or default naming scheme
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **string**  |  |
+| `$prefix` |   |  |
+| `$namingScheme` | **string**  |  |
+
+
+
 #### ORM\Namer::getColumnName
 
 ```php
@@ -7279,7 +7566,7 @@ public function getMethodName(
 ): string
 ```
 
-##### Get the column name with $namingScheme or default naming scheme
+##### Get the method name with $namingScheme or default naming scheme
 
 
 
@@ -12749,7 +13036,7 @@ You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`
 ```php
 public function addResult(
     $class, \ORM\Entity $entities
-): \ORM\Testing\EntityFetcherMock\Result
+): \ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface
 ```
 
 ##### Create and add a EntityFetcherMock\Result for $class
@@ -12758,7 +13045,7 @@ As the results are mocked to come from the database they will also get a primary
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result**
+ **Returns**: this method returns **\ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface**
 <br />
 
 ##### Parameters
