@@ -4671,7 +4671,7 @@ $query->where('name = ?', ['John Doe']);
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
-* [setResolver](#ormentitymanagersetresolver) 
+* [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
 * [sync](#ormentitymanagersync) Synchronizing $entity with database
 * [useBulkInserts](#ormentitymanagerusebulkinserts) Force $class to use bulk insert.
 
@@ -4985,7 +4985,7 @@ public static function getInstance( string $class = null ): \ORM\EntityManager
 
 If no class is given it gets $class from backtrace.
 
-It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+It first tries to get the EntityManager for the Namespace of $class, then for the parents of $class. If no
 EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
 
 **Static:** this method is **static**.
@@ -5177,6 +5177,7 @@ public function setOption( string $option, $value ): static
 public static function setResolver( callable $resolver )
 ```
 
+##### Overwrite the functionality of ::getInstance($class) by $resolver($class)
 
 
 
@@ -5303,7 +5304,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
-* [setResolver](#ormtestingentitymanagermocksetresolver) 
+* [setResolver](#ormtestingentitymanagermocksetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
 * [sync](#ormtestingentitymanagermocksync) Synchronizing $entity with database
 * [useBulkInserts](#ormtestingentitymanagermockusebulkinserts) Force $class to use bulk insert.
 
@@ -5668,7 +5669,7 @@ public static function getInstance( string $class = null ): \ORM\EntityManager
 
 If no class is given it gets $class from backtrace.
 
-It first gets tries the EntityManager for the Namespace of $class, then for the parents of $class. If no
+It first tries to get the EntityManager for the Namespace of $class, then for the parents of $class. If no
 EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
 
 **Static:** this method is **static**.
@@ -5908,6 +5909,7 @@ public function setOption( string $option, $value ): static
 public static function setResolver( callable $resolver )
 ```
 
+##### Overwrite the functionality of ::getInstance($class) by $resolver($class)
 
 
 

@@ -2,6 +2,7 @@
 
 namespace ORM\Test\EntityManager;
 
+use Mockery as m;
 use ORM\EntityManager;
 use ORM\Test\EntityManager\Examples\Concrete;
 use ORM\Test\EntityManager\Examples\Entity;
@@ -61,5 +62,19 @@ class GetInstanceTest extends TestCase
         $last = new EntityManager();
 
         self::assertSame($last, EntityManager::getInstance(Unspecified::class));
+    }
+
+    /** @test */
+    public function usesTheResolverProvided()
+    {
+        $em = new EntityManager();
+        $spy = m::spy(function ($class = null) use ($em) {
+            return $em;
+        });
+        EntityManager::setResolver($spy);
+
+        $spy->shouldReceive('__invoke')->with(Concrete::class)->once()->andReturn($em);
+
+        self::assertSame($em, EntityManager::getInstance(Concrete::class));
     }
 }
