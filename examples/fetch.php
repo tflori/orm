@@ -2,8 +2,8 @@
 
 use ORM\EntityManager;
 
-require_once 'bootstrap.php';
-require_once 'entities.php';
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/entities.php';
 
 /** @var EntityManager $em */
 

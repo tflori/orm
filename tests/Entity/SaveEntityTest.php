@@ -49,7 +49,7 @@ class SaveEntityTest extends TestCase
         $emMock = m::mock(EntityManager::class);
         $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
 
-        $emMock->shouldReceive('fireEntityEvent')->andReturn(true);
+        $emMock->shouldReceive('fire')->andReturn(true);
         $emMock->shouldReceive('insert')->with($entity, true)->once()->andReturnUsing(function (Entity $entity) {
             $var = $entity::getPrimaryKeyVars()[0];
             $column = $entity::getColumnName($var);

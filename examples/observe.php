@@ -2,10 +2,11 @@
 
 use ORM\Entity;
 use ORM\EntityManager;
-use ORM\Observer;
+use ORM\Event;
+use ORM\Observer\AbstractObserver;
 
-require_once 'bootstrap.php';
-require_once 'entities.php';
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/entities.php';
 
 /** @var EntityManager $em */
 
@@ -15,10 +16,10 @@ function out($message)
 }
 
 // use a callback observer
-$observer = User::observeBy()->on('fetched', function (User $user) {
-    out(sprintf('Fetched User %s', $user->username));
-})->on('fetched', function (User $user) {
-    out(sprintf('Second listner called for %s', $user->name));
+$observer = User::observeBy()->on('fetched', function (Event\Fetched $event) {
+    out(sprintf('Fetched User %s', $event->entity->username));
+})->on('fetched', function (Event\Fetched $event) {
+    out(sprintf('Second listner called for %s', $event->entity->name));
 });
 
 $query = User::query();
@@ -29,11 +30,11 @@ $observer->off('fetched');
 $query->one();
 
 // note that all listeners for 'fetched' are removed for this particular observer
-$observer1 = User::observeBy()->on('fetched', function (User $user) {
-    out(sprintf('Fetched User %s', $user->username));
+$observer1 = User::observeBy()->on('fetched', function (Event\Fetched $event) {
+    out(sprintf('Fetched User %s', $event->entity->username));
 });
-$observer2 = User::observeBy()->on('fetched', function (User $user) {
-    out(sprintf('Second listner called for %s', $user->name));
+$observer2 = User::observeBy()->on('fetched', function (Event\Fetched $event) {
+    out(sprintf('Second listner called for %s', $event->entity->name));
 });
 
 $query = User::query();
@@ -43,9 +44,9 @@ $observer2->off('fetched');
 $query->one()->reset();
 
 // disable whole observers
-$observer = User::observeBy()->on('fetched', function (User $user) {
-    out(sprintf('Fetched User %s', $user->username));
-})->on('saving', function (User $user) {
+$observer = User::observeBy()->on('fetched', function (Event\Fetched $event) {
+    out(sprintf('Fetched User %s', $event->entity->username));
+})->on('saving', function (Event\Saving $event) {
     // disable saving for the User entity:
     out('Modification of users disabled');
     return false;
@@ -72,35 +73,35 @@ $em->detach($observer, User::class);
 
 // It is also possible to assign observer to parent classes (also Entity itself)
 // Check out the following example to get audit log of CRUD operations for all entities:
-class AuditLog extends Observer
+class AuditLog extends AbstractObserver
 {
     protected function log($action, Entity $entity, array $dirty = null)
     {
-        $name = $entity->name ?: get_class($entity) . ':' . implode('.', array_values($entity->getPrimaryKey()));
+        $name = get_class($entity) . ':' . implode('.', array_values($entity->getPrimaryKey()));
         $user = get_current_user();
 
         // we output this to console... you might want to store the information in a database
-        out(sprintf('%s %s %s%s', $user, $action, $name, $dirty ? ' ' . json_encode($dirty) : ''));
+        out(sprintf('%s %s %s %s', $user, $action, $name, $dirty ? json_encode($dirty) : ''));
     }
 
-    public function fetched(Entity $entity)
+    public function fetched(Event\Fetched $event)
     {
-        $this->log('read', $entity);
+        $this->log('read', $event->entity);
     }
 
-    public function inserted(Entity $entity, array $dirty = null)
+    public function inserted(Event\Inserted $event)
     {
-        $this->log('created', $entity, $entity->toArray());
+        $this->log('created', $event->entity, $event->entity->toArray());
     }
 
-    public function updated(Entity $entity, array $dirty = null)
+    public function updated(Event\Updated $event)
     {
-        $this->log('updated', $entity, $dirty);
+        $this->log('updated', $event->entity, $event->dirty);
     }
 
-    public function deleted(Entity $entity)
+    public function deleted(Event\Deleted $event)
     {
-        $this->log('deleted', $entity);
+        $this->log('deleted', $event->entity);
     }
 }
 $em->observe(Entity::class, new AuditLog());

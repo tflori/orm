@@ -9,8 +9,16 @@ use ORM\Entity\Naming;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
+use ORM\Event\Fetched;
+use ORM\Event\Inserted;
+use ORM\Event\Inserting;
+use ORM\Event\Saved;
+use ORM\Event\Saving;
+use ORM\Event\Updated;
+use ORM\Event\Updating;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnknownColumn;
+use ORM\Observer\AbstractObserver;
 use ORM\Observer\CallbackObserver;
 use ReflectionClass;
 use Serializable;
@@ -91,7 +99,7 @@ abstract class Entity implements Serializable
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
         if ($fromDatabase) {
             $this->originalData = $data;
-            $this->entityManager->fireEntityEvent('fetched', $this);
+            $this->entityManager->fire(new Fetched($this, $data));
         }
         $this->onInit(!$fromDatabase);
     }
@@ -109,7 +117,7 @@ abstract class Entity implements Serializable
     /**
      * Observe the class using $observer
      *
-     * If Observer is omitted it returns a new CallbackObserver. Usage example:
+     * If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
      * ```php
      * $em->observe(User::class)
      *     ->on('inserted', function (User $user) { ... })
@@ -118,12 +126,12 @@ abstract class Entity implements Serializable
      *
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
-     * @see EntityManager::observe()
-     * @param ?Observer $observer
+     * @param ?AbstractObserver $observer
      * @return ?CallbackObserver
      * @codeCoverageIgnore proxy for EntityManager::observe()
+     *@see EntityManager::observe()
      */
-    public static function observeBy(Observer $observer = null)
+    public static function observeBy(AbstractObserver $observer = null)
     {
         return EM::getInstance(static::class)->observe(static::class, $observer);
     }
@@ -131,11 +139,11 @@ abstract class Entity implements Serializable
     /**
      * Stop observing the class by $observer
      *
-     * @param Observer $observer
+     * @param AbstractObserver $observer
      * @codeCoverageIgnore proxy for EntityManager::ignore()
      *@see EntityManager::detach()
      */
-    public static function detachObserver(Observer $observer)
+    public static function detachObserver(AbstractObserver $observer)
     {
         EM::getInstance(static::class)->detach($observer, static::class);
     }
@@ -353,7 +361,7 @@ abstract class Entity implements Serializable
      */
     public function save()
     {
-        if ($this->entityManager->fireEntityEvent('saving', $this) !== false) {
+        if ($this->entityManager->fire(new Saving($this)) !== false) {
             $hasPrimaryKey = $this->hasPrimaryKey();
             if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
                 $saved = $this->insertEntity($hasPrimaryKey);
@@ -363,7 +371,7 @@ abstract class Entity implements Serializable
             }
 
             if ($saved) {
-                $this->entityManager->fireEntityEvent('saved', $this, @$dirty);
+                $this->entityManager->fire(new Saved($saved));
             }
         }
 
@@ -374,7 +382,7 @@ abstract class Entity implements Serializable
      * Insert the row in the database
      *
      * @param bool $hasPrimaryKey
-     * @return bool
+     * @return Inserted|null
      * @throws IncompletePrimaryKey
      */
     private function insertEntity($hasPrimaryKey)
@@ -386,36 +394,36 @@ abstract class Entity implements Serializable
             $this->generatePrimaryKey();
         }
 
-        if ($this->entityManager->fireEntityEvent('inserting', $this) !== false) {
+        if ($this->entityManager->fire(new Inserting($this)) !== false) {
             $this->prePersist();
             if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
-                $this->entityManager->fireEntityEvent('inserted', $this);
+                $this->entityManager->fire($event = new Inserted($this));
                 $this->postPersist();
-                return true;
+                return $event;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
      * Update the row in the database
      *
      * @param array $dirty
-     * @return bool
+     * @return Updated|null
      */
     private function updateEntity(array $dirty)
     {
-        if ($this->isDirty() && $this->entityManager->fireEntityEvent('updating', $this, $dirty) !== false) {
+        if ($this->isDirty() && $this->entityManager->fire(new Updating($this, $dirty)) !== false) {
             $this->preUpdate();
             if ($this->entityManager->update($this)) {
-                $this->entityManager->fireEntityEvent('updated', $this, $dirty);
+                $this->entityManager->fire($event = new Updated($this, $dirty));
                 $this->postUpdate();
-                return true;
+                return $event;
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

@@ -13,8 +13,10 @@ permalink: /reference.html
 * [Entity](#ormentity)
 * [EntityFetcher](#ormentityfetcher)
 * [EntityManager](#ormentitymanager)
+* [Event](#ormevent)
 * [Exception](#ormexception)
 * [Namer](#ormnamer)
+* [ObserverInterface](#ormobserverinterface)
 * [Relation](#ormrelation)
 
 
@@ -64,6 +66,20 @@ permalink: /reference.html
 * [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
 
 
+### ORM\Event
+
+* [Deleted](#ormeventdeleted)
+* [Deleting](#ormeventdeleting)
+* [Fetched](#ormeventfetched)
+* [Inserted](#ormeventinserted)
+* [Inserting](#ormeventinserting)
+* [Saved](#ormeventsaved)
+* [Saving](#ormeventsaving)
+* [Updated](#ormeventupdated)
+* [UpdateEvent](#ormeventupdateevent)
+* [Updating](#ormeventupdating)
+
+
 ### ORM\Exception
 
 * [IncompletePrimaryKey](#ormexceptionincompleteprimarykey)
@@ -80,6 +96,12 @@ permalink: /reference.html
 * [UndefinedRelation](#ormexceptionundefinedrelation)
 * [UnknownColumn](#ormexceptionunknowncolumn)
 * [UnsupportedDriver](#ormexceptionunsupporteddriver)
+
+
+### ORM\Observer
+
+* [AbstractObserver](#ormobserverabstractobserver)
+* [CallbackObserver](#ormobservercallbackobserver)
 
 
 ### ORM\QueryBuilder
@@ -108,6 +130,247 @@ permalink: /reference.html
 
 * [Result](#ormtestingentityfetchermockresult)
 * [ResultRepository](#ormtestingentityfetchermockresultrepository)
+
+
+---
+
+### ORM\Observer\AbstractObserver
+
+
+**Implements:** [ORM\ObserverInterface](#ormobserverinterface)
+
+#### AbstractObserver for entity events
+
+When a handler returns false it will cancel other event handlers and if
+applicable stops the execution (saving, inserting, updating and deleting
+can be canceled).
+
+
+
+
+
+
+#### Methods
+
+* [deleted](#ormobserverabstractobserverdeleted) Gets called after an entity got deleted.
+* [deleting](#ormobserverabstractobserverdeleting) Gets called before an entity gets deleted.
+* [fetched](#ormobserverabstractobserverfetched) Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+* [inserted](#ormobserverabstractobserverinserted) Gets called after an entity gets inserted.
+* [inserting](#ormobserverabstractobserverinserting) Gets Called before an entity gets inserted.
+* [saved](#ormobserverabstractobserversaved) Gets called after an entity got saved.
+* [saving](#ormobserverabstractobserversaving) Gets called before an entity gets saved.
+* [updated](#ormobserverabstractobserverupdated) Gets called after an entity got updated.
+* [updating](#ormobserverabstractobserverupdating) Gets called before an entity gets updated.
+
+#### ORM\Observer\AbstractObserver::deleted
+
+```php
+public function deleted( \ORM\Event\Deleted $event ): boolean
+```
+
+##### Gets called after an entity got deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Deleted**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::deleting
+
+```php
+public function deleting( \ORM\Event\Deleting $event ): boolean
+```
+
+##### Gets called before an entity gets deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Deleting**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::fetched
+
+```php
+public function fetched( \ORM\Event\Fetched $event ): boolean
+```
+
+##### Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Fetched**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::inserted
+
+```php
+public function inserted( \ORM\Event\Inserted $event ): boolean
+```
+
+##### Gets called after an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Inserted**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::inserting
+
+```php
+public function inserting( \ORM\Event\Inserting $event ): boolean
+```
+
+##### Gets Called before an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Inserting**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::saved
+
+```php
+public function saved( \ORM\Event\Saved $event ): boolean
+```
+
+##### Gets called after an entity got saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Saved**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::saving
+
+```php
+public function saving( \ORM\Event\Saving $event ): boolean
+```
+
+##### Gets called before an entity gets saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Saving**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::updated
+
+```php
+public function updated( \ORM\Event\Updated $event ): boolean
+```
+
+##### Gets called after an entity got updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Updated**  |  |
+
+
+
+#### ORM\Observer\AbstractObserver::updating
+
+```php
+public function updating( \ORM\Event\Updating $event ): boolean
+```
+
+##### Gets called before an entity gets updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Updating**  |  |
+
+
+
 
 
 ---
@@ -511,6 +774,324 @@ public function useAutoincrement(): $this
 <br />
  **Returns**: this method returns **$this**
 <br />
+
+
+
+
+
+---
+
+### ORM\Observer\CallbackObserver
+
+**Extends:** [ORM\Observer\AbstractObserver](#ormobserverabstractobserver)
+
+
+#### AbstractObserver for entity events
+
+When a handler returns false it will cancel other event handlers and if
+applicable stops the execution (saving, inserting, updating and deleting
+can be canceled).
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$callbacks` |  |  |
+
+
+
+#### Methods
+
+* [deleted](#ormobservercallbackobserverdeleted) Gets called after an entity got deleted.
+* [deleting](#ormobservercallbackobserverdeleting) Gets called before an entity gets deleted.
+* [executeCallbacks](#ormobservercallbackobserverexecutecallbacks) 
+* [fetched](#ormobservercallbackobserverfetched) Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+* [inserted](#ormobservercallbackobserverinserted) Gets called after an entity gets inserted.
+* [inserting](#ormobservercallbackobserverinserting) Gets Called before an entity gets inserted.
+* [off](#ormobservercallbackobserveroff) Remove all listeners for $event
+* [on](#ormobservercallbackobserveron) Register a new $listener for $event
+* [saved](#ormobservercallbackobserversaved) Gets called after an entity got saved.
+* [saving](#ormobservercallbackobserversaving) Gets called before an entity gets saved.
+* [updated](#ormobservercallbackobserverupdated) Gets called after an entity got updated.
+* [updating](#ormobservercallbackobserverupdating) Gets called before an entity gets updated.
+
+#### ORM\Observer\CallbackObserver::deleted
+
+```php
+public function deleted( \ORM\Event\Deleted $event ): boolean
+```
+
+##### Gets called after an entity got deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Deleted**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::deleting
+
+```php
+public function deleting( \ORM\Event\Deleting $event ): boolean
+```
+
+##### Gets called before an entity gets deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Deleting**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::executeCallbacks
+
+```php
+protected function executeCallbacks( \ORM\Event $event )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::fetched
+
+```php
+public function fetched( \ORM\Event\Fetched $event ): boolean
+```
+
+##### Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Fetched**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::inserted
+
+```php
+public function inserted( \ORM\Event\Inserted $event ): boolean
+```
+
+##### Gets called after an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Inserted**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::inserting
+
+```php
+public function inserting( \ORM\Event\Inserting $event ): boolean
+```
+
+##### Gets Called before an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Inserting**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::off
+
+```php
+public function off( $event ): $this
+```
+
+##### Remove all listeners for $event
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` |   |  |
+
+
+
+#### ORM\Observer\CallbackObserver::on
+
+```php
+public function on( $event, callable $listener ): $this
+```
+
+##### Register a new $listener for $event
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` |   |  |
+| `$listener` | **callable**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::saved
+
+```php
+public function saved( \ORM\Event\Saved $event ): boolean
+```
+
+##### Gets called after an entity got saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Saved**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::saving
+
+```php
+public function saving( \ORM\Event\Saving $event ): boolean
+```
+
+##### Gets called before an entity gets saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Saving**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::updated
+
+```php
+public function updated( \ORM\Event\Updated $event ): boolean
+```
+
+##### Gets called after an entity got updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Updated**  |  |
+
+
+
+#### ORM\Observer\CallbackObserver::updating
+
+```php
+public function updating( \ORM\Event\Updating $event ): boolean
+```
+
+##### Gets called before an entity gets updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Updating**  |  |
 
 
 
@@ -1594,6 +2175,64 @@ public function getDsn(): string
 
 ---
 
+### ORM\Event\Deleted
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'deleted'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+
+---
+
+### ORM\Event\Deleting
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'deleting'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+
+---
+
 ### ORM\Entity
 
 
@@ -1659,6 +2298,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [describe](#ormentitydescribe) Get a description for this table.
+* [detachObserver](#ormentitydetachobserver) Stop observing the class by $observer
 * [disableValidator](#ormentitydisablevalidator) Disable validator
 * [enableValidator](#ormentityenablevalidator) Enable validator
 * [fetch](#ormentityfetch) Fetches related objects
@@ -1667,6 +2307,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getAttribute](#ormentitygetattribute) Get the value from $attribute
 * [getAttributeName](#ormentitygetattributename) Get the column name of $attribute
 * [getColumnName](#ormentitygetcolumnname) Get the column name of $attribute
+* [getDirty](#ormentitygetdirty) Get an array of attributes that changed
 * [getNamingSchemeColumn](#ormentitygetnamingschemecolumn) 
 * [getNamingSchemeMethods](#ormentitygetnamingschememethods) 
 * [getNamingSchemeTable](#ormentitygetnamingschemetable) 
@@ -1676,10 +2317,13 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getRelation](#ormentitygetrelation) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
+* [hasPrimaryKey](#ormentityhasprimarykey) Check if the entity has has a complete primary key
+* [insertEntity](#ormentityinsertentity) Insert the row in the database
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column
 * [isDirty](#ormentityisdirty) Checks if entity or $attribute got changed
 * [isValid](#ormentityisvalid) Check if the current data is valid
 * [isValidatorEnabled](#ormentityisvalidatorenabled) Check if the validator is enabled
+* [observeBy](#ormentityobserveby) Observe the class using $observer
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
 * [postPersist](#ormentitypostpersist) Empty event handler
@@ -1700,6 +2344,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [toArray](#ormentitytoarray) Get an array of the entity
 * [unserialize](#ormentityunserialize) Constructs the object
+* [updateEntity](#ormentityupdateentity) Update the row in the database
 * [validate](#ormentityvalidate) Validate $value for $attribute
 * [validateArray](#ormentityvalidatearray) Validate $data
 
@@ -1873,6 +2518,34 @@ public static function describe(): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 
 
 
+#### ORM\Entity::detachObserver
+
+```php
+public static function detachObserver(
+    \ORM\Observer\AbstractObserver $observer
+)
+```
+
+##### Stop observing the class by $observer
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$observer` | **Observer\AbstractObserver**  |  |
+
+
+
+**See Also:**
+
+* \ORM\EntityManager::detach() 
 #### ORM\Entity::disableValidator
 
 ```php
@@ -2072,6 +2745,24 @@ the same as getColumnName($name).
 
 
 
+#### ORM\Entity::getDirty
+
+```php
+public function getDirty(): array
+```
+
+##### Get an array of attributes that changed
+
+This method works on application level. Meaning it is showing additional attributes defined in
+::$includedAttributes and and hiding ::$excludedAttributes.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+
+
 #### ORM\Entity::getNamingSchemeColumn
 
 ```php
@@ -2248,6 +2939,48 @@ public static function getTableNameTemplate(): string
 
 
 
+#### ORM\Entity::hasPrimaryKey
+
+```php
+public function hasPrimaryKey(): boolean
+```
+
+##### Check if the entity has has a complete primary key
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
+#### ORM\Entity::insertEntity
+
+```php
+private function insertEntity(
+    boolean $hasPrimaryKey
+): \ORM\Event\Inserted|null
+```
+
+##### Insert the row in the database
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\Event\Inserted|null**
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$hasPrimaryKey` | **boolean**  |  |
+
+
+
 #### ORM\Entity::isAutoIncremented
 
 ```php
@@ -2324,6 +3057,42 @@ public static function isValidatorEnabled(): boolean
 
 
 
+#### ORM\Entity::observeBy
+
+```php
+public static function observeBy(
+    \ORM\?AbstractObserver $observer = null
+): \ORM\?CallbackObserver
+```
+
+##### Observe the class using $observer
+
+If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
+```php
+$em->observe(User::class)
+    ->on('inserted', function (User $user) { ... })
+    ->on('deleted', function (User $user) { ... });
+```
+
+For more information about model events please consult the [documentation](https://tflori.github.io/
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\?CallbackObserver**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$observer` | **?AbstractObserver**  |  |
+
+
+
+**See Also:**
+
+* \ORM\EntityManager::observe() 
 #### ORM\Entity::onChange
 
 ```php
@@ -2756,6 +3525,29 @@ public function unserialize( string $serialized )
 **See Also:**
 
 * [http://php.net/manual/en/serializable.unserialize.php](http://php.net/manual/en/serializable.unserialize.php)
+
+#### ORM\Entity::updateEntity
+
+```php
+private function updateEntity( array $dirty ): \ORM\Event\Updated|null
+```
+
+##### Update the row in the database
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **\ORM\Event\Updated|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$dirty` | **array**  |  |
+
+
 
 #### ORM\Entity::validate
 
@@ -4645,6 +5437,7 @@ $query->where('name = ?', ['John Doe']);
 | **protected** | `$descriptions` | **array&lt;Dbal \ Table> &#124; array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
 | **protected** | `$bulkInserts` | **array&lt;BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | **EntityManager[string] &#124; EntityManager[string][string]** | Mapping for EntityManager instances |
+| **protected** | `$observers` | **array&lt;Observer \ AbstractObserver[]>** |  |
 
 
 
@@ -4657,6 +5450,7 @@ $query->where('name = ?', ['John Doe']);
 * [defineForParent](#ormentitymanagerdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormentitymanagerdelete) Delete $entity from database
 * [describe](#ormentitymanagerdescribe) Returns an array of columns from $table.
+* [detach](#ormentitymanagerdetach) Remove $observer for $class
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
@@ -4669,6 +5463,7 @@ $query->where('name = ?', ['John Doe']);
 * [getNamer](#ormentitymanagergetnamer) Get the Namer instance
 * [getOption](#ormentitymanagergetoption) Get $option
 * [map](#ormentitymanagermap) Map $entity in the entity map
+* [observe](#ormentitymanagerobserve) Observe $class using $observer
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
 * [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
@@ -4839,6 +5634,32 @@ public function describe(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$table` | **string**  |  |
+
+
+
+#### ORM\EntityManager::detach
+
+```php
+public function detach(
+    \ORM\Observer\AbstractObserver $observer, \ORM\?string $class = null
+): boolean
+```
+
+##### Remove $observer for $class
+
+If the observer is attached to multiple classes it keeps attached to them.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$observer` | **Observer\AbstractObserver**  |  |
+| `$class` | **?string**  |  |
 
 
 
@@ -5122,6 +5943,39 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 
 
+#### ORM\EntityManager::observe
+
+```php
+public function observe(
+    string $class, \ORM\?AbstractObserver $observer = null
+): \ORM\?CallbackObserver
+```
+
+##### Observe $class using $observer
+
+If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
+```php
+$em->observe(User::class)
+    ->on('inserted', function (User $user) { ... })
+    ->on('deleted', function (User $user) { ... });
+```
+
+For more information about model events please consult the [documentation](https://tflori.github.io/
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\?CallbackObserver**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$observer` | **?AbstractObserver**  |  |
+
+
+
 #### ORM\EntityManager::setConnection
 
 ```php
@@ -5273,6 +6127,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 | **protected** | `$descriptions` | **array&lt; \ ORM \ Dbal \ Table> &#124; array&lt; \ ORM \ Dbal \ Column[]>** | Already fetched column descriptions |
 | **protected** | `$bulkInserts` | **array&lt; \ ORM \ BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | ** \ ORM \ EntityManager[string] &#124;  \ ORM \ EntityManager[string][string]** | Mapping for EntityManager instances |
+| **protected** | `$observers` | **array&lt; \ ORM \ Observer \ AbstractObserver[]>** |  |
 | **protected** | `$resultRepository` |  |  |
 
 
@@ -5288,6 +6143,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [defineForParent](#ormtestingentitymanagermockdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
 * [describe](#ormtestingentitymanagermockdescribe) Returns an array of columns from $table.
+* [detach](#ormtestingentitymanagermockdetach) Remove $observer for $class
 * [escapeIdentifier](#ormtestingentitymanagermockescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
@@ -5301,6 +6157,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [getOption](#ormtestingentitymanagermockgetoption) Get $option
 * [getResults](#ormtestingentitymanagermockgetresults) Get the results for $class and $query
 * [map](#ormtestingentitymanagermockmap) Map $entity in the entity map
+* [observe](#ormtestingentitymanagermockobserve) Observe $class using $observer
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
@@ -5523,6 +6380,32 @@ public function describe(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$table` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::detach
+
+```php
+public function detach(
+    \ORM\Observer\AbstractObserver $observer, \ORM\?string $class = null
+): boolean
+```
+
+##### Remove $observer for $class
+
+If the observer is attached to multiple classes it keeps attached to them.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$observer` | **\ORM\Observer\AbstractObserver**  |  |
+| `$class` | **\ORM\?string**  |  |
 
 
 
@@ -5827,6 +6710,39 @@ $user = $enitityManager->map(new User(['id' => 42]));
 | `$entity` | **\ORM\Entity**  |  |
 | `$update` | **boolean**  | Update the entity map |
 | `$class` | **string**  | Overwrite the class |
+
+
+
+#### ORM\Testing\EntityManagerMock::observe
+
+```php
+public function observe(
+    string $class, \ORM\?AbstractObserver $observer = null
+): \ORM\?CallbackObserver
+```
+
+##### Observe $class using $observer
+
+If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
+```php
+$em->observe(User::class)
+    ->on('inserted', function (User $user) { ... })
+    ->on('deleted', function (User $user) { ... });
+```
+
+For more information about model events please consult the [documentation](https://tflori.github.io/
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\?CallbackObserver**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$observer` | **\ORM\?AbstractObserver**  |  |
 
 
 
@@ -6187,6 +7103,82 @@ public function __construct(
 
 ---
 
+### ORM\Event
+
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'event'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | **Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormevent__construct) 
+* [__get](#ormevent__get) 
+
+#### ORM\Event::__construct
+
+```php
+public function __construct( \ORM\Entity $entity ): Event
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **Entity**  |  |
+
+
+
+#### ORM\Event::__get
+
+```php
+public function __get( $name )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+
+
+
+
+
+---
+
 ### ORM\Exception
 
 **Extends:** [](#)
@@ -6197,6 +7189,85 @@ public function __construct(
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
 
+
+
+
+
+
+---
+
+### ORM\Event\Fetched
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'fetched'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+| **protected** | `$rawData` | **array** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormeventfetched__construct) 
+* [__get](#ormeventfetched__get) 
+
+#### ORM\Event\Fetched::__construct
+
+```php
+public function __construct( \ORM\Entity $entity, array $rawData ): Fetched
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$rawData` | **array**  |  |
+
+
+
+#### ORM\Event\Fetched::__get
+
+```php
+public function __get( $name )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
 
 
 
@@ -6230,6 +7301,64 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+---
+
+### ORM\Event\Inserted
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'inserted'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+
+---
+
+### ORM\Event\Inserting
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'inserting'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
 
 
 
@@ -8177,6 +9306,246 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$value` | **mixed**  |  |
+
+
+
+
+
+---
+
+### ORM\ObserverInterface
+
+
+
+#### AbstractObserver for entity events
+
+When a handler returns false it will cancel other event handlers and if
+applicable stops the execution (saving, inserting, updating and deleting
+can be canceled).
+
+
+
+
+
+
+#### Methods
+
+* [deleted](#ormobserverinterfacedeleted) Gets called after an entity got deleted.
+* [deleting](#ormobserverinterfacedeleting) Gets called before an entity gets deleted.
+* [fetched](#ormobserverinterfacefetched) Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+* [inserted](#ormobserverinterfaceinserted) Gets called after an entity gets inserted.
+* [inserting](#ormobserverinterfaceinserting) Gets Called before an entity gets inserted.
+* [saved](#ormobserverinterfacesaved) Gets called after an entity got saved.
+* [saving](#ormobserverinterfacesaving) Gets called before an entity gets saved.
+* [updated](#ormobserverinterfaceupdated) Gets called after an entity got updated.
+* [updating](#ormobserverinterfaceupdating) Gets called before an entity gets updated.
+
+#### ORM\ObserverInterface::deleted
+
+```php
+public function deleted( \ORM\Event\Deleted $event ): boolean
+```
+
+##### Gets called after an entity got deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Deleted**  |  |
+
+
+
+#### ORM\ObserverInterface::deleting
+
+```php
+public function deleting( \ORM\Event\Deleting $event ): boolean
+```
+
+##### Gets called before an entity gets deleted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Deleting**  |  |
+
+
+
+#### ORM\ObserverInterface::fetched
+
+```php
+public function fetched( \ORM\Event\Fetched $event ): boolean
+```
+
+##### Gets called when ever an Entity is fetched from an EntityFetcher or
+with the parameter $fromDatabase = true.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Fetched**  |  |
+
+
+
+#### ORM\ObserverInterface::inserted
+
+```php
+public function inserted( \ORM\Event\Inserted $event ): boolean
+```
+
+##### Gets called after an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Inserted**  |  |
+
+
+
+#### ORM\ObserverInterface::inserting
+
+```php
+public function inserting( \ORM\Event\Inserting $event ): boolean
+```
+
+##### Gets Called before an entity gets inserted.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Inserting**  |  |
+
+
+
+#### ORM\ObserverInterface::saved
+
+```php
+public function saved( \ORM\Event\Saved $event ): boolean
+```
+
+##### Gets called after an entity got saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Saved**  |  |
+
+
+
+#### ORM\ObserverInterface::saving
+
+```php
+public function saving( \ORM\Event\Saving $event ): boolean
+```
+
+##### Gets called before an entity gets saved.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Saving**  |  |
+
+
+
+#### ORM\ObserverInterface::updated
+
+```php
+public function updated( \ORM\Event\Updated $event ): boolean
+```
+
+##### Gets called after an entity got updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Updated**  |  |
+
+
+
+#### ORM\ObserverInterface::updating
+
+```php
+public function updating( \ORM\Event\Updating $event ): boolean
+```
+
+##### Gets called before an entity gets updated.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Updating**  |  |
 
 
 
@@ -13160,6 +14529,113 @@ public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
 
 ---
 
+### ORM\Event\Saved
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'saved'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+| **protected** | `$originalEvent` | ** \ ORM \ Event** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormeventsaved__construct) 
+* [__get](#ormeventsaved__get) 
+
+#### ORM\Event\Saved::__construct
+
+```php
+public function __construct( \ORM\Event $originalEvent ): Saved
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$originalEvent` | **\ORM\Event**  |  |
+
+
+
+#### ORM\Event\Saved::__get
+
+```php
+public function __get( $name )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+
+
+
+
+
+---
+
+### ORM\Event\Saving
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'saving'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+
+---
+
 ### ORM\Dbal\Type\Set
 
 **Extends:** [ORM\Dbal\Type\Enum](#ormdbaltypeenum)
@@ -14438,6 +15914,139 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 
 
+
+
+
+
+---
+
+### ORM\Event\Updated
+
+**Extends:** [ORM\Event\UpdateEvent](#ormeventupdateevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'updated'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$dirty` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+
+
+
+
+---
+
+### ORM\Event\UpdateEvent
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+| **protected** | `$dirty` | **array** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormeventupdateevent__construct) 
+* [__get](#ormeventupdateevent__get) 
+
+#### ORM\Event\UpdateEvent::__construct
+
+```php
+public function __construct( \ORM\Entity $entity, array $dirty ): UpdateEvent
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$dirty` | **array**  |  |
+
+
+
+#### ORM\Event\UpdateEvent::__get
+
+```php
+public function __get( $name )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+
+
+
+
+
+---
+
+### ORM\Event\Updating
+
+**Extends:** [ORM\Event\UpdateEvent](#ormeventupdateevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'updating'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$dirty` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
 
 
 

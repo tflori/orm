@@ -6,11 +6,14 @@ use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
+use ORM\Event\Deleted;
+use ORM\Event\Deleting;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidArgument;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
+use ORM\Observer\AbstractObserver;
 use ORM\Observer\CallbackObserver;
 use PDO;
 use ReflectionClass;
@@ -463,12 +466,12 @@ class EntityManager
      */
     public function delete(Entity $entity)
     {
-        if ($this->fireEntityEvent('deleting', $entity) === false) {
+        if ($this->fire(new Deleting($entity)) === false) {
             return false;
         }
         $this->getDbal()->delete($entity);
         $entity->setOriginalData([]);
-        $this->fireEntityEvent('deleted', $entity);
+        $this->fire(new Deleted($entity));
         return true;
     }
 
@@ -541,13 +544,13 @@ class EntityManager
         return $fetcher->one();
     }
 
-    /** @var Observer[][] */
+    /** @var AbstractObserver[][] */
     protected $observers = [];
 
     /**
      * Observe $class using $observer
      *
-     * If Observer is omitted it returns a new CallbackObserver. Usage example:
+     * If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
      * ```php
      * $em->observe(User::class)
      *     ->on('inserted', function (User $user) { ... })
@@ -557,11 +560,11 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ?Observer $observer
+     * @param ?AbstractObserver $observer
      * @return ?CallbackObserver
      * @throws InvalidArgument
      */
-    public function observe($class, Observer $observer = null)
+    public function observe($class, AbstractObserver $observer = null)
     {
         $returnObserver = $observer ? false : true;
         $observer || $observer = new CallbackObserver();
@@ -581,15 +584,15 @@ class EntityManager
      *
      * If the observer is attached to multiple classes it keeps attached to them.
      *
-     * @param Observer $observer
+     * @param AbstractObserver $observer
      * @param ?string $class
      * @return bool
      */
-    public function detach(Observer $observer, $class = null)
+    public function detach(AbstractObserver $observer, $class = null)
     {
         if ($class === null) {
             foreach ($this->observers as $class => $observers) {
-                $this->observers[$class] = array_filter($observers, function (Observer $obs) use ($observer) {
+                $this->observers[$class] = array_filter($observers, function (AbstractObserver $obs) use ($observer) {
                     return $obs !== $observer;
                 });
             }
@@ -607,20 +610,17 @@ class EntityManager
     /**
      * Fire $event on $entity
      *
-     * @param string $event
-     * @param Entity $entity
-     * @param array|null $dirty
-     * @internal This method is only supposed to be used from entities
+     * @param Event $event
+     * @internal
      * @return bool
      */
-    public function fireEntityEvent($event, Entity $entity, array $dirty = null)
+    public function fire(Event $event)
     {
         do {
-            $current = isset($current) ? $current->getParentClass() : new ReflectionClass($entity);
+            $current = isset($current) ? $current->getParentClass() : new ReflectionClass($event->entity);
             $class = $current->getName();
             foreach ((array)@$this->observers[$class] as $observer) {
-                if (method_exists($observer, $event) &&
-                    call_user_func([$observer, $event], $entity, $dirty) === false) {
+                if (call_user_func([$observer, $event::NAME], $event) === false) {
                     return false;
                 }
             }

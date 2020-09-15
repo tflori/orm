@@ -2,44 +2,44 @@
 
 namespace ORM\Test\Examples;
 
-use ORM\Entity;
-use ORM\Observer;
+use ORM\Event;
+use ORM\Observer\AbstractObserver;
 
-class AuditObserver extends Observer
+class AuditObserver extends AbstractObserver
 {
     public $log = [];
 
-    public function fetched(Entity $entity)
+    public function fetched(Event\Fetched $event)
     {
-        $this->writeLog('fetched', $entity);
+        $this->writeLog($event);
     }
 
-    public function inserted(Entity $entity)
+    public function inserted(Event\Inserted $event)
     {
-        $this->writeLog('inserted', $entity, $entity->toArray());
+        $this->writeLog($event, $event->entity->toArray());
     }
 
-    public function updated(Entity $entity, array $dirty = null)
+    public function updated(Event\Updated $event)
     {
-        $this->writeLog('updated', $entity, $dirty);
+        $this->writeLog($event, $event->dirty);
     }
 
-    public function deleted(Entity $entity)
+    public function deleted(Event\Deleted $event)
     {
-        $this->writeLog('deleted', $entity);
+        $this->writeLog($event);
     }
 
-    protected function writeLog($action, Entity $entity, array $data = null)
+    protected function writeLog(Event $event, array $data = null)
     {
-        $class = get_class($entity);
+        $class = get_class($event->entity);
 
         if (!isset($this->log[$class])) {
             $this->log[$class] = [];
         }
 
         $this->log[$class][] = [
-            'action' => $action,
-            'key' => $entity->hasPrimaryKey() ? $entity->getPrimaryKey() : null,
+            'action' => $event::NAME,
+            'key' => $event->entity->hasPrimaryKey() ? $event->entity->getPrimaryKey() : null,
             'data' => $data,
         ];
     }

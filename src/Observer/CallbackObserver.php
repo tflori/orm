@@ -2,11 +2,11 @@
 
 namespace ORM\Observer;
 
-use ORM\Entity;
+use ORM\Event;
 use ORM\Exception\InvalidArgument;
-use ORM\Observer;
+use ORM\Observer\AbstractObserver;
 
-class CallbackObserver extends Observer
+class CallbackObserver extends AbstractObserver
 {
     protected $callbacks = [
         'fetched' => [],
@@ -57,55 +57,55 @@ class CallbackObserver extends Observer
         return $this;
     }
 
-    public function fetched(Entity $model)
+    public function fetched(Event\Fetched $event)
     {
-        $this->executeCallbacks('fetched', $model);
+        $this->executeCallbacks($event);
     }
 
-    public function saving(Entity $model)
+    public function saving(Event\Saving $event)
     {
-        return $this->executeCallbacks('saving', $model);
+        return $this->executeCallbacks($event);
     }
 
-    public function saved(Entity $model, array $dirty = null)
+    public function saved(Event\Saved $event)
     {
-        $this->executeCallbacks('saved', $model, $dirty);
+        $this->executeCallbacks($event);
     }
 
-    public function inserting(Entity $model)
+    public function inserting(Event\Inserting $event)
     {
-        return $this->executeCallbacks('inserting', $model);
+        return $this->executeCallbacks($event);
     }
 
-    public function inserted(Entity $model)
+    public function inserted(Event\Inserted $event)
     {
-        $this->executeCallbacks('inserted', $model);
+        $this->executeCallbacks($event);
     }
 
-    public function updating(Entity $model, array $dirty = null)
+    public function updating(Event\Updating $event)
     {
-        return $this->executeCallbacks('updating', $model, $dirty);
+        return $this->executeCallbacks($event);
     }
 
-    public function updated(Entity $model, array $dirty = null)
+    public function updated(Event\Updated $event)
     {
-        $this->executeCallbacks('updated', $model, $dirty);
+        $this->executeCallbacks($event);
     }
 
-    public function deleting(Entity $model)
+    public function deleting(Event\Deleting $event)
     {
-        return $this->executeCallbacks('deleting', $model);
+        return $this->executeCallbacks($event);
     }
 
-    public function deleted(Entity $model)
+    public function deleted(Event\Deleted $event)
     {
-        $this->executeCallbacks('deleted', $model);
+        $this->executeCallbacks($event);
     }
 
-    protected function executeCallbacks($event, $model, array $dirty = null)
+    protected function executeCallbacks(Event $event)
     {
-        foreach ($this->callbacks[$event] as $callback) {
-            if (call_user_func($callback, $model, $dirty) === false) {
+        foreach ($this->callbacks[$event::NAME] as $callback) {
+            if (call_user_func($callback, $event) === false) {
                 return false;
             }
         }
