@@ -6,7 +6,6 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\Event\Fetched;
 use ORM\Exception\InvalidArgument;
-use ORM\Observer\CallbackObserver;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\User;
 use ORM\Test\Examples\AuditObserver;
