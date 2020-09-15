@@ -560,11 +560,11 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ?AbstractObserver $observer
+     * @param ?ObserverInterface $observer
      * @return ?CallbackObserver
      * @throws InvalidArgument
      */
-    public function observe($class, AbstractObserver $observer = null)
+    public function observe($class, ObserverInterface $observer = null)
     {
         $returnObserver = $observer ? false : true;
         $observer || $observer = new CallbackObserver();
@@ -580,31 +580,34 @@ class EntityManager
     }
 
     /**
-     * Remove $observer for $class
+     * Detach $observer from all classes
      *
-     * If the observer is attached to multiple classes it keeps attached to them.
+     * If the observer is attached to multiple classes all are removed except the optional parameter
+     * $from defines from which class to remove the $observer.
      *
-     * @param AbstractObserver $observer
-     * @param ?string $class
+     * Returns whether or not an observer got detached.
+     *
+     * @param ObserverInterface $observer
+     * @param ?string $from
      * @return bool
      */
-    public function detach(AbstractObserver $observer, $class = null)
+    public function detach(ObserverInterface $observer, $from = null)
     {
-        if ($class === null) {
-            foreach ($this->observers as $class => $observers) {
-                $this->observers[$class] = array_filter($observers, function (AbstractObserver $obs) use ($observer) {
-                    return $obs !== $observer;
-                });
+        $removed = false;
+        foreach ($this->observers as $class => &$observers) {
+            if ($from !== null && $class !== $from) {
+                continue;
             }
-            return true;
+
+            $this->observers[$class] = array_filter(
+                $observers,
+                function (ObserverInterface $current) use ($observer, &$removed) {
+                    return $current === $observer ? !($removed = true) : true;
+                }
+            );
         }
 
-        $pos = isset($this->observers[$class]) ? array_search($observer, $this->observers[$class], true) : false;
-        if ($pos !== false) {
-            array_splice($this->observers[$class], $pos, 1);
-        }
-
-        return $pos !== false;
+        return $removed;
     }
 
     /**

@@ -91,6 +91,27 @@ class ObserverRegistrationTest extends TestCase
     }
 
     /** @test */
+    public function returnsFalseIfNotDetached()
+    {
+        $observer = new AuditObserver();
+
+        $detached = $this->em->detach($observer);
+
+        self::assertFalse($detached);
+    }
+
+    /** @test */
+    public function returnsTrueIfDetached()
+    {
+        $observer = new AuditObserver();
+        $this->em->observe(Article::class, $observer);
+
+        $detached = $this->em->detach($observer);
+
+        self::assertTrue($detached);
+    }
+
+    /** @test */
     public function throwsWhenObserverIsAlreadyAttached()
     {
         $observer = new AuditObserver();
@@ -104,20 +125,14 @@ class ObserverRegistrationTest extends TestCase
     /** @test */
     public function allowsASecondObserverOfTheSameType()
     {
-        // creating two identical observers
-        $observer1 = new CallbackObserver();
-        $observer2 = new CallbackObserver();
+        // creating two equal observers
+        $observer1 = m::mock(AuditObserver::class);
+        $observer2 = m::mock(AuditObserver::class);
         $this->em->observe(Entity::class, $observer1);
         $this->em->observe(Entity::class, $observer2);
 
-        $spy = m::spy(function ($entity) {
-        });
-        $observer1->on('fetched', $spy);
-        $observer2->on('fetched', $spy);
-
-        // the spy is registered to both observers
-        $spy->shouldReceive('__invoke')->twice();
-
+        $observer1->shouldReceive('fetched')->once();
+        $observer2->shouldReceive('fetched')->once();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
     }
@@ -125,21 +140,16 @@ class ObserverRegistrationTest extends TestCase
     /** @test */
     public function removesOnlyOneObserver()
     {
-        // creating two identical observers
-        $observer1 = new CallbackObserver();
-        $observer2 = new CallbackObserver();
+        // creating two equal observers
+        $observer1 = m::mock(AuditObserver::class);
+        $observer2 = m::mock(AuditObserver::class);
         $this->em->observe(Entity::class, $observer1);
         $this->em->observe(Entity::class, $observer2);
 
         $this->em->detach($observer2, Entity::class);
 
-        $spy1 = m::spy(function ($entity) {});
-        $spy2 = m::spy(function ($entity) {});
-        $observer1->on('fetched', $spy1);
-        $observer2->on('fetched', $spy2);
-
-        $spy1->shouldReceive('__invoke')->once();
-        $spy2->shouldNotReceive('__invoke');
+        $observer1->shouldReceive('fetched')->once();
+        $observer2->shouldNotReceive('fetched');
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
     }
