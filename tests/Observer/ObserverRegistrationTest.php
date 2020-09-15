@@ -4,6 +4,7 @@ namespace ORM\Test\Observer;
 
 use Mockery as m;
 use ORM\Entity;
+use ORM\Event\Fetched;
 use ORM\Exception\InvalidArgument;
 use ORM\Observer\CallbackObserver;
 use ORM\Test\Entity\Examples\Article;
@@ -84,7 +85,9 @@ class ObserverRegistrationTest extends TestCase
         $this->em->observe(User::class, $observer);
         $this->em->detach($observer, User::class);
 
-        $observer->shouldReceive('fetched')->with(m::type(Article::class), m::andAnyOthers())->once();
+        $observer->shouldReceive('fetched')->withArgs(function (Fetched $event) {
+            return $event->entity instanceof Article;
+        })->once();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
         new User(['id' => 23, 'name' => 'John Doe'], $this->em, true);
