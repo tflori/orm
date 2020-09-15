@@ -5450,7 +5450,7 @@ $query->where('name = ?', ['John Doe']);
 * [defineForParent](#ormentitymanagerdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormentitymanagerdelete) Delete $entity from database
 * [describe](#ormentitymanagerdescribe) Returns an array of columns from $table.
-* [detach](#ormentitymanagerdetach) Remove $observer for $class
+* [detach](#ormentitymanagerdetach) Detach $observer from all classes
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
@@ -5641,13 +5641,16 @@ public function describe(
 
 ```php
 public function detach(
-    \ORM\Observer\AbstractObserver $observer, \ORM\?string $class = null
+    \ORM\ObserverInterface $observer, \ORM\?string $from = null
 ): boolean
 ```
 
-##### Remove $observer for $class
+##### Detach $observer from all classes
 
-If the observer is attached to multiple classes it keeps attached to them.
+If the observer is attached to multiple classes all are removed except the optional parameter
+$from defines from which class to remove the $observer.
+
+Returns whether or not an observer got detached.
 
 **Visibility:** this method is **public**.
 <br />
@@ -5658,8 +5661,8 @@ If the observer is attached to multiple classes it keeps attached to them.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$observer` | **Observer\AbstractObserver**  |  |
-| `$class` | **?string**  |  |
+| `$observer` | **ObserverInterface**  |  |
+| `$from` | **?string**  |  |
 
 
 
@@ -5947,7 +5950,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, \ORM\?AbstractObserver $observer = null
+    string $class, \ORM\?ObserverInterface $observer = null
 ): \ORM\?CallbackObserver
 ```
 
@@ -5972,7 +5975,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **?AbstractObserver**  |  |
+| `$observer` | **?ObserverInterface**  |  |
 
 
 
@@ -6143,7 +6146,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [defineForParent](#ormtestingentitymanagermockdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
 * [describe](#ormtestingentitymanagermockdescribe) Returns an array of columns from $table.
-* [detach](#ormtestingentitymanagermockdetach) Remove $observer for $class
+* [detach](#ormtestingentitymanagermockdetach) Detach $observer from all classes
 * [escapeIdentifier](#ormtestingentitymanagermockescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
@@ -6387,13 +6390,16 @@ public function describe(
 
 ```php
 public function detach(
-    \ORM\Observer\AbstractObserver $observer, \ORM\?string $class = null
+    \ORM\ObserverInterface $observer, \ORM\?string $from = null
 ): boolean
 ```
 
-##### Remove $observer for $class
+##### Detach $observer from all classes
 
-If the observer is attached to multiple classes it keeps attached to them.
+If the observer is attached to multiple classes all are removed except the optional parameter
+$from defines from which class to remove the $observer.
+
+Returns whether or not an observer got detached.
 
 **Visibility:** this method is **public**.
 <br />
@@ -6404,8 +6410,8 @@ If the observer is attached to multiple classes it keeps attached to them.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$observer` | **\ORM\Observer\AbstractObserver**  |  |
-| `$class` | **\ORM\?string**  |  |
+| `$observer` | **\ORM\ObserverInterface**  |  |
+| `$from` | **\ORM\?string**  |  |
 
 
 
@@ -6717,7 +6723,7 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, \ORM\?AbstractObserver $observer = null
+    string $class, \ORM\?ObserverInterface $observer = null
 ): \ORM\?CallbackObserver
 ```
 
@@ -6742,7 +6748,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **\ORM\?AbstractObserver**  |  |
+| `$observer` | **\ORM\?ObserverInterface**  |  |
 
 
 
