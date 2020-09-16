@@ -21,6 +21,13 @@ abstract class AbstractObserver implements ObserverInterface
         return true;
     }
 
+    /** @inheritdoc
+     * @codeCoverageIgnore  */
+    public function changed(Event\Changed $event)
+    {
+        return true;
+    }
+
     /** @inheritDoc
      * @codeCoverageIgnore */
     public function saving(Event\Saving $event)

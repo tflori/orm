@@ -9,6 +9,7 @@ use ORM\Entity\Naming;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
+use ORM\Event\Changed;
 use ORM\Event\Fetched;
 use ORM\Event\Inserted;
 use ORM\Event\Inserting;
@@ -299,7 +300,9 @@ abstract class Entity implements Serializable
         }
 
         if ($changed) {
-            $this->onChange($attribute, $oldValue, $this->__get($attribute));
+            $newValue = $this->__get($attribute);
+            $this->entityManager->fire(new Changed($this, $attribute, $oldValue, $newValue));
+            $this->onChange($attribute, $oldValue, $newValue);
         }
 
         return $this;

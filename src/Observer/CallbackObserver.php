@@ -4,12 +4,12 @@ namespace ORM\Observer;
 
 use ORM\Event;
 use ORM\Exception\InvalidArgument;
-use ORM\Observer\AbstractObserver;
 
 class CallbackObserver extends AbstractObserver
 {
     protected $callbacks = [
         'fetched' => [],
+        'changed' => [],
         'saving' => [],
         'saved' => [],
         'inserting' => [],
@@ -58,6 +58,11 @@ class CallbackObserver extends AbstractObserver
     }
 
     public function fetched(Event\Fetched $event)
+    {
+        $this->executeCallbacks($event);
+    }
+
+    public function changed(Event\Changed $event)
     {
         $this->executeCallbacks($event);
     }

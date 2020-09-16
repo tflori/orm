@@ -5,6 +5,7 @@ namespace ORM\Test\Observer;
 use Mockery as m;
 use ORM\Entity;
 use ORM\Event;
+use ORM\Event\Changed;
 use ORM\Event\Deleted;
 use ORM\Event\Deleting;
 use ORM\Event\Fetched;
@@ -109,6 +110,7 @@ class CallbackObserverTest extends TestCase
     {
         return [
             [new Fetched(new Article(), [])],
+            [new Changed(new Article(), 'title', 'Foo', 'Bar')],
             [new Saving(new Article())],
             [new Saved(new Inserted(new Article()))],
             [new Inserting(new Article())],

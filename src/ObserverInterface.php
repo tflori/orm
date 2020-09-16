@@ -21,6 +21,14 @@ interface ObserverInterface
     public function fetched(Event\Fetched $event);
 
     /**
+     * Gets called when an attribute got changed (using the setAttribute method)
+     *
+     * @param Event\Changed $event
+     * @return bool
+     */
+    public function changed(Event\Changed $event);
+
+    /**
      * Gets called before an entity gets saved.
      *
      * @param Event\Saving $event
