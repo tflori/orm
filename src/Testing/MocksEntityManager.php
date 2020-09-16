@@ -101,11 +101,9 @@ trait MocksEntityManager
         $pdo = m::mock(PDO::class);
         $pdo->shouldReceive('setAttribute')->andReturn(true)->byDefault();
         $pdo->shouldReceive('getAttribute')->with(PDO::ATTR_DRIVER_NAME)->andReturn($driver)->byDefault();
-        $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(
-            function ($str) {
-                return '\'' . addcslashes($str, '\'') . '\'';
-            }
-        )->byDefault();
+        $pdo->shouldReceive('quote')->with(m::type('string'))->andReturnUsing(function ($str) {
+            return '\'' . addcslashes($str, '\'') . '\'';
+        })->byDefault();
         $em->setConnection($pdo);
 
         return $em;
