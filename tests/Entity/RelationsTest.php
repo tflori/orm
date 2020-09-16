@@ -362,6 +362,7 @@ class RelationsTest extends TestCase
     public function setRelationStoresTheRelatedObject()
     {
         $entity = m::mock(RelationExample::class)->makePartial();
+        $entity->setEntityManager($this->mocks['em']);
         $related = new StudlyCaps(['id' => 42]);
         $entity->shouldNotReceive('fetch')->with('studlyCaps', null, true);
         $entity->setRelated('studlyCaps', $related);

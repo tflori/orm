@@ -17,9 +17,18 @@ use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
+use ORM\Testing\MocksEntityManager;
 
 class DataTest extends TestCase
 {
+    use MocksEntityManager;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->mocks['em'] = $this->ormInitMock();
+    }
+
     public function tearDown()
     {
         StudlyCaps::disableValidator();
@@ -31,7 +40,7 @@ class DataTest extends TestCase
     public function onChangeGetCalled()
     {
         /** @var Mock|Entity $mock */
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(StudlyCaps::class);
         $mock->shouldReceive('onChange')->once()->with('someVar', null, 'foobar');
 
         $mock->someVar = 'foobar';
@@ -51,7 +60,7 @@ class DataTest extends TestCase
     public function shouldNotCallIfNotChanged()
     {
         /** @var Mock|Entity $mock */
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(StudlyCaps::class);
         $mock->someVar = 'foobar';
 
         $mock->shouldNotReceive('onChange');
@@ -72,26 +81,27 @@ class DataTest extends TestCase
     /** @test */
     public function delegatesToSetter()
     {
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(StudlyCaps::class);
         $mock->shouldReceive('setAnotherVar')->once()->with('foobar');
 
         $mock->anotherVar = 'foobar';
     }
 
     /** @test */
-    public function onChangeWatchesDataChanges()
+    public function onChangeWatchesOnlyDataChanges()
     {
         /** @var Mock|Entity $mock */
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(StudlyCaps::class);
         $mock->shouldNotReceive('onChange');
 
+        // anotherVar is a property not an attribute
         $mock->anotherVar = 'foobar';
     }
 
     /** @test */
     public function returnsAnotherVar()
     {
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(StudlyCaps::class);
         $mock->shouldReceive('getAnotherVar')->once()->andReturn('foobar');
 
         self::assertSame('foobar', $mock->anotherVar);
@@ -115,7 +125,7 @@ class DataTest extends TestCase
     public function usesNamingSchemeMethods()
     {
         Entity::setNamingSchemeMethods('snake_lower');
-        $mock = \Mockery::mock(Snake_Ucfirst::class)->makePartial();
+        $mock = $this->ormCreateMockedEntity(Snake_Ucfirst::class);
         $mock->shouldReceive('set_another_var')->once()->with('foobar');
         $mock->shouldReceive('get_another_var')->atLeast()->once();
 
