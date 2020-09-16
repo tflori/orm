@@ -282,7 +282,7 @@ abstract class Entity implements Serializable
         $setter = $em->getNamer()->getMethodName('set' . ucfirst($attribute), self::$namingSchemeMethods);
 
         if (method_exists($this, $setter) && is_callable([ $this, $setter ])) {
-            $oldValue   = $this->__get($attribute);
+            $oldValue   = $this->getAttribute($attribute);
             $md5OldData = md5(serialize($this->data));
             $this->$setter($value);
             $changed = $md5OldData !== md5(serialize($this->data));
@@ -294,7 +294,7 @@ abstract class Entity implements Serializable
                 }
             }
 
-            $oldValue         = $this->__get($attribute);
+            $oldValue         = $this->getAttribute($attribute);
             $changed          = (isset($this->data[$col]) ? $this->data[$col] : null) !== $value;
             $this->data[$col] = $value;
         }
