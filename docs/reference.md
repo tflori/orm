@@ -68,6 +68,7 @@ permalink: /reference.html
 
 ### ORM\Event
 
+* [Changed](#ormeventchanged)
 * [Deleted](#ormeventdeleted)
 * [Deleting](#ormeventdeleting)
 * [Fetched](#ormeventfetched)
@@ -152,6 +153,7 @@ can be canceled).
 
 #### Methods
 
+* [changed](#ormobserverabstractobserverchanged) Gets called when an attribute got changed (using the setAttribute method)
 * [deleted](#ormobserverabstractobserverdeleted) Gets called after an entity got deleted.
 * [deleting](#ormobserverabstractobserverdeleting) Gets called before an entity gets deleted.
 * [fetched](#ormobserverabstractobserverfetched) Gets called when ever an Entity is fetched from an EntityFetcher or
@@ -162,6 +164,29 @@ with the parameter $fromDatabase = true.
 * [saving](#ormobserverabstractobserversaving) Gets called before an entity gets saved.
 * [updated](#ormobserverabstractobserverupdated) Gets called after an entity got updated.
 * [updating](#ormobserverabstractobserverupdating) Gets called before an entity gets updated.
+
+#### ORM\Observer\AbstractObserver::changed
+
+```php
+public function changed( \ORM\Event\Changed $event ): boolean
+```
+
+##### Gets called when an attribute got changed (using the setAttribute method)
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Changed**  |  |
+
+
 
 #### ORM\Observer\AbstractObserver::deleted
 
@@ -805,6 +830,7 @@ can be canceled).
 
 #### Methods
 
+* [changed](#ormobservercallbackobserverchanged) Gets called when an attribute got changed (using the setAttribute method)
 * [deleted](#ormobservercallbackobserverdeleted) Gets called after an entity got deleted.
 * [deleting](#ormobservercallbackobserverdeleting) Gets called before an entity gets deleted.
 * [executeCallbacks](#ormobservercallbackobserverexecutecallbacks) 
@@ -818,6 +844,29 @@ with the parameter $fromDatabase = true.
 * [saving](#ormobservercallbackobserversaving) Gets called before an entity gets saved.
 * [updated](#ormobservercallbackobserverupdated) Gets called after an entity got updated.
 * [updating](#ormobservercallbackobserverupdating) Gets called before an entity gets updated.
+
+#### ORM\Observer\CallbackObserver::changed
+
+```php
+public function changed( \ORM\Event\Changed $event ): boolean
+```
+
+##### Gets called when an attribute got changed (using the setAttribute method)
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event\Changed**  |  |
+
+
 
 #### ORM\Observer\CallbackObserver::deleted
 
@@ -1092,6 +1141,91 @@ public function updating( \ORM\Event\Updating $event ): boolean
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$event` | **\ORM\Event\Updating**  |  |
+
+
+
+
+
+---
+
+### ORM\Event\Changed
+
+**Extends:** [ORM\Event](#ormevent)
+
+
+
+
+
+
+
+#### Constants
+
+| Name | Value |
+|------|-------|
+| NAME | `'changed'` |
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$data` | **array** |  |
+| **protected** | `$attribute` | **string** |  |
+| **protected** | `$oldValue` | **mixed** |  |
+| **protected** | `$newValue` | **mixed** |  |
+
+
+
+#### Methods
+
+* [__construct](#ormeventchanged__construct) 
+* [__get](#ormeventchanged__get) 
+
+#### ORM\Event\Changed::__construct
+
+```php
+public function __construct(
+    \ORM\Entity $entity, $attribute, $oldValue, $newValue
+): Changed
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity**  |  |
+| `$attribute` |   |  |
+| `$oldValue` |   |  |
+| `$newValue` |   |  |
+
+
+
+#### ORM\Event\Changed::__get
+
+```php
+public function __get( $name )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
 
 
 
@@ -9336,6 +9470,7 @@ can be canceled).
 
 #### Methods
 
+* [changed](#ormobserverinterfacechanged) Gets called when an attribute got changed (using the setAttribute method)
 * [deleted](#ormobserverinterfacedeleted) Gets called after an entity got deleted.
 * [deleting](#ormobserverinterfacedeleting) Gets called before an entity gets deleted.
 * [fetched](#ormobserverinterfacefetched) Gets called when ever an Entity is fetched from an EntityFetcher or
@@ -9346,6 +9481,29 @@ with the parameter $fromDatabase = true.
 * [saving](#ormobserverinterfacesaving) Gets called before an entity gets saved.
 * [updated](#ormobserverinterfaceupdated) Gets called after an entity got updated.
 * [updating](#ormobserverinterfaceupdating) Gets called before an entity gets updated.
+
+#### ORM\ObserverInterface::changed
+
+```php
+public function changed( \ORM\Event\Changed $event ): boolean
+```
+
+##### Gets called when an attribute got changed (using the setAttribute method)
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event\Changed**  |  |
+
+
 
 #### ORM\ObserverInterface::deleted
 
