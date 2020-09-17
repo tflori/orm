@@ -12,6 +12,7 @@ use ORM\Dbal\Type\Number;
 use ORM\Entity;
 use ORM\Exception;
 use ORM\Exception\UnknownColumn;
+use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\RelationExample;
 use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
@@ -188,6 +189,52 @@ class DataTest extends TestCase
         self::assertTrue($studlyCaps->isDirty('newVar'));
         self::assertFalse($studlyCaps->isDirty('id'));
         self::assertFalse($studlyCaps->isDirty('nonExistingVar'));
+    }
+
+    /** @test */
+    public function everyAttributeIsDirtyInNewEntities()
+    {
+        $article = new Article(['id' => 23, 'title' => 'Foo Bar', 'created' => '2018-05-23T18:52:42Z']);
+
+        $dirty = $article->getDirty();
+
+        self::assertArrayHasKey('id', $dirty);
+        self::assertArrayHasKey('title', $dirty);
+        self::assertArrayHasKey('created', $dirty);
+    }
+
+    /** @test */
+    public function getDirtyReturnsAttributeNames()
+    {
+        $article = new Article(['id' => 23, 'article_title' => 'Foo Bar'], $this->em, true);
+        $article->articleTitle = 'new title';
+
+        $dirty = $article->getDirty();
+
+        // article uses camelCase attribute naming...
+        self::assertArrayHasKey('articleTitle', $dirty);
+    }
+
+    /** @test */
+    public function getDirtyReturnsAnArrayWithOldAndNewValues()
+    {
+        $article = new Article(['id' => 23, 'title' => 'old title'], $this->em, true);
+        $article->title = 'new title';
+
+        $dirty = $article->getDirty();
+
+        self::assertSame(['old title', 'new title'], $dirty['title']);
+    }
+
+    /** @test */
+    public function getDirtyDoesNotShowExcludedAttributes()
+    {
+        $article = new Article(['id' => 23, 'userId' => 42, 'title' => 'old title'], $this->em, true);
+        $article->userId = 1;
+
+        $dirty = $article->getDirty();
+
+        self::assertArrayNotHasKey('userId', $dirty);
     }
 
     /** @test */
