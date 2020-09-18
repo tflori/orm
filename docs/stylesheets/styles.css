@@ -150,6 +150,7 @@ ul.row {
   border-radius:5px;
   border:1px solid #e0e0e0;
   width:270px;
+  margin-top: 20px;
 }
 
 ul.row li {
@@ -315,8 +316,54 @@ menu li.selected:before {
 
 @media print {
   body {
-    padding:0.4in;
+    padding: 0;
     font-size:12pt;
     color:#444;
+  }
+
+  section {
+    border: none;
+  }
+
+  menu, header > .view, header > a, header > ul {
+    display: none;
+  }
+
+  footer {
+    display: none;
+  }
+}
+
+@media screen {
+  body.dark {
+    background-color: #222;
+    color: #999;
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark h4,
+  .dark h5,
+  .dark h6 {
+    color: #ccc;
+  }
+
+  .dark ul.row {
+    background: #333;
+    border-color: #555;
+  }
+
+  .dark ul.row a {
+    color: #ccc;
+  }
+
+  .dark ul.row a strong {
+    color: #fff;
+  }
+
+  .dark code.highlighter-rouge {
+    background: transparent;
+    color: #fff;
   }
 }
