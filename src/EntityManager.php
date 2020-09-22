@@ -544,7 +544,7 @@ class EntityManager
         return $fetcher->one();
     }
 
-    /** @var AbstractObserver[][] */
+    /** @var ObserverInterface[][] */
     protected $observers = [];
 
     /**
@@ -622,8 +622,9 @@ class EntityManager
         do {
             $current = isset($current) ? $current->getParentClass() : new ReflectionClass($event->entity);
             $class = $current->getName();
+            /** @var ObserverInterface $observer */
             foreach ((array)@$this->observers[$class] as $observer) {
-                if (call_user_func([$observer, $event::NAME], $event) === false) {
+                if ($observer->handle($event) === false) {
                     return false;
                 }
             }

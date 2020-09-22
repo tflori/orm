@@ -57,57 +57,7 @@ class CallbackObserver extends AbstractObserver
         return $this;
     }
 
-    public function fetched(Event\Fetched $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    public function changed(Event\Changed $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    public function saving(Event\Saving $event)
-    {
-        return $this->executeCallbacks($event);
-    }
-
-    public function saved(Event\Saved $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    public function inserting(Event\Inserting $event)
-    {
-        return $this->executeCallbacks($event);
-    }
-
-    public function inserted(Event\Inserted $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    public function updating(Event\Updating $event)
-    {
-        return $this->executeCallbacks($event);
-    }
-
-    public function updated(Event\Updated $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    public function deleting(Event\Deleting $event)
-    {
-        return $this->executeCallbacks($event);
-    }
-
-    public function deleted(Event\Deleted $event)
-    {
-        $this->executeCallbacks($event);
-    }
-
-    protected function executeCallbacks(Event $event)
+    public function handle(Event $event)
     {
         foreach ($this->callbacks[$event::NAME] as $callback) {
             if (call_user_func($callback, $event) === false) {

@@ -33,7 +33,7 @@ class CallbackObserverTest extends TestCase
         $spy->shouldReceive('__invoke')->with($event)->once();
 
         $observer->on('fetched', $spy);
-        $observer->fetched($event);
+        $observer->handle($event);
     }
 
     /** @test */
@@ -51,7 +51,7 @@ class CallbackObserverTest extends TestCase
 
         $observer->on('fetched', $spy1);
         $observer->on('fetched', $spy2);
-        $observer->fetched($event);
+        $observer->handle($event);
     }
 
     /** @test */
@@ -69,7 +69,7 @@ class CallbackObserverTest extends TestCase
 
         $observer->on('fetched', $spy1);
         $observer->on('fetched', $spy2);
-        $observer->fetched($event);
+        $observer->handle($event);
     }
 
     /** @test */
@@ -88,7 +88,7 @@ class CallbackObserverTest extends TestCase
         $observer->on('fetched', $spy1);
         $observer->on('fetched', $spy2);
         $observer->off('fetched');
-        $observer->fetched($event);
+        $observer->handle($event);
     }
 
     /** @test
@@ -103,7 +103,7 @@ class CallbackObserverTest extends TestCase
         $spy->shouldReceive('__invoke')->once()->with($event);
 
         $observer->on($event::NAME, $spy);
-        call_user_func([$observer, $event::NAME], $event);
+        $observer->handle($event);
     }
 
     public function provideEvents()

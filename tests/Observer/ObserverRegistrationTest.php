@@ -19,7 +19,7 @@ class ObserverRegistrationTest extends TestCase
         $observer = m::mock(AuditObserver::class);
         $this->em->observe(Article::class, $observer);
 
-        $observer->shouldReceive('fetched')->once();
+        $observer->shouldReceive('handle')->once();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
         new User(['id' => 23, 'name' => 'John Doe'], $this->em, true);
@@ -31,7 +31,7 @@ class ObserverRegistrationTest extends TestCase
         $observer = m::mock(AuditObserver::class);
         $this->em->observe(Entity::class, $observer);
 
-        $observer->shouldReceive('fetched')->twice();
+        $observer->shouldReceive('handle')->twice();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
         new User(['id' => 23, 'name' => 'John Doe'], $this->em, true);
@@ -44,7 +44,7 @@ class ObserverRegistrationTest extends TestCase
         $this->em->observe(Article::class, $observer);
         $this->em->observe(User::class, $observer);
 
-        $observer->shouldReceive('fetched')->twice();
+        $observer->shouldReceive('handle')->twice();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
         new User(['id' => 23, 'name' => 'John Doe'], $this->em, true);
@@ -84,7 +84,7 @@ class ObserverRegistrationTest extends TestCase
         $this->em->observe(User::class, $observer);
         $this->em->detach($observer, User::class);
 
-        $observer->shouldReceive('fetched')->withArgs(function (Fetched $event) {
+        $observer->shouldReceive('handle')->withArgs(function (Fetched $event) {
             return $event->entity instanceof Article;
         })->once();
 
@@ -133,8 +133,8 @@ class ObserverRegistrationTest extends TestCase
         $this->em->observe(Entity::class, $observer1);
         $this->em->observe(Entity::class, $observer2);
 
-        $observer1->shouldReceive('fetched')->once();
-        $observer2->shouldReceive('fetched')->once();
+        $observer1->shouldReceive('handle')->once();
+        $observer2->shouldReceive('handle')->once();
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
     }
@@ -150,8 +150,8 @@ class ObserverRegistrationTest extends TestCase
 
         $this->em->detach($observer2, Entity::class);
 
-        $observer1->shouldReceive('fetched')->once();
-        $observer2->shouldNotReceive('fetched');
+        $observer1->shouldReceive('handle')->once();
+        $observer2->shouldNotReceive('handle');
 
         new Article(['id' => 123, 'title' => 'Foo Bar'], $this->em, true);
     }

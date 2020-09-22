@@ -153,27 +153,17 @@ can be canceled).
 
 #### Methods
 
-* [changed](#ormobserverabstractobserverchanged) Gets called when an attribute got changed (using the setAttribute method)
-* [deleted](#ormobserverabstractobserverdeleted) Gets called after an entity got deleted.
-* [deleting](#ormobserverabstractobserverdeleting) Gets called before an entity gets deleted.
-* [fetched](#ormobserverabstractobserverfetched) Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-* [inserted](#ormobserverabstractobserverinserted) Gets called after an entity gets inserted.
-* [inserting](#ormobserverabstractobserverinserting) Gets Called before an entity gets inserted.
-* [saved](#ormobserverabstractobserversaved) Gets called after an entity got saved.
-* [saving](#ormobserverabstractobserversaving) Gets called before an entity gets saved.
-* [updated](#ormobserverabstractobserverupdated) Gets called after an entity got updated.
-* [updating](#ormobserverabstractobserverupdating) Gets called before an entity gets updated.
+* [handle](#ormobserverabstractobserverhandle) Handles the $event.
 
-#### ORM\Observer\AbstractObserver::changed
+#### ORM\Observer\AbstractObserver::handle
 
 ```php
-public function changed( \ORM\Event\Changed $event ): boolean
+public function handle( \ORM\Event $event ): boolean
 ```
 
-##### Gets called when an attribute got changed (using the setAttribute method)
+##### Handles the $event.
 
-
+Return false to stop event execution.
 
 **Visibility:** this method is **public**.
 <br />
@@ -184,215 +174,7 @@ public function changed( \ORM\Event\Changed $event ): boolean
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$event` | **\ORM\Event\Changed**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::deleted
-
-```php
-public function deleted( \ORM\Event\Deleted $event ): boolean
-```
-
-##### Gets called after an entity got deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Deleted**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::deleting
-
-```php
-public function deleting( \ORM\Event\Deleting $event ): boolean
-```
-
-##### Gets called before an entity gets deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Deleting**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::fetched
-
-```php
-public function fetched( \ORM\Event\Fetched $event ): boolean
-```
-
-##### Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Fetched**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::inserted
-
-```php
-public function inserted( \ORM\Event\Inserted $event ): boolean
-```
-
-##### Gets called after an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Inserted**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::inserting
-
-```php
-public function inserting( \ORM\Event\Inserting $event ): boolean
-```
-
-##### Gets Called before an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Inserting**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::saved
-
-```php
-public function saved( \ORM\Event\Saved $event ): boolean
-```
-
-##### Gets called after an entity got saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Saved**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::saving
-
-```php
-public function saving( \ORM\Event\Saving $event ): boolean
-```
-
-##### Gets called before an entity gets saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Saving**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::updated
-
-```php
-public function updated( \ORM\Event\Updated $event ): boolean
-```
-
-##### Gets called after an entity got updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Updated**  |  |
-
-
-
-#### ORM\Observer\AbstractObserver::updating
-
-```php
-public function updating( \ORM\Event\Updating $event ): boolean
-```
-
-##### Gets called before an entity gets updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Updating**  |  |
+| `$event` | **\ORM\Event**  |  |
 
 
 
@@ -830,178 +612,30 @@ can be canceled).
 
 #### Methods
 
-* [changed](#ormobservercallbackobserverchanged) Gets called when an attribute got changed (using the setAttribute method)
-* [deleted](#ormobservercallbackobserverdeleted) Gets called after an entity got deleted.
-* [deleting](#ormobservercallbackobserverdeleting) Gets called before an entity gets deleted.
-* [executeCallbacks](#ormobservercallbackobserverexecutecallbacks) 
-* [fetched](#ormobservercallbackobserverfetched) Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-* [inserted](#ormobservercallbackobserverinserted) Gets called after an entity gets inserted.
-* [inserting](#ormobservercallbackobserverinserting) Gets Called before an entity gets inserted.
+* [handle](#ormobservercallbackobserverhandle) Handles the $event.
 * [off](#ormobservercallbackobserveroff) Remove all listeners for $event
 * [on](#ormobservercallbackobserveron) Register a new $listener for $event
-* [saved](#ormobservercallbackobserversaved) Gets called after an entity got saved.
-* [saving](#ormobservercallbackobserversaving) Gets called before an entity gets saved.
-* [updated](#ormobservercallbackobserverupdated) Gets called after an entity got updated.
-* [updating](#ormobservercallbackobserverupdating) Gets called before an entity gets updated.
 
-#### ORM\Observer\CallbackObserver::changed
+#### ORM\Observer\CallbackObserver::handle
 
 ```php
-public function changed( \ORM\Event\Changed $event ): boolean
+public function handle( \ORM\Event $event ): boolean
 ```
 
-##### Gets called when an attribute got changed (using the setAttribute method)
+##### Handles the $event.
 
-
+Return false to stop event execution.
 
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **boolean**
 <br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Changed**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::deleted
-
-```php
-public function deleted( \ORM\Event\Deleted $event ): boolean
-```
-
-##### Gets called after an entity got deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Deleted**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::deleting
-
-```php
-public function deleting( \ORM\Event\Deleting $event ): boolean
-```
-
-##### Gets called before an entity gets deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Deleting**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::executeCallbacks
-
-```php
-protected function executeCallbacks( \ORM\Event $event )
-```
-
-
-
-
-**Visibility:** this method is **protected**.
-<br />
-
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$event` | **\ORM\Event**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::fetched
-
-```php
-public function fetched( \ORM\Event\Fetched $event ): boolean
-```
-
-##### Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Fetched**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::inserted
-
-```php
-public function inserted( \ORM\Event\Inserted $event ): boolean
-```
-
-##### Gets called after an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Inserted**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::inserting
-
-```php
-public function inserting( \ORM\Event\Inserting $event ): boolean
-```
-
-##### Gets Called before an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Inserting**  |  |
 
 
 
@@ -1049,98 +683,6 @@ public function on( $event, callable $listener ): $this
 |-----------|------|-------------|
 | `$event` |   |  |
 | `$listener` | **callable**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::saved
-
-```php
-public function saved( \ORM\Event\Saved $event ): boolean
-```
-
-##### Gets called after an entity got saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Saved**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::saving
-
-```php
-public function saving( \ORM\Event\Saving $event ): boolean
-```
-
-##### Gets called before an entity gets saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Saving**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::updated
-
-```php
-public function updated( \ORM\Event\Updated $event ): boolean
-```
-
-##### Gets called after an entity got updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Updated**  |  |
-
-
-
-#### ORM\Observer\CallbackObserver::updating
-
-```php
-public function updating( \ORM\Event\Updating $event ): boolean
-```
-
-##### Gets called before an entity gets updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **\ORM\Event\Updating**  |  |
 
 
 
@@ -5571,7 +5113,7 @@ $query->where('name = ?', ['John Doe']);
 | **protected** | `$descriptions` | **array&lt;Dbal \ Table> &#124; array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
 | **protected** | `$bulkInserts` | **array&lt;BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | **EntityManager[string] &#124; EntityManager[string][string]** | Mapping for EntityManager instances |
-| **protected** | `$observers` | **array&lt;Observer \ AbstractObserver[]>** |  |
+| **protected** | `$observers` | **array&lt;ObserverInterface[]>** |  |
 
 
 
@@ -6264,7 +5806,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 | **protected** | `$descriptions` | **array&lt; \ ORM \ Dbal \ Table> &#124; array&lt; \ ORM \ Dbal \ Column[]>** | Already fetched column descriptions |
 | **protected** | `$bulkInserts` | **array&lt; \ ORM \ BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | ** \ ORM \ EntityManager[string] &#124;  \ ORM \ EntityManager[string][string]** | Mapping for EntityManager instances |
-| **protected** | `$observers` | **array&lt; \ ORM \ Observer \ AbstractObserver[]>** |  |
+| **protected** | `$observers` | **array&lt; \ ORM \ ObserverInterface[]>** |  |
 | **protected** | `$resultRepository` |  |  |
 
 
@@ -9470,27 +9012,17 @@ can be canceled).
 
 #### Methods
 
-* [changed](#ormobserverinterfacechanged) Gets called when an attribute got changed (using the setAttribute method)
-* [deleted](#ormobserverinterfacedeleted) Gets called after an entity got deleted.
-* [deleting](#ormobserverinterfacedeleting) Gets called before an entity gets deleted.
-* [fetched](#ormobserverinterfacefetched) Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-* [inserted](#ormobserverinterfaceinserted) Gets called after an entity gets inserted.
-* [inserting](#ormobserverinterfaceinserting) Gets Called before an entity gets inserted.
-* [saved](#ormobserverinterfacesaved) Gets called after an entity got saved.
-* [saving](#ormobserverinterfacesaving) Gets called before an entity gets saved.
-* [updated](#ormobserverinterfaceupdated) Gets called after an entity got updated.
-* [updating](#ormobserverinterfaceupdating) Gets called before an entity gets updated.
+* [handle](#ormobserverinterfacehandle) Handles the $event.
 
-#### ORM\ObserverInterface::changed
+#### ORM\ObserverInterface::handle
 
 ```php
-public function changed( \ORM\Event\Changed $event ): boolean
+public function handle( \ORM\Event $event ): boolean
 ```
 
-##### Gets called when an attribute got changed (using the setAttribute method)
+##### Handles the $event.
 
-
+Return false to stop event execution.
 
 **Visibility:** this method is **public**.
 <br />
@@ -9501,215 +9033,7 @@ public function changed( \ORM\Event\Changed $event ): boolean
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$event` | **Event\Changed**  |  |
-
-
-
-#### ORM\ObserverInterface::deleted
-
-```php
-public function deleted( \ORM\Event\Deleted $event ): boolean
-```
-
-##### Gets called after an entity got deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Deleted**  |  |
-
-
-
-#### ORM\ObserverInterface::deleting
-
-```php
-public function deleting( \ORM\Event\Deleting $event ): boolean
-```
-
-##### Gets called before an entity gets deleted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Deleting**  |  |
-
-
-
-#### ORM\ObserverInterface::fetched
-
-```php
-public function fetched( \ORM\Event\Fetched $event ): boolean
-```
-
-##### Gets called when ever an Entity is fetched from an EntityFetcher or
-with the parameter $fromDatabase = true.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Fetched**  |  |
-
-
-
-#### ORM\ObserverInterface::inserted
-
-```php
-public function inserted( \ORM\Event\Inserted $event ): boolean
-```
-
-##### Gets called after an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Inserted**  |  |
-
-
-
-#### ORM\ObserverInterface::inserting
-
-```php
-public function inserting( \ORM\Event\Inserting $event ): boolean
-```
-
-##### Gets Called before an entity gets inserted.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Inserting**  |  |
-
-
-
-#### ORM\ObserverInterface::saved
-
-```php
-public function saved( \ORM\Event\Saved $event ): boolean
-```
-
-##### Gets called after an entity got saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Saved**  |  |
-
-
-
-#### ORM\ObserverInterface::saving
-
-```php
-public function saving( \ORM\Event\Saving $event ): boolean
-```
-
-##### Gets called before an entity gets saved.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Saving**  |  |
-
-
-
-#### ORM\ObserverInterface::updated
-
-```php
-public function updated( \ORM\Event\Updated $event ): boolean
-```
-
-##### Gets called after an entity got updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Updated**  |  |
-
-
-
-#### ORM\ObserverInterface::updating
-
-```php
-public function updating( \ORM\Event\Updating $event ): boolean
-```
-
-##### Gets called before an entity gets updated.
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **boolean**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$event` | **Event\Updating**  |  |
+| `$event` | **Event**  |  |
 
 
 

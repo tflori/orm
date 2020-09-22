@@ -14,73 +14,13 @@ use ORM\ObserverInterface;
  */
 abstract class AbstractObserver implements ObserverInterface
 {
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function fetched(Event\Fetched $event)
+    /** @inheritDoc */
+    public function handle(Event $event)
     {
-        return true;
-    }
+        if (is_callable([$this, $event::NAME])) {
+            return call_user_func([$this, $event::NAME], $event);
+        }
 
-    /** @inheritdoc
-     * @codeCoverageIgnore  */
-    public function changed(Event\Changed $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function saving(Event\Saving $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function saved(Event\Saved $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function inserting(Event\Inserting $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function inserted(Event\Inserted $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function updating(Event\Updating $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function updated(Event\Updated $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function deleting(Event\Deleting $event)
-    {
-        return true;
-    }
-
-    /** @inheritDoc
-     * @codeCoverageIgnore */
-    public function deleted(Event\Deleted $event)
-    {
         return true;
     }
 }

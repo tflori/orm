@@ -27,7 +27,7 @@ class FireEventTest extends TestCase
         $observer = m::mock(AbstractObserver::class);
         $this->em->observe(Article::class, $observer);
 
-        $observer->shouldReceive('fetched')->once()->andReturnNull();
+        $observer->shouldReceive('handle')->once()->andReturnNull();
 
         $result = $this->em->fire($event);
 
@@ -41,7 +41,7 @@ class FireEventTest extends TestCase
         $observer = m::mock(AbstractObserver::class);
         $this->em->observe(Article::class, $observer);
 
-        $observer->shouldReceive('fetched')->once()->andReturnFalse();
+        $observer->shouldReceive('handle')->once()->andReturnFalse();
 
         $result = $this->em->fire($event);
 
@@ -57,8 +57,8 @@ class FireEventTest extends TestCase
         $observer2 = m::mock(AbstractObserver::class);
         $this->em->observe(Article::class, $observer2);
 
-        $observer->shouldReceive('fetched')->once()->andReturnFalse();
-        $observer2->shouldNotReceive('fetched');
+        $observer->shouldReceive('handle')->once()->andReturnFalse();
+        $observer2->shouldNotReceive('handle');
 
         $this->em->fire($event);
     }
