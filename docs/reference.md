@@ -652,7 +652,7 @@ public function off( $event ): $this
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **$this**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+<br />
 
 ##### Parameters
 
@@ -675,7 +675,7 @@ public function on( $event, callable $listener ): $this
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **$this**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+<br />
 
 ##### Parameters
 

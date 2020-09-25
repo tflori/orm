@@ -7,18 +7,7 @@ use ORM\Exception\InvalidArgument;
 
 class CallbackObserver extends AbstractObserver
 {
-    protected $callbacks = [
-        'fetched' => [],
-        'changed' => [],
-        'saving' => [],
-        'saved' => [],
-        'inserting' => [],
-        'inserted' => [],
-        'updating' => [],
-        'updated' => [],
-        'deleting' => [],
-        'deleted' => [],
-    ];
+    protected $callbacks = [];
 
     /**
      * Register a new $listener for $event
@@ -26,14 +15,11 @@ class CallbackObserver extends AbstractObserver
      * @param $event
      * @param callable $listener
      * @return $this
-     * @throws InvalidArgument
      */
     public function on($event, callable $listener)
     {
         if (!isset($this->callbacks[$event])) {
-            throw new InvalidArgument(
-                'Unknown event ' . $event . '. Use one of ' . implode(',', array_keys($this->callbacks))
-            );
+            $this->callbacks[$event] = [];
         }
         $this->callbacks[$event][] = $listener;
         return $this;
@@ -44,15 +30,9 @@ class CallbackObserver extends AbstractObserver
      *
      * @param $event
      * @return $this
-     * @throws InvalidArgument
      */
     public function off($event)
     {
-        if (!isset($this->callbacks[$event])) {
-            throw new InvalidArgument(
-                'Unknown event ' . $event . '. Use one of ' . implode(',', array_keys($this->callbacks))
-            );
-        }
         $this->callbacks[$event] = [];
         return $this;
     }

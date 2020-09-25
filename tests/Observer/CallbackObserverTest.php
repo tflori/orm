@@ -18,6 +18,7 @@ use ORM\Event\Updating;
 use ORM\Exception\InvalidArgument;
 use ORM\Observer\CallbackObserver;
 use ORM\Test\Entity\Examples\Article;
+use ORM\Test\Examples\CustomEvent;
 use ORM\Test\TestCase;
 
 class CallbackObserverTest extends TestCase
@@ -123,23 +124,16 @@ class CallbackObserverTest extends TestCase
     }
 
     /** @test */
-    public function throwsWhenTryingToRegisterAHandlerForUnknownEvent()
+    public function customEventsAreAccepted()
     {
         $observer = new CallbackObserver();
-
-        self::expectException(InvalidArgument::class);
-
-        $observer->on('anything', function () {
+        $spy = m::spy(function (Entity $entity) {
         });
-    }
+        $event = new CustomEvent(new Article());
 
-    /** @test */
-    public function throwsWhenTryingToRemoveHandlersForUnknownEvent()
-    {
-        $observer = new CallbackObserver();
+        $spy->shouldReceive('__invoke')->once()->with($event);
 
-        self::expectException(InvalidArgument::class);
-
-        $observer->off('anything');
+        $observer->on(CustomEvent::NAME, $spy);
+        $observer->handle($event);
     }
 }
