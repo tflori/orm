@@ -49,6 +49,11 @@ h6 {
   font-weight: 600;
 }
 
+mark {
+  background: transparent;
+  color: #00aa00;
+}
+
 b, strong {
   font-weight: 600;
 }
@@ -347,6 +352,14 @@ menu li.selected:before {
   .dark h5,
   .dark h6 {
     color: #ccc;
+  }
+
+  .dark th {
+    color: #aaa;
+  }
+
+  .dark td, .dark th {
+    border-color: #333;
   }
 
   .dark ul.row {
