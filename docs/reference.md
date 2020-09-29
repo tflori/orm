@@ -713,6 +713,7 @@ public function on( $event, callable $listener ): $this
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$attribute` | **string** |  |
 | **protected** | `$oldValue` | **mixed** |  |
 | **protected** | `$newValue` | **mixed** |  |
@@ -723,6 +724,7 @@ public function on( $event, callable $listener ): $this
 
 * [__construct](#ormeventchanged__construct) 
 * [__get](#ormeventchanged__get) 
+* [stop](#ormeventchangedstop) 
 
 #### ORM\Event\Changed::__construct
 
@@ -768,6 +770,21 @@ public function __get( $name )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` |   |  |
+
+
+
+#### ORM\Event\Changed::stop
+
+```php
+public function stop()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -1874,6 +1891,7 @@ public function getDsn(): string
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -1903,6 +1921,7 @@ public function getDsn(): string
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -3205,7 +3224,7 @@ public function unserialize( string $serialized )
 #### ORM\Entity::updateEntity
 
 ```php
-private function updateEntity( array $dirty ): \ORM\Event\Updated|null
+private function updateEntity(): \ORM\Event\Updated|null
 ```
 
 ##### Update the row in the database
@@ -3216,12 +3235,6 @@ private function updateEntity( array $dirty ): \ORM\Event\Updated|null
 <br />
  **Returns**: this method returns **\ORM\Event\Updated|null**
 <br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$dirty` | **array**  |  |
 
 
 
@@ -5131,6 +5144,7 @@ $query->where('name = ?', ['John Doe']);
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
 * [finishBulkInserts](#ormentitymanagerfinishbulkinserts) Finish the bulk insert for $class.
+* [fire](#ormentitymanagerfire) Fire $event on $entity
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection.
 * [getDbal](#ormentitymanagergetdbal) Get the Datbase Abstraction Layer
 * [getInstance](#ormentitymanagergetinstance) Get an instance of the EntityManager.
@@ -5438,6 +5452,29 @@ Returns an array of entities added.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
+
+
+
+#### ORM\EntityManager::fire
+
+```php
+public function fire( \ORM\Event $event ): boolean
+```
+
+##### Fire $event on $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **Event**  |  |
 
 
 
@@ -5827,6 +5864,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
 * [finishBulkInserts](#ormtestingentitymanagermockfinishbulkinserts) Finish the bulk insert for $class.
+* [fire](#ormtestingentitymanagermockfire) Fire $event on $entity
 * [getConnection](#ormtestingentitymanagermockgetconnection) Get the pdo connection.
 * [getDbal](#ormtestingentitymanagermockgetdbal) Get the Datbase Abstraction Layer
 * [getInstance](#ormtestingentitymanagermockgetinstance) Get an instance of the EntityManager.
@@ -6187,6 +6225,29 @@ Returns an array of entities added.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::fire
+
+```php
+public function fire( \ORM\Event $event ): boolean
+```
+
+##### Fire $event on $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$event` | **\ORM\Event**  |  |
 
 
 
@@ -6807,6 +6868,7 @@ public function __construct(
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | **Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -6814,6 +6876,7 @@ public function __construct(
 
 * [__construct](#ormevent__construct) 
 * [__get](#ormevent__get) 
+* [stop](#ormeventstop) 
 
 #### ORM\Event::__construct
 
@@ -6854,6 +6917,21 @@ public function __get( $name )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` |   |  |
+
+
+
+#### ORM\Event::stop
+
+```php
+public function stop()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -6901,6 +6979,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$rawData` | **array** |  |
 
 
@@ -6909,6 +6988,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 * [__construct](#ormeventfetched__construct) 
 * [__get](#ormeventfetched__get) 
+* [stop](#ormeventfetchedstop) 
 
 #### ORM\Event\Fetched::__construct
 
@@ -6950,6 +7030,21 @@ public function __get( $name )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$name` |   |  |
+
+
+
+#### ORM\Event\Fetched::stop
+
+```php
+public function stop()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -7012,6 +7107,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -7041,6 +7137,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -14040,6 +14137,7 @@ public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$originalEvent` | ** \ ORM \ Event** |  |
 
 
@@ -14048,6 +14146,7 @@ public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
 
 * [__construct](#ormeventsaved__construct) 
 * [__get](#ormeventsaved__get) 
+* [stop](#ormeventsavedstop) 
 
 #### ORM\Event\Saved::__construct
 
@@ -14091,6 +14190,21 @@ public function __get( $name )
 
 
 
+#### ORM\Event\Saved::stop
+
+```php
+public function stop()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
 
 
 ---
@@ -14118,6 +14232,7 @@ public function __get( $name )
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -15432,6 +15547,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 | **protected** | `$dirty` | **array** |  |
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -15455,6 +15571,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 |------------|------|------|---------------------------------------|
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$dirty` | **array** |  |
 
 
@@ -15463,6 +15580,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 * [__construct](#ormeventupdateevent__construct) 
 * [__get](#ormeventupdateevent__get) 
+* [stop](#ormeventupdateeventstop) 
 
 #### ORM\Event\UpdateEvent::__construct
 
@@ -15507,6 +15625,21 @@ public function __get( $name )
 
 
 
+#### ORM\Event\UpdateEvent::stop
+
+```php
+public function stop()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
 
 
 ---
@@ -15535,6 +15668,7 @@ public function __get( $name )
 | **protected** | `$dirty` | **array** |  |
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
