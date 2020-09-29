@@ -367,14 +367,13 @@ abstract class Entity implements Serializable
         if ($this->entityManager->fire(new Saving($this)) !== false) {
             $hasPrimaryKey = $this->hasPrimaryKey();
             if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
-                $saved = $this->insertEntity($hasPrimaryKey);
+                $event = $this->insertEntity($hasPrimaryKey);
             } else {
-                $dirty = $this->getDirty();
-                $saved = $this->updateEntity($dirty);
+                $event = $this->updateEntity();
             }
 
-            if ($saved) {
-                $this->entityManager->fire(new Saved($saved));
+            if ($event) {
+                $this->entityManager->fire(new Saved($event));
             }
         }
 
@@ -412,12 +411,12 @@ abstract class Entity implements Serializable
     /**
      * Update the row in the database
      *
-     * @param array $dirty
      * @return Updated|null
      */
-    private function updateEntity(array $dirty)
+    private function updateEntity()
     {
-        if ($this->isDirty() && $this->entityManager->fire(new Updating($this, $dirty)) !== false) {
+        $dirty = $this->isDirty() ? $this->getDirty() : null;
+        if ($dirty !== null && $this->entityManager->fire(new Updating($this, $dirty)) !== false) {
             $this->preUpdate();
             if ($this->entityManager->update($this)) {
                 $this->entityManager->fire($event = new Updated($this, $dirty));

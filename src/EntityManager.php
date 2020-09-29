@@ -614,7 +614,6 @@ class EntityManager
      * Fire $event on $entity
      *
      * @param Event $event
-     * @internal
      * @return bool
      */
     public function fire(Event $event)
@@ -624,8 +623,8 @@ class EntityManager
             $class = $current->getName();
             /** @var ObserverInterface $observer */
             foreach ((array)@$this->observers[$class] as $observer) {
-                if ($observer->handle($event) === false) {
-                    return false;
+                if ($observer->handle($event) === false || $event->stopped) {
+                    return $event->stopped;
                 }
             }
         } while ($class !== Entity::class);

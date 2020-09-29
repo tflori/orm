@@ -5,6 +5,7 @@ namespace ORM;
 /**
  * @property-read Entity $entity
  * @property-read array $data
+ * @property-read bool $stopped
  */
 abstract class Event
 {
@@ -15,6 +16,9 @@ abstract class Event
 
     /** @var array */
     protected $data;
+
+    /** @var bool */
+    protected $stopped = false;
 
     /**
      * @param Entity $entity
@@ -28,5 +32,10 @@ abstract class Event
     public function __get($name)
     {
         return isset($this->$name) ? $this->$name : null;
+    }
+
+    public function stop()
+    {
+        $this->stopped = true;
     }
 }

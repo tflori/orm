@@ -62,4 +62,21 @@ class FireEventTest extends TestCase
 
         $this->em->fire($event);
     }
+
+    /** @test */
+    public function stopsWhenAnObserverStopsTheEvent()
+    {
+        $event = new Event\Fetched(new Article(), ['title' => 'Foo']);
+        $observer = m::mock(AbstractObserver::class);
+        $this->em->observe(Article::class, $observer);
+        $observer2 = m::mock(AbstractObserver::class);
+        $this->em->observe(Article::class, $observer2);
+
+        $observer->shouldReceive('handle')->once()->andReturnUsing(function (Event\Fetched $event) {
+            $event->stop();
+        });
+        $observer2->shouldNotReceive('handle');
+
+        $this->em->fire($event);
+    }
 }

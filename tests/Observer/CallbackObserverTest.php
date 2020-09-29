@@ -74,6 +74,26 @@ class CallbackObserverTest extends TestCase
     }
 
     /** @test */
+    public function stopsWhenAHandlerStopsTheEvent()
+    {
+        $observer = new CallbackObserver();
+        $spy1 = m::spy(function (Entity $entity) {
+        });
+        $spy2 = m::spy(function (Entity $entity) {
+        });
+        $event = new Fetched(new Article(), []);
+
+        $spy1->shouldReceive('__invoke')->with($event)->once()->andReturnUsing(function (Fetched $event) {
+            $event->stop();
+        });
+        $spy2->shouldNotReceive('__invoke');
+
+        $observer->on('fetched', $spy1);
+        $observer->on('fetched', $spy2);
+        $observer->handle($event);
+    }
+
+    /** @test */
     public function allHandlersForTheEventAreRemoved()
     {
         $observer = new CallbackObserver();

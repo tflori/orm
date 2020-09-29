@@ -40,8 +40,8 @@ class CallbackObserver extends AbstractObserver
     public function handle(Event $event)
     {
         foreach ($this->callbacks[$event::NAME] as $callback) {
-            if (call_user_func($callback, $event) === false) {
-                return false;
+            if (call_user_func($callback, $event) === false || $event->stopped) {
+                return $event->stopped;
             }
         }
 
