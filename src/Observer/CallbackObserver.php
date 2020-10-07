@@ -7,7 +7,7 @@ use ORM\Exception\InvalidArgument;
 
 class CallbackObserver extends AbstractObserver
 {
-    protected $callbacks = [];
+    protected $handlers = [];
 
     /**
      * Register a new $listener for $event
@@ -18,10 +18,10 @@ class CallbackObserver extends AbstractObserver
      */
     public function on($event, callable $listener)
     {
-        if (!isset($this->callbacks[$event])) {
-            $this->callbacks[$event] = [];
+        if (!isset($this->handlers[$event])) {
+            $this->handlers[$event] = [];
         }
-        $this->callbacks[$event][] = $listener;
+        $this->handlers[$event][] = $listener;
         return $this;
     }
 
@@ -33,14 +33,15 @@ class CallbackObserver extends AbstractObserver
      */
     public function off($event)
     {
-        $this->callbacks[$event] = [];
+        $this->handlers[$event] = [];
         return $this;
     }
 
     public function handle(Event $event)
     {
-        foreach ($this->callbacks[$event::NAME] as $callback) {
-            if (call_user_func($callback, $event) === false || $event->stopped) {
+        $handlers = isset($this->handlers[$event::NAME]) ? $this->handlers[$event::NAME] : [];
+        foreach ($handlers as $handler) {
+            if (call_user_func($handler, $event) === false || $event->stopped) {
                 return $event->stopped;
             }
         }

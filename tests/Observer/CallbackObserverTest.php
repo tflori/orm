@@ -156,4 +156,15 @@ class CallbackObserverTest extends TestCase
         $observer->on(CustomEvent::NAME, $spy);
         $observer->handle($event);
     }
+
+    /** @test */
+    public function returnsTrueWhenNoHandlerIsDefined()
+    {
+        $observer = new CallbackObserver();
+        $event = new Inserted(new Article());
+
+        $result = $observer->handle($event);
+
+        self::assertTrue($result);
+    }
 }
