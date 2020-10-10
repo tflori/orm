@@ -79,4 +79,17 @@ class FireEventTest extends TestCase
 
         $this->em->fire($event);
     }
+
+    /** @test */
+    public function doesNotCauseANoticeWhenNoObserverIsDefined()
+    {
+        $spy = m::spy(function ($error) {
+
+        });
+        set_error_handler($spy);
+        $spy->shouldNotReceive('__invoke');
+
+        $event = new Event\Fetched(new Article(), ['title' => 'Foo']);
+        $this->em->fire($event);
+    }
 }

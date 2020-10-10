@@ -621,8 +621,9 @@ class EntityManager
         do {
             $current = isset($current) ? $current->getParentClass() : new ReflectionClass($event->entity);
             $class = $current->getName();
-            /** @var ObserverInterface $observer */
-            foreach ((array)@$this->observers[$class] as $observer) {
+            /** @var ObserverInterface[] $observers */
+            $observers = isset($this->observers[$class]) ? $this->observers[$class] : [];
+            foreach ($observers as $observer) {
                 if ($observer->handle($event) === false || $event->stopped) {
                     return $event->stopped;
                 }
