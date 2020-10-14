@@ -9,8 +9,18 @@ use ORM\Entity\Naming;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
 use ORM\EntityManager as EM;
+use ORM\Event\Changed;
+use ORM\Event\Fetched;
+use ORM\Event\Inserted;
+use ORM\Event\Inserting;
+use ORM\Event\Saved;
+use ORM\Event\Saving;
+use ORM\Event\Updated;
+use ORM\Event\Updating;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnknownColumn;
+use ORM\Observer\AbstractObserver;
+use ORM\Observer\CallbackObserver;
 use ReflectionClass;
 use Serializable;
 
@@ -86,11 +96,12 @@ abstract class Entity implements Serializable
      */
     final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
     {
-        if ($fromDatabase) {
-            $this->originalData = $data;
-        }
         $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
+        if ($fromDatabase) {
+            $this->originalData = $data;
+            $this->entityManager->fire(new Fetched($this, $data));
+        }
         $this->onInit(!$fromDatabase);
     }
 
@@ -102,6 +113,40 @@ abstract class Entity implements Serializable
     public static function query()
     {
         return EM::getInstance(static::class)->fetch(static::class);
+    }
+
+    /**
+     * Observe the class using $observer
+     *
+     * If AbstractObserver is omitted it returns a new CallbackObserver. Usage example:
+     * ```php
+     * $em->observe(User::class)
+     *     ->on('inserted', function (User $user) { ... })
+     *     ->on('deleted', function (User $user) { ... });
+     * ```
+     *
+     * For more information about model events please consult the [documentation](https://tflori.github.io/
+     *
+     * @param ?AbstractObserver $observer
+     * @return ?CallbackObserver
+     * @codeCoverageIgnore proxy for EntityManager::observe()
+     *@see EntityManager::observe()
+     */
+    public static function observeBy(AbstractObserver $observer = null)
+    {
+        return EM::getInstance(static::class)->observe(static::class, $observer);
+    }
+
+    /**
+     * Stop observing the class by $observer
+     *
+     * @param AbstractObserver $observer
+     * @codeCoverageIgnore proxy for EntityManager::ignore()
+     *@see EntityManager::detach()
+     */
+    public static function detachObserver(AbstractObserver $observer)
+    {
+        EM::getInstance(static::class)->detach($observer, static::class);
     }
 
     /**
@@ -255,7 +300,9 @@ abstract class Entity implements Serializable
         }
 
         if ($changed) {
-            $this->onChange($attribute, $oldValue, $this->__get($attribute));
+            $newValue = $this->__get($attribute);
+            $this->entityManager->fire(new Changed($this, $attribute, $oldValue, $newValue));
+            $this->onChange($attribute, $oldValue, $newValue);
         }
 
         return $this;
@@ -317,44 +364,68 @@ abstract class Entity implements Serializable
      */
     public function save()
     {
-        // @codeCoverageIgnoreStart
-        if (func_num_args() === 1 && func_get_arg(0) instanceof EM) {
-            trigger_error(
-                'Passing EntityManager to save is deprecated. Use ->setEntityManager() to overwrite',
-                E_USER_DEPRECATED
-            );
-        }
-        // @codeCoverageIgnoreEnd
-
-        $inserted = false;
-        $updated  = false;
-
-        try {
-            // this may throw if the primary key is auto incremented but we using this to omit duplicated code
-            if (!$this->entityManager->sync($this)) {
-                $this->prePersist();
-                $inserted = $this->entityManager->insert($this, false);
-            } elseif ($this->isDirty()) {
-                $this->preUpdate();
-                $updated = $this->entityManager->update($this);
-            }
-        } catch (IncompletePrimaryKey $e) {
-            if (static::isAutoIncremented()) {
-                $this->prePersist();
-                $inserted = $this->entityManager->insert($this);
-            } elseif ($this instanceof GeneratesPrimaryKeys) {
-                $this->generatePrimaryKey();
-                $this->prePersist();
-                $inserted = $this->entityManager->insert($this);
+        if ($this->entityManager->fire(new Saving($this)) !== false) {
+            $hasPrimaryKey = $this->hasPrimaryKey();
+            if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
+                $event = $this->insertEntity($hasPrimaryKey);
             } else {
-                throw $e;
+                $event = $this->updateEntity();
+            }
+
+            if ($event) {
+                $this->entityManager->fire(new Saved($event));
             }
         }
-
-        $inserted && $this->postPersist();
-        $updated && $this->postUpdate();
 
         return $this;
+    }
+
+    /**
+     * Insert the row in the database
+     *
+     * @param bool $hasPrimaryKey
+     * @return Inserted|null
+     * @throws IncompletePrimaryKey
+     */
+    private function insertEntity($hasPrimaryKey)
+    {
+        if (!$hasPrimaryKey && !static::isAutoIncremented()) {
+            if (!$this instanceof GeneratesPrimaryKeys) {
+                $this->getPrimaryKey(); // this will throw then...
+            }
+            $this->generatePrimaryKey();
+        }
+
+        if ($this->entityManager->fire(new Inserting($this)) !== false) {
+            $this->prePersist();
+            if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
+                $this->entityManager->fire($event = new Inserted($this));
+                $this->postPersist();
+                return $event;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Update the row in the database
+     *
+     * @return Updated|null
+     */
+    private function updateEntity()
+    {
+        $dirty = $this->isDirty() ? $this->getDirty() : null;
+        if ($dirty !== null && $this->entityManager->fire(new Updating($this, $dirty)) !== false) {
+            $this->preUpdate();
+            if ($this->entityManager->update($this)) {
+                $this->entityManager->fire($event = new Updated($this, $dirty));
+                $this->postUpdate();
+                return $event;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -377,15 +448,60 @@ abstract class Entity implements Serializable
     public function isDirty($attribute = null)
     {
         if (!empty($attribute)) {
-            $col = static::getColumnName($attribute);
-            return (isset($this->data[$col]) ? $this->data[$col] : null) !==
-                   (isset($this->originalData[$col]) ? $this->originalData[$col] : null);
+            $current = $this->getAttribute($attribute);
+            $backupData = $this->data;
+            $this->data = $this->originalData;
+            $old = $this->getAttribute($attribute);
+            $this->data = $backupData;
+            return $current !== $old;
         }
 
         ksort($this->data);
         ksort($this->originalData);
 
         return serialize($this->data) !== serialize($this->originalData);
+    }
+
+    /**
+     * Get an array of attributes that changed
+     *
+     * This method works on application level. Meaning it is showing additional attributes defined in
+     * ::$includedAttributes and and hiding ::$excludedAttributes.
+     *
+     * @return array
+     */
+    public function getDirty()
+    {
+        $current = $this->toArray([], false);
+        if (empty($this->originalData)) {
+            return array_map(function ($value) {
+                return [null, $value];
+            }, $current);
+        }
+
+        $dirty = [];
+        $backupData = $this->data;
+        $this->data = $this->originalData;
+        $old = $this->toArray([], false);
+        $this->data = $backupData;
+        foreach (array_merge(array_keys($current), array_keys($old)) as $key) {
+            if (@$current[$key] === @$old[$key]) {
+                continue;
+            }
+            $dirty[$key] = [@$old[$key], @$current[$key]];
+        }
+
+        return $dirty;
+    }
+
+    /**
+     * Check if the entity has has a complete primary key
+     *
+     * @return bool
+     */
+    public function hasPrimaryKey()
+    {
+        return (bool)min(array_map([$this, '__isset'], static::getPrimaryKeyVars()));
     }
 
     /**
