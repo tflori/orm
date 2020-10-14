@@ -84,7 +84,6 @@ class FireEventTest extends TestCase
     public function doesNotCauseANoticeWhenNoObserverIsDefined()
     {
         $spy = m::spy(function ($error) {
-
         });
         set_error_handler($spy);
         $spy->shouldNotReceive('__invoke');
