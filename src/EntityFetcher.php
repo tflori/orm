@@ -174,32 +174,50 @@ class EntityFetcher extends QueryBuilder
     }
 
     /**
-     * Common implementation for *Join methods
+     * Get the table name and alias for a class
      *
-     * Additionally this method replaces class name with table name and forces an alias.
-     *
-     * @param string $join The join type (e. g. `LEFT JOIN`)
-     * @param string $class Class to join
-     * @param string|boolean $expression Expression, single column name or boolean to create an empty join
-     * @param string $alias Alias for the table
-     * @param array $args Arguments for expression
-     * @return EntityFetcher|ParenthesisInterface
-     * @internal
+     * @param $class
+     * @param $alias
+     * @return array
      */
-    protected function createJoin($join, $class, $expression = '', $alias = '', $args = [])
+    protected function normalizeTableAndAlias($class, $alias)
     {
         if (class_exists($class)) {
             /** @var Entity|string $class */
-            $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
-            $alias     = $alias ?: 't' . count($this->classMapping['byAlias']);
+            $table = $this->entityManager->escapeIdentifier($class::getTableName());
+            $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
 
             $this->classMapping['byClass'][$class] = $alias;
             $this->classMapping['byAlias'][$alias] = $class;
         } else {
-            $tableName = $class;
+            $table = $class;
         }
 
-        return parent::createJoin($join, $tableName, $expression, $alias, $args);
+        return [$table, $alias];
+    }
+
+    public function join($class, $expression = '', $alias = '', $args = [])
+    {
+        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        return parent::join($table, $expression, $alias, $args);
+    }
+
+    public function leftJoin($class, $expression = '', $alias = '', $args = [])
+    {
+        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        return parent::leftJoin($table, $expression, $alias, $args);
+    }
+
+    public function rightJoin($class, $expression = '', $alias = '', $args = [])
+    {
+        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        return parent::rightJoin($table, $expression, $alias, $args);
+    }
+
+    public function fullJoin($class, $expression = '', $alias = '', $args = [])
+    {
+        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        return parent::fullJoin($table, $expression, $alias, $args);
     }
 
     /**
@@ -219,7 +237,9 @@ class EntityFetcher extends QueryBuilder
             $alias = $this->alias;
         }
 
-        call_user_func([ $class, 'getRelation' ], $relation)->addJoin($this, $join, $alias);
+        /** @var Relation $relation */
+        $relation = call_user_func([$class, 'getRelation'], $relation);
+        $relation->addJoin($this, $join, $alias);
         return $this;
     }
 
