@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\EntityFetcher\TranslatesClasses;
 use ORM\Exception\NotJoined;
 use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\QueryBuilder\QueryBuilder;
@@ -30,6 +31,8 @@ use PDOStatement;
  */
 class EntityFetcher extends QueryBuilder
 {
+    use TranslatesClasses;
+
     /** The entity class that we want to fetch
      * @var string|Entity */
     protected $class;
@@ -107,57 +110,6 @@ class EntityFetcher extends QueryBuilder
     }
 
     /**
-     * Translate attribute names in an expression to their column names
-     *
-     * @param string $expression
-     * @return string
-     * @throws NotJoined
-     */
-    protected function translateColumn($expression)
-    {
-        return preg_replace_callback(
-            '/(?<b>^| |\()' .
-            '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
-            '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
-            '(?<a>$| |,|\))/',
-            function ($match) {
-                if ($match['alias'] && !isset($this->classMapping['byAlias'][$match['alias']])) {
-                    return $match[0];
-                } elseif ($match['column'] === strtoupper($match['column'])) {
-                    return $match['b'] . $match['column'] . $match['a'];
-                }
-
-                list($class, $alias) = $this->normalizeClassAndAlias($match);
-
-                /** @var Entity|string $class */
-                return $match['b'] . $this->entityManager->escapeIdentifier(
-                    $alias . '.' . $class::getColumnName($match['column'])
-                ) . $match['a'];
-            },
-            $expression
-        );
-    }
-
-    private function normalizeClassAndAlias(array $match)
-    {
-        if ($match['class']) {
-            if (!isset($this->classMapping['byClass'][$match['class']])) {
-                throw new NotJoined("Class " . $match['class'] . " not joined");
-            }
-            $class = $match['class'];
-            $alias = $this->classMapping['byClass'][$match['class']];
-        } elseif ($match['alias']) {
-            $alias = $match['alias'];
-            $class = $this->classMapping['byAlias'][$match['alias']];
-        } else {
-            $class = $this->class;
-            $alias = $this->alias;
-        }
-
-        return [$class, $alias];
-    }
-
-    /**
      * Build a where (not) in expression
      *
      * @param $column
@@ -173,50 +125,27 @@ class EntityFetcher extends QueryBuilder
         return parent::buildWhereInExpression($column, $values, $inverse);
     }
 
-    /**
-     * Get the table name and alias for a class
-     *
-     * @param $class
-     * @param $alias
-     * @return array
-     */
-    protected function normalizeTableAndAlias($class, $alias)
-    {
-        if (class_exists($class)) {
-            /** @var Entity|string $class */
-            $table = $this->entityManager->escapeIdentifier($class::getTableName());
-            $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
-
-            $this->classMapping['byClass'][$class] = $alias;
-            $this->classMapping['byAlias'][$alias] = $class;
-        } else {
-            $table = $class;
-        }
-
-        return [$table, $alias];
-    }
-
     public function join($class, $expression = '', $alias = '', $args = [])
     {
-        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        list($table, $alias) = $this->getTableAndAlias($class, $alias);
         return parent::join($table, $expression, $alias, $args);
     }
 
     public function leftJoin($class, $expression = '', $alias = '', $args = [])
     {
-        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        list($table, $alias) = $this->getTableAndAlias($class, $alias);
         return parent::leftJoin($table, $expression, $alias, $args);
     }
 
     public function rightJoin($class, $expression = '', $alias = '', $args = [])
     {
-        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        list($table, $alias) = $this->getTableAndAlias($class, $alias);
         return parent::rightJoin($table, $expression, $alias, $args);
     }
 
     public function fullJoin($class, $expression = '', $alias = '', $args = [])
     {
-        list($table, $alias) = $this->normalizeTableAndAlias($class, $alias);
+        list($table, $alias) = $this->getTableAndAlias($class, $alias);
         return parent::fullJoin($table, $expression, $alias, $args);
     }
 
