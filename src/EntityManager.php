@@ -82,6 +82,9 @@ class EntityManager
      * @var BulkInsert[] */
     protected $bulkInserts = [];
 
+    /** @var ObserverInterface[][] */
+    protected $observers = [];
+
     /** Mapping for EntityManager instances
      * @var EntityManager[string]|EntityManager[string][string] */
     protected static $emMapping = [
@@ -503,6 +506,28 @@ class EntityManager
     }
 
     /**
+     * Check if the entity map has $entity
+     *
+     * If you want to know if the entity already exists in the map use this method.
+     *
+     * @param Entity|string $entity
+     * @param mixed $primaryKey
+     * @return bool
+     */
+    public function has($entity, $primaryKey = null)
+    {
+        if ($entity instanceof Entity) {
+            $class = get_class($entity);
+            $key   = static::buildChecksum($entity->getPrimaryKey());
+        } else {
+            $class = $entity;
+            $key = static::buildChecksum(static::buildPrimaryKey($class, (array)$primaryKey));
+        }
+
+        return isset($this->map[$class][$key]);
+    }
+
+    /**
      * Fetch one or more entities
      *
      * With $primaryKey it tries to find this primary key in the entity map (carefully: mostly the database returns a
@@ -543,9 +568,6 @@ class EntityManager
 
         return $fetcher->one();
     }
-
-    /** @var ObserverInterface[][] */
-    protected $observers = [];
 
     /**
      * Observe $class using $observer

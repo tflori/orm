@@ -30,9 +30,9 @@ interface ParenthesisInterface
      * ```
      *
      * @see ParenthesisInterface::andWhere()
-     * @param string       $column   Column or expression with placeholders
-     * @param string|array $operator Operator, value or array of values
-     * @param string       $value    Value (required when used with operator)
+     * @param string|array $column   Column or expression with placeholders
+     * @param mixed $operator Operator, value or array of values
+     * @param mixed $value    Value (required when used with operator)
      * @return static
      */
     public function where($column, $operator = '', $value = '');

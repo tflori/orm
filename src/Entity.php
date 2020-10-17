@@ -81,6 +81,10 @@ abstract class Entity implements Serializable
      * @var mixed[] */
     protected $originalData = [];
 
+    /** Whether the entity exists in database
+     * @var bool */
+    protected $exists = false;
+
     /** The entity manager from which this entity got created
      * @var EM */
     protected $entityManager;
@@ -99,6 +103,7 @@ abstract class Entity implements Serializable
         $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
         if ($fromDatabase) {
+            $this->exists = true;
             $this->originalData = $data;
             $this->entityManager->fire(new Fetched($this, $data));
         }
@@ -159,7 +164,7 @@ abstract class Entity implements Serializable
      */
     public static function getPrimaryKeyVars()
     {
-        return !is_array(static::$primaryKey) ? [ static::$primaryKey ] : static::$primaryKey;
+        return (array)static::$primaryKey;
     }
 
     /**
@@ -369,6 +374,7 @@ abstract class Entity implements Serializable
             if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
                 $event = $this->insertEntity($hasPrimaryKey);
             } else {
+                $this->exists = true;
                 $event = $this->updateEntity();
             }
 
@@ -378,6 +384,16 @@ abstract class Entity implements Serializable
         }
 
         return $this;
+    }
+
+    /**
+     * Returns whether or not the entity exists in database
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return $this->exists;
     }
 
     /**
@@ -399,6 +415,7 @@ abstract class Entity implements Serializable
         if ($this->entityManager->fire(new Inserting($this)) !== false) {
             $this->prePersist();
             if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
+                $this->exists = true;
                 $this->entityManager->fire($event = new Inserted($this));
                 $this->postPersist();
                 return $event;
@@ -542,6 +559,7 @@ abstract class Entity implements Serializable
      */
     public function setOriginalData(array $data)
     {
+        $this->exists = true;
         $this->originalData = $data;
     }
 

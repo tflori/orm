@@ -2,3 +2,4 @@
 /docs/_site
 /composer.lock
 /docs/.jekyll-cache
+/examples/*.sqlite

@@ -16,7 +16,7 @@ class WhereConditionsTest extends TestCase
             [['name', 'LIKE', '% Doe'], 'name LIKE \'% Doe\''],
             [['name', ['John Doe', 'Jane Doe']], 'name IN (\'John Doe\',\'Jane Doe\')'],
             [['name', ['John Doe']], 'name IN (\'John Doe\')'],
-            [['name', 'not in', ['John Doe']], 'name not in (\'John Doe\')'],
+            [['name', 'not in', ['John Doe']], 'name NOT IN (\'John Doe\')'],
             [['firstname = lastname'], 'firstname = lastname'],
             [
                 ['MATCH(name) AGAINST (? IN NATURAL LANGUAGE MODE)', 'doe'],

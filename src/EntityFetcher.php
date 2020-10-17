@@ -100,42 +100,70 @@ class EntityFetcher extends QueryBuilder
     protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
         if ($translateCols) {
-            $expression = preg_replace_callback(
-                '/(?<b>^| |\()' .
-                '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
-                '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
-                '(?<a>$| |,|\))/',
-                function ($match) {
-                    if ($match['class']) {
-                        if (!isset($this->classMapping['byClass'][$match['class']])) {
-                            throw new NotJoined("Class " . $match['class'] . " not joined");
-                        }
-                        $class = $match['class'];
-                        $alias = $this->classMapping['byClass'][$match['class']];
-                    } elseif ($match['alias']) {
-                        if (!isset($this->classMapping['byAlias'][$match['alias']])) {
-                            return $match[0];
-                        }
-                        $alias = $match['alias'];
-                        $class = $this->classMapping['byAlias'][$match['alias']];
-                    } else {
-                        if ($match['column'] === strtoupper($match['column'])) {
-                            return $match['b'] . $match['column'] . $match['a'];
-                        }
-                        $class = $this->class;
-                        $alias = $this->alias;
-                    }
-
-                    /** @var Entity|string $class */
-                    return $match['b'] . $this->entityManager->escapeIdentifier(
-                        $alias . '.' . $class::getColumnName($match['column'])
-                    ) . $match['a'];
-                },
-                $expression
-            );
+            $expression = $this->translateColumn($expression);
         }
 
         return parent::convertPlaceholders($expression, $args);
+    }
+
+    /**
+     * Translate attribute names in an expression to their column names
+     *
+     * @param string $expression
+     * @return string
+     * @throws NotJoined
+     */
+    protected function translateColumn($expression)
+    {
+        return preg_replace_callback(
+            '/(?<b>^| |\()' .
+            '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
+            '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
+            '(?<a>$| |,|\))/',
+            function ($match) {
+                if ($match['class']) {
+                    if (!isset($this->classMapping['byClass'][$match['class']])) {
+                        throw new NotJoined("Class " . $match['class'] . " not joined");
+                    }
+                    $class = $match['class'];
+                    $alias = $this->classMapping['byClass'][$match['class']];
+                } elseif ($match['alias']) {
+                    if (!isset($this->classMapping['byAlias'][$match['alias']])) {
+                        return $match[0];
+                    }
+                    $alias = $match['alias'];
+                    $class = $this->classMapping['byAlias'][$match['alias']];
+                } else {
+                    if ($match['column'] === strtoupper($match['column'])) {
+                        return $match['b'] . $match['column'] . $match['a'];
+                    }
+                    $class = $this->class;
+                    $alias = $this->alias;
+                }
+
+                /** @var Entity|string $class */
+                return $match['b'] . $this->entityManager->escapeIdentifier(
+                    $alias . '.' . $class::getColumnName($match['column'])
+                ) . $match['a'];
+            },
+            $expression
+        );
+    }
+
+    /**
+     * Build a where (not) in expression
+     *
+     * @param $column
+     * @param array $values
+     * @param bool $inverse
+     * @return string
+     */
+    protected function buildWhereInExpression($column, array $values, $inverse = false)
+    {
+        $column = is_array($column) ?
+            array_map([$this, 'translateColumn'], $column) :
+            $this->translateColumn($column);
+        return parent::buildWhereInExpression($column, $values, $inverse);
     }
 
     /**
@@ -231,9 +259,9 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $class         = $this->class;
+        $class = $this->class;
         $newEntity = new $class($data, $this->entityManager, true);
-        $entity    = $this->entityManager->map($newEntity);
+        $entity = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
             $dirty = $entity->isDirty();

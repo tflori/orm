@@ -79,7 +79,9 @@ class ManyToMany extends Relation
 
         $query = new QueryBuilder($table, '', $entityManager);
 
+        $relatedFkAttributes = [];
         foreach ($this->getOpponent()->getReference() as $t0Var => $fkCol) {
+            $relatedFkAttributes[] = $t0Var;
             $query->column($entityManager->escapeIdentifier($fkCol));
         }
 
@@ -90,10 +92,22 @@ class ManyToMany extends Relation
         $result      = $entityManager->getConnection()->query($query->getQuery());
         $primaryKeys = $result->fetchAll(PDO::FETCH_NUM);
 
+        /** @var Entity|string $class */
+        $class = $this->class;
+        $unmapped = [];
+        foreach ($primaryKeys as $primaryKey) {
+            if (!$entityManager->has($class, $primaryKey)) {
+                $unmapped[] = $primaryKey;
+            }
+        }
+        if (!empty($unmapped)) {
+            $entityManager->fetch($class)->where($relatedFkAttributes, $unmapped)->all();
+        }
+
         /** @var Entity[] $result */
         $result = [];
         foreach ($primaryKeys as $primaryKey) {
-            if ($self = $entityManager->fetch($this->class, $primaryKey)) {
+            if ($self = $entityManager->fetch($class, $primaryKey)) {
                 $result[] = $self;
             }
         }

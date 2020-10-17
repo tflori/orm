@@ -131,15 +131,15 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /**
      * Common implementation for creating a where condition
      *
-     * @param string $column   Column or expression with placeholders
-     * @param string $operator Operator or value if operator is omited
-     * @param string $value    Value or array of values
+     * @param string|array $column   Column or expression with placeholders
+     * @param mixed $operator Operator or value if operator is omitted
+     * @param mixed $value    Value or array of values
      * @return string
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
     {
-        if (strpos($column, '?') !== false) {
+        if (!is_array($column) && strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
         } elseif ($operator === null && $value === null) {
@@ -149,25 +149,52 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $value    = $operator;
                 $operator = null;
             }
+            $operator = $operator ?: $this->getDefaultOperator($value);
 
-            $expression = $this->buildExpression($column, $value, $operator);
+            if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ])) {
+                return $this->buildWhereInExpression($column, $value, strtoupper($operator) === 'NOT IN');
+            }
+
+            $expression = $column . ' ' . $operator . ' ?';
         }
 
         return $this->convertPlaceholders($expression, $value);
     }
 
-    private function buildExpression($column, $value, $operator = null)
+    protected function buildWhereInExpression($column, array $values, $inverse = false)
     {
-        $operator   = $operator ?: $this->getDefaultOperator($value);
-        $expression = $column . ' ' . $operator;
-
-        if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ]) && is_array($value)) {
-            $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+        $em = $this->getEntityManager();
+        if (is_array($column) && count($column) > 1) {
+            return $em->getDbal()
+                ->buildCompositeWhereInStatement($column, $values, $inverse);
+        } elseif (empty($values)) {
+            // nothing is in empty but everything is not in empty
+            return $inverse ? '1 = 1' : '1 = 0';
         } else {
-            $expression .= ' ?';
-        }
+            if (is_array($column)) {
+                $column = $this->first($column);
+                $values = array_map([$this, 'first'], $values);
+            }
 
-        return $expression;
+            return vsprintf('%s %s %s', [
+                $column,
+                $inverse ? 'NOT IN' : 'IN',
+                '(' . implode(',', array_map([$em, 'escapeValue'], $values)) . ')'
+            ]);
+        }
+    }
+
+    /**
+     * @param iterable $array
+     * @return mixed|null
+     * @codeCoverageIgnore trivial
+     */
+    private function first($array)
+    {
+        foreach ($array as $item) {
+            return $item;
+        }
+        return null;
     }
 
     private function getDefaultOperator($value)
@@ -226,8 +253,8 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         $empty      = is_bool($expression) ? $expression : false;
         $expression = is_string($expression) ? $expression : '';
 
-        $join = $join . ' ' . $tableName
-                . ($alias ? ' AS ' . $alias : '');
+        $join = $join . ' ' . $tableName;
+        $join .= $alias ? ' AS ' . $alias : '';
 
         if (preg_match('/^[A-Za-z_]+$/', $expression)) {
             $join          .= ' USING (' . $expression . ')';
