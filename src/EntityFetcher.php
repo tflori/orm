@@ -2,9 +2,8 @@
 
 namespace ORM;
 
+use ORM\EntityFetcher\MakesJoins;
 use ORM\EntityFetcher\TranslatesClasses;
-use ORM\Exception\NotJoined;
-use ORM\QueryBuilder\ParenthesisInterface;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\QueryBuilderInterface;
 use PDO;
@@ -32,6 +31,7 @@ use PDOStatement;
 class EntityFetcher extends QueryBuilder
 {
     use TranslatesClasses;
+    use MakesJoins;
 
     /** The entity class that we want to fetch
      * @var string|Entity */
@@ -45,13 +45,6 @@ class EntityFetcher extends QueryBuilder
      * @var string|QueryBuilderInterface */
     protected $query;
 
-    /** The class to alias mapping and vise versa
-     * @var string[][] */
-    protected $classMapping = [
-        'byClass' => [],
-        'byAlias' => [],
-    ];
-
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * Constructor
@@ -64,13 +57,9 @@ class EntityFetcher extends QueryBuilder
         $this->entityManager = $entityManager;
         $this->class         = $class;
 
-        $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
-        $this->alias     = 't0';
+        list($this->tableName, $this->alias) = $this->getTableAndAlias($class);
         $this->columns   = [ 't0.*' ];
         $this->modifier  = [ 'DISTINCT' ];
-
-        $this->classMapping['byClass'][$class] = 't0';
-        $this->classMapping['byAlias']['t0']   = $class;
     }
 
     /** @return static
@@ -124,76 +113,6 @@ class EntityFetcher extends QueryBuilder
             $this->translateColumn($column);
         return parent::buildWhereInExpression($column, $values, $inverse);
     }
-
-    public function join($class, $expression = '', $alias = '', $args = [])
-    {
-        list($table, $alias) = $this->getTableAndAlias($class, $alias);
-        return parent::join($table, $expression, $alias, $args);
-    }
-
-    public function leftJoin($class, $expression = '', $alias = '', $args = [])
-    {
-        list($table, $alias) = $this->getTableAndAlias($class, $alias);
-        return parent::leftJoin($table, $expression, $alias, $args);
-    }
-
-    public function rightJoin($class, $expression = '', $alias = '', $args = [])
-    {
-        list($table, $alias) = $this->getTableAndAlias($class, $alias);
-        return parent::rightJoin($table, $expression, $alias, $args);
-    }
-
-    public function fullJoin($class, $expression = '', $alias = '', $args = [])
-    {
-        list($table, $alias) = $this->getTableAndAlias($class, $alias);
-        return parent::fullJoin($table, $expression, $alias, $args);
-    }
-
-    /**
-     * Create the join with $join type
-     *
-     * @param $join
-     * @param $relation
-     * @return $this
-     */
-    public function createRelatedJoin($join, $relation)
-    {
-        if (strpos($relation, '.') !== false) {
-            list($alias, $relation) = explode('.', $relation);
-            $class = $this->classMapping['byAlias'][$alias];
-        } else {
-            $class = $this->class;
-            $alias = $this->alias;
-        }
-
-        /** @var Relation $relation */
-        $relation = call_user_func([$class, 'getRelation'], $relation);
-        $relation->addJoin($this, $join, $alias);
-        return $this;
-    }
-
-    /**
-     * Join $relation
-     *
-     * @param $relation
-     * @return $this
-     */
-    public function joinRelated($relation)
-    {
-        return $this->createRelatedJoin('join', $relation);
-    }
-
-    /**
-     * Left outer join $relation
-     *
-     * @param $relation
-     * @return $this
-     */
-    public function leftJoinRelated($relation)
-    {
-        return $this->createRelatedJoin('leftJoin', $relation);
-    }
-
 
     /**
      * Fetch one entity

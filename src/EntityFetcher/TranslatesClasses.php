@@ -7,6 +7,12 @@ use ORM\Exception\NotJoined;
 
 trait TranslatesClasses
 {
+    /** The class to alias mapping and vise versa
+     * @var string[][] */
+    protected $classMapping = [
+        'byClass' => [],
+        'byAlias' => [],
+    ];
 
     /**
      * Translate attribute names in an expression to their column names
@@ -66,7 +72,7 @@ trait TranslatesClasses
      * @param $alias
      * @return array
      */
-    protected function getTableAndAlias($class, $alias)
+    protected function getTableAndAlias($class, $alias = '')
     {
         if (class_exists($class)) {
             /** @var Entity|string $class */
