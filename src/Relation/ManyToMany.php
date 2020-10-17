@@ -74,40 +74,14 @@ class ManyToMany extends Relation
     /** {@inheritdoc} */
     public function fetchAll(Entity $self, EntityManager $entityManager)
     {
-        $foreignKey = $this->getForeignKey($self, $this->reference);
-        $table      = $entityManager->escapeIdentifier($this->table);
+        $primaryKeys = $this->getRelatedPrimaryKeys($self, $entityManager);
 
-        $query = new QueryBuilder($table, '', $entityManager);
-
-        $relatedFkAttributes = [];
-        foreach ($this->getOpponent()->getReference() as $t0Var => $fkCol) {
-            $relatedFkAttributes[] = $t0Var;
-            $query->column($entityManager->escapeIdentifier($fkCol));
-        }
-
-        foreach ($foreignKey as $col => $value) {
-            $query->where($entityManager->escapeIdentifier($col), $value);
-        }
-
-        $result      = $entityManager->getConnection()->query($query->getQuery());
-        $primaryKeys = $result->fetchAll(PDO::FETCH_NUM);
-
-        /** @var Entity|string $class */
-        $class = $this->class;
-        $unmapped = [];
-        foreach ($primaryKeys as $primaryKey) {
-            if (!$entityManager->has($class, $primaryKey)) {
-                $unmapped[] = $primaryKey;
-            }
-        }
-        if (!empty($unmapped)) {
-            $entityManager->fetch($class)->where($relatedFkAttributes, $unmapped)->all();
-        }
+        $this->preFetchMissing($primaryKeys, $entityManager);
 
         /** @var Entity[] $result */
         $result = [];
         foreach ($primaryKeys as $primaryKey) {
-            if ($self = $entityManager->fetch($class, $primaryKey)) {
+            if ($self = $entityManager->fetch($this->class, $primaryKey)) {
                 $result[] = $self;
             }
         }
@@ -237,5 +211,56 @@ class ManyToMany extends Relation
         }
 
         call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
+    }
+
+    /**
+     * Get the related primary keys for this relation
+     *
+     * @param Entity $self
+     * @param EntityManager $entityManager
+     * @return array
+     */
+    protected function getRelatedPrimaryKeys(Entity $self, EntityManager $entityManager)
+    {
+        $foreignKey = $this->getForeignKey($self, $this->reference);
+        $table = $entityManager->escapeIdentifier($this->table);
+
+        $query = new QueryBuilder($table, '', $entityManager);
+        $query->columns(array_map(
+            [$entityManager, 'escapeIdentifier'],
+            array_values($this->getOpponent()->getReference())
+        ));
+
+        foreach ($foreignKey as $col => $value) {
+            $query->where($entityManager->escapeIdentifier($col), $value);
+        }
+
+        $primaryKeys = $entityManager->getConnection()
+            ->query($query->getQuery())
+            ->fetchAll(PDO::FETCH_NUM);
+        return $primaryKeys;
+    }
+
+    /**
+     * Fetch related objects missing in entity map
+     *
+     * @param array $primaryKeys
+     * @param EntityManager $entityManager
+     * @return mixed
+     */
+    protected function preFetchMissing(array $primaryKeys, EntityManager $entityManager)
+    {
+        $unmapped = [];
+        foreach ($primaryKeys as $primaryKey) {
+            if (!$entityManager->has($this->class, $primaryKey)) {
+                $unmapped[] = $primaryKey;
+            }
+        }
+        if (!empty($unmapped)) {
+            $entityManager->fetch($this->class)->where(
+                array_keys($this->getOpponent()->getReference()),
+                $unmapped
+            )->all();
+        }
     }
 }

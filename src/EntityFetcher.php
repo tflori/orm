@@ -121,25 +121,13 @@ class EntityFetcher extends QueryBuilder
             '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
             '(?<a>$| |,|\))/',
             function ($match) {
-                if ($match['class']) {
-                    if (!isset($this->classMapping['byClass'][$match['class']])) {
-                        throw new NotJoined("Class " . $match['class'] . " not joined");
-                    }
-                    $class = $match['class'];
-                    $alias = $this->classMapping['byClass'][$match['class']];
-                } elseif ($match['alias']) {
-                    if (!isset($this->classMapping['byAlias'][$match['alias']])) {
-                        return $match[0];
-                    }
-                    $alias = $match['alias'];
-                    $class = $this->classMapping['byAlias'][$match['alias']];
-                } else {
-                    if ($match['column'] === strtoupper($match['column'])) {
-                        return $match['b'] . $match['column'] . $match['a'];
-                    }
-                    $class = $this->class;
-                    $alias = $this->alias;
+                if ($match['alias'] && !isset($this->classMapping['byAlias'][$match['alias']])) {
+                    return $match[0];
+                } elseif ($match['column'] === strtoupper($match['column'])) {
+                    return $match['b'] . $match['column'] . $match['a'];
                 }
+
+                list($class, $alias) = $this->normalizeClassAndAlias($match);
 
                 /** @var Entity|string $class */
                 return $match['b'] . $this->entityManager->escapeIdentifier(
@@ -148,6 +136,25 @@ class EntityFetcher extends QueryBuilder
             },
             $expression
         );
+    }
+
+    private function normalizeClassAndAlias(array $match)
+    {
+        if ($match['class']) {
+            if (!isset($this->classMapping['byClass'][$match['class']])) {
+                throw new NotJoined("Class " . $match['class'] . " not joined");
+            }
+            $class = $match['class'];
+            $alias = $this->classMapping['byClass'][$match['class']];
+        } elseif ($match['alias']) {
+            $alias = $match['alias'];
+            $class = $this->classMapping['byAlias'][$match['alias']];
+        } else {
+            $class = $this->class;
+            $alias = $this->alias;
+        }
+
+        return [$class, $alias];
     }
 
     /**
