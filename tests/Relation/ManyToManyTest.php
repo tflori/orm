@@ -71,22 +71,25 @@ class ManyToManyTest extends TestCase
     }
 
     /** @test */
-    public function returnsAllWithGetAll()
+    public function returnsPreviouslyMappedWithGetAll()
     {
         $entity = new Article(['id' => 42], $this->em);
         $related = [
             $this->em->map(new Category(['id' => 12])),
             $this->em->map(new Category(['id' => 33])),
         ];
-        $ids = array_map(function ($related) {
-            return [$related->id];
-        }, $related);
 
-        $statement = m::mock(PDOStatement::class);
-        $this->pdo->shouldReceive('query')
-                  ->with('SELECT "category_id" FROM "article_category" WHERE "article_id" = 42')
-                  ->once()->andReturn($statement);
-        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_NUM)->once()->andReturn($ids);
+        $this->pdo->shouldReceive('query')->with(
+            'SELECT DISTINCT t0.* FROM "category" AS t0' .
+            ' JOIN "article_category" ON "article_category"."category_id" = "t0"."id"' .
+            ' WHERE "article_category"."article_id" = 42'
+        )->once()->andReturn($statement = m::mock(PDOStatement::class));
+        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->times(3)
+            ->andReturn(
+                ['id' => 12, 'name' => 'Foos'],
+                ['id' => 33, 'name' => 'Bars'],
+                false
+            );
 
         $result = $entity->fetch('categories', true);
 
@@ -98,14 +101,11 @@ class ManyToManyTest extends TestCase
     {
         $entity = new Article(['id' => 42], $this->em);
 
-        $this->pdo->shouldReceive('query')
-            ->with('SELECT "category_id" FROM "article_category" WHERE "article_id" = 42')
-            ->once()->andReturn($statement = m::mock(PDOStatement::class));
-        $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_NUM)->once()
-            ->andReturn([[1],[2]]);
-        $this->pdo->shouldReceive('query')
-            ->with('SELECT DISTINCT t0.* FROM "category" AS t0 WHERE "t0"."id" IN (1,2)')
-            ->once()->andReturn($statement = m::mock(PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with(
+            'SELECT DISTINCT t0.* FROM "category" AS t0' .
+            ' JOIN "article_category" ON "article_category"."category_id" = "t0"."id"' .
+            ' WHERE "article_category"."article_id" = 42'
+        )->once()->andReturn($statement = m::mock(PDOStatement::class));
         $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->times(3)
             ->andReturn(
                 ['id' => 1, 'name' => 'Foos'],
