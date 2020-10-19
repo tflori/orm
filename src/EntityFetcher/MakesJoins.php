@@ -6,8 +6,6 @@ use ORM\Relation;
 
 trait MakesJoins
 {
-    use \ORM\QueryBuilder\MakesJoins;
-
     public function join($class, $expression = '', $alias = '', $args = [])
     {
         list($table, $alias) = $this->getTableAndAlias($class, $alias);
