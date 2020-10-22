@@ -10,7 +10,7 @@ class IssetTest extends TestCase
     /** @test */
     public function usesExistingGetters()
     {
-        $entity = \Mockery::mock(Article::class)->shouldDeferMissing();
+        $entity = \Mockery::mock(Article::class)->makePartial();
 
         $entity->shouldReceive('getIntro')->once()->andReturn('Any text');
 
@@ -22,7 +22,7 @@ class IssetTest extends TestCase
     /** @test */
     public function loadsTheRelation()
     {
-        $entity = \Mockery::mock(Article::class)->shouldDeferMissing();
+        $entity = \Mockery::mock(Article::class)->makePartial();
 
         $entity->shouldReceive('getRelated')->with('categories')->andReturn([]);
 

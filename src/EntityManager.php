@@ -717,7 +717,7 @@ class EntityManager
         $primaryKeyVars = $class::getPrimaryKeyVars();
         if (count($primaryKeyVars) !== count($primaryKey)) {
             throw new IncompletePrimaryKey(
-                'Primary key consist of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
+                'Primary key consists of [' . implode(',', $primaryKeyVars) . '] only ' . count($primaryKey) . ' given'
             );
         }
 

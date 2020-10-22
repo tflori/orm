@@ -136,7 +136,7 @@ class MappingTest extends TestCase
     public function fetchThrowsIfPrimaryKeyIsIncomplete()
     {
         self::expectException(IncompletePrimaryKey::class);
-        self::expectExceptionMessage('Primary key consist of [id,name] only 1 given');
+        self::expectExceptionMessage('Primary key consists of [id,name] only 1 given');
 
         $this->em->fetch(ContactPhone::class, 42);
     }
@@ -155,5 +155,59 @@ class MappingTest extends TestCase
         $studlyCaps = $this->em->fetch(StudlyCaps::class, 42);
 
         self::assertInstanceOf(StudlyCaps::class, $studlyCaps);
+    }
+
+    /** @test */
+    public function hasReturnsFalseForUnknownEntities()
+    {
+        $entity = new StudlyCaps(['id' => 42]);
+
+        $result = $this->em->has($entity);
+
+        self::assertFalse($result);
+    }
+
+    /** @test */
+    public function hasReturnsTrueForKnownEntities()
+    {
+        $entity = new StudlyCaps(['id' => 42]);
+        $this->em->map($entity);
+
+        $result = $this->em->has($entity);
+
+        self::assertTrue($result);
+    }
+
+    /** @test */
+    public function hasReturnsTrueForClassAndPrimary()
+    {
+        $entity = new StudlyCaps(['id' => 42]);
+        $this->em->map($entity);
+
+        $result = $this->em->has(StudlyCaps::class, 42);
+
+        self::assertTrue($result);
+    }
+
+    /** @test */
+    public function hasThrowsWhenPrimaryIsIncomplete()
+    {
+        $entity = new StudlyCaps();
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Incomplete primary key - missing id');
+
+        $this->em->has($entity);
+    }
+
+    /** @test */
+    public function hasThrowsWhenPrimaryKeyIsIncompleteForClass()
+    {
+        $entity = new StudlyCaps();
+
+        self::expectException(IncompletePrimaryKey::class);
+        self::expectExceptionMessage('Primary key consists of [id] only 0 given');
+
+        $this->em->has(StudlyCaps::class);
     }
 }
