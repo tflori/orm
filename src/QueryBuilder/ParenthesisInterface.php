@@ -30,7 +30,7 @@ interface ParenthesisInterface
      * ```
      *
      * @see ParenthesisInterface::andWhere()
-     * @param string|array $column   Column or expression with placeholders
+     * @param string $column   Column or expression with placeholders
      * @param mixed $operator Operator, value or array of values
      * @param mixed $value    Value (required when used with operator)
      * @return static
@@ -90,6 +90,70 @@ interface ParenthesisInterface
     public function orWhere($column, $operator = '', $value = '');
 
     /**
+     * Add a where in condition with AND.
+     *
+     * If $column is an array a composite where in statement will be created
+     *
+     * Example:
+     *  `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+     *
+     * If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+     *
+     * @param string|array $column
+     * @param array $values
+     * @return static
+     */
+    public function whereIn($column, array $values);
+
+    /**
+     * Add a where in condition with OR.
+     *
+     * If $column is an array a composite where in statement will be created
+     *
+     * Example:
+     *  `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+     *
+     * If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+     *
+     * @param string|array $column
+     * @param array $values
+     * @return static
+     */
+    public function orWhereIn($column, array $values);
+
+    /**
+     * Add a where not in condition with AND.
+     *
+     * If $column is an array a composite where in statement will be created
+     *
+     * Example:
+     *  `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+     *
+     * If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+     *
+     * @param string|array $column
+     * @param array $values
+     * @return static
+     */
+    public function whereNotIn($column, array $values);
+
+    /**
+     * Add a where not in condition with OR.
+     *
+     * If $column is an array a composite where in statement will be created
+     *
+     * Example:
+     *  `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+     *
+     * If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+     *
+     * @param string|array $column
+     * @param array $values
+     * @return static
+     */
+    public function orWhereNotIn($column, array $values);
+
+    /**
      * Alias for andParenthesis
      *
      * @see ParenthesisInterface::andWhere()
@@ -139,4 +203,17 @@ interface ParenthesisInterface
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null);
+
+    /**
+     * Build a where in expression
+     *
+     * Calls buildWhereInExpression() from parent if there is a parent.
+     *
+     * @param string|array $column Column or expression with placeholders
+     * @param array $values Value (required when used with operator)
+     * @param bool $inverse
+     * @return string
+     * @internal
+     */
+    public function buildWhereInExpression($column, array $values, $inverse = false);
 }

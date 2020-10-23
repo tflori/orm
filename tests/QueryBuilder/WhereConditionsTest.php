@@ -203,7 +203,7 @@ class WhereConditionsTest extends TestCase
     {
         $query = new QueryBuilder('foobar');
 
-        $query->where('a', 'IN', []);
+        $query->whereIn('a', []);
 
         self::assertSame('SELECT * FROM foobar WHERE 1 = 0', $query->getQuery());
     }
@@ -213,7 +213,27 @@ class WhereConditionsTest extends TestCase
     {
         $query = new QueryBuilder('foobar');
 
-        $query->where('a', 'NOT IN', []);
+        $query->whereNotIn('a', []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 1', $query->getQuery());
+    }
+
+    /** @test */
+    public function inEmptyForMultipleColumns()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereIn(['a', 'b'], []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 0', $query->getQuery());
+    }
+
+    /** @test */
+    public function notInEmptyForMultipleColumns()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereNotIn(['a', 'b'], []);
 
         self::assertSame('SELECT * FROM foobar WHERE 1 = 1', $query->getQuery());
     }

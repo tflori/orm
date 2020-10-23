@@ -322,7 +322,7 @@ abstract class Dbal
         $cols = array_map([$this, 'escapeIdentifier'], $cols);
 
         $query = new QueryBuilder($this->escapeIdentifier($entity::getTableName()), '', $this->entityManager);
-        $query->where($cols, 'IN', array_map(function (Entity $entity) {
+        $query->whereIn($cols, array_map(function (Entity $entity) {
             return $entity->getPrimaryKey();
         }, $entities));
 

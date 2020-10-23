@@ -127,17 +127,12 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * Common implementation for creating a where condition
-     *
-     * @param string|array $column   Column or expression with placeholders
-     * @param mixed $operator Operator or value if operator is omitted
-     * @param mixed $value    Value or array of values
-     * @return string
+     * {@inheritdoc}
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
     {
-        if (!is_array($column) && strpos($column, '?') !== false) {
+        if (strpos($column, '?') !== false) {
             $expression = $column;
             $value      = $operator;
         } elseif ($operator === null && $value === null) {
@@ -159,15 +154,19 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this->convertPlaceholders($expression, $value);
     }
 
-    protected function buildWhereInExpression($column, array $values, $inverse = false)
+    /**
+     * {@inheritdoc}
+     * @internal
+     */
+    public function buildWhereInExpression($column, array $values, $inverse = false)
     {
         $em = $this->getEntityManager();
-        if (is_array($column) && count($column) > 1) {
-            return $em->getDbal()
-                ->buildCompositeWhereInStatement($column, $values, $inverse);
-        } elseif (empty($values)) {
+        if (empty($values)) {
             // nothing is in empty but everything is not in empty
             return $inverse ? '1 = 1' : '1 = 0';
+        } elseif (is_array($column) && count($column) > 1) {
+            return $em->getDbal()
+                ->buildCompositeWhereInStatement($column, $values, $inverse);
         } else {
             if (is_array($column)) {
                 $column = $this->first($column);

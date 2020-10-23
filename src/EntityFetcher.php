@@ -99,14 +99,10 @@ class EntityFetcher extends QueryBuilder
     }
 
     /**
-     * Build a where (not) in expression
-     *
-     * @param $column
-     * @param array $values
-     * @param bool $inverse
-     * @return string
+     * {@inheritdoc}
+     * @internal
      */
-    protected function buildWhereInExpression($column, array $values, $inverse = false)
+    public function buildWhereInExpression($column, array $values, $inverse = false)
     {
         $column = is_array($column) ?
             array_map([$this, 'translateColumn'], $column) :
