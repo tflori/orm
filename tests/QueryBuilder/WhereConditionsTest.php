@@ -197,4 +197,24 @@ class WhereConditionsTest extends TestCase
 
         self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
     }
+
+    /** @test */
+    public function inEmptyArrayNeverMatches()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', 'IN', []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 0', $query->getQuery());
+    }
+
+    /** @test */
+    public function notInEmptyArrayAlwaysMatches()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->where('a', 'NOT IN', []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 1', $query->getQuery());
+    }
 }
