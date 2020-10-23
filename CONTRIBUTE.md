@@ -14,9 +14,9 @@ Unit tests `composer test` and code sniffer `composer code-style`.
 
 You should update the documentation according to your changes.
  
-In order to update the the API reference you will also have to install phpdoc. Globally 
-`composer global require phpdocumentor/phpdocumentor` or locally `composer install phpdocumentor/phpdocumentor`.
-Please don't commit this to composer.json.
+In order to update the API reference you will also have to install docker. Use this command to update the
+documentation:
 
-Also you will need an additional method for the `MethodDescriptor` class to make the template work. Have look in this
-issue: [phpDocumentor2#1809](https://github.com/phpDocumentor/phpDocumentor2/issues/1809).
+```console
+$ docker run --rm --user $(id -u) -v $(pwd):/data -v $(pwd)/docs/_reference:/opt/phpdoc/data/templates/_reference iras/phpdoc2:2 phpdoc -c phpdoc.xml
+```

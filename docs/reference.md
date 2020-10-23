@@ -350,11 +350,11 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 | **protected** | `$class` | **string** |  |
 | **protected** | `$dbal` | **Dbal \ Dbal** |  |
 | **protected** | `$limit` | **integer** |  |
-| **protected** | `$onSync` | **callable** |  |
-| **protected** | `$useAutoIncrement` | **boolean** |  |
-| **protected** | `$update` | **boolean** |  |
 | **protected** | `$new` | **array&lt;Entity>** |  |
+| **protected** | `$onSync` | **callable** |  |
 | **protected** | `$synced` | **array&lt;Entity>** |  |
+| **protected** | `$update` | **boolean** |  |
+| **protected** | `$useAutoIncrement` | **boolean** |  |
 
 
 
@@ -606,7 +606,7 @@ can be canceled).
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$callbacks` |  |  |
+| **protected** | `$handlers` |  |  |
 
 
 
@@ -711,12 +711,12 @@ public function on( $event, callable $listener ): $this
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
-| **protected** | `$data` | **array** |  |
-| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$attribute` | **string** |  |
-| **protected** | `$oldValue` | **mixed** |  |
+| **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$newValue` | **mixed** |  |
+| **protected** | `$oldValue` | **mixed** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -807,12 +807,12 @@ public function stop()
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
 | **protected** | `$columnDefinition` | **array** |  |
 | **protected** | `$dbal` | **Dbal** |  |
-| **protected** | `$type` | **TypeInterface** |  |
 | **protected** | `$hasDefault` | **boolean** |  |
 | **protected** | `$isNullable` | **boolean** |  |
+| **protected static** | `$registeredTypes` | **array&lt;string>** |  |
+| **protected** | `$type` | **TypeInterface** |  |
 
 
 
@@ -1225,13 +1225,13 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$quotingCharacter` | **string** |  |
-| **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` | **string** |  |
 | **protected** | `$booleanFalse` | **string** |  |
-| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$booleanTrue` | **string** |  |
 | **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
+| **protected** | `$identifierDivider` | **string** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
 
 
 
@@ -1793,13 +1793,13 @@ protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **public** | `$type` | **string** | Dabase Type (mysql, pgsql or sqlite) |
-| **public** | `$name` | **string** | Database name or path for sqlite |
-| **public** | `$host` | **string** | Hostname or ip address |
-| **public** | `$port` | **string** | Port for DBMS (defaults to 3306 for mysql and 5432 for pgsql) |
-| **public** | `$user` | **string** | Database user |
-| **public** | `$pass` | **string** | Database password |
 | **public** | `$attributes` | **array** | PDO attributes |
+| **public** | `$host` | **string** | Hostname or ip address |
+| **public** | `$name` | **string** | Database name or path for sqlite |
+| **public** | `$pass` | **string** | Database password |
+| **public** | `$port` | **string** | Port for DBMS (defaults to 3306 for mysql and 5432 for pgsql) |
+| **public** | `$type` | **string** | Dabase Type (mysql, pgsql or sqlite) |
+| **public** | `$user` | **string** | Database user |
 
 
 
@@ -1889,8 +1889,8 @@ public function getDsn(): string
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -1919,8 +1919,8 @@ public function getDsn(): string
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -1962,25 +1962,25 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
+| **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
 | **protected static** | `$enableValidator` | **boolean** | Whether or not the validator for this class is enabled. |
 | **protected static** | `$enabledValidators` | **array&lt;boolean>** | Whether or not the validator for a class got enabled during runtime. |
-| **protected static** | `$relations` | **array** | Relation definitions |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
-| **protected** | `$relatedObjects` | **array** | Related objects for getRelated |
-| **protected static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
-| **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
+| **protected static** | `$excludedAttributes` | **array** | Attributes to hide for toArray method (overruled by $attributes parameter) |
+| **protected static** | `$includedAttributes` | **array** | Additional attributes to show in toArray method |
+| **protected static** | `$namingSchemeAttributes` | **string** | The naming scheme to use for attributes. |
 | **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
 | **protected static** | `$namingSchemeMethods` | **string** | The naming scheme to use for method names. |
-| **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
-| **protected static** | `$namingSchemeAttributes` | **string** | The naming scheme to use for attributes. |
-| **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
-| **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
-| **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
-| **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
-| **protected static** | `$includedAttributes` | **array** | Additional attributes to show in toArray method |
-| **protected static** | `$excludedAttributes` | **array** | Attributes to hide for toArray method (overruled by $attributes parameter) |
+| **protected static** | `$namingSchemeTable` | **string** | The naming scheme to use for table names. |
 | **protected** | `$originalData` | **array&lt;mixed>** | The original data of the row. |
+| **protected static** | `$primaryKey` | **array&lt;string> &#124; string** | The variable(s) used for primary key. |
+| **protected** | `$relatedObjects` | **array** | Related objects for getRelated |
+| **protected static** | `$relations` | **array** | Relation definitions |
+| **protected static** | `$tableName` | **string** | Fixed table name (ignore other settings) |
+| **protected static** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
 
 
 
@@ -3320,24 +3320,24 @@ Supported:
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$class` | **string &#124; Entity** | The entity class that we want to fetch |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
-| **protected** | `$offset` | **integer** | Offset to start from |
-| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
-| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
-| **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
-| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$offset` | **integer** | Offset to start from |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$parent` | **QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
-| **protected** | `$class` | **string &#124; Entity** | The entity class that we want to fetch |
-| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
 | **protected** | `$query` | **string &#124; QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
-| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
 
 
@@ -4215,25 +4215,25 @@ Supported:
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
-| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
-| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
-| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
-| **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$currentResult` | **array** |  |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **public** | `$entityManager` | **EntityManagerMock** |  |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
-| **protected** | `$offset` | **integer** | Offset to start from |
-| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
-| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **public** | `$entityManager` | **EntityManagerMock** |  |
-| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
-| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$offset` | **integer** | Offset to start from |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$parent` | ** \ ORM \ QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
-| **protected** | `$currentResult` | **array** |  |
+| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
 
 
@@ -5117,16 +5117,16 @@ $query->where('name = ?', ['John Doe']);
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$resolver` | **callable** |  |
+| **protected** | `$bulkInserts` | **array&lt;BulkInsert>** | Classes forcing bulk insert |
 | **protected** | `$connection` | ** \ PDO &#124; callable &#124; DbConfig** | Connection to database |
 | **protected** | `$dbal` | **Dbal \ Dbal** | The Database Abstraction Layer |
-| **protected** | `$namer` | **Namer** | The Namer instance |
-| **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
-| **protected** | `$options` | **array** | The options set for this instance |
 | **protected** | `$descriptions` | **array&lt;Dbal \ Table> &#124; array&lt;Dbal \ Column[]>** | Already fetched column descriptions |
-| **protected** | `$bulkInserts` | **array&lt;BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | **EntityManager[string] &#124; EntityManager[string][string]** | Mapping for EntityManager instances |
+| **protected** | `$map` | **array&lt;Entity[]>** | The Entity map |
+| **protected** | `$namer` | **Namer** | The Namer instance |
 | **protected** | `$observers` | **array&lt;ObserverInterface[]>** |  |
+| **protected** | `$options` | **array** | The options set for this instance |
+| **protected static** | `$resolver` | **callable** |  |
 
 
 
@@ -5834,16 +5834,16 @@ At the end you should call finish bulk insert otherwise you may loose data.
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$resolver` | **callable** |  |
+| **protected** | `$bulkInserts` | **array&lt; \ ORM \ BulkInsert>** | Classes forcing bulk insert |
 | **protected** | `$connection` | ** \ PDO &#124; callable &#124;  \ ORM \ DbConfig** | Connection to database |
 | **protected** | `$dbal` | ** \ ORM \ Dbal \ Dbal** | The Database Abstraction Layer |
-| **protected** | `$namer` | ** \ ORM \ Namer** | The Namer instance |
-| **protected** | `$map` | **array&lt; \ ORM \ Entity[]>** | The Entity map |
-| **protected** | `$options` | **array** | The options set for this instance |
 | **protected** | `$descriptions` | **array&lt; \ ORM \ Dbal \ Table> &#124; array&lt; \ ORM \ Dbal \ Column[]>** | Already fetched column descriptions |
-| **protected** | `$bulkInserts` | **array&lt; \ ORM \ BulkInsert>** | Classes forcing bulk insert |
 | **protected static** | `$emMapping` | ** \ ORM \ EntityManager[string] &#124;  \ ORM \ EntityManager[string][string]** | Mapping for EntityManager instances |
+| **protected** | `$map` | **array&lt; \ ORM \ Entity[]>** | The Entity map |
+| **protected** | `$namer` | ** \ ORM \ Namer** | The Namer instance |
 | **protected** | `$observers` | **array&lt; \ ORM \ ObserverInterface[]>** |  |
+| **protected** | `$options` | **array** | The options set for this instance |
+| **protected static** | `$resolver` | **callable** |  |
 | **protected** | `$resultRepository` |  |  |
 
 
@@ -6805,8 +6805,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -6866,8 +6866,8 @@ public function __construct(
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | **Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | **Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -6977,10 +6977,10 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
-| **protected** | `$stopped` | **boolean** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$rawData` | **array** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -7105,8 +7105,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -7135,8 +7135,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -7198,8 +7198,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -7352,8 +7352,8 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 | **protected** | `$table` | **string'categories** | The table that holds the foreign keys |
@@ -7720,13 +7720,13 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
 | **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
-| **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` | **string** |  |
-| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
 
 
 
@@ -8313,13 +8313,13 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
-| **protected** | `$tableNameScheme` | **string** | The naming scheme to use for table names. |
-| **protected** | `$tableNames` | **array&lt;string>** |  |
-| **protected** | `$columnNames` | **array&lt;string[]>** |  |
-| **protected** | `$columnNameScheme` | **string** | The naming scheme to use for column names. |
-| **protected** | `$methodNameScheme` | **string** | The naming scheme used for method names. |
 | **protected** | `$attributeNameScheme` | **string** | The naming scheme used for attributes. |
+| **protected** | `$columnNameScheme` | **string** | The naming scheme to use for column names. |
+| **protected** | `$columnNames` | **array&lt;string[]>** |  |
+| **protected** | `$methodNameScheme` | **string** | The naming scheme used for method names. |
+| **protected** | `$tableNameScheme` | **string** | The naming scheme to use for table names. |
+| **protected** | `$tableNameTemplate` | **string** | The template to use to calculate the table name. |
+| **protected** | `$tableNames` | **array&lt;string>** |  |
 
 
 
@@ -8623,8 +8623,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8669,8 +8669,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8731,8 +8731,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8777,8 +8777,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8807,8 +8807,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8837,8 +8837,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8883,8 +8883,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -8956,8 +8956,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -9154,8 +9154,8 @@ Return false to stop event execution.
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
@@ -9503,8 +9503,8 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
@@ -9852,13 +9852,13 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
 | **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
-| **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` | **string** |  |
-| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
 
 
 
@@ -9881,8 +9881,8 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
@@ -10229,9 +10229,9 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
 | **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
 
 
@@ -10742,13 +10742,13 @@ $query->where('name = ?', ['John Doe']);
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$booleanFalse` |  |  |
+| **protected** | `$booleanTrue` |  |  |
 | **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
-| **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` |  |  |
-| **protected** | `$booleanFalse` |  |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
 
 
 
@@ -11322,20 +11322,20 @@ Supported:
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
-| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
-| **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
-| **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
-| **protected** | `$offset` | **integer** | Offset to start from |
-| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
-| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
-| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$offset` | **integer** | Offset to start from |
+| **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
+| **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
 
 
@@ -12609,8 +12609,8 @@ $query->where('name = ?', ['John Doe']);
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
@@ -12942,26 +12942,26 @@ Supported:
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
-| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
-| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
-| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
-| **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$alias` | **string** | The alias of the main table |
+| **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
+| **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
+| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
+| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
-| **protected** | `$offset` | **integer** | Offset to start from |
-| **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
-| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$modifier` | **array&lt;string>** | Modifiers get concatenated with space |
-| **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
-| **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
-| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
+| **protected** | `$offset` | **integer** | Offset to start from |
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
+| **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$parent` | ** \ ORM \ QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
-| **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
+| **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
 | **protected** | `$regularExpressions` | **array&lt;string>** |  |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$tableName` | **string** | The table to query |
+| **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
 
 
@@ -13922,9 +13922,9 @@ $query->where('name = ?', ['John Doe']);
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$primaryKeyMap` | **array&lt; \ ORM \ Entity[]>** |  |
 | **protected** | `$results` | **array&lt;Result[]>** |  |
-| **protected** | `$em` | ** \ ORM \ EntityManager** |  |
 
 
 
@@ -14135,10 +14135,10 @@ public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
-| **protected** | `$stopped` | **boolean** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$originalEvent` | ** \ ORM \ Event** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -14230,8 +14230,8 @@ public function stop()
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -14400,13 +14400,13 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected static** | `$typeMapping` | **array** |  |
+| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$booleanTrue` | **string** |  |
 | **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
-| **protected** | `$quotingCharacter` | **string** |  |
 | **protected** | `$identifierDivider` | **string** |  |
-| **protected** | `$booleanTrue` | **string** |  |
-| **protected** | `$booleanFalse` | **string** |  |
+| **protected** | `$quotingCharacter` | **string** |  |
+| **protected static** | `$typeMapping` | **array** |  |
 
 
 
@@ -15295,8 +15295,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$message` | **string** |  |
 | **protected** | `$errorCode` | **string** |  |
+| **protected** | `$message` | **string** |  |
 
 
 
@@ -15544,9 +15544,9 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected** | `$data` | **array** |  |
 | **protected** | `$dirty` | **array** |  |
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
-| **protected** | `$data` | **array** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 
@@ -15569,10 +15569,10 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-| **protected** | `$entity` | ** \ ORM \ Entity** |  |
 | **protected** | `$data` | **array** |  |
-| **protected** | `$stopped` | **boolean** |  |
 | **protected** | `$dirty` | **array** |  |
+| **protected** | `$entity` | ** \ ORM \ Entity** |  |
+| **protected** | `$stopped` | **boolean** |  |
 
 
 
@@ -15665,9 +15665,9 @@ public function stop()
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
+| **protected** | `$data` | **array** |  |
 | **protected** | `$dirty` | **array** |  |
 | **protected** | `$entity` | ** \ ORM \ Entity** |  |
-| **protected** | `$data` | **array** |  |
 | **protected** | `$stopped` | **boolean** |  |
 
 

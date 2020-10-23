@@ -50,7 +50,7 @@
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-{% for property in node.inheritedProperties.merge(node.properties) %}
+{% for property in node.inheritedProperties.merge(node.properties).sortBy('name') %}
 | **{{ property.visibility }}{{ property.isStatic ? ' static' }}** | `${{ property.name }}` | {% if property.types is not empty %}**{{ property.types ? property.types|join(' &#124; ')|replace({'<mixed,': '&lt;', (node.namespace.FullyQualifiedStructuralElementName~'\\'): '', '\\': ' \\ '})|raw }}**{% endif %} | {{ property.summary }} |
 {% endfor %}
 
