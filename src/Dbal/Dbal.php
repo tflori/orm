@@ -24,7 +24,7 @@ abstract class Dbal
     /** @var array */
     protected static $typeMapping = [];
 
-    protected static $compositeWhereInTemplate = '(%s) IN (VALUES %s)';
+    protected static $compositeWhereInTemplate = '(%s) %s (VALUES %s)';
 
     /** @var EntityManager */
     protected $entityManager;
@@ -350,9 +350,10 @@ abstract class Dbal
      *
      * @param array $cols
      * @param array $keys
+     * @param bool $inverse
      * @return string
      */
-    public function buildCompositeWhereInStatement(array $cols, array $keys)
+    public function buildCompositeWhereInStatement(array $cols, array $keys, $inverse = false)
     {
         $primaryKeys = array_map(function ($key) {
             return '(' . implode(',', array_map([$this, 'escapeValue'], $key)) . ')';
@@ -360,6 +361,7 @@ abstract class Dbal
 
         return vsprintf(static::$compositeWhereInTemplate, [
                 implode(',', $cols),
+                $inverse ? 'NOT IN' : 'IN',
                 implode(',', $primaryKeys)
         ]);
     }

@@ -104,8 +104,7 @@ class EntityFetcher extends QueryBuilder
      */
     public function buildWhereInExpression($column, array $values, $inverse = false)
     {
-        $column = is_array($column) ?
-            array_map([$this, 'translateColumn'], $column) :
+        $column = is_array($column) ? array_map([$this, 'translateColumn'], $column) :
             $this->translateColumn($column);
         return parent::buildWhereInExpression($column, $values, $inverse);
     }

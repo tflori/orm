@@ -8,24 +8,6 @@ trait HasWhereConditions
      * @var string[] */
     protected $where = [];
 
-    /**
-     * {@inheritdoc}
-     * @internal
-     */
-    public function createWhereCondition($column, $operator = null, $value = null)
-    {
-        return $this->parent->createWhereCondition($column, $operator, $value);
-    }
-
-    /**
-     * {@inheritdoc}
-     * @internal
-     */
-    public function buildWhereInExpression($column, array $values, $inverse = false)
-    {
-        return $this->parent->buildWhereInExpression($column, $values, $inverse);
-    }
-
     /** {@inheritdoc} */
     public function where($column, $operator = null, $value = null)
     {

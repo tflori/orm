@@ -42,6 +42,24 @@ class Parenthesis implements ParenthesisInterface
         return $this->andParenthesis();
     }
 
+    /**
+     * {@inheritdoc}
+     * @internal
+     */
+    public function createWhereCondition($column, $operator = null, $value = null)
+    {
+        return $this->parent->createWhereCondition($column, $operator, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @internal
+     */
+    public function buildWhereInExpression($column, array $values, $inverse = false)
+    {
+        return $this->parent->buildWhereInExpression($column, $values, $inverse);
+    }
+
     /** {@inheritdoc} */
     public function andParenthesis()
     {
