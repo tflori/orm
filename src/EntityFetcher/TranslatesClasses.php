@@ -35,7 +35,7 @@ trait TranslatesClasses
                     return $match['b'] . $match['column'] . $match['a'];
                 }
 
-                list($class, $alias) = $this->normalizeClassAndAlias($match);
+                list($class, $alias) = $this->toClassAndAlias($match);
 
                 /** @var Entity|string $class */
                 return $match['b'] . $this->entityManager->escapeIdentifier(
@@ -46,7 +46,14 @@ trait TranslatesClasses
         );
     }
 
-    private function normalizeClassAndAlias(array $match)
+    /**
+     * Get class and alias by the match from translateColumn
+     *
+     * @param array $match
+     * @return array [$class, $alias]
+     * @throws NotJoined
+     */
+    private function toClassAndAlias(array $match)
     {
         if ($match['class']) {
             if (!isset($this->classMapping['byClass'][$match['class']])) {
@@ -68,9 +75,9 @@ trait TranslatesClasses
     /**
      * Get the table name and alias for a class
      *
-     * @param $class
-     * @param $alias
-     * @return array
+     * @param string $class
+     * @param string $alias
+     * @return array [$table, $alias]
      */
     protected function getTableAndAlias($class, $alias = '')
     {

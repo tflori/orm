@@ -350,7 +350,7 @@ abstract class Dbal
      *
      * @param array $cols
      * @param array $keys
-     * @param bool $inverse
+     * @param bool $inverse Whether it should be a IN or NOT IN operator
      * @return string
      */
     public function buildCompositeWhereInStatement(array $cols, array $keys, $inverse = false)

@@ -182,6 +182,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
+     * Get the first item of an array
+     *
+     * Stupid helper for a missing functionality in php
+     *
      * @param iterable $array
      * @return mixed|null
      * @codeCoverageIgnore trivial
