@@ -37,10 +37,6 @@ class EntityFetcher extends QueryBuilder
      * @var string|Entity */
     protected $class;
 
-    /** The result object from PDO
-     * @var PDOStatement */
-    protected $result;
-
     /** The query to execute (overwrites other settings)
      * @var string|QueryBuilderInterface */
     protected $query;
@@ -60,22 +56,6 @@ class EntityFetcher extends QueryBuilder
         list($this->tableName, $this->alias) = $this->getTableAndAlias($class);
         $this->columns   = [ 't0.*' ];
         $this->modifier  = [ 'DISTINCT' ];
-    }
-
-    /** @return static
-     * @internal
-     */
-    public function columns(array $columns = null)
-    {
-        return $this;
-    }
-
-    /** @return static
-     * @internal
-     */
-    public function column($column, $args = [], $alias = '')
-    {
-        return $this;
     }
 
     /**
@@ -118,13 +98,8 @@ class EntityFetcher extends QueryBuilder
      */
     public function one()
     {
-        $result = $this->getStatement();
-        if (!$result) {
-            return null;
-        }
-
-        $data = $result->fetch(PDO::FETCH_ASSOC);
-
+        parent::setFetchMode(PDO::FETCH_ASSOC);
+        $data = parent::one();
         if (!$data) {
             return null;
         }
@@ -183,24 +158,6 @@ class EntityFetcher extends QueryBuilder
         return (int) $this->entityManager->getConnection()->query($query)->fetchColumn();
     }
 
-    /**
-     * Query database and return result
-     *
-     * Queries the database with current query and returns the resulted PDOStatement.
-     *
-     * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
-     * change the result.
-     *
-     * @return PDOStatement|bool
-     */
-    private function getStatement()
-    {
-        if ($this->result === null) {
-            $this->result = $this->entityManager->getConnection()->query($this->getQuery());
-        }
-        return $this->result;
-    }
-
     /** {@inheritdoc} */
     public function getQuery()
     {
@@ -226,6 +183,27 @@ class EntityFetcher extends QueryBuilder
         }
 
         $this->query = $query;
+        return $this;
+    }
+
+    /** @return static
+     * @internal */
+    public function columns(array $columns = null)
+    {
+        return $this;
+    }
+
+    /** @return static
+     * @internal */
+    public function column($column, $args = [], $alias = '')
+    {
+        return $this;
+    }
+
+    /** @return static
+     * @internal */
+    public function setFetchMode($mode, $classNameObject = null, array $ctorarfg = [])
+    {
         return $this;
     }
 }

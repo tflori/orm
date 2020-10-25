@@ -3,6 +3,7 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
+use PDOStatement;
 
 /**
  * Build a ansi sql query / select statement
@@ -65,6 +66,10 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** The default EntityManager to use to for quoting
      * @var EntityManager */
     public static $defaultEntityManager;
+
+    /** The result object from PDO
+     * @var PDOStatement */
+    protected $result;
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
@@ -272,6 +277,68 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return $this;
     }
 
+    /**
+     * Proxy to PDOStatement::setFetchMode()
+     *
+     * Please note that this will execute the query - further modifications will not have any effect.
+     *
+     * @param int $mode
+     * @param null $classNameObject
+     * @param array $ctorarfg
+     * @return $this
+     * @see PDOStatement::setFetchMode()
+     */
+    public function setFetchMode($mode, $classNameObject = null, array $ctorarfg = [])
+    {
+        $result = $this->getStatement();
+        if (!$result) {
+            return $this;
+        }
+
+        $result->setFetchMode($mode, $classNameObject, $ctorarfg);
+        return $this;
+    }
+
+    /**
+     * Get the next row from the query result
+     *
+     * Please note that this will execute the query - further modifications will not have any effect.
+     *
+     * If the query fails you should get an exception. Anyway if we couldn't get a result or there are no more rows
+     * it returns null.
+     *
+     * @return mixed|null
+     */
+    public function one()
+    {
+        $result = $this->getStatement();
+        if (!$result) {
+            return null;
+        }
+
+        return $result->fetch() ?: null;
+    }
+
+    /**
+     * Get all rows from the query result
+     *
+     * Please note that this will execute the query - further modifications will not have any effect.
+     *
+     * If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+     * it returns an empty array.
+     *
+     * @return mixed|null
+     */
+    public function all()
+    {
+        $result = $this->getStatement();
+        if (!$result) {
+            return [];
+        }
+
+        return $result->fetchAll();
+    }
+
     /** {@inheritdoc} */
     public function getQuery()
     {
@@ -284,6 +351,24 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                . (!empty($this->groupBy) ? ' GROUP BY ' . implode(',', $this->groupBy) : '')
                . (!empty($this->orderBy) ? ' ORDER BY ' . implode(',', $this->orderBy) : '')
                . ($this->limit ? ' LIMIT ' . $this->limit . ($this->offset ? ' OFFSET ' . $this->offset : '') : '');
+    }
+
+    /**
+     * Query database and return result
+     *
+     * Queries the database with current query and returns the resulted PDOStatement.
+     *
+     * If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+     * change the result.
+     *
+     * @return PDOStatement|bool
+     */
+    protected function getStatement()
+    {
+        if ($this->result === null) {
+            $this->result = $this->entityManager->getConnection()->query($this->getQuery()) ?: false;
+        }
+        return $this->result;
     }
 
     /** {@inheritdoc} */

@@ -15,6 +15,7 @@ use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
 use ORM\Observer\AbstractObserver;
 use ORM\Observer\CallbackObserver;
+use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 use ReflectionClass;
 
@@ -361,6 +362,18 @@ class EntityManager
         }
 
         return $this->namer;
+    }
+
+    /**
+     * Get a query builder for $table
+     *
+     * @param string $table
+     * @param string $alias
+     * @return QueryBuilder
+     */
+    public function query($table, $alias = '')
+    {
+        return new QueryBuilder($table, $alias, $this);
     }
 
     /**

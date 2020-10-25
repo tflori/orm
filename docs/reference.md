@@ -3397,6 +3397,7 @@ Supported:
 * [orWhereNotIn](#ormentityfetcherorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormentityfetcherparenthesis) Alias for andParenthesis
 * [rightJoin](#ormentityfetcherrightjoin) Right (outer) join $tableName with $options
+* [setFetchMode](#ormentityfetchersetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormentityfetchersetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormentityfetchertoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormentityfetchertranslatecolumn) Translate attribute names in an expression to their column names
@@ -3778,7 +3779,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\EntityFetcher::getStatement
 
 ```php
-private function getStatement(): \PDOStatement|boolean
+protected function getStatement(): \PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -3788,7 +3789,7 @@ Queries the database with current query and returns the resulted PDOStatement.
 If query failed it returns false. It also stores this failed result and to change the query afterwards will not
 change the result.
 
-**Visibility:** this method is **private**.
+**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
@@ -4230,6 +4231,33 @@ can be set to true.
 
 
 
+#### ORM\EntityFetcher::setFetchMode
+
+```php
+public function setFetchMode(
+    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+): $this
+```
+
+##### Proxy to PDOStatement::setFetchMode()
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$mode` | **integer**  |  |
+| `$classNameObject` | **null**  |  |
+| `$ctorarfg` | **array**  |  |
+
+
+
 #### ORM\EntityFetcher::setQuery
 
 ```php
@@ -4480,7 +4508,7 @@ Supported:
 #### Methods
 
 * [__construct](#ormtestingentityfetchermock__construct) Constructor
-* [all](#ormtestingentityfetchermockall) Fetch an array of entities
+* [all](#ormtestingentityfetchermockall) Get all rows from the query result
 * [andParenthesis](#ormtestingentityfetchermockandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockandwhere) Add a where condition with AND.
 * [close](#ormtestingentityfetchermockclose) Close parenthesis
@@ -4513,6 +4541,7 @@ Supported:
 * [orWhereNotIn](#ormtestingentityfetchermockorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockparenthesis) Alias for andParenthesis
 * [rightJoin](#ormtestingentityfetchermockrightjoin) Right (outer) join $tableName with $options
+* [setFetchMode](#ormtestingentityfetchermocksetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormtestingentityfetchermocksetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormtestingentityfetchermocktoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormtestingentityfetchermocktranslatecolumn) Translate attribute names in an expression to their column names
@@ -4549,23 +4578,20 @@ Create a parenthesis inside another parenthesis or a query.
 #### ORM\Testing\EntityFetcherMock::all
 
 ```php
-public function all( integer $limit ): array<\ORM\Entity>
+public function all(): mixed|null
 ```
 
-##### Fetch an array of entities
+##### Get all rows from the query result
 
-When no $limit is set it fetches all entities in result set.
+Please note that this will execute the query - further modifications will not have any effect.
+
+If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+it returns an empty array.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+ **Returns**: this method returns **mixed|null**
 <br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$limit` | **integer**  | Maximum number of entities to fetch |
 
 
 
@@ -4890,7 +4916,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\Testing\EntityFetcherMock::getStatement
 
 ```php
-private function getStatement(): \PDOStatement|boolean
+protected function getStatement(): \PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -4900,7 +4926,7 @@ Queries the database with current query and returns the resulted PDOStatement.
 If query failed it returns false. It also stores this failed result and to change the query afterwards will not
 change the result.
 
-**Visibility:** this method is **private**.
+**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
@@ -5342,6 +5368,36 @@ can be set to true.
 
 
 
+#### ORM\Testing\EntityFetcherMock::setFetchMode
+
+```php
+public function setFetchMode(
+    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+): $this
+```
+
+##### Proxy to PDOStatement::setFetchMode()
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$mode` | **integer**  |  |
+| `$classNameObject` | **null**  |  |
+| `$ctorarfg` | **array**  |  |
+
+
+
+**See Also:**
+
+* \PDOStatement::setFetchMode() 
 #### ORM\Testing\EntityFetcherMock::setQuery
 
 ```php
@@ -5615,6 +5671,7 @@ private function wherePrefix( string $bool ): string
 * [has](#ormentitymanagerhas) Check if the entity map has $entity
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [observe](#ormentitymanagerobserve) Observe $class using $observer
+* [query](#ormentitymanagerquery) Get a query builder for $table
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
 * [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
@@ -6177,6 +6234,32 @@ For more information about model events please consult the [documentation](https
 
 
 
+#### ORM\EntityManager::query
+
+```php
+public function query(
+    string $table, string $alias = ''
+): \ORM\QueryBuilder\QueryBuilder
+```
+
+##### Get a query builder for $table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  |  |
+| `$alias` | **string**  |  |
+
+
+
 #### ORM\EntityManager::setConnection
 
 ```php
@@ -6361,6 +6444,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [has](#ormtestingentitymanagermockhas) Check if the entity map has $entity
 * [map](#ormtestingentitymanagermockmap) Map $entity in the entity map
 * [observe](#ormtestingentitymanagermockobserve) Observe $class using $observer
+* [query](#ormtestingentitymanagermockquery) Get a query builder for $table
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
@@ -6996,6 +7080,32 @@ For more information about model events please consult the [documentation](https
 |-----------|------|-------------|
 | `$class` | **string**  |  |
 | `$observer` | **\ORM\?ObserverInterface**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::query
+
+```php
+public function query(
+    string $table, string $alias = ''
+): \ORM\QueryBuilder\QueryBuilder
+```
+
+##### Get a query builder for $table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -12109,6 +12219,7 @@ Supported:
 | **protected** | `$onClose` | **callable** | Callback to close the parenthesis |
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
+| **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
@@ -12117,6 +12228,7 @@ Supported:
 #### Methods
 
 * [__construct](#ormquerybuilderquerybuilder__construct) Constructor
+* [all](#ormquerybuilderquerybuilderall) Get all rows from the query result
 * [andParenthesis](#ormquerybuilderquerybuilderandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderquerybuilderandwhere) Add a where condition with AND.
 * [close](#ormquerybuilderquerybuilderclose) Close parenthesis
@@ -12129,12 +12241,14 @@ Supported:
 * [getEntityManager](#ormquerybuilderquerybuildergetentitymanager) 
 * [getExpression](#ormquerybuilderquerybuildergetexpression) Get the expression
 * [getQuery](#ormquerybuilderquerybuildergetquery) Get the query / select statement
+* [getStatement](#ormquerybuilderquerybuildergetstatement) Query database and return result
 * [groupBy](#ormquerybuilderquerybuildergroupby) Group By $column
 * [join](#ormquerybuilderquerybuilderjoin) (Inner) join $tableName with $options
 * [leftJoin](#ormquerybuilderquerybuilderleftjoin) Left (outer) join $tableName with $options
 * [limit](#ormquerybuilderquerybuilderlimit) Set $limit
 * [modifier](#ormquerybuilderquerybuildermodifier) Add $modifier
 * [offset](#ormquerybuilderquerybuilderoffset) Set $offset
+* [one](#ormquerybuilderquerybuilderone) Get the next row from the query result
 * [orderBy](#ormquerybuilderquerybuilderorderby) Order By $column in $direction
 * [orParenthesis](#ormquerybuilderquerybuilderorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderquerybuilderorwhere) Add a where condition with OR.
@@ -12142,6 +12256,7 @@ Supported:
 * [orWhereNotIn](#ormquerybuilderquerybuilderorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderquerybuilderparenthesis) Alias for andParenthesis
 * [rightJoin](#ormquerybuilderquerybuilderrightjoin) Right (outer) join $tableName with $options
+* [setFetchMode](#ormquerybuilderquerybuildersetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [where](#ormquerybuilderquerybuilderwhere) Alias for andWhere
 * [whereIn](#ormquerybuilderquerybuilderwherein) Add a where in condition with AND.
 * [whereNotIn](#ormquerybuilderquerybuilderwherenotin) Add a where not in condition with AND.
@@ -12173,6 +12288,26 @@ It uses static::$defaultEntityManager if $entityManager is not given.
 | `$tableName` | **string**  | The main table to use in FROM clause |
 | `$alias` | **string**  | An alias for the table |
 | `$entityManager` | **\ORM\EntityManager**  | EntityManager for quoting |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::all
+
+```php
+public function all(): mixed|null
+```
+
+##### Get all rows from the query result
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+it returns an empty array.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
 
 
 
@@ -12453,6 +12588,26 @@ Builds the statement from current where conditions, joins, columns and so on.
 
 
 
+#### ORM\QueryBuilder\QueryBuilder::getStatement
+
+```php
+protected function getStatement(): \PDOStatement|boolean
+```
+
+##### Query database and return result
+
+Queries the database with current query and returns the resulted PDOStatement.
+
+If query failed it returns false. It also stores this failed result and to change the query afterwards will not
+change the result.
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\PDOStatement|boolean**
+<br />
+
+
+
 #### ORM\QueryBuilder\QueryBuilder::groupBy
 
 ```php
@@ -12605,6 +12760,26 @@ Changes the offset (only with limit) where fetching starts in the query.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$offset` | **integer**  | The offset to set |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::one
+
+```php
+public function one(): mixed|null
+```
+
+##### Get the next row from the query result
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+If the query fails you should get an exception. Anyway if we couldn't get a result or there are no more rows
+it returns null.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
 
 
 
@@ -12800,6 +12975,36 @@ can be set to true.
 
 
 
+#### ORM\QueryBuilder\QueryBuilder::setFetchMode
+
+```php
+public function setFetchMode(
+    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+): $this
+```
+
+##### Proxy to PDOStatement::setFetchMode()
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$mode` | **integer**  |  |
+| `$classNameObject` | **null**  |  |
+| `$ctorarfg` | **array**  |  |
+
+
+
+**See Also:**
+
+* \PDOStatement::setFetchMode() 
 #### ORM\QueryBuilder\QueryBuilder::where
 
 ```php
@@ -14007,7 +14212,7 @@ Supported:
 
 * [__construct](#ormtestingentityfetchermockresult__construct) Constructor
 * [addEntities](#ormtestingentityfetchermockresultaddentities) Add entities to the result
-* [all](#ormtestingentityfetchermockresultall) Fetch an array of entities
+* [all](#ormtestingentityfetchermockresultall) Get all rows from the query result
 * [andParenthesis](#ormtestingentityfetchermockresultandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockresultandwhere) Add a where condition with AND.
 * [close](#ormtestingentityfetchermockresultclose) Close parenthesis
@@ -14035,7 +14240,7 @@ Supported:
 * [matches](#ormtestingentityfetchermockresultmatches) Add a regular expression that has to match
 * [modifier](#ormtestingentityfetchermockresultmodifier) Add $modifier
 * [offset](#ormtestingentityfetchermockresultoffset) Set $offset
-* [one](#ormtestingentityfetchermockresultone) Fetch one entity
+* [one](#ormtestingentityfetchermockresultone) Get the next row from the query result
 * [orderBy](#ormtestingentityfetchermockresultorderby) Order By $column in $direction
 * [orParenthesis](#ormtestingentityfetchermockresultorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormtestingentityfetchermockresultorwhere) Add a where condition with OR.
@@ -14043,6 +14248,7 @@ Supported:
 * [orWhereNotIn](#ormtestingentityfetchermockresultorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockresultparenthesis) Alias for andParenthesis
 * [rightJoin](#ormtestingentityfetchermockresultrightjoin) Right (outer) join $tableName with $options
+* [setFetchMode](#ormtestingentityfetchermockresultsetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormtestingentityfetchermockresultsetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormtestingentityfetchermockresulttoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormtestingentityfetchermockresulttranslatecolumn) Translate attribute names in an expression to their column names
@@ -14102,23 +14308,20 @@ public function addEntities( array<\ORM\Entity> $entities ): $this
 #### ORM\Testing\EntityFetcherMock\Result::all
 
 ```php
-public function all( integer $limit ): array<\ORM\Entity>
+public function all(): mixed|null
 ```
 
-##### Fetch an array of entities
+##### Get all rows from the query result
 
-When no $limit is set it fetches all entities in result set.
+Please note that this will execute the query - further modifications will not have any effect.
+
+If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+it returns an empty array.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+ **Returns**: this method returns **mixed|null**
 <br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$limit` | **integer**  | Maximum number of entities to fetch |
 
 
 
@@ -14486,7 +14689,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\Testing\EntityFetcherMock\Result::getStatement
 
 ```php
-private function getStatement(): \PDOStatement|boolean
+protected function getStatement(): \PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -14496,7 +14699,7 @@ Queries the database with current query and returns the resulted PDOStatement.
 If query failed it returns false. It also stores this failed result and to change the query afterwards will not
 change the result.
 
-**Visibility:** this method is **private**.
+**Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
@@ -14755,16 +14958,19 @@ Changes the offset (only with limit) where fetching starts in the query.
 #### ORM\Testing\EntityFetcherMock\Result::one
 
 ```php
-public function one(): \ORM\Entity
+public function one(): mixed|null
 ```
 
-##### Fetch one entity
+##### Get the next row from the query result
 
-If there is no more entity in the result set it returns null.
+Please note that this will execute the query - further modifications will not have any effect.
+
+If the query fails you should get an exception. Anyway if we couldn't get a result or there are no more rows
+it returns null.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Entity**
+ **Returns**: this method returns **mixed|null**
 <br />
 
 
@@ -14961,6 +15167,36 @@ can be set to true.
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::setFetchMode
+
+```php
+public function setFetchMode(
+    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+): $this
+```
+
+##### Proxy to PDOStatement::setFetchMode()
+
+Please note that this will execute the query - further modifications will not have any effect.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$mode` | **integer**  |  |
+| `$classNameObject` | **null**  |  |
+| `$ctorarfg` | **array**  |  |
+
+
+
+**See Also:**
+
+* \PDOStatement::setFetchMode() 
 #### ORM\Testing\EntityFetcherMock\Result::setQuery
 
 ```php

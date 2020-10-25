@@ -321,14 +321,14 @@ abstract class Dbal
         $primary = array_combine($vars, $cols);
         $cols = array_map([$this, 'escapeIdentifier'], $cols);
 
-        $query = new QueryBuilder($this->escapeIdentifier($entity::getTableName()), '', $this->entityManager);
-        $query->whereIn($cols, array_map(function (Entity $entity) {
-            return $entity->getPrimaryKey();
-        }, $entities));
+        $query = $this->entityManager->query($this->escapeIdentifier($entity::getTableName()))
+            ->whereIn($cols, array_map(function (Entity $entity) {
+                return $entity->getPrimaryKey();
+            }, $entities))
+            ->setFetchMode(PDO::FETCH_ASSOC);
 
-        $statement = $this->entityManager->getConnection()->query($query->getQuery());
         $left = $entities;
-        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $query->one()) {
             foreach ($left as $k => $entity) {
                 foreach ($primary as $var => $col) {
                     if ($entity->$var != $row[$col]) {

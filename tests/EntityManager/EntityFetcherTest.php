@@ -44,6 +44,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturn(true);
         $statement->shouldReceive('fetch')->andReturn(false);
 
         $result = $fetcher->one();
@@ -121,7 +122,8 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
-        $statement->shouldReceive('fetch')->once()->with(\PDO::FETCH_ASSOC)->andReturn([
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->once()->with()->andReturn([
             'id' => 42,
             'name' => 'mobile',
             'number' => '+49 151 00000000'
@@ -144,6 +146,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -169,6 +172,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -192,6 +196,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -217,6 +222,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
