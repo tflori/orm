@@ -374,7 +374,6 @@ abstract class Entity implements Serializable
             if (!$hasPrimaryKey || !$this->entityManager->sync($this)) {
                 $event = $this->insertEntity($hasPrimaryKey);
             } else {
-                $this->exists = true;
                 $event = $this->updateEntity();
             }
 
@@ -608,7 +607,7 @@ abstract class Entity implements Serializable
      */
     public function serialize()
     {
-        return serialize([ $this->data, $this->relatedObjects ]);
+        return serialize([ $this->data, $this->relatedObjects, $this->exists ]);
     }
 
     /**
@@ -619,7 +618,7 @@ abstract class Entity implements Serializable
      */
     public function unserialize($serialized)
     {
-        list($this->data, $this->relatedObjects) = unserialize($serialized);
+        list($this->data, $this->relatedObjects, $this->exists) = unserialize($serialized);
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
     }

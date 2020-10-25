@@ -6,11 +6,8 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
-use ORM\Exception\NoEntityManager;
-use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\GeneratesUuid;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
-use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
 
@@ -201,18 +198,5 @@ class SaveEntityTest extends TestCase
         $entity->save();
 
         self::assertNotEmpty($entity->id);
-    }
-
-    /** @test */
-    public function afterInsertAnEntityExists()
-    {
-        $entity = new Article();
-
-        $this->em->shouldReceive('insert')->with($entity, true)
-            ->once()->andReturn(true);
-
-        $entity->save();
-
-        self::assertTrue($entity->exists());
     }
 }
