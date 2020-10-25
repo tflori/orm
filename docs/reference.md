@@ -1239,7 +1239,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
 * [assertSameType](#ormdbaldbalassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbaldbalbuildcompositewhereinstatement) Build a where in statement for composite primary keys
+* [buildCompositeWhereInStatement](#ormdbaldbalbuildcompositewhereinstatement) Build a where in statement for composite keys
 * [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbaldbaldelete) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
@@ -1313,16 +1313,16 @@ protected static function assertSameType(
 #### ORM\Dbal\Dbal::buildCompositeWhereInStatement
 
 ```php
-protected function buildCompositeWhereInStatement(
-    array $cols, array $entities
+public function buildCompositeWhereInStatement(
+    array $cols, array $keys, boolean $inverse = false
 ): string
 ```
 
-##### Build a where in statement for composite primary keys
+##### Build a where in statement for composite keys
 
 
 
-**Visibility:** this method is **protected**.
+**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
 <br />
@@ -1332,7 +1332,8 @@ protected function buildCompositeWhereInStatement(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$entities` | **array**  |  |
+| `$keys` | **array**  |  |
+| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
 
 
 
@@ -1970,6 +1971,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | **protected static** | `$enabledValidators` | **array&lt;boolean>** | Whether or not the validator for a class got enabled during runtime. |
 | **protected** | `$entityManager` | **EntityManager** | The entity manager from which this entity got created |
 | **protected static** | `$excludedAttributes` | **array** | Attributes to hide for toArray method (overruled by $attributes parameter) |
+| **protected** | `$exists` | **boolean** | Whether the entity exists in database |
 | **protected static** | `$includedAttributes` | **array** | Additional attributes to show in toArray method |
 | **protected static** | `$namingSchemeAttributes` | **string** | The naming scheme to use for attributes. |
 | **protected static** | `$namingSchemeColumn` | **string** | The naming scheme to use for column names. |
@@ -1996,6 +1998,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [detachObserver](#ormentitydetachobserver) Stop observing the class by $observer
 * [disableValidator](#ormentitydisablevalidator) Disable validator
 * [enableValidator](#ormentityenablevalidator) Enable validator
+* [exists](#ormentityexists) Returns whether or not the entity exists in database
 * [fetch](#ormentityfetch) Fetches related objects
 * [fill](#ormentityfill) Fill the entity with $data
 * [generatePrimaryKey](#ormentitygenerateprimarykey) Generates a primary key
@@ -2284,6 +2287,23 @@ public static function enableValidator( boolean $enable = true )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$enable` | **boolean**  |  |
+
+
+
+#### ORM\Entity::exists
+
+```php
+public function exists(): boolean
+```
+
+##### Returns whether or not the entity exists in database
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -3347,19 +3367,20 @@ Supported:
 * [all](#ormentityfetcherall) Fetch an array of entities
 * [andParenthesis](#ormentityfetcherandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormentityfetcherandwhere) Add a where condition with AND.
-* [buildExpression](#ormentityfetcherbuildexpression) 
 * [close](#ormentityfetcherclose) Close parenthesis
 * [column](#ormentityfetchercolumn) Add $column
 * [columns](#ormentityfetchercolumns) Set $columns
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
 * [count](#ormentityfetchercount) Get the count of the resulting items
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
+* [first](#ormentityfetcherfirst) Get the first item of an array
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) 
 * [getEntityManager](#ormentityfetchergetentitymanager) 
 * [getExpression](#ormentityfetchergetexpression) Get the expression
 * [getQuery](#ormentityfetchergetquery) Get the query / select statement
 * [getStatement](#ormentityfetchergetstatement) Query database and return result
+* [getTableAndAlias](#ormentityfetchergettableandalias) Get the table name and alias for a class
 * [groupBy](#ormentityfetchergroupby) Group By $column
 * [join](#ormentityfetcherjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormentityfetcherjoinrelated) Join $relation
@@ -3372,10 +3393,17 @@ Supported:
 * [orderBy](#ormentityfetcherorderby) Order By $column in $direction
 * [orParenthesis](#ormentityfetcherorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormentityfetcherorwhere) Add a where condition with OR.
+* [orWhereIn](#ormentityfetcherorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormentityfetcherorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormentityfetcherparenthesis) Alias for andParenthesis
 * [rightJoin](#ormentityfetcherrightjoin) Right (outer) join $tableName with $options
 * [setQuery](#ormentityfetchersetquery) Set a raw query or use different QueryBuilder
+* [toClassAndAlias](#ormentityfetchertoclassandalias) Get class and alias by the match from translateColumn
+* [translateColumn](#ormentityfetchertranslatecolumn) Translate attribute names in an expression to their column names
 * [where](#ormentityfetcherwhere) Alias for andWhere
+* [whereIn](#ormentityfetcherwherein) Add a where in condition with AND.
+* [whereNotIn](#ormentityfetcherwherenotin) Add a where not in condition with AND.
+* [wherePrefix](#ormentityfetcherwhereprefix) Get the prefix for a where condition or empty if not needed
 
 #### ORM\EntityFetcher::__construct
 
@@ -3482,29 +3510,6 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
-
-
-
-#### ORM\EntityFetcher::buildExpression
-
-```php
-private function buildExpression( $column, $value, $operator = null )
-```
-
-
-
-
-**Visibility:** this method is **private**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` |   |  |
-| `$value` |   |  |
-| `$operator` |   |  |
 
 
 
@@ -3644,6 +3649,29 @@ public function createRelatedJoin( $join, $relation ): $this
 
 
 
+#### ORM\EntityFetcher::first
+
+```php
+private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+```
+
+##### Get the first item of an array
+
+Stupid helper for a missing functionality in php
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **QueryBuilder\iterable**  |  |
+
+
+
 #### ORM\EntityFetcher::fullJoin
 
 ```php
@@ -3764,6 +3792,31 @@ change the result.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
+
+
+
+#### ORM\EntityFetcher::getTableAndAlias
+
+```php
+protected function getTableAndAlias( string $class, string $alias = '' ): array
+```
+
+##### Get the table name and alias for a class
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$table, $alias]
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -4071,6 +4124,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\EntityFetcher::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\EntityFetcher::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\EntityFetcher::parenthesis
 
 ```php
@@ -4143,12 +4254,57 @@ For easier use and against sql injection it allows question mark placeholders.
 
 
 
+#### ORM\EntityFetcher::toClassAndAlias
+
+```php
+private function toClassAndAlias( array $match ): array
+```
+
+##### Get class and alias by the match from translateColumn
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$class, $alias]
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$match` | **array**  |  |
+
+
+
+#### ORM\EntityFetcher::translateColumn
+
+```php
+protected function translateColumn( string $expression ): string
+```
+
+##### Translate attribute names in an expression to their column names
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
 #### ORM\EntityFetcher::where
 
 ```php
-public function where(
-    string $column, string $operator = null, string $value = null
-): static
+public function where( string $column, $operator = null, $value = null ): static
 ```
 
 ##### Alias for andWhere
@@ -4179,8 +4335,92 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
+
+
+
+**See Also:**
+
+* \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\EntityFetcher::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\EntityFetcher::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\EntityFetcher::wherePrefix
+
+```php
+private function wherePrefix( string $bool ): string
+```
+
+##### Get the prefix for a where condition or empty if not needed
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
 
 
 
@@ -4243,19 +4483,20 @@ Supported:
 * [all](#ormtestingentityfetchermockall) Fetch an array of entities
 * [andParenthesis](#ormtestingentityfetchermockandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockandwhere) Add a where condition with AND.
-* [buildExpression](#ormtestingentityfetchermockbuildexpression) 
 * [close](#ormtestingentityfetchermockclose) Close parenthesis
 * [column](#ormtestingentityfetchermockcolumn) Add $column
 * [columns](#ormtestingentityfetchermockcolumns) Set $columns
 * [convertPlaceholders](#ormtestingentityfetchermockconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
+* [first](#ormtestingentityfetchermockfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) 
 * [getEntityManager](#ormtestingentityfetchermockgetentitymanager) 
 * [getExpression](#ormtestingentityfetchermockgetexpression) Get the expression
 * [getQuery](#ormtestingentityfetchermockgetquery) Get the query / select statement
 * [getStatement](#ormtestingentityfetchermockgetstatement) Query database and return result
+* [getTableAndAlias](#ormtestingentityfetchermockgettableandalias) Get the table name and alias for a class
 * [groupBy](#ormtestingentityfetchermockgroupby) Group By $column
 * [join](#ormtestingentityfetchermockjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormtestingentityfetchermockjoinrelated) Join $relation
@@ -4268,10 +4509,17 @@ Supported:
 * [orderBy](#ormtestingentityfetchermockorderby) Order By $column in $direction
 * [orParenthesis](#ormtestingentityfetchermockorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormtestingentityfetchermockorwhere) Add a where condition with OR.
+* [orWhereIn](#ormtestingentityfetchermockorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormtestingentityfetchermockorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockparenthesis) Alias for andParenthesis
 * [rightJoin](#ormtestingentityfetchermockrightjoin) Right (outer) join $tableName with $options
 * [setQuery](#ormtestingentityfetchermocksetquery) Set a raw query or use different QueryBuilder
+* [toClassAndAlias](#ormtestingentityfetchermocktoclassandalias) Get class and alias by the match from translateColumn
+* [translateColumn](#ormtestingentityfetchermocktranslatecolumn) Translate attribute names in an expression to their column names
 * [where](#ormtestingentityfetchermockwhere) Alias for andWhere
+* [whereIn](#ormtestingentityfetchermockwherein) Add a where in condition with AND.
+* [whereNotIn](#ormtestingentityfetchermockwherenotin) Add a where not in condition with AND.
+* [wherePrefix](#ormtestingentityfetchermockwhereprefix) Get the prefix for a where condition or empty if not needed
 
 #### ORM\Testing\EntityFetcherMock::__construct
 
@@ -4376,29 +4624,6 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
-
-
-
-#### ORM\Testing\EntityFetcherMock::buildExpression
-
-```php
-private function buildExpression( $column, $value, $operator = null )
-```
-
-
-
-
-**Visibility:** this method is **private**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` |   |  |
-| `$value` |   |  |
-| `$operator` |   |  |
 
 
 
@@ -4536,6 +4761,29 @@ public function createRelatedJoin( $join, $relation ): $this
 
 
 
+#### ORM\Testing\EntityFetcherMock::first
+
+```php
+private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+```
+
+##### Get the first item of an array
+
+Stupid helper for a missing functionality in php
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **\ORM\QueryBuilder\iterable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::fullJoin
 
 ```php
@@ -4656,6 +4904,31 @@ change the result.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::getTableAndAlias
+
+```php
+protected function getTableAndAlias( string $class, string $alias = '' ): array
+```
+
+##### Get the table name and alias for a class
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$table, $alias]
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -4963,6 +5236,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\Testing\EntityFetcherMock::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::parenthesis
 
 ```php
@@ -5035,12 +5366,57 @@ For easier use and against sql injection it allows question mark placeholders.
 
 
 
+#### ORM\Testing\EntityFetcherMock::toClassAndAlias
+
+```php
+private function toClassAndAlias( array $match ): array
+```
+
+##### Get class and alias by the match from translateColumn
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$class, $alias]
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$match` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::translateColumn
+
+```php
+protected function translateColumn( string $expression ): string
+```
+
+##### Translate attribute names in an expression to their column names
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::where
 
 ```php
-public function where(
-    string $column, string $operator = null, string $value = null
-): static
+public function where( string $column, $operator = null, $value = null ): static
 ```
 
 ##### Alias for andWhere
@@ -5071,8 +5447,92 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
+
+
+
+**See Also:**
+
+* \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\Testing\EntityFetcherMock::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::wherePrefix
+
+```php
+private function wherePrefix( string $bool ): string
+```
+
+##### Get the prefix for a where condition or empty if not needed
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
 
 
 
@@ -5152,6 +5612,7 @@ $query->where('name = ?', ['John Doe']);
 * [getInstanceByParent](#ormentitymanagergetinstancebyparent) Get the instance by Parent class mapping
 * [getNamer](#ormentitymanagergetnamer) Get the Namer instance
 * [getOption](#ormentitymanagergetoption) Get $option
+* [has](#ormentitymanagerhas) Check if the entity map has $entity
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [observe](#ormentitymanagerobserve) Observe $class using $observer
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
@@ -5627,6 +6088,30 @@ public function getOption( $option ): mixed
 
 
 
+#### ORM\EntityManager::has
+
+```php
+public function has( \ORM\Entity $entity, $primaryKey = null ): boolean
+```
+
+##### Check if the entity map has $entity
+
+If you want to know if the entity already exists in the map use this method.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **Entity &#124; string**  |  |
+| `$primaryKey` | **mixed**  |  |
+
+
+
 #### ORM\EntityManager::map
 
 ```php
@@ -5873,6 +6358,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [getNamer](#ormtestingentitymanagermockgetnamer) Get the Namer instance
 * [getOption](#ormtestingentitymanagermockgetoption) Get $option
 * [getResults](#ormtestingentitymanagermockgetresults) Get the results for $class and $query
+* [has](#ormtestingentitymanagermockhas) Check if the entity map has $entity
 * [map](#ormtestingentitymanagermockmap) Map $entity in the entity map
 * [observe](#ormtestingentitymanagermockobserve) Observe $class using $observer
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
@@ -6421,6 +6907,30 @@ The EntityFetcherMock\Result gets a quality for matching this query. Only the hi
 |-----------|------|-------------|
 | `$class` | **string**  |  |
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::has
+
+```php
+public function has( \ORM\Entity $entity, $primaryKey = null ): boolean
+```
+
+##### Check if the entity map has $entity
+
+If you want to know if the entity already exists in the map use this method.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entity` | **\ORM\Entity &#124; string**  |  |
+| `$primaryKey` | **mixed**  |  |
 
 
 
@@ -7734,7 +8244,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
 * [assertSameType](#ormdbalmysqlassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalmysqlbuildcompositewhereinstatement) Build a where in statement for composite primary keys
+* [buildCompositeWhereInStatement](#ormdbalmysqlbuildcompositewhereinstatement) Build a where in statement for composite keys
 * [buildInsertStatement](#ormdbalmysqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalmysqldelete) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
@@ -7809,16 +8319,16 @@ protected static function assertSameType(
 #### ORM\Dbal\Mysql::buildCompositeWhereInStatement
 
 ```php
-protected function buildCompositeWhereInStatement(
-    array $cols, array $entities
+public function buildCompositeWhereInStatement(
+    array $cols, array $keys, boolean $inverse = false
 ): string
 ```
 
-##### Build a where in statement for composite primary keys
+##### Build a where in statement for composite keys
 
 
 
-**Visibility:** this method is **protected**.
+**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
 <br />
@@ -7828,7 +8338,8 @@ protected function buildCompositeWhereInStatement(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$entities` | **array**  |  |
+| `$keys` | **array**  |  |
+| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
 
 
 
@@ -10244,8 +10755,13 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 * [getExpression](#ormquerybuilderparenthesisgetexpression) Get the expression
 * [orParenthesis](#ormquerybuilderparenthesisorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderparenthesisorwhere) Add a where condition with OR.
+* [orWhereIn](#ormquerybuilderparenthesisorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormquerybuilderparenthesisorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderparenthesisparenthesis) Alias for andParenthesis
 * [where](#ormquerybuilderparenthesiswhere) Alias for andWhere
+* [whereIn](#ormquerybuilderparenthesiswherein) Add a where in condition with AND.
+* [whereNotIn](#ormquerybuilderparenthesiswherenotin) Add a where not in condition with AND.
+* [wherePrefix](#ormquerybuilderparenthesiswhereprefix) Get the prefix for a where condition or empty if not needed
 
 #### ORM\QueryBuilder\Parenthesis::__construct
 
@@ -10422,6 +10938,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\QueryBuilder\Parenthesis::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\Parenthesis::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\QueryBuilder\Parenthesis::parenthesis
 
 ```php
@@ -10442,9 +11016,7 @@ public function parenthesis(): static
 #### ORM\QueryBuilder\Parenthesis::where
 
 ```php
-public function where(
-    string $column, string $operator = null, string $value = null
-): static
+public function where( string $column, $operator = null, $value = null ): static
 ```
 
 ##### Alias for andWhere
@@ -10475,8 +11047,92 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
+
+
+
+**See Also:**
+
+* \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\QueryBuilder\Parenthesis::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\Parenthesis::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\Parenthesis::wherePrefix
+
+```php
+private function wherePrefix( string $bool ): string
+```
+
+##### Get the prefix for a where condition or empty if not needed
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
 
 
 
@@ -10505,8 +11161,12 @@ $query->where('name = ?', ['John Doe']);
 * [getExpression](#ormquerybuilderparenthesisinterfacegetexpression) Get the expression
 * [orParenthesis](#ormquerybuilderparenthesisinterfaceorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderparenthesisinterfaceorwhere) Add a where condition with OR.
+* [orWhereIn](#ormquerybuilderparenthesisinterfaceorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormquerybuilderparenthesisinterfaceorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderparenthesisinterfaceparenthesis) Alias for andParenthesis
 * [where](#ormquerybuilderparenthesisinterfacewhere) Alias for andWhere
+* [whereIn](#ormquerybuilderparenthesisinterfacewherein) Add a where in condition with AND.
+* [whereNotIn](#ormquerybuilderparenthesisinterfacewherenotin) Add a where not in condition with AND.
 
 #### ORM\QueryBuilder\ParenthesisInterface::andParenthesis
 
@@ -10658,6 +11318,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\QueryBuilder\ParenthesisInterface::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\ParenthesisInterface::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\QueryBuilder\ParenthesisInterface::parenthesis
 
 ```php
@@ -10681,9 +11399,7 @@ public function parenthesis(): static
 #### ORM\QueryBuilder\ParenthesisInterface::where
 
 ```php
-public function where(
-    string $column, string $operator = '', string $value = ''
-): static
+public function where( string $column, $operator = '', $value = '' ): static
 ```
 
 ##### Alias for andWhere
@@ -10714,14 +11430,72 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
 
 
 
 **See Also:**
 
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\QueryBuilder\ParenthesisInterface::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\ParenthesisInterface::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 
 
 ---
@@ -10756,7 +11530,7 @@ $query->where('name = ?', ['John Doe']);
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
 * [assertSameType](#ormdbalpgsqlassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalpgsqlbuildcompositewhereinstatement) Build a where in statement for composite primary keys
+* [buildCompositeWhereInStatement](#ormdbalpgsqlbuildcompositewhereinstatement) Build a where in statement for composite keys
 * [buildInsertStatement](#ormdbalpgsqlbuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalpgsqldelete) Delete $entity from database
 * [describe](#ormdbalpgsqldescribe) Describe a table
@@ -10830,16 +11604,16 @@ protected static function assertSameType(
 #### ORM\Dbal\Pgsql::buildCompositeWhereInStatement
 
 ```php
-protected function buildCompositeWhereInStatement(
-    array $cols, array $entities
+public function buildCompositeWhereInStatement(
+    array $cols, array $keys, boolean $inverse = false
 ): string
 ```
 
-##### Build a where in statement for composite primary keys
+##### Build a where in statement for composite keys
 
 
 
-**Visibility:** this method is **protected**.
+**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
 <br />
@@ -10849,7 +11623,8 @@ protected function buildCompositeWhereInStatement(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$entities` | **array**  |  |
+| `$keys` | **array**  |  |
+| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
 
 
 
@@ -11344,11 +12119,11 @@ Supported:
 * [__construct](#ormquerybuilderquerybuilder__construct) Constructor
 * [andParenthesis](#ormquerybuilderquerybuilderandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormquerybuilderquerybuilderandwhere) Add a where condition with AND.
-* [buildExpression](#ormquerybuilderquerybuilderbuildexpression) 
 * [close](#ormquerybuilderquerybuilderclose) Close parenthesis
 * [column](#ormquerybuilderquerybuildercolumn) Add $column
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
+* [first](#ormquerybuilderquerybuilderfirst) Get the first item of an array
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) 
 * [getEntityManager](#ormquerybuilderquerybuildergetentitymanager) 
@@ -11363,9 +12138,14 @@ Supported:
 * [orderBy](#ormquerybuilderquerybuilderorderby) Order By $column in $direction
 * [orParenthesis](#ormquerybuilderquerybuilderorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderquerybuilderorwhere) Add a where condition with OR.
+* [orWhereIn](#ormquerybuilderquerybuilderorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormquerybuilderquerybuilderorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderquerybuilderparenthesis) Alias for andParenthesis
 * [rightJoin](#ormquerybuilderquerybuilderrightjoin) Right (outer) join $tableName with $options
 * [where](#ormquerybuilderquerybuilderwhere) Alias for andWhere
+* [whereIn](#ormquerybuilderquerybuilderwherein) Add a where in condition with AND.
+* [whereNotIn](#ormquerybuilderquerybuilderwherenotin) Add a where not in condition with AND.
+* [wherePrefix](#ormquerybuilderquerybuilderwhereprefix) Get the prefix for a where condition or empty if not needed
 
 #### ORM\QueryBuilder\QueryBuilder::__construct
 
@@ -11451,29 +12231,6 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
-
-
-
-#### ORM\QueryBuilder\QueryBuilder::buildExpression
-
-```php
-private function buildExpression( $column, $value, $operator = null )
-```
-
-
-
-
-**Visibility:** this method is **private**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` |   |  |
-| `$value` |   |  |
-| `$operator` |   |  |
 
 
 
@@ -11567,6 +12324,29 @@ protected function convertPlaceholders(
 |-----------|------|-------------|
 | `$expression` | **string**  | Expression with placeholders |
 | `$args` | **array &#124; mixed**  | Arguments for placeholders |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::first
+
+```php
+private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+```
+
+##### Get the first item of an array
+
+Stupid helper for a missing functionality in php
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **iterable**  |  |
 
 
 
@@ -11914,6 +12694,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\QueryBuilder\QueryBuilder::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\QueryBuilder\QueryBuilder::parenthesis
 
 ```php
@@ -11965,9 +12803,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilder::where
 
 ```php
-public function where(
-    string $column, string $operator = null, string $value = null
-): static
+public function where( string $column, $operator = null, $value = null ): static
 ```
 
 ##### Alias for andWhere
@@ -11998,8 +12834,92 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
+
+
+
+**See Also:**
+
+* \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\QueryBuilder\QueryBuilder::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::wherePrefix
+
+```php
+private function wherePrefix( string $bool ): string
+```
+
+##### Get the prefix for a where condition or empty if not needed
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
 
 
 
@@ -12047,9 +12967,13 @@ $query->where('name = ?', ['John Doe']);
 * [orderBy](#ormquerybuilderquerybuilderinterfaceorderby) Order By $column in $direction
 * [orParenthesis](#ormquerybuilderquerybuilderinterfaceorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormquerybuilderquerybuilderinterfaceorwhere) Add a where condition with OR.
+* [orWhereIn](#ormquerybuilderquerybuilderinterfaceorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormquerybuilderquerybuilderinterfaceorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderquerybuilderinterfaceparenthesis) Alias for andParenthesis
 * [rightJoin](#ormquerybuilderquerybuilderinterfacerightjoin) Right (outer) join $tableName with $options
 * [where](#ormquerybuilderquerybuilderinterfacewhere) Alias for andWhere
+* [whereIn](#ormquerybuilderquerybuilderinterfacewherein) Add a where in condition with AND.
+* [whereNotIn](#ormquerybuilderquerybuilderinterfacewherenotin) Add a where not in condition with AND.
 
 #### ORM\QueryBuilder\QueryBuilderInterface::andParenthesis
 
@@ -12483,6 +13407,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\QueryBuilder\QueryBuilderInterface::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\QueryBuilderInterface::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\QueryBuilder\QueryBuilderInterface::parenthesis
 
 ```php
@@ -12537,9 +13519,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilderInterface::where
 
 ```php
-public function where(
-    string $column, string $operator = '', string $value = ''
-): static
+public function where( string $column, $operator = '', $value = '' ): static
 ```
 
 ##### Alias for andWhere
@@ -12570,14 +13550,72 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
 
 
 
 **See Also:**
 
 * \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\QueryBuilder\QueryBuilderInterface::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\QueryBuilder\QueryBuilderInterface::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 
 
 ---
@@ -12972,7 +14010,6 @@ Supported:
 * [all](#ormtestingentityfetchermockresultall) Fetch an array of entities
 * [andParenthesis](#ormtestingentityfetchermockresultandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockresultandwhere) Add a where condition with AND.
-* [buildExpression](#ormtestingentityfetchermockresultbuildexpression) 
 * [close](#ormtestingentityfetchermockresultclose) Close parenthesis
 * [column](#ormtestingentityfetchermockresultcolumn) Add $column
 * [columns](#ormtestingentityfetchermockresultcolumns) Set $columns
@@ -12980,6 +14017,7 @@ Supported:
 * [convertPlaceholders](#ormtestingentityfetchermockresultconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockresultcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
+* [first](#ormtestingentityfetchermockresultfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) 
 * [getEntities](#ormtestingentityfetchermockresultgetentities) Get the entities for this result
@@ -12987,6 +14025,7 @@ Supported:
 * [getExpression](#ormtestingentityfetchermockresultgetexpression) Get the expression
 * [getQuery](#ormtestingentityfetchermockresultgetquery) Get the query / select statement
 * [getStatement](#ormtestingentityfetchermockresultgetstatement) Query database and return result
+* [getTableAndAlias](#ormtestingentityfetchermockresultgettableandalias) Get the table name and alias for a class
 * [groupBy](#ormtestingentityfetchermockresultgroupby) Group By $column
 * [join](#ormtestingentityfetchermockresultjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormtestingentityfetchermockresultjoinrelated) Join $relation
@@ -13000,10 +14039,17 @@ Supported:
 * [orderBy](#ormtestingentityfetchermockresultorderby) Order By $column in $direction
 * [orParenthesis](#ormtestingentityfetchermockresultorparenthesis) Add a parenthesis with OR
 * [orWhere](#ormtestingentityfetchermockresultorwhere) Add a where condition with OR.
+* [orWhereIn](#ormtestingentityfetchermockresultorwherein) Add a where in condition with OR.
+* [orWhereNotIn](#ormtestingentityfetchermockresultorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockresultparenthesis) Alias for andParenthesis
 * [rightJoin](#ormtestingentityfetchermockresultrightjoin) Right (outer) join $tableName with $options
 * [setQuery](#ormtestingentityfetchermockresultsetquery) Set a raw query or use different QueryBuilder
+* [toClassAndAlias](#ormtestingentityfetchermockresulttoclassandalias) Get class and alias by the match from translateColumn
+* [translateColumn](#ormtestingentityfetchermockresulttranslatecolumn) Translate attribute names in an expression to their column names
 * [where](#ormtestingentityfetchermockresultwhere) Alias for andWhere
+* [whereIn](#ormtestingentityfetchermockresultwherein) Add a where in condition with AND.
+* [whereNotIn](#ormtestingentityfetchermockresultwherenotin) Add a where not in condition with AND.
+* [wherePrefix](#ormtestingentityfetchermockresultwhereprefix) Get the prefix for a where condition or empty if not needed
 
 #### ORM\Testing\EntityFetcherMock\Result::__construct
 
@@ -13131,29 +14177,6 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
-
-
-
-#### ORM\Testing\EntityFetcherMock\Result::buildExpression
-
-```php
-private function buildExpression( $column, $value, $operator = null )
-```
-
-
-
-
-**Visibility:** this method is **private**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$column` |   |  |
-| `$value` |   |  |
-| `$operator` |   |  |
 
 
 
@@ -13317,6 +14340,29 @@ public function createRelatedJoin( $join, $relation ): $this
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::first
+
+```php
+private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+```
+
+##### Get the first item of an array
+
+Stupid helper for a missing functionality in php
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **mixed|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **\ORM\QueryBuilder\iterable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::fullJoin
 
 ```php
@@ -13454,6 +14500,31 @@ change the result.
 <br />
  **Returns**: this method returns **\PDOStatement|boolean**
 <br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getTableAndAlias
+
+```php
+protected function getTableAndAlias( string $class, string $alias = '' ): array
+```
+
+##### Get the table name and alias for a class
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$table, $alias]
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$alias` | **string**  |  |
 
 
 
@@ -13784,6 +14855,64 @@ $query->orWhere('name = ?', ['John Doe']);
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::orWhereIn
+
+```php
+public function orWhereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::orWhereNotIn
+
+```php
+public function orWhereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with OR.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::parenthesis
 
 ```php
@@ -13856,12 +14985,57 @@ For easier use and against sql injection it allows question mark placeholders.
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::toClassAndAlias
+
+```php
+private function toClassAndAlias( array $match ): array
+```
+
+##### Get class and alias by the match from translateColumn
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Response description:** [$class, $alias]
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$match` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::translateColumn
+
+```php
+protected function translateColumn( string $expression ): string
+```
+
+##### Translate attribute names in an expression to their column names
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exception\NotJoined**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::where
 
 ```php
-public function where(
-    string $column, string $operator = null, string $value = null
-): static
+public function where( string $column, $operator = null, $value = null ): static
 ```
 
 ##### Alias for andWhere
@@ -13892,8 +15066,92 @@ $query->where('name = ?', ['John Doe']);
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression with placeholders |
-| `$operator` | **string &#124; array**  | Operator, value or array of values |
-| `$value` | **string**  | Value (required when used with operator) |
+| `$operator` | **mixed**  | Operator, value or array of values |
+| `$value` | **mixed**  | Value (required when used with operator) |
+
+
+
+**See Also:**
+
+* \ORM\QueryBuilder\ParenthesisInterface::andWhere() 
+#### ORM\Testing\EntityFetcherMock\Result::whereIn
+
+```php
+public function whereIn( string $column, array $values ): static
+```
+
+##### Add a where in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 0` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::whereNotIn
+
+```php
+public function whereNotIn( string $column, array $values ): static
+```
+
+##### Add a where not in condition with AND.
+
+If $column is an array a composite where in statement will be created
+
+Example:
+ `whereIn(['a', 'b'], [[42, 23], [42, 23]])` gets `(a,b) NOT IN ((42,23), (23,42))` in mysql
+
+If $values is empty the expression will be `1 = 1` because an empty parenthesis causes an error in SQL.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **static**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$column` | **string &#124; array**  |  |
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::wherePrefix
+
+```php
+private function wherePrefix( string $bool ): string
+```
+
+##### Get the prefix for a where condition or empty if not needed
+
+
+
+**Visibility:** this method is **private**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
 
 
 
@@ -14414,7 +15672,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
 * [assertSameType](#ormdbalsqliteassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalsqlitebuildcompositewhereinstatement) Build a where in statement for composite primary keys
+* [buildCompositeWhereInStatement](#ormdbalsqlitebuildcompositewhereinstatement) Build a where in statement for composite keys
 * [buildInsertStatement](#ormdbalsqlitebuildinsertstatement) Build the insert statement for $entity
 * [delete](#ormdbalsqlitedelete) Delete $entity from database
 * [describe](#ormdbalsqlitedescribe) Describe a table
@@ -14490,16 +15748,16 @@ protected static function assertSameType(
 #### ORM\Dbal\Sqlite::buildCompositeWhereInStatement
 
 ```php
-protected function buildCompositeWhereInStatement(
-    array $cols, array $entities
+public function buildCompositeWhereInStatement(
+    array $cols, array $keys, boolean $inverse = false
 ): string
 ```
 
-##### Build a where in statement for composite primary keys
+##### Build a where in statement for composite keys
 
 
 
-**Visibility:** this method is **protected**.
+**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **string**
 <br />
@@ -14509,7 +15767,8 @@ protected function buildCompositeWhereInStatement(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$entities` | **array**  |  |
+| `$keys` | **array**  |  |
+| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
 
 
 

@@ -2,8 +2,8 @@
 
 namespace ORM;
 
-use ORM\Exception\NotJoined;
-use ORM\QueryBuilder\ParenthesisInterface;
+use ORM\EntityFetcher\MakesJoins;
+use ORM\EntityFetcher\TranslatesClasses;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\QueryBuilderInterface;
 use PDO;
@@ -30,6 +30,9 @@ use PDOStatement;
  */
 class EntityFetcher extends QueryBuilder
 {
+    use TranslatesClasses;
+    use MakesJoins;
+
     /** The entity class that we want to fetch
      * @var string|Entity */
     protected $class;
@@ -41,13 +44,6 @@ class EntityFetcher extends QueryBuilder
     /** The query to execute (overwrites other settings)
      * @var string|QueryBuilderInterface */
     protected $query;
-
-    /** The class to alias mapping and vise versa
-     * @var string[][] */
-    protected $classMapping = [
-        'byClass' => [],
-        'byAlias' => [],
-    ];
 
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
@@ -61,13 +57,9 @@ class EntityFetcher extends QueryBuilder
         $this->entityManager = $entityManager;
         $this->class         = $class;
 
-        $this->tableName = $entityManager->escapeIdentifier($class::getTableName());
-        $this->alias     = 't0';
+        list($this->tableName, $this->alias) = $this->getTableAndAlias($class);
         $this->columns   = [ 't0.*' ];
         $this->modifier  = [ 'DISTINCT' ];
-
-        $this->classMapping['byClass'][$class] = 't0';
-        $this->classMapping['byAlias']['t0']   = $class;
     }
 
     /** @return static
@@ -100,116 +92,22 @@ class EntityFetcher extends QueryBuilder
     protected function convertPlaceholders($expression, $args, $translateCols = true)
     {
         if ($translateCols) {
-            $expression = preg_replace_callback(
-                '/(?<b>^| |\()' .
-                '((?<class>[A-Za-z_][A-Za-z0-9_\\\\]*)::|(?<alias>[A-Za-z_][A-Za-z0-9_]+)\.)?' .
-                '(?<column>[A-Za-z_][A-Za-z0-9_]*)' .
-                '(?<a>$| |,|\))/',
-                function ($match) {
-                    if ($match['class']) {
-                        if (!isset($this->classMapping['byClass'][$match['class']])) {
-                            throw new NotJoined("Class " . $match['class'] . " not joined");
-                        }
-                        $class = $match['class'];
-                        $alias = $this->classMapping['byClass'][$match['class']];
-                    } elseif ($match['alias']) {
-                        if (!isset($this->classMapping['byAlias'][$match['alias']])) {
-                            return $match[0];
-                        }
-                        $alias = $match['alias'];
-                        $class = $this->classMapping['byAlias'][$match['alias']];
-                    } else {
-                        if ($match['column'] === strtoupper($match['column'])) {
-                            return $match['b'] . $match['column'] . $match['a'];
-                        }
-                        $class = $this->class;
-                        $alias = $this->alias;
-                    }
-
-                    /** @var Entity|string $class */
-                    return $match['b'] . $this->entityManager->escapeIdentifier(
-                        $alias . '.' . $class::getColumnName($match['column'])
-                    ) . $match['a'];
-                },
-                $expression
-            );
+            $expression = $this->translateColumn($expression);
         }
 
         return parent::convertPlaceholders($expression, $args);
     }
 
     /**
-     * Common implementation for *Join methods
-     *
-     * Additionally this method replaces class name with table name and forces an alias.
-     *
-     * @param string $join The join type (e. g. `LEFT JOIN`)
-     * @param string $class Class to join
-     * @param string|boolean $expression Expression, single column name or boolean to create an empty join
-     * @param string $alias Alias for the table
-     * @param array $args Arguments for expression
-     * @return EntityFetcher|ParenthesisInterface
+     * {@inheritdoc}
      * @internal
      */
-    protected function createJoin($join, $class, $expression = '', $alias = '', $args = [])
+    public function buildWhereInExpression($column, array $values, $inverse = false)
     {
-        if (class_exists($class)) {
-            /** @var Entity|string $class */
-            $tableName = $this->entityManager->escapeIdentifier($class::getTableName());
-            $alias     = $alias ?: 't' . count($this->classMapping['byAlias']);
-
-            $this->classMapping['byClass'][$class] = $alias;
-            $this->classMapping['byAlias'][$alias] = $class;
-        } else {
-            $tableName = $class;
-        }
-
-        return parent::createJoin($join, $tableName, $expression, $alias, $args);
+        $column = is_array($column) ? array_map([$this, 'translateColumn'], $column) :
+            $this->translateColumn($column);
+        return parent::buildWhereInExpression($column, $values, $inverse);
     }
-
-    /**
-     * Create the join with $join type
-     *
-     * @param $join
-     * @param $relation
-     * @return $this
-     */
-    public function createRelatedJoin($join, $relation)
-    {
-        if (strpos($relation, '.') !== false) {
-            list($alias, $relation) = explode('.', $relation);
-            $class = $this->classMapping['byAlias'][$alias];
-        } else {
-            $class = $this->class;
-            $alias = $this->alias;
-        }
-
-        call_user_func([ $class, 'getRelation' ], $relation)->addJoin($this, $join, $alias);
-        return $this;
-    }
-
-    /**
-     * Join $relation
-     *
-     * @param $relation
-     * @return $this
-     */
-    public function joinRelated($relation)
-    {
-        return $this->createRelatedJoin('join', $relation);
-    }
-
-    /**
-     * Left outer join $relation
-     *
-     * @param $relation
-     * @return $this
-     */
-    public function leftJoinRelated($relation)
-    {
-        return $this->createRelatedJoin('leftJoin', $relation);
-    }
-
 
     /**
      * Fetch one entity
@@ -231,9 +129,9 @@ class EntityFetcher extends QueryBuilder
             return null;
         }
 
-        $class         = $this->class;
+        $class = $this->class;
         $newEntity = new $class($data, $this->entityManager, true);
-        $entity    = $this->entityManager->map($newEntity);
+        $entity = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
             $dirty = $entity->isDirty();

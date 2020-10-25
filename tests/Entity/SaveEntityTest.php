@@ -6,10 +6,8 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
-use ORM\Exception\NoEntityManager;
 use ORM\Test\Entity\Examples\GeneratesUuid;
 use ORM\Test\Entity\Examples\Psr0_StudlyCaps;
-use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
 

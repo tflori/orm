@@ -10,9 +10,7 @@ namespace ORM\QueryBuilder;
  */
 class Parenthesis implements ParenthesisInterface
 {
-    /** Where conditions get concatenated with space
-     * @var string[] */
-    protected $where = [];
+    use HasWhereConditions;
 
     /** Callback to close the parenthesis
      * @var callable */
@@ -38,15 +36,14 @@ class Parenthesis implements ParenthesisInterface
         $this->parent  = $parent;
     }
 
+    /** {@inheritdoc} */
+    public function parenthesis()
+    {
+        return $this->andParenthesis();
+    }
+
     /**
-     * Create the where condition
-     *
-     * Calls createWhereCondition() from parent if there is a parent.
-     *
-     * @param string $column   Column or expression with placeholders
-     * @param string $operator Operator, value or array of values
-     * @param string $value    Value (required when used with operator)
-     * @return string
+     * {@inheritdoc}
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
@@ -54,32 +51,13 @@ class Parenthesis implements ParenthesisInterface
         return $this->parent->createWhereCondition($column, $operator, $value);
     }
 
-    /** {@inheritdoc} */
-    public function where($column, $operator = null, $value = null)
+    /**
+     * {@inheritdoc}
+     * @internal
+     */
+    public function buildWhereInExpression($column, array $values, $inverse = false)
     {
-        return $this->andWhere($column, $operator, $value);
-    }
-
-    /** {@inheritdoc} */
-    public function andWhere($column, $operator = null, $value = null)
-    {
-        $this->where[] = (!empty($this->where) ? 'AND ' : '') . $this->createWhereCondition($column, $operator, $value);
-
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function orWhere($column, $operator = null, $value = null)
-    {
-        $this->where[] = (!empty($this->where) ? 'OR ' : '') . $this->createWhereCondition($column, $operator, $value);
-
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function parenthesis()
-    {
-        return $this->andParenthesis();
+        return $this->parent->buildWhereInExpression($column, $values, $inverse);
     }
 
     /** {@inheritdoc} */
@@ -87,7 +65,7 @@ class Parenthesis implements ParenthesisInterface
     {
         return new Parenthesis(
             function (ParenthesisInterface $parenthesis) {
-                $this->where[] = (!empty($this->where) ? 'AND ' : '') . $parenthesis->getExpression();
+                $this->where[] = $this->wherePrefix('AND') . $parenthesis->getExpression();
 
                 return $this;
             },
@@ -100,7 +78,7 @@ class Parenthesis implements ParenthesisInterface
     {
         return new Parenthesis(
             function (ParenthesisInterface $parenthesis) {
-                $this->where[] = (!empty($this->where) ? 'OR ' : '') . $parenthesis->getExpression();
+                $this->where[] = $this->wherePrefix('OR') . $parenthesis->getExpression();
 
                 return $this;
             },

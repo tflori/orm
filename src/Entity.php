@@ -81,6 +81,10 @@ abstract class Entity implements Serializable
      * @var mixed[] */
     protected $originalData = [];
 
+    /** Whether the entity exists in database
+     * @var bool */
+    protected $exists = false;
+
     /** The entity manager from which this entity got created
      * @var EM */
     protected $entityManager;
@@ -99,6 +103,7 @@ abstract class Entity implements Serializable
         $this->data          = array_merge($this->data, $data);
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
         if ($fromDatabase) {
+            $this->exists = true;
             $this->originalData = $data;
             $this->entityManager->fire(new Fetched($this, $data));
         }
@@ -159,7 +164,7 @@ abstract class Entity implements Serializable
      */
     public static function getPrimaryKeyVars()
     {
-        return !is_array(static::$primaryKey) ? [ static::$primaryKey ] : static::$primaryKey;
+        return (array)static::$primaryKey;
     }
 
     /**
@@ -381,6 +386,16 @@ abstract class Entity implements Serializable
     }
 
     /**
+     * Returns whether or not the entity exists in database
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        return $this->exists;
+    }
+
+    /**
      * Insert the row in the database
      *
      * @param bool $hasPrimaryKey
@@ -399,6 +414,7 @@ abstract class Entity implements Serializable
         if ($this->entityManager->fire(new Inserting($this)) !== false) {
             $this->prePersist();
             if ($this->entityManager->insert($this, !$hasPrimaryKey)) {
+                $this->exists = true;
                 $this->entityManager->fire($event = new Inserted($this));
                 $this->postPersist();
                 return $event;
@@ -542,6 +558,7 @@ abstract class Entity implements Serializable
      */
     public function setOriginalData(array $data)
     {
+        $this->exists = true;
         $this->originalData = $data;
     }
 
@@ -590,7 +607,7 @@ abstract class Entity implements Serializable
      */
     public function serialize()
     {
-        return serialize([ $this->data, $this->relatedObjects ]);
+        return serialize([ $this->data, $this->relatedObjects, $this->exists ]);
     }
 
     /**
@@ -601,7 +618,7 @@ abstract class Entity implements Serializable
      */
     public function unserialize($serialized)
     {
-        list($this->data, $this->relatedObjects) = unserialize($serialized);
+        list($this->data, $this->relatedObjects, $this->exists) = unserialize($serialized);
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
     }

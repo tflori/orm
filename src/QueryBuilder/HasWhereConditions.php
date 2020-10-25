@@ -2,14 +2,12 @@
 
 namespace ORM\QueryBuilder;
 
-/**
- * Interface ParenthesisInterface
- *
- * @package ORM
- * @author  Thomas Flori <thflori@gmail.com>
- */
-interface ParenthesisInterface
+trait HasWhereConditions
 {
+    /** Where conditions get concatenated with space
+     * @var string[] */
+    protected $where = [];
+
     /**
      * Alias for andWhere
      *
@@ -35,7 +33,10 @@ interface ParenthesisInterface
      * @param mixed $value    Value (required when used with operator)
      * @return static
      */
-    public function where($column, $operator = '', $value = '');
+    public function where($column, $operator = null, $value = null)
+    {
+        return $this->andWhere($column, $operator, $value);
+    }
 
     /**
      * Add a where condition with AND.
@@ -61,7 +62,11 @@ interface ParenthesisInterface
      * @param string       $value    Value (required when used with operator)
      * @return static
      */
-    public function andWhere($column, $operator = '', $value = '');
+    public function andWhere($column, $operator = null, $value = null)
+    {
+        $this->where[] = $this->wherePrefix('AND') . $this->createWhereCondition($column, $operator, $value);
+        return $this;
+    }
 
     /**
      * Add a where condition with OR.
@@ -87,7 +92,11 @@ interface ParenthesisInterface
      * @param string       $value    Value (required when used with operator)
      * @return static
      */
-    public function orWhere($column, $operator = '', $value = '');
+    public function orWhere($column, $operator = null, $value = null)
+    {
+        $this->where[] = $this->wherePrefix('OR') . $this->createWhereCondition($column, $operator, $value);
+        return $this;
+    }
 
     /**
      * Add a where in condition with AND.
@@ -103,7 +112,11 @@ interface ParenthesisInterface
      * @param array $values
      * @return static
      */
-    public function whereIn($column, array $values);
+    public function whereIn($column, array $values)
+    {
+        $this->where[] = $this->wherePrefix('AND') . $this->buildWhereInExpression($column, $values);
+        return $this;
+    }
 
     /**
      * Add a where in condition with OR.
@@ -119,7 +132,11 @@ interface ParenthesisInterface
      * @param array $values
      * @return static
      */
-    public function orWhereIn($column, array $values);
+    public function orWhereIn($column, array $values)
+    {
+        $this->where[] = $this->wherePrefix('OR') . $this->buildWhereInExpression($column, $values);
+        return $this;
+    }
 
     /**
      * Add a where not in condition with AND.
@@ -135,7 +152,11 @@ interface ParenthesisInterface
      * @param array $values
      * @return static
      */
-    public function whereNotIn($column, array $values);
+    public function whereNotIn($column, array $values)
+    {
+        $this->where[] = $this->wherePrefix('AND') . $this->buildWhereInExpression($column, $values, true);
+        return $this;
+    }
 
     /**
      * Add a where not in condition with OR.
@@ -151,69 +172,20 @@ interface ParenthesisInterface
      * @param array $values
      * @return static
      */
-    public function orWhereNotIn($column, array $values);
+    public function orWhereNotIn($column, array $values)
+    {
+        $this->where[] = $this->wherePrefix('OR') . $this->buildWhereInExpression($column, $values, true);
+        return $this;
+    }
 
     /**
-     * Alias for andParenthesis
+     * Get the prefix for a where condition or empty if not needed
      *
-     * @see ParenthesisInterface::andWhere()
-     * @return static
-     */
-    public function parenthesis();
-
-    /**
-     * Add a parenthesis with AND
-     *
-     * @return static
-     */
-    public function andParenthesis();
-
-    /**
-     * Add a parenthesis with OR
-     *
-     * @return static
-     */
-    public function orParenthesis();
-
-    /**
-     * Close parenthesis
-     *
-     * @return QueryBuilderInterface|ParenthesisInterface
-     */
-    public function close();
-
-    /**
-     * Get the expression
-     *
-     * Returns the complete expression inside this parenthesis.
-     *
+     * @param string $bool The prefix to use ('AND' or 'OR')
      * @return string
      */
-    public function getExpression();
-
-    /**
-     * Create the where condition
-     *
-     * Calls createWhereCondition() from parent if there is a parent.
-     *
-     * @param string $column   Column or expression with placeholders
-     * @param string $operator Operator, value or array of values
-     * @param string $value    Value (required when used with operator)
-     * @return string
-     * @internal
-     */
-    public function createWhereCondition($column, $operator = null, $value = null);
-
-    /**
-     * Build a where in expression
-     *
-     * Calls buildWhereInExpression() from parent if there is a parent.
-     *
-     * @param string|array $column Column or expression with placeholders
-     * @param array $values Value (required when used with operator)
-     * @param bool $inverse
-     * @return string
-     * @internal
-     */
-    public function buildWhereInExpression($column, array $values, $inverse = false);
+    private function wherePrefix($bool)
+    {
+        return !empty($this->where) ? $bool . ' ' : '';
+    }
 }

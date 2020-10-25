@@ -71,36 +71,6 @@ class ManyToMany extends Relation
         return $fetcher;
     }
 
-    /** {@inheritdoc} */
-    public function fetchAll(Entity $self, EntityManager $entityManager)
-    {
-        $foreignKey = $this->getForeignKey($self, $this->reference);
-        $table      = $entityManager->escapeIdentifier($this->table);
-
-        $query = new QueryBuilder($table, '', $entityManager);
-
-        foreach ($this->getOpponent()->getReference() as $t0Var => $fkCol) {
-            $query->column($entityManager->escapeIdentifier($fkCol));
-        }
-
-        foreach ($foreignKey as $col => $value) {
-            $query->where($entityManager->escapeIdentifier($col), $value);
-        }
-
-        $result      = $entityManager->getConnection()->query($query->getQuery());
-        $primaryKeys = $result->fetchAll(PDO::FETCH_NUM);
-
-        /** @var Entity[] $result */
-        $result = [];
-        foreach ($primaryKeys as $primaryKey) {
-            if ($self = $entityManager->fetch($this->class, $primaryKey)) {
-                $result[] = $self;
-            }
-        }
-
-        return $result;
-    }
-
     /** {@inheritdoc}
      * @throws IncompletePrimaryKey
      * @throws InvalidRelation

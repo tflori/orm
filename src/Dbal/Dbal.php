@@ -8,6 +8,7 @@ use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
+use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 
 /**
@@ -23,7 +24,7 @@ abstract class Dbal
     /** @var array */
     protected static $typeMapping = [];
 
-    protected static $compositeWhereInTemplate = '(%s) IN (VALUES %s)';
+    protected static $compositeWhereInTemplate = '(%s) %s (VALUES %s)';
 
     /** @var EntityManager */
     protected $entityManager;
@@ -318,14 +319,14 @@ abstract class Dbal
         $vars = $entity::getPrimaryKeyVars();
         $cols = array_map([$entity, 'getColumnName'], $vars);
         $primary = array_combine($vars, $cols);
+        $cols = array_map([$this, 'escapeIdentifier'], $cols);
 
-        $query = "SELECT * FROM " . $this->escapeIdentifier($entity::getTableName()) . " WHERE ";
-        $query .= count($cols) > 1 ? $this->buildCompositeWhereInStatement($cols, $entities) :
-            $this->escapeIdentifier($cols[0]) . ' IN (' . implode(',', array_map(function (Entity $entity) {
-                return $this->escapeValue(array_values($entity->getPrimaryKey())[0]);
-            }, $entities)) . ')';
+        $query = new QueryBuilder($this->escapeIdentifier($entity::getTableName()), '', $this->entityManager);
+        $query->whereIn($cols, array_map(function (Entity $entity) {
+            return $entity->getPrimaryKey();
+        }, $entities));
 
-        $statement = $this->entityManager->getConnection()->query($query);
+        $statement = $this->entityManager->getConnection()->query($query->getQuery());
         $left = $entities;
         while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
             foreach ($left as $k => $entity) {
@@ -345,22 +346,22 @@ abstract class Dbal
     }
 
     /**
-     * Build a where in statement for composite primary keys
+     * Build a where in statement for composite keys
      *
      * @param array $cols
-     * @param array $entities
+     * @param array $keys
+     * @param bool $inverse Whether it should be a IN or NOT IN operator
      * @return string
      */
-    protected function buildCompositeWhereInStatement(array $cols, array $entities)
+    public function buildCompositeWhereInStatement(array $cols, array $keys, $inverse = false)
     {
-        $primaryKeys = [];
-        foreach ($entities as $entity) {
-            $pKey = array_map([$this, 'escapeValue'], $entity->getPrimaryKey());
-            $primaryKeys[] = count($cols) > 1 ? '(' . implode(',', $pKey) . ')' : reset($pKey);
-        }
+        $primaryKeys = array_map(function ($key) {
+            return '(' . implode(',', array_map([$this, 'escapeValue'], $key)) . ')';
+        }, $keys);
 
         return vsprintf(static::$compositeWhereInTemplate, [
-                implode(',', array_map([$this, 'escapeIdentifier'], $cols)),
+                implode(',', $cols),
+                $inverse ? 'NOT IN' : 'IN',
                 implode(',', $primaryKeys)
         ]);
     }

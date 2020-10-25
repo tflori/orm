@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Entity;
 
+use Mockery as m;
 use Mockery\Mock;
 use ORM\Dbal\Column;
 use ORM\Dbal\Error\NoString;
@@ -112,7 +113,7 @@ class DataTest extends TestCase
     public function callsGetRelatedWhenThereIsARelationButNoValue()
     {
         /** @var Entity|Mock $entity */
-        $entity = \Mockery::mock(RelationExample::class)->makePartial();
+        $entity = m::mock(RelationExample::class)->makePartial();
         $entity->setEntityManager($this->em);
         $related = [new StudlyCaps(), new StudlyCaps()];
         $entity->shouldReceive('getRelated')->with('studlyCaps')->once()->andReturn($related);
@@ -322,7 +323,7 @@ class DataTest extends TestCase
     /** @test */
     public function onInitGetCalled()
     {
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = m::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('onInit')->once()->with(true);
 
         $mock->__construct();
@@ -331,7 +332,7 @@ class DataTest extends TestCase
     /** @test */
     public function onInitFromDatabase()
     {
-        $mock = \Mockery::mock(StudlyCaps::class)->makePartial();
+        $mock = m::mock(StudlyCaps::class)->makePartial();
         $mock->shouldReceive('onInit')->once()->with(false);
 
         $mock->__construct([
@@ -340,23 +341,22 @@ class DataTest extends TestCase
         ], $this->em, true);
     }
 
-    private $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":' .
-                          '46:{a:2:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}}}';
-
     /** @test */
     public function serialization()
     {
-        $entity = new StudlyCaps(['foo' => 'bar'], $this->em);
+        $entity = new StudlyCaps(['foo' => 'bar'], $this->em, true);
 
-        $serialized = serialize($entity);
+        $serialized = $entity->serialize();
 
-        self::assertSame($this->serialized, $serialized);
+        self::assertSame(serialize([['foo' => 'bar'], [], true]), $serialized);
     }
 
     /** @test */
     public function deserialization()
     {
-        $entity = unserialize($this->serialized);
+        $serialized = serialize(new StudlyCaps(['foo' => 'bar']));
+
+        $entity = unserialize($serialized);
 
         self::assertInstanceOf(StudlyCaps::class, $entity);
         self::assertSame('bar', $entity->foo);
@@ -365,11 +365,12 @@ class DataTest extends TestCase
     /** @test */
     public function unserializeCallsOnInit()
     {
-        $entity = \Mockery::mock(StudlyCaps::class)->makePartial();
+        /** @var Entity|m\MockInterface $entity */
+        $entity = m::mock(StudlyCaps::class)->makePartial();
 
         $entity->shouldReceive('onInit')->with(false)->once();
 
-        $entity->unserialize(serialize([['foo' => 'bar'],[]]));
+        $entity->unserialize(serialize([['foo' => 'bar'], [], true]));
     }
 
     /** @test */
@@ -386,7 +387,7 @@ class DataTest extends TestCase
     {
         StudlyCaps::enableValidator();
 
-        $table = \Mockery::mock(Table::class);
+        $table = m::mock(Table::class);
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->once()->andReturn($table);
         $table->shouldReceive('validate')->with('title', 'Hello World!')->once()->andReturn(true);
 
@@ -398,7 +399,7 @@ class DataTest extends TestCase
     public function setThrowsForUnknownColumns()
     {
         StudlyCaps::enableValidator();
-        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $table = m::mock(Table::class, [[]])->makePartial();
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
 
         self::expectException(Exception::class);
@@ -412,7 +413,7 @@ class DataTest extends TestCase
     public function setThrowsForInvalidValues()
     {
         StudlyCaps::enableValidator();
-        $table = \Mockery::mock(Table::class, [[]])->makePartial();
+        $table = m::mock(Table::class, [[]])->makePartial();
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
         $table->shouldReceive('validate')->with('title', 42)->andReturn(new NotValid(
             new Column($this->dbal, ['column_name' => 'title']),
@@ -431,7 +432,7 @@ class DataTest extends TestCase
     {
         StudlyCaps::enableValidator();
 
-        $table = \Mockery::mock(Table::class);
+        $table = m::mock(Table::class);
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
         $table->shouldReceive('validate')->with('field_a', 'valueA')->once()->andReturn(true);
         $table->shouldReceive('validate')->with('field_b', 'valueB')->once()->andReturn(true);
@@ -448,7 +449,7 @@ class DataTest extends TestCase
     {
         StudlyCaps::enableValidator();
 
-        $table = \Mockery::mock(Table::class);
+        $table = m::mock(Table::class);
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
         $table->shouldReceive('validate')->twice()->andThrow(UnknownColumn::class, 'unknown column');
 
@@ -464,7 +465,7 @@ class DataTest extends TestCase
     {
         StudlyCaps::enableValidator();
 
-        $table = \Mockery::mock(Table::class);
+        $table = m::mock(Table::class);
         $this->mocks['em']->shouldReceive('describe')->with('studly_caps')->andReturn($table);
         $table->shouldReceive('validate')->once()->andThrow(UnknownColumn::class, 'Unknown column field_a');
 
@@ -483,7 +484,7 @@ class DataTest extends TestCase
     {
         StudlyCaps::enableValidator();
 
-        $table = \Mockery::mock(Table::class, [[
+        $table = m::mock(Table::class, [[
             // id is auto increment
             new Column($this->dbal, [
                 'column_name' => 'id',

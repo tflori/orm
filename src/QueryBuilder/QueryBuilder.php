@@ -24,6 +24,8 @@ use ORM\EntityManager;
  */
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
+    use MakesJoins;
+
     /** The table to query
      * @var string */
     protected $tableName = '';
@@ -35,10 +37,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     /** Columns to fetch (null is equal to ['*'])
      * @var array|null */
     protected $columns = null;
-
-    /** Joins get concatenated with space
-     * @var string[] */
-    protected $joins = [];
 
     /** Limit amount of rows
      * @var int */
@@ -129,12 +127,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * Common implementation for creating a where condition
-     *
-     * @param string $column   Column or expression with placeholders
-     * @param string $operator Operator or value if operator is omited
-     * @param string $value    Value or array of values
-     * @return string
+     * {@inheritdoc}
      * @internal
      */
     public function createWhereCondition($column, $operator = null, $value = null)
@@ -149,25 +142,60 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 $value    = $operator;
                 $operator = null;
             }
+            $operator = $operator ?: $this->getDefaultOperator($value);
 
-            $expression = $this->buildExpression($column, $value, $operator);
+            if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ])) {
+                return $this->buildWhereInExpression($column, $value, strtoupper($operator) === 'NOT IN');
+            }
+
+            $expression = $column . ' ' . $operator . ' ?';
         }
 
         return $this->convertPlaceholders($expression, $value);
     }
 
-    private function buildExpression($column, $value, $operator = null)
+    /**
+     * {@inheritdoc}
+     * @internal
+     */
+    public function buildWhereInExpression($column, array $values, $inverse = false)
     {
-        $operator   = $operator ?: $this->getDefaultOperator($value);
-        $expression = $column . ' ' . $operator;
-
-        if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ]) && is_array($value)) {
-            $expression .= ' (?' . str_repeat(',?', count($value) - 1) . ')';
+        $em = $this->getEntityManager();
+        if (empty($values)) {
+            // nothing is in empty but everything is not in empty
+            return $inverse ? '1 = 1' : '1 = 0';
+        } elseif (is_array($column) && count($column) > 1) {
+            return $em->getDbal()
+                ->buildCompositeWhereInStatement($column, $values, $inverse);
         } else {
-            $expression .= ' ?';
-        }
+            if (is_array($column)) {
+                $column = $this->first($column);
+                $values = array_map([$this, 'first'], $values);
+            }
 
-        return $expression;
+            return vsprintf('%s %s %s', [
+                $column,
+                $inverse ? 'NOT IN' : 'IN',
+                '(' . implode(',', array_map([$em, 'escapeValue'], $values)) . ')'
+            ]);
+        }
+    }
+
+    /**
+     * Get the first item of an array
+     *
+     * Stupid helper for a missing functionality in php
+     *
+     * @param iterable $array
+     * @return mixed|null
+     * @codeCoverageIgnore trivial
+     */
+    private function first($array)
+    {
+        foreach ($array as $item) {
+            return $item;
+        }
+        return null;
     }
 
     private function getDefaultOperator($value)
@@ -208,73 +236,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     public function close()
     {
         return $this;
-    }
-
-    /**
-     * Common implementation for *Join methods
-     *
-     * @param string $join The join type (e. g. `LEFT JOIN`)
-     * @param string $tableName Table name to join
-     * @param string|boolean $expression Expression, single column name or boolean to create an empty join
-     * @param string $alias Alias for the table
-     * @param array $args Arguments for expression
-     * @return ParenthesisInterface|QueryBuilder
-     * @internal
-     */
-    protected function createJoin($join, $tableName, $expression = '', $alias = '', $args = [])
-    {
-        $empty      = is_bool($expression) ? $expression : false;
-        $expression = is_string($expression) ? $expression : '';
-
-        $join = $join . ' ' . $tableName
-                . ($alias ? ' AS ' . $alias : '');
-
-        if (preg_match('/^[A-Za-z_]+$/', $expression)) {
-            $join          .= ' USING (' . $expression . ')';
-            $this->joins[] = $join;
-        } elseif ($expression) {
-            $expression = $this->convertPlaceholders($expression, $args);
-
-            $join          .= ' ON ' . $expression;
-            $this->joins[] = $join;
-        } elseif ($empty) {
-            $this->joins[] = $join;
-        } else {
-            return new Parenthesis(
-                function (ParenthesisInterface $parenthesis) use ($join) {
-                    $join          .= ' ON ' . $parenthesis->getExpression();
-                    $this->joins[] = $join;
-                    return $this;
-                },
-                $this
-            );
-        }
-
-        return $this;
-    }
-
-    /** {@inheritdoc} */
-    public function join($tableName, $expression = '', $alias = '', $args = [])
-    {
-        return $this->createJoin('JOIN', $tableName, $expression, $alias, $args);
-    }
-
-    /** {@inheritdoc} */
-    public function leftJoin($tableName, $expression = '', $alias = '', $args = [])
-    {
-        return $this->createJoin('LEFT JOIN', $tableName, $expression, $alias, $args);
-    }
-
-    /** {@inheritdoc} */
-    public function rightJoin($tableName, $expression = '', $alias = '', $args = [])
-    {
-        return $this->createJoin('RIGHT JOIN', $tableName, $expression, $alias, $args);
-    }
-
-    /** {@inheritdoc} */
-    public function fullJoin($tableName, $expression = '', $alias = '', $args = [])
-    {
-        return $this->createJoin('FULL JOIN', $tableName, $expression, $alias, $args);
     }
 
     /** {@inheritdoc} */

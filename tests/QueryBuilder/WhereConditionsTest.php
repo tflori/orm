@@ -16,7 +16,7 @@ class WhereConditionsTest extends TestCase
             [['name', 'LIKE', '% Doe'], 'name LIKE \'% Doe\''],
             [['name', ['John Doe', 'Jane Doe']], 'name IN (\'John Doe\',\'Jane Doe\')'],
             [['name', ['John Doe']], 'name IN (\'John Doe\')'],
-            [['name', 'not in', ['John Doe']], 'name not in (\'John Doe\')'],
+            [['name', 'not in', ['John Doe']], 'name NOT IN (\'John Doe\')'],
             [['firstname = lastname'], 'firstname = lastname'],
             [
                 ['MATCH(name) AGAINST (? IN NATURAL LANGUAGE MODE)', 'doe'],
@@ -43,7 +43,8 @@ class WhereConditionsTest extends TestCase
     {
         $query = new QueryBuilder('foobar');
         $query->where('a = b');
-        $result = call_user_func_array([$query, 'andWhere'], $params);
+
+        $result = $query->andWhere(...$params);
 
         self::assertSame('SELECT * FROM foobar WHERE a = b AND ' . $expected, $query->getQuery());
         self::assertSame($query, $result);
@@ -196,5 +197,118 @@ class WhereConditionsTest extends TestCase
         $query->where('a', null, '');
 
         self::assertSame('SELECT * FROM foobar WHERE a = \'\'', $query->getQuery());
+    }
+
+    /** @test */
+    public function inEmptyArrayNeverMatches()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereIn('a', []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 0', $query->getQuery());
+    }
+
+    /** @test */
+    public function notInEmptyArrayAlwaysMatches()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereNotIn('a', []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 1', $query->getQuery());
+    }
+
+    /** @test */
+    public function inEmptyForMultipleColumns()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereIn(['a', 'b'], []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 0', $query->getQuery());
+    }
+
+    /** @test */
+    public function notInEmptyForMultipleColumns()
+    {
+        $query = new QueryBuilder('foobar');
+
+        $query->whereNotIn(['a', 'b'], []);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 = 1', $query->getQuery());
+    }
+
+    /** @test */
+    public function compositeWhereInStatementUsesDbal()
+    {
+        $query = new QueryBuilder('foobar');
+        $cols = ['a', 'b'];
+        $values = [[42, 23], [23, 42]];
+
+        $this->dbal->shouldReceive('buildCompositeWhereInStatement')
+            ->with($cols, $values, false)->once()->passthru();
+
+        $query->whereIn($cols, $values);
+
+        self::assertSame('SELECT * FROM foobar WHERE (a,b) IN ((42,23),(23,42))', $query->getQuery());
+    }
+
+    /** @test */
+    public function compositeWhereNotInStatementUsesDbal()
+    {
+        $query = new QueryBuilder('foobar');
+        $cols = ['a', 'b'];
+        $values = [[42, 23], [23, 42]];
+
+        $this->dbal->shouldReceive('buildCompositeWhereInStatement')
+            ->with($cols, $values, true)->once()->passthru();
+
+        $query->whereNotIn($cols, $values);
+
+        self::assertSame('SELECT * FROM foobar WHERE (a,b) NOT IN ((42,23),(23,42))', $query->getQuery());
+    }
+
+    /** @dataProvider provideWhereInTests
+     * @param $method
+     * @param $args
+     * @param $expected
+     * @test */
+    public function whereInTests($method, $args, $expected)
+    {
+        $query = new QueryBuilder('foobar');
+        $query->where('1');
+
+        $query->$method(...$args);
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 ' . $expected, $query->getQuery());
+    }
+
+    public function provideWhereInTests()
+    {
+        return [
+            ['whereIn', ['a', [1, 2]], 'AND a IN (1,2)'],
+            ['whereNotIn', ['a', [1, 2]], 'AND a NOT IN (1,2)'],
+            ['orWhereIn', ['a', [1, 2]], 'OR a IN (1,2)'],
+            ['orWhereNotIn', ['a', [1, 2]], 'OR a NOT IN (1,2)'],
+        ];
+    }
+
+    /** @dataProvider provideWhereInTests
+     * @param $method
+     * @param $args
+     * @param $expected
+     * @test */
+    public function whereInInParenthesisTests($method, $args, $expected)
+    {
+        $query = new QueryBuilder('foobar');
+        $query->where('1');
+
+        $parenthesis = $query->andParenthesis();
+        $parenthesis->where(1);
+        $parenthesis->$method(...$args);
+        $parenthesis->close();
+
+        self::assertSame('SELECT * FROM foobar WHERE 1 AND (1 ' . $expected . ')', $query->getQuery());
     }
 }
