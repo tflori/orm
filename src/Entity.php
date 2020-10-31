@@ -132,8 +132,8 @@ abstract class Entity implements Serializable
      *
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
-     * @param ?AbstractObserver $observer
-     * @return ?CallbackObserver
+     * @param AbstractObserver|null $observer
+     * @return CallbackObserver|null
      * @codeCoverageIgnore proxy for EntityManager::observe()
      *@see EntityManager::observe()
      */

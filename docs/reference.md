@@ -2770,8 +2770,8 @@ public static function isValidatorEnabled(): boolean
 
 ```php
 public static function observeBy(
-    ORM\?AbstractObserver $observer = null
-): ORM\?CallbackObserver
+    $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe the class using $observer
@@ -2788,14 +2788,14 @@ For more information about model events please consult the [documentation](https
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$observer` | **?AbstractObserver**  |  |
+| `$observer` | **Observer\AbstractObserver &#124; null**  |  |
 
 
 
@@ -5779,9 +5779,7 @@ public function describe(
 #### ORM\EntityManager::detach
 
 ```php
-public function detach(
-    ORM\ObserverInterface $observer, ORM\?string $from = null
-): boolean
+public function detach( ORM\ObserverInterface $observer, $from = null ): boolean
 ```
 
 ##### Detach $observer from all classes
@@ -5801,7 +5799,7 @@ Returns whether or not an observer got detached.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$observer` | **ObserverInterface**  |  |
-| `$from` | **?string**  |  |
+| `$from` | **string &#124; null**  |  |
 
 
 
@@ -6136,8 +6134,8 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, ORM\?ObserverInterface $observer = null
-): ORM\?CallbackObserver
+    string $class, $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe $class using $observer
@@ -6153,7 +6151,7 @@ For more information about model events please consult the [documentation](https
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
@@ -6161,7 +6159,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **?ObserverInterface**  |  |
+| `$observer` | **ObserverInterface &#124; null**  |  |
 
 
 
@@ -6575,9 +6573,7 @@ public function describe(
 #### ORM\Testing\EntityManagerMock::detach
 
 ```php
-public function detach(
-    ORM\ObserverInterface $observer, ORM\?string $from = null
-): boolean
+public function detach( ORM\ObserverInterface $observer, $from = null ): boolean
 ```
 
 ##### Detach $observer from all classes
@@ -6597,7 +6593,7 @@ Returns whether or not an observer got detached.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$observer` | **\ORM\ObserverInterface**  |  |
-| `$from` | **\ORM\?string**  |  |
+| `$from` | **string &#124; null**  |  |
 
 
 
@@ -6956,8 +6952,8 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, ORM\?ObserverInterface $observer = null
-): ORM\?CallbackObserver
+    string $class, $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe $class using $observer
@@ -6973,7 +6969,7 @@ For more information about model events please consult the [documentation](https
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
@@ -6981,7 +6977,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **\ORM\?ObserverInterface**  |  |
+| `$observer` | **\ORM\ObserverInterface &#124; null**  |  |
 
 
 
