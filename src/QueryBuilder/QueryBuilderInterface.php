@@ -17,7 +17,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * Set $columns
      *
      * @param $columns
-     * @return static
+     * @return $this
      */
     public function columns(array $columns = null);
 
@@ -44,7 +44,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function join($tableName, $expression = '', $alias = '', $args = []);
 
@@ -59,7 +59,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function leftJoin($tableName, $expression = '', $alias = '', $args = []);
 
@@ -74,7 +74,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function rightJoin($tableName, $expression = '', $alias = '', $args = []);
 
@@ -90,7 +90,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function fullJoin($tableName, $expression = '', $alias = '', $args = []);
 
@@ -101,7 +101,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      *
      * @param string $column Column or expression for groups
      * @param array  $args   Arguments for expression
-     * @return static
+     * @return $this
      */
     public function groupBy($column, $args = []);
 
@@ -113,7 +113,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string $column    Column or expression for order
      * @param string $direction Direction (default: `ASC`)
      * @param array  $args      Arguments for expression
-     * @return static
+     * @return $this
      */
     public function orderBy($column, $direction = self::DIRECTION_ASCENDING, $args = []);
 
@@ -123,7 +123,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * Limits the amount of rows fetched from database.
      *
      * @param int $limit The limit to set
-     * @return static
+     * @return $this
      */
     public function limit($limit);
 
@@ -133,7 +133,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * Changes the offset (only with limit) where fetching starts in the query.
      *
      * @param int $offset The offset to set
-     * @return static
+     * @return $this
      */
     public function offset($offset);
 
@@ -143,7 +143,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
      *
      * @param string $modifier
-     * @return static
+     * @return $this
      */
     public function modifier($modifier);
 

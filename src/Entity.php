@@ -179,7 +179,7 @@ abstract class Entity implements Serializable
 
     /**
      * @param EM $entityManager
-     * @return static
+     * @return $this
      */
     public function setEntityManager(EM $entityManager)
     {
@@ -275,7 +275,7 @@ abstract class Entity implements Serializable
      *
      * @param string $attribute The variable to change
      * @param mixed $value The value to store
-     * @return static
+     * @return $this
      * @link https://tflori.github.io/orm/entities.html Working with entities
      * @throws Error
      */

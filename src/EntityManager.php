@@ -199,7 +199,7 @@ class EntityManager
      * Define $this EntityManager as the default EntityManager for $nameSpace
      *
      * @param $nameSpace
-     * @return static
+     * @return $this
      */
     public function defineForNamespace($nameSpace)
     {
@@ -211,7 +211,7 @@ class EntityManager
      * Define $this EntityManager as the default EntityManager for subClasses of $class
      *
      * @param $class
-     * @return static
+     * @return $this
      */
     public function defineForParent($class)
     {
@@ -224,7 +224,7 @@ class EntityManager
      *
      * @param string $option One of OPT_* constants
      * @param mixed $value
-     * @return static
+     * @return $this
      */
     public function setOption($option, $value)
     {

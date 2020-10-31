@@ -75,7 +75,7 @@ class Result extends EntityFetcher
      * Add a regular expression that has to match
      *
      * @param string $expression
-     * @return static
+     * @return $this
      * @codeCoverageIgnore trivial code
      */
     public function matches($expression)
@@ -88,7 +88,7 @@ class Result extends EntityFetcher
      * Add entities to the result
      *
      * @param Entity[] $entities
-     * @return static
+     * @return $this
      * @codeCoverageIgnore trivial code
      */
     public function addEntities(Entity ...$entities)

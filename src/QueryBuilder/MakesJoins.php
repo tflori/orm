@@ -58,7 +58,7 @@ trait MakesJoins
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function join($tableName, $expression = '', $alias = '', $args = [])
     {
@@ -78,7 +78,7 @@ trait MakesJoins
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function leftJoin($tableName, $expression = '', $alias = '', $args = [])
     {
@@ -98,7 +98,7 @@ trait MakesJoins
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function rightJoin($tableName, $expression = '', $alias = '', $args = [])
     {
@@ -119,7 +119,7 @@ trait MakesJoins
      * @param string|boolean $expression Expression, single column name or boolean to create an empty join
      * @param string         $alias      Alias for the table
      * @param array          $args       Arguments for expression
-     * @return static|ParenthesisInterface
+     * @return $this|ParenthesisInterface
      */
     public function fullJoin($tableName, $expression = '', $alias = '', $args = [])
     {

@@ -174,7 +174,7 @@ class EntityFetcher extends QueryBuilder
      *
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders
-     * @return static
+     * @return $this
      */
     public function setQuery($query, $args = null)
     {
@@ -186,21 +186,21 @@ class EntityFetcher extends QueryBuilder
         return $this;
     }
 
-    /** @return static
+    /** @return $this
      * @internal */
     public function columns(array $columns = null)
     {
         return $this;
     }
 
-    /** @return static
+    /** @return $this
      * @internal */
     public function column($column, $args = [], $alias = '')
     {
         return $this;
     }
 
-    /** @return static
+    /** @return $this
      * @internal */
     public function setFetchMode($mode, $classNameObject = null, array $ctorarfg = [])
     {

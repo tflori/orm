@@ -33,7 +33,7 @@ interface ParenthesisInterface
      * @param string $column   Column or expression with placeholders
      * @param mixed $operator Operator, value or array of values
      * @param mixed $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function where($column, $operator = '', $value = '');
 
@@ -59,7 +59,7 @@ interface ParenthesisInterface
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function andWhere($column, $operator = '', $value = '');
 
@@ -85,7 +85,7 @@ interface ParenthesisInterface
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function orWhere($column, $operator = '', $value = '');
 
@@ -101,7 +101,7 @@ interface ParenthesisInterface
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function whereIn($column, array $values);
 
@@ -117,7 +117,7 @@ interface ParenthesisInterface
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function orWhereIn($column, array $values);
 
@@ -133,7 +133,7 @@ interface ParenthesisInterface
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function whereNotIn($column, array $values);
 
@@ -149,7 +149,7 @@ interface ParenthesisInterface
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function orWhereNotIn($column, array $values);
 
@@ -157,21 +157,21 @@ interface ParenthesisInterface
      * Alias for andParenthesis
      *
      * @see ParenthesisInterface::andWhere()
-     * @return static
+     * @return $this
      */
     public function parenthesis();
 
     /**
      * Add a parenthesis with AND
      *
-     * @return static
+     * @return $this
      */
     public function andParenthesis();
 
     /**
      * Add a parenthesis with OR
      *
-     * @return static
+     * @return $this
      */
     public function orParenthesis();
 
