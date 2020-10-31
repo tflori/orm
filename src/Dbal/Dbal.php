@@ -49,7 +49,7 @@ abstract class Dbal
      *
      * @param string $option
      * @param mixed  $value
-     * @return static
+     * @return $this
      */
     public function setOption($option, $value)
     {

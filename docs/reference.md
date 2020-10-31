@@ -472,7 +472,7 @@ public function getLimit(): integer
 #### ORM\BulkInsert::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Limit the amount of entities inserted at once.
@@ -481,7 +481,7 @@ public function limit( integer $limit ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -495,7 +495,7 @@ public function limit( integer $limit ): static
 #### ORM\BulkInsert::noAutoIncrement
 
 ```php
-public function noAutoIncrement(): static
+public function noAutoIncrement(): $this
 ```
 
 ##### Disable updating the primary key by auto increment.
@@ -504,7 +504,7 @@ public function noAutoIncrement(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -512,7 +512,7 @@ public function noAutoIncrement(): static
 #### ORM\BulkInsert::noUpdates
 
 ```php
-public function noUpdates(): static
+public function noUpdates(): $this
 ```
 
 ##### Disable updating entities after insert
@@ -521,7 +521,7 @@ public function noUpdates(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -529,7 +529,7 @@ public function noUpdates(): static
 #### ORM\BulkInsert::onSync
 
 ```php
-public function onSync( callable $callback = null ): static
+public function onSync( callable $callback = null ): $this
 ```
 
 ##### Executes $callback after insert
@@ -538,7 +538,7 @@ Provides an array of the just inserted entities in first argument.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -552,7 +552,7 @@ Provides an array of the just inserted entities in first argument.
 #### ORM\BulkInsert::updateEntities
 
 ```php
-public function updateEntities(): static
+public function updateEntities(): $this
 ```
 
 ##### Enable updating entities after insert
@@ -562,7 +562,7 @@ by your db access layer (DBAL).
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -570,7 +570,7 @@ by your db access layer (DBAL).
 #### ORM\BulkInsert::useAutoincrement
 
 ```php
-public function useAutoincrement(): static
+public function useAutoincrement(): $this
 ```
 
 ##### Enable updating the primary keys from autoincrement
@@ -579,7 +579,7 @@ public function useAutoincrement(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -642,7 +642,7 @@ Return false to stop event execution.
 #### ORM\Observer\CallbackObserver::off
 
 ```php
-public function off( $event ): static
+public function off( $event ): $this
 ```
 
 ##### Remove all listeners for $event
@@ -651,7 +651,7 @@ public function off( $event ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -665,7 +665,7 @@ public function off( $event ): static
 #### ORM\Observer\CallbackObserver::on
 
 ```php
-public function on( $event, callable $listener ): static
+public function on( $event, callable $listener ): $this
 ```
 
 ##### Register a new $listener for $event
@@ -674,7 +674,7 @@ public function on( $event, callable $listener ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -1707,7 +1707,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Dbal::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -1716,7 +1716,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3015,7 +3015,7 @@ public function serialize(): string
 #### ORM\Entity::setAttribute
 
 ```php
-public function setAttribute( string $attribute, $value ): static
+public function setAttribute( string $attribute, $value ): $this
 ```
 
 ##### Set $attribute to $value
@@ -3030,7 +3030,7 @@ The method throws an error when the validation fails (also when the column does 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />**Throws:** this method may throw **\ORM\Dbal\Error**<br />
 
 ##### Parameters
@@ -3049,7 +3049,7 @@ The method throws an error when the validation fails (also when the column does 
 #### ORM\Entity::setEntityManager
 
 ```php
-public function setEntityManager( ORM\EntityManager $entityManager ): static
+public function setEntityManager( ORM\EntityManager $entityManager ): $this
 ```
 
 
@@ -3057,7 +3057,7 @@ public function setEntityManager( ORM\EntityManager $entityManager ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3450,7 +3450,7 @@ When no $limit is set it fetches all entities in result set.
 #### ORM\EntityFetcher::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -3459,7 +3459,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -3469,7 +3469,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -3492,7 +3492,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3552,7 +3552,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\EntityFetcher::columns
 
 ```php
-public function columns( array $columns = null ): static
+public function columns( array $columns = null ): $this
 ```
 
 ##### Set $columns
@@ -3561,7 +3561,7 @@ public function columns( array $columns = null ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3620,7 +3620,7 @@ public function count(): integer
 #### ORM\EntityFetcher::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): static
+public function createRelatedJoin( $join, $relation ): $this
 ```
 
 ##### Create the join with $join type
@@ -3629,7 +3629,7 @@ public function createRelatedJoin( $join, $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3670,7 +3670,7 @@ Stupid helper for a missing functionality in php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -3682,7 +3682,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3815,7 +3815,7 @@ protected function getTableAndAlias( string $class, string $alias = '' ): array
 #### ORM\EntityFetcher::groupBy
 
 ```php
-public function groupBy( string $column, array $args = array() ): static
+public function groupBy( string $column, array $args = array() ): $this
 ```
 
 ##### Group By $column
@@ -3824,7 +3824,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3842,7 +3842,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -3853,7 +3853,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3870,7 +3870,7 @@ can be set to true.
 #### ORM\EntityFetcher::joinRelated
 
 ```php
-public function joinRelated( $relation ): static
+public function joinRelated( $relation ): $this
 ```
 
 ##### Join $relation
@@ -3879,7 +3879,7 @@ public function joinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3896,7 +3896,7 @@ public function joinRelated( $relation ): static
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -3907,7 +3907,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -3924,7 +3924,7 @@ can be set to true.
 #### ORM\EntityFetcher::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): static
+public function leftJoinRelated( $relation ): $this
 ```
 
 ##### Left outer join $relation
@@ -3933,7 +3933,7 @@ public function leftJoinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3947,7 +3947,7 @@ public function leftJoinRelated( $relation ): static
 #### ORM\EntityFetcher::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Set $limit
@@ -3956,7 +3956,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3970,7 +3970,7 @@ Limits the amount of rows fetched from database.
 #### ORM\EntityFetcher::modifier
 
 ```php
-public function modifier( string $modifier ): static
+public function modifier( string $modifier ): $this
 ```
 
 ##### Add $modifier
@@ -3979,7 +3979,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3993,7 +3993,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\EntityFetcher::offset
 
 ```php
-public function offset( integer $offset ): static
+public function offset( integer $offset ): $this
 ```
 
 ##### Set $offset
@@ -4002,7 +4002,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4036,7 +4036,7 @@ If there is no more entity in the result set it returns null.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): static
+): $this
 ```
 
 ##### Order By $column in $direction
@@ -4045,7 +4045,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4061,7 +4061,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\EntityFetcher::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -4070,7 +4070,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -4080,7 +4080,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -4103,7 +4103,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4119,7 +4119,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\EntityFetcher::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -4133,7 +4133,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4148,7 +4148,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\EntityFetcher::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -4162,7 +4162,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4177,7 +4177,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\EntityFetcher::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -4186,7 +4186,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -4197,7 +4197,7 @@ public function parenthesis(): static
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -4208,7 +4208,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -4225,7 +4225,7 @@ can be set to true.
 #### ORM\EntityFetcher::setQuery
 
 ```php
-public function setQuery( $query, array $args = null ): static
+public function setQuery( $query, array $args = null ): $this
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -4234,7 +4234,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4296,7 +4296,7 @@ protected function translateColumn( string $expression ): string
 #### ORM\EntityFetcher::where
 
 ```php
-public function where( string $column, $operator = null, $value = null ): static
+public function where( string $column, $operator = null, $value = null ): $this
 ```
 
 ##### Alias for andWhere
@@ -4319,7 +4319,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4338,7 +4338,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\EntityFetcher::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -4352,7 +4352,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4367,7 +4367,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\EntityFetcher::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -4381,7 +4381,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4564,7 +4564,7 @@ When no $limit is set it fetches all entities in result set.
 #### ORM\Testing\EntityFetcherMock::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -4573,7 +4573,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -4583,7 +4583,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -4606,7 +4606,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4666,7 +4666,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\Testing\EntityFetcherMock::columns
 
 ```php
-public function columns( array $columns = null ): static
+public function columns( array $columns = null ): $this
 ```
 
 ##### Set $columns
@@ -4675,7 +4675,7 @@ public function columns( array $columns = null ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4730,7 +4730,7 @@ public function count(): integer
 #### ORM\Testing\EntityFetcherMock::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): static
+public function createRelatedJoin( $join, $relation ): $this
 ```
 
 ##### Create the join with $join type
@@ -4739,7 +4739,7 @@ public function createRelatedJoin( $join, $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4780,7 +4780,7 @@ Stupid helper for a missing functionality in php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -4792,7 +4792,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -4925,7 +4925,7 @@ protected function getTableAndAlias( string $class, string $alias = '' ): array
 #### ORM\Testing\EntityFetcherMock::groupBy
 
 ```php
-public function groupBy( string $column, array $args = array() ): static
+public function groupBy( string $column, array $args = array() ): $this
 ```
 
 ##### Group By $column
@@ -4934,7 +4934,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4952,7 +4952,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -4963,7 +4963,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -4980,7 +4980,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock::joinRelated
 
 ```php
-public function joinRelated( $relation ): static
+public function joinRelated( $relation ): $this
 ```
 
 ##### Join $relation
@@ -4989,7 +4989,7 @@ public function joinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5006,7 +5006,7 @@ public function joinRelated( $relation ): static
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -5017,7 +5017,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -5034,7 +5034,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): static
+public function leftJoinRelated( $relation ): $this
 ```
 
 ##### Left outer join $relation
@@ -5043,7 +5043,7 @@ public function leftJoinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5057,7 +5057,7 @@ public function leftJoinRelated( $relation ): static
 #### ORM\Testing\EntityFetcherMock::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Set $limit
@@ -5066,7 +5066,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5080,7 +5080,7 @@ Limits the amount of rows fetched from database.
 #### ORM\Testing\EntityFetcherMock::modifier
 
 ```php
-public function modifier( string $modifier ): static
+public function modifier( string $modifier ): $this
 ```
 
 ##### Add $modifier
@@ -5089,7 +5089,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5103,7 +5103,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\Testing\EntityFetcherMock::offset
 
 ```php
-public function offset( integer $offset ): static
+public function offset( integer $offset ): $this
 ```
 
 ##### Set $offset
@@ -5112,7 +5112,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5146,7 +5146,7 @@ If there is no more entity in the result set it returns null.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): static
+): $this
 ```
 
 ##### Order By $column in $direction
@@ -5155,7 +5155,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5171,7 +5171,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\Testing\EntityFetcherMock::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -5180,7 +5180,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -5190,7 +5190,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -5213,7 +5213,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5229,7 +5229,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -5243,7 +5243,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5258,7 +5258,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -5272,7 +5272,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5287,7 +5287,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -5296,7 +5296,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -5307,7 +5307,7 @@ public function parenthesis(): static
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -5318,7 +5318,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -5335,7 +5335,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock::setQuery
 
 ```php
-public function setQuery( $query, array $args = null ): static
+public function setQuery( $query, array $args = null ): $this
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -5344,7 +5344,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5406,7 +5406,7 @@ protected function translateColumn( string $expression ): string
 #### ORM\Testing\EntityFetcherMock::where
 
 ```php
-public function where( string $column, $operator = null, $value = null ): static
+public function where( string $column, $operator = null, $value = null ): $this
 ```
 
 ##### Alias for andWhere
@@ -5429,7 +5429,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5448,7 +5448,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -5462,7 +5462,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5477,7 +5477,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -5491,7 +5491,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5685,7 +5685,7 @@ protected static function buildPrimaryKey( $class, array $primaryKey ): array
 #### ORM\EntityManager::defineForNamespace
 
 ```php
-public function defineForNamespace( $nameSpace ): static
+public function defineForNamespace( $nameSpace ): $this
 ```
 
 ##### Define $this EntityManager as the default EntityManager for $nameSpace
@@ -5694,7 +5694,7 @@ public function defineForNamespace( $nameSpace ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -5708,7 +5708,7 @@ public function defineForNamespace( $nameSpace ): static
 #### ORM\EntityManager::defineForParent
 
 ```php
-public function defineForParent( $class ): static
+public function defineForParent( $class ): $this
 ```
 
 ##### Define $this EntityManager as the default EntityManager for subClasses of $class
@@ -5717,7 +5717,7 @@ public function defineForParent( $class ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -6191,7 +6191,7 @@ When it is not a PDO instance the connection get established on first use.
 #### ORM\EntityManager::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -6200,7 +6200,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -6479,7 +6479,7 @@ protected static function buildPrimaryKey( $class, array $primaryKey ): array
 #### ORM\Testing\EntityManagerMock::defineForNamespace
 
 ```php
-public function defineForNamespace( $nameSpace ): static
+public function defineForNamespace( $nameSpace ): $this
 ```
 
 ##### Define $this EntityManager as the default EntityManager for $nameSpace
@@ -6488,7 +6488,7 @@ public function defineForNamespace( $nameSpace ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -6502,7 +6502,7 @@ public function defineForNamespace( $nameSpace ): static
 #### ORM\Testing\EntityManagerMock::defineForParent
 
 ```php
-public function defineForParent( $class ): static
+public function defineForParent( $class ): $this
 ```
 
 ##### Define $this EntityManager as the default EntityManager for subClasses of $class
@@ -6511,7 +6511,7 @@ public function defineForParent( $class ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -7033,7 +7033,7 @@ When it is not a PDO instance the connection get established on first use.
 #### ORM\Testing\EntityManagerMock::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -7042,7 +7042,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -8721,7 +8721,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Mysql::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -8730,7 +8730,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -9042,7 +9042,7 @@ protected function getValue(
 #### ORM\Namer::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -9051,7 +9051,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -10765,7 +10765,7 @@ Create a parenthesis inside another parenthesis or a query.
 #### ORM\QueryBuilder\Parenthesis::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -10774,7 +10774,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -10784,7 +10784,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -10807,7 +10807,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -10857,7 +10857,7 @@ Returns the complete expression inside this parenthesis.
 #### ORM\QueryBuilder\Parenthesis::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -10866,7 +10866,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -10876,7 +10876,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -10899,7 +10899,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -10915,7 +10915,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\Parenthesis::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -10929,7 +10929,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -10944,7 +10944,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\Parenthesis::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -10958,7 +10958,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -10973,7 +10973,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\QueryBuilder\Parenthesis::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -10982,7 +10982,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -10990,7 +10990,7 @@ public function parenthesis(): static
 #### ORM\QueryBuilder\Parenthesis::where
 
 ```php
-public function where( string $column, $operator = null, $value = null ): static
+public function where( string $column, $operator = null, $value = null ): $this
 ```
 
 ##### Alias for andWhere
@@ -11013,7 +11013,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11032,7 +11032,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\Parenthesis::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -11046,7 +11046,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11061,7 +11061,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\Parenthesis::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -11075,7 +11075,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11145,7 +11145,7 @@ private function wherePrefix( string $bool ): string
 #### ORM\QueryBuilder\ParenthesisInterface::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -11154,7 +11154,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -11164,7 +11164,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = '', string $value = ''
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -11187,7 +11187,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11237,7 +11237,7 @@ Returns the complete expression inside this parenthesis.
 #### ORM\QueryBuilder\ParenthesisInterface::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -11246,7 +11246,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -11256,7 +11256,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = '', string $value = ''
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -11279,7 +11279,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11295,7 +11295,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\ParenthesisInterface::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -11309,7 +11309,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11324,7 +11324,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\ParenthesisInterface::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -11338,7 +11338,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11353,7 +11353,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\QueryBuilder\ParenthesisInterface::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -11362,7 +11362,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -11373,7 +11373,7 @@ public function parenthesis(): static
 #### ORM\QueryBuilder\ParenthesisInterface::where
 
 ```php
-public function where( string $column, $operator = '', $value = '' ): static
+public function where( string $column, $operator = '', $value = '' ): $this
 ```
 
 ##### Alias for andWhere
@@ -11396,7 +11396,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11415,7 +11415,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\ParenthesisInterface::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -11429,7 +11429,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11444,7 +11444,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\ParenthesisInterface::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -11458,7 +11458,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -11974,7 +11974,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Pgsql::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -11983,7 +11983,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12153,7 +12153,7 @@ It uses static::$defaultEntityManager if $entityManager is not given.
 #### ORM\QueryBuilder\QueryBuilder::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -12162,7 +12162,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -12172,7 +12172,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -12195,7 +12195,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12255,7 +12255,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\QueryBuilder\QueryBuilder::columns
 
 ```php
-public function columns( array $columns = null ): static
+public function columns( array $columns = null ): $this
 ```
 
 ##### Set $columns
@@ -12264,7 +12264,7 @@ public function columns( array $columns = null ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12328,7 +12328,7 @@ Stupid helper for a missing functionality in php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -12340,7 +12340,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -12428,7 +12428,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\QueryBuilder\QueryBuilder::groupBy
 
 ```php
-public function groupBy( string $column, array $args = array() ): static
+public function groupBy( string $column, array $args = array() ): $this
 ```
 
 ##### Group By $column
@@ -12437,7 +12437,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12455,7 +12455,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -12466,7 +12466,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -12486,7 +12486,7 @@ can be set to true.
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -12497,7 +12497,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -12514,7 +12514,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilder::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Set $limit
@@ -12523,7 +12523,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12537,7 +12537,7 @@ Limits the amount of rows fetched from database.
 #### ORM\QueryBuilder\QueryBuilder::modifier
 
 ```php
-public function modifier( string $modifier ): static
+public function modifier( string $modifier ): $this
 ```
 
 ##### Add $modifier
@@ -12546,7 +12546,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12560,7 +12560,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\QueryBuilder\QueryBuilder::offset
 
 ```php
-public function offset( integer $offset ): static
+public function offset( integer $offset ): $this
 ```
 
 ##### Set $offset
@@ -12569,7 +12569,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12586,7 +12586,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): static
+): $this
 ```
 
 ##### Order By $column in $direction
@@ -12595,7 +12595,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12611,7 +12611,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\QueryBuilder\QueryBuilder::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -12620,7 +12620,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -12630,7 +12630,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -12653,7 +12653,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12669,7 +12669,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilder::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -12683,7 +12683,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12698,7 +12698,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilder::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -12712,7 +12712,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12727,7 +12727,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilder::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -12736,7 +12736,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -12747,7 +12747,7 @@ public function parenthesis(): static
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -12758,7 +12758,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -12775,7 +12775,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilder::where
 
 ```php
-public function where( string $column, $operator = null, $value = null ): static
+public function where( string $column, $operator = null, $value = null ): $this
 ```
 
 ##### Alias for andWhere
@@ -12798,7 +12798,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12817,7 +12817,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilder::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -12831,7 +12831,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12846,7 +12846,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilder::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -12860,7 +12860,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12950,7 +12950,7 @@ private function wherePrefix( string $bool ): string
 #### ORM\QueryBuilder\QueryBuilderInterface::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -12959,7 +12959,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -12969,7 +12969,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = '', string $value = ''
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -12992,7 +12992,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13052,7 +13052,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\QueryBuilder\QueryBuilderInterface::columns
 
 ```php
-public function columns( $columns = null ): static
+public function columns( $columns = null ): $this
 ```
 
 ##### Set $columns
@@ -13061,7 +13061,7 @@ public function columns( $columns = null ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13078,7 +13078,7 @@ public function columns( $columns = null ): static
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -13090,7 +13090,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -13141,7 +13141,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\QueryBuilder\QueryBuilderInterface::groupBy
 
 ```php
-public function groupBy( string $column, array $args = array() ): static
+public function groupBy( string $column, array $args = array() ): $this
 ```
 
 ##### Group By $column
@@ -13150,7 +13150,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13168,7 +13168,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -13179,7 +13179,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -13199,7 +13199,7 @@ can be set to true.
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -13210,7 +13210,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -13227,7 +13227,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilderInterface::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Set $limit
@@ -13236,7 +13236,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13250,7 +13250,7 @@ Limits the amount of rows fetched from database.
 #### ORM\QueryBuilder\QueryBuilderInterface::modifier
 
 ```php
-public function modifier( string $modifier ): static
+public function modifier( string $modifier ): $this
 ```
 
 ##### Add $modifier
@@ -13259,7 +13259,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13273,7 +13273,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\QueryBuilder\QueryBuilderInterface::offset
 
 ```php
-public function offset( integer $offset ): static
+public function offset( integer $offset ): $this
 ```
 
 ##### Set $offset
@@ -13282,7 +13282,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13299,7 +13299,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): static
+): $this
 ```
 
 ##### Order By $column in $direction
@@ -13308,7 +13308,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13324,7 +13324,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\QueryBuilder\QueryBuilderInterface::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -13333,7 +13333,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -13343,7 +13343,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = '', string $value = ''
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -13366,7 +13366,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13382,7 +13382,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -13396,7 +13396,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13411,7 +13411,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -13425,7 +13425,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13440,7 +13440,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilderInterface::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -13449,7 +13449,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -13463,7 +13463,7 @@ public function parenthesis(): static
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -13474,7 +13474,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -13491,7 +13491,7 @@ can be set to true.
 #### ORM\QueryBuilder\QueryBuilderInterface::where
 
 ```php
-public function where( string $column, $operator = '', $value = '' ): static
+public function where( string $column, $operator = '', $value = '' ): $this
 ```
 
 ##### Alias for andWhere
@@ -13514,7 +13514,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13533,7 +13533,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilderInterface::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -13547,7 +13547,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -13562,7 +13562,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilderInterface::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -13576,7 +13576,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14051,7 +14051,7 @@ Create a parenthesis inside another parenthesis or a query.
 #### ORM\Testing\EntityFetcherMock\Result::addEntities
 
 ```php
-public function addEntities( array<\ORM\Entity> $entities ): static
+public function addEntities( array<\ORM\Entity> $entities ): $this
 ```
 
 ##### Add entities to the result
@@ -14060,7 +14060,7 @@ public function addEntities( array<\ORM\Entity> $entities ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14097,7 +14097,7 @@ When no $limit is set it fetches all entities in result set.
 #### ORM\Testing\EntityFetcherMock\Result::andParenthesis
 
 ```php
-public function andParenthesis(): static
+public function andParenthesis(): $this
 ```
 
 ##### Add a parenthesis with AND
@@ -14106,7 +14106,7 @@ public function andParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -14116,7 +14116,7 @@ public function andParenthesis(): static
 ```php
 public function andWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with AND.
@@ -14139,7 +14139,7 @@ $query->andWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14199,7 +14199,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 #### ORM\Testing\EntityFetcherMock\Result::columns
 
 ```php
-public function columns( array $columns = null ): static
+public function columns( array $columns = null ): $this
 ```
 
 ##### Set $columns
@@ -14208,7 +14208,7 @@ public function columns( array $columns = null ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14289,7 +14289,7 @@ public function count(): integer
 #### ORM\Testing\EntityFetcherMock\Result::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): static
+public function createRelatedJoin( $join, $relation ): $this
 ```
 
 ##### Create the join with $join type
@@ -14298,7 +14298,7 @@ public function createRelatedJoin( $join, $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14339,7 +14339,7 @@ Stupid helper for a missing functionality in php
 public function fullJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -14351,7 +14351,7 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -14501,7 +14501,7 @@ protected function getTableAndAlias( string $class, string $alias = '' ): array
 #### ORM\Testing\EntityFetcherMock\Result::groupBy
 
 ```php
-public function groupBy( string $column, array $args = array() ): static
+public function groupBy( string $column, array $args = array() ): $this
 ```
 
 ##### Group By $column
@@ -14510,7 +14510,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14528,7 +14528,7 @@ Optionally you can provide an expression in $column with question marks as place
 public function join(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -14539,7 +14539,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -14556,7 +14556,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock\Result::joinRelated
 
 ```php
-public function joinRelated( $relation ): static
+public function joinRelated( $relation ): $this
 ```
 
 ##### Join $relation
@@ -14565,7 +14565,7 @@ public function joinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14582,7 +14582,7 @@ public function joinRelated( $relation ): static
 public function leftJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -14593,7 +14593,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -14610,7 +14610,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock\Result::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): static
+public function leftJoinRelated( $relation ): $this
 ```
 
 ##### Left outer join $relation
@@ -14619,7 +14619,7 @@ public function leftJoinRelated( $relation ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14633,7 +14633,7 @@ public function leftJoinRelated( $relation ): static
 #### ORM\Testing\EntityFetcherMock\Result::limit
 
 ```php
-public function limit( integer $limit ): static
+public function limit( integer $limit ): $this
 ```
 
 ##### Set $limit
@@ -14642,7 +14642,7 @@ Limits the amount of rows fetched from database.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14656,7 +14656,7 @@ Limits the amount of rows fetched from database.
 #### ORM\Testing\EntityFetcherMock\Result::matches
 
 ```php
-public function matches( string $expression ): static
+public function matches( string $expression ): $this
 ```
 
 ##### Add a regular expression that has to match
@@ -14665,7 +14665,7 @@ public function matches( string $expression ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14679,7 +14679,7 @@ public function matches( string $expression ): static
 #### ORM\Testing\EntityFetcherMock\Result::modifier
 
 ```php
-public function modifier( string $modifier ): static
+public function modifier( string $modifier ): $this
 ```
 
 ##### Add $modifier
@@ -14688,7 +14688,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14702,7 +14702,7 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 #### ORM\Testing\EntityFetcherMock\Result::offset
 
 ```php
-public function offset( integer $offset ): static
+public function offset( integer $offset ): $this
 ```
 
 ##### Set $offset
@@ -14711,7 +14711,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14745,7 +14745,7 @@ If there is no more entity in the result set it returns null.
 public function orderBy(
     string $column, string $direction = self::DIRECTION_ASCENDING, 
     array $args = array()
-): static
+): $this
 ```
 
 ##### Order By $column in $direction
@@ -14754,7 +14754,7 @@ Optionally you can provide an expression in $column with question marks as place
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14770,7 +14770,7 @@ Optionally you can provide an expression in $column with question marks as place
 #### ORM\Testing\EntityFetcherMock\Result::orParenthesis
 
 ```php
-public function orParenthesis(): static
+public function orParenthesis(): $this
 ```
 
 ##### Add a parenthesis with OR
@@ -14779,7 +14779,7 @@ public function orParenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -14789,7 +14789,7 @@ public function orParenthesis(): static
 ```php
 public function orWhere(
     string $column, $operator = null, string $value = null
-): static
+): $this
 ```
 
 ##### Add a where condition with OR.
@@ -14812,7 +14812,7 @@ $query->orWhere('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14828,7 +14828,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock\Result::orWhereIn
 
 ```php
-public function orWhereIn( $column, array $values ): static
+public function orWhereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with OR.
@@ -14842,7 +14842,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14857,7 +14857,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock\Result::orWhereNotIn
 
 ```php
-public function orWhereNotIn( $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with OR.
@@ -14871,7 +14871,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14886,7 +14886,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock\Result::parenthesis
 
 ```php
-public function parenthesis(): static
+public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
@@ -14895,7 +14895,7 @@ public function parenthesis(): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 
@@ -14906,7 +14906,7 @@ public function parenthesis(): static
 public function rightJoin(
     string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|ORM\QueryBuilder\ParenthesisInterface
+): $this|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -14917,7 +14917,7 @@ can be set to true.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static|\ORM\QueryBuilder\ParenthesisInterface**
+ **Returns**: this method returns **$this|\ORM\QueryBuilder\ParenthesisInterface**
 <br />
 
 ##### Parameters
@@ -14934,7 +14934,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock\Result::setQuery
 
 ```php
-public function setQuery( $query, array $args = null ): static
+public function setQuery( $query, array $args = null ): $this
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -14943,7 +14943,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -15005,7 +15005,7 @@ protected function translateColumn( string $expression ): string
 #### ORM\Testing\EntityFetcherMock\Result::where
 
 ```php
-public function where( string $column, $operator = null, $value = null ): static
+public function where( string $column, $operator = null, $value = null ): $this
 ```
 
 ##### Alias for andWhere
@@ -15028,7 +15028,7 @@ $query->where('name = ?', ['John Doe']);
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -15047,7 +15047,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock\Result::whereIn
 
 ```php
-public function whereIn( $column, array $values ): static
+public function whereIn( $column, array $values ): $this
 ```
 
 ##### Add a where in condition with AND.
@@ -15061,7 +15061,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -15076,7 +15076,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock\Result::whereNotIn
 
 ```php
-public function whereNotIn( $column, array $values ): static
+public function whereNotIn( $column, array $values ): $this
 ```
 
 ##### Add a where not in condition with AND.
@@ -15090,7 +15090,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -16164,7 +16164,7 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 #### ORM\Dbal\Sqlite::setOption
 
 ```php
-public function setOption( string $option, $value ): static
+public function setOption( string $option, $value ): $this
 ```
 
 ##### Set $option to $value
@@ -16173,7 +16173,7 @@ public function setOption( string $option, $value ): static
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **static**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters

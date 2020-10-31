@@ -31,7 +31,7 @@ trait HasWhereConditions
      * @param string $column   Column or expression with placeholders
      * @param mixed $operator Operator, value or array of values
      * @param mixed $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function where($column, $operator = null, $value = null)
     {
@@ -60,7 +60,7 @@ trait HasWhereConditions
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function andWhere($column, $operator = null, $value = null)
     {
@@ -90,7 +90,7 @@ trait HasWhereConditions
      * @param string       $column   Column or expression with placeholders
      * @param string|array $operator Operator, value or array of values
      * @param string       $value    Value (required when used with operator)
-     * @return static
+     * @return $this
      */
     public function orWhere($column, $operator = null, $value = null)
     {
@@ -110,7 +110,7 @@ trait HasWhereConditions
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function whereIn($column, array $values)
     {
@@ -130,7 +130,7 @@ trait HasWhereConditions
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function orWhereIn($column, array $values)
     {
@@ -150,7 +150,7 @@ trait HasWhereConditions
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function whereNotIn($column, array $values)
     {
@@ -170,7 +170,7 @@ trait HasWhereConditions
      *
      * @param string|array $column
      * @param array $values
-     * @return static
+     * @return $this
      */
     public function orWhereNotIn($column, array $values)
     {

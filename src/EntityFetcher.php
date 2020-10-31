@@ -62,7 +62,7 @@ class EntityFetcher extends QueryBuilder
         $this->modifier  = [ 'DISTINCT' ];
     }
 
-    /** @return static
+    /** @return $this
      * @internal
      */
     public function columns(array $columns = null)
@@ -70,7 +70,7 @@ class EntityFetcher extends QueryBuilder
         return $this;
     }
 
-    /** @return static
+    /** @return $this
      * @internal
      */
     public function column($column, $args = [], $alias = '')
@@ -217,7 +217,7 @@ class EntityFetcher extends QueryBuilder
      *
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders
-     * @return static
+     * @return $this
      */
     public function setQuery($query, $args = null)
     {
