@@ -311,6 +311,38 @@ class EntityFetcherTest extends TestCase
     }
 
     /** @test */
+    public function returnsAllItemsAfterReset()
+    {
+        $e1 = $this->em->map(new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile'
+        ], $this->em, true));
+        $e2 = $this->em->map(new ContactPhone([
+            'id' => 43,
+            'name' => 'mobile'
+        ], $this->em, true));
+        $e3 = $this->em->map(new ContactPhone([
+            'id' => 44,
+            'name' => 'mobile'
+        ], $this->em, true));
+
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT DISTINCT t0.* FROM "contact_phone" AS t0')
+            ->andReturn($statement = \Mockery::mock(\PDOStatement::class));
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()->times(4)
+            ->andReturn($e1->getData(), $e2->getData(), $e3->getData(), false);
+
+        $fetcher->all();
+
+        $contactPhones = $fetcher->reset()->all();
+
+        self::assertSame([$e1, $e2, $e3], $contactPhones);
+    }
+
+    /** @test */
     public function allReturnsLimitedAmount()
     {
         $e1 = new ContactPhone([

@@ -3338,6 +3338,7 @@ Supported:
 | **protected** | `$class` | **string &#124; Entity** | The entity class that we want to fetch |
 | **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
@@ -3350,6 +3351,7 @@ Supported:
 | **protected** | `$parent` | **QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
 | **protected** | `$query` | **string &#124; QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
 | **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$rows` | **array** | The rows returned |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
@@ -3369,7 +3371,7 @@ Supported:
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
 * [first](#ormentityfetcherfirst) Get the first item of an array
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
-* [getDefaultOperator](#ormentityfetchergetdefaultoperator) 
+* [getDefaultOperator](#ormentityfetchergetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormentityfetchergetentitymanager) 
 * [getExpression](#ormentityfetchergetexpression) Get the expression
 * [getQuery](#ormentityfetchergetquery) Get the query / select statement
@@ -3390,6 +3392,7 @@ Supported:
 * [orWhereIn](#ormentityfetcherorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormentityfetcherorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormentityfetcherparenthesis) Alias for andParenthesis
+* [reset](#ormentityfetcherreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormentityfetcherrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormentityfetchersetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormentityfetchersetquery) Set a raw query or use different QueryBuilder
@@ -3528,7 +3531,7 @@ public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): ORM\QueryBuilder\QueryBuilder
+): $this
 ```
 
 ##### Add $column
@@ -3537,7 +3540,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -3700,21 +3703,23 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 #### ORM\EntityFetcher::getDefaultOperator
 
 ```php
-private function getDefaultOperator( $value )
+private function getDefaultOperator( $value ): string
 ```
 
+##### Get the default operator for $value
 
-
+Arrays use `IN` by default - all others use `=`
 
 **Visibility:** this method is **private**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **mixed**  | The value to determine the operator |
 
 
 
@@ -4192,6 +4197,23 @@ public function parenthesis(): $this
 
 
 
+#### ORM\EntityFetcher::reset
+
+```php
+public function reset(): $this
+```
+
+##### Reset the position of the cursor to the first row
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
 #### ORM\EntityFetcher::rightJoin
 
 ```php
@@ -4483,6 +4505,7 @@ Supported:
 | **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
 | **protected** | `$currentResult` | **array** |  |
+| **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **public** | `$entityManager` | **EntityManagerMock** |  |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
@@ -4495,6 +4518,7 @@ Supported:
 | **protected** | `$parent` | ** \ ORM \ QueryBuilder \ ParenthesisInterface** | Parent parenthesis or query |
 | **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
 | **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$rows` | **array** | The rows returned |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
@@ -4514,7 +4538,7 @@ Supported:
 * [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
 * [first](#ormtestingentityfetchermockfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
-* [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) 
+* [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormtestingentityfetchermockgetentitymanager) 
 * [getExpression](#ormtestingentityfetchermockgetexpression) Get the expression
 * [getQuery](#ormtestingentityfetchermockgetquery) Get the query / select statement
@@ -4535,6 +4559,7 @@ Supported:
 * [orWhereIn](#ormtestingentityfetchermockorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormtestingentityfetchermockorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockparenthesis) Alias for andParenthesis
+* [reset](#ormtestingentityfetchermockreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormtestingentityfetchermockrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormtestingentityfetchermocksetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormtestingentityfetchermocksetquery) Set a raw query or use different QueryBuilder
@@ -4580,7 +4605,7 @@ public function all(): mixed|null
 
 Please note that this will execute the query - further modifications will not have any effect.
 
-If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+If the query fails you should get an exception. Anyway if we couldn't get a result or there are no rows
 it returns an empty array.
 
 **Visibility:** this method is **public**.
@@ -4670,7 +4695,7 @@ public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): ORM\QueryBuilder\QueryBuilder
+): $this
 ```
 
 ##### Add $column
@@ -4679,7 +4704,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -4838,21 +4863,23 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 #### ORM\Testing\EntityFetcherMock::getDefaultOperator
 
 ```php
-private function getDefaultOperator( $value )
+private function getDefaultOperator( $value ): string
 ```
 
+##### Get the default operator for $value
 
-
+Arrays use `IN` by default - all others use `=`
 
 **Visibility:** this method is **private**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **mixed**  | The value to determine the operator |
 
 
 
@@ -5320,6 +5347,23 @@ public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::reset
+
+```php
+public function reset(): $this
+```
+
+##### Reset the position of the cursor to the first row
 
 
 
@@ -12186,6 +12230,7 @@ Supported:
 |------------|------|------|---------------------------------------|
 | **protected** | `$alias` | **string** | The alias of the main table |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
@@ -12197,6 +12242,7 @@ Supported:
 | **protected** | `$orderBy` | **array&lt;string>** | Order by conditions get concatenated with comma |
 | **protected** | `$parent` | **ParenthesisInterface** | Parent parenthesis or query |
 | **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$rows` | **array** | The rows returned |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
@@ -12214,7 +12260,7 @@ Supported:
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
 * [first](#ormquerybuilderquerybuilderfirst) Get the first item of an array
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
-* [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) 
+* [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormquerybuilderquerybuildergetentitymanager) 
 * [getExpression](#ormquerybuilderquerybuildergetexpression) Get the expression
 * [getQuery](#ormquerybuilderquerybuildergetquery) Get the query / select statement
@@ -12232,6 +12278,7 @@ Supported:
 * [orWhereIn](#ormquerybuilderquerybuilderorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormquerybuilderquerybuilderorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormquerybuilderquerybuilderparenthesis) Alias for andParenthesis
+* [reset](#ormquerybuilderquerybuilderreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormquerybuilderquerybuilderrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormquerybuilderquerybuildersetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [where](#ormquerybuilderquerybuilderwhere) Alias for andWhere
@@ -12278,7 +12325,7 @@ public function all(): mixed|null
 
 Please note that this will execute the query - further modifications will not have any effect.
 
-If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+If the query fails you should get an exception. Anyway if we couldn't get a result or there are no rows
 it returns an empty array.
 
 **Visibility:** this method is **public**.
@@ -12368,7 +12415,7 @@ public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): ORM\QueryBuilder\QueryBuilder
+): $this
 ```
 
 ##### Add $column
@@ -12377,7 +12424,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -12495,21 +12542,23 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 #### ORM\QueryBuilder\QueryBuilder::getDefaultOperator
 
 ```php
-private function getDefaultOperator( $value )
+private function getDefaultOperator( $value ): string
 ```
 
+##### Get the default operator for $value
 
-
+Arrays use `IN` by default - all others use `=`
 
 **Visibility:** this method is **private**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **mixed**  | The value to determine the operator |
 
 
 
@@ -12919,6 +12968,23 @@ public function parenthesis(): $this
 
 
 
+#### ORM\QueryBuilder\QueryBuilder::reset
+
+```php
+public function reset(): $this
+```
+
+##### Reset the position of the cursor to the first row
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
 #### ORM\QueryBuilder\QueryBuilder::rightJoin
 
 ```php
@@ -13235,7 +13301,7 @@ public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): ORM\QueryBuilder\QueryBuilder
+): $this
 ```
 
 ##### Add $column
@@ -13244,7 +13310,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14164,6 +14230,7 @@ Supported:
 | **protected** | `$class` | **string &#124;  \ ORM \ Entity** | The entity class that we want to fetch |
 | **protected** | `$classMapping` | **array&lt;string[]>** | The class to alias mapping and vise versa |
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
+| **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
@@ -14178,6 +14245,7 @@ Supported:
 | **protected** | `$query` | **string &#124;  \ ORM \ QueryBuilder \ QueryBuilderInterface** | The query to execute (overwrites other settings) |
 | **protected** | `$regularExpressions` | **array&lt;string>** |  |
 | **protected** | `$result` | ** \ PDOStatement** | The result object from PDO |
+| **protected** | `$rows` | **array** | The rows returned |
 | **protected** | `$tableName` | **string** | The table to query |
 | **protected** | `$where` | **array&lt;string>** | Where conditions get concatenated with space |
 
@@ -14199,7 +14267,7 @@ Supported:
 * [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
 * [first](#ormtestingentityfetchermockresultfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
-* [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) 
+* [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) Get the default operator for $value
 * [getEntities](#ormtestingentityfetchermockresultgetentities) Get the entities for this result
 * [getEntityManager](#ormtestingentityfetchermockresultgetentitymanager) 
 * [getExpression](#ormtestingentityfetchermockresultgetexpression) Get the expression
@@ -14222,6 +14290,7 @@ Supported:
 * [orWhereIn](#ormtestingentityfetchermockresultorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormtestingentityfetchermockresultorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockresultparenthesis) Alias for andParenthesis
+* [reset](#ormtestingentityfetchermockresultreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormtestingentityfetchermockresultrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormtestingentityfetchermockresultsetfetchmode) Proxy to PDOStatement::setFetchMode()
 * [setQuery](#ormtestingentityfetchermockresultsetquery) Set a raw query or use different QueryBuilder
@@ -14290,7 +14359,7 @@ public function all(): mixed|null
 
 Please note that this will execute the query - further modifications will not have any effect.
 
-If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+If the query fails you should get an exception. Anyway if we couldn't get a result or there are no rows
 it returns an empty array.
 
 **Visibility:** this method is **public**.
@@ -14380,7 +14449,7 @@ public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): ORM\QueryBuilder\QueryBuilder
+): $this
 ```
 
 ##### Add $column
@@ -14389,7 +14458,7 @@ Optionally you can provide an expression with question marks as placeholders fil
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\QueryBuilder\QueryBuilder**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
@@ -14574,21 +14643,23 @@ ATTENTION: here the default value of empty got changed - defaults to yes
 #### ORM\Testing\EntityFetcherMock\Result::getDefaultOperator
 
 ```php
-private function getDefaultOperator( $value )
+private function getDefaultOperator( $value ): string
 ```
 
+##### Get the default operator for $value
 
-
+Arrays use `IN` by default - all others use `=`
 
 **Visibility:** this method is **private**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$value` |   |  |
+| `$value` | **mixed**  | The value to determine the operator |
 
 
 
@@ -15099,6 +15170,23 @@ public function parenthesis(): $this
 ```
 
 ##### Alias for andParenthesis
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::reset
+
+```php
+public function reset(): $this
+```
+
+##### Reset the position of the cursor to the first row
 
 
 

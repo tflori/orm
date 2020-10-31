@@ -29,7 +29,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
      * @param string $column Column or expression to fetch
      * @param array  $args   Arguments for expression
      * @param string $alias  Alias for the column
-     * @return QueryBuilder
+     * @return $this
      */
     public function column($column, $args = [], $alias = '');
 

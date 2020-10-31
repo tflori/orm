@@ -71,6 +71,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      * @var PDOStatement */
     protected $result;
 
+    /** The rows returned
+     * @var array */
+    protected $rows = [];
+
+    /** The position of the cursor
+     * @var int  */
+    protected $cursor = 0;
+
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * Constructor
@@ -203,6 +211,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return null;
     }
 
+    /**
+     * Get the default operator for $value
+     *
+     * Arrays use `IN` by default - all others use `=`
+     *
+     * @param mixed $value The value to determine the operator
+     * @return string
+     */
     private function getDefaultOperator($value)
     {
         if (is_array($value)) {
@@ -316,7 +332,13 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             return null;
         }
 
-        return $result->fetch() ?: null;
+        $cursor = $this->cursor;
+        if (!isset($this->rows[$cursor])) {
+            $this->rows[$cursor] = $result->fetch();
+        }
+
+        $this->cursor++;
+        return $this->rows[$cursor] ?: null;
     }
 
     /**
@@ -324,19 +346,31 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      *
      * Please note that this will execute the query - further modifications will not have any effect.
      *
-     * If the query fails you should get an exception. Anyway if we couldn't get a result or there no rows
+     * If the query fails you should get an exception. Anyway if we couldn't get a result or there are no rows
      * it returns an empty array.
      *
      * @return mixed|null
      */
     public function all()
     {
-        $result = $this->getStatement();
-        if (!$result) {
-            return [];
+        $result = [];
+        while ($next = $this->one()) {
+            $result[] = $next;
         }
 
-        return $result->fetchAll();
+        return $result;
+    }
+
+    /**
+     * Reset the position of the cursor to the first row
+     *
+     * @return $this
+     */
+    public function reset()
+    {
+        $this->cursor = 0;
+
+        return $this;
     }
 
     /** {@inheritdoc} */
