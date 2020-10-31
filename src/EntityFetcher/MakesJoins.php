@@ -35,7 +35,7 @@ trait MakesJoins
      *
      * @param $join
      * @param $relation
-     * @return $this
+     * @return static
      */
     public function createRelatedJoin($join, $relation)
     {
@@ -57,7 +57,7 @@ trait MakesJoins
      * Join $relation
      *
      * @param $relation
-     * @return $this
+     * @return static
      */
     public function joinRelated($relation)
     {
@@ -68,7 +68,7 @@ trait MakesJoins
      * Left outer join $relation
      *
      * @param $relation
-     * @return $this
+     * @return static
      */
     public function leftJoinRelated($relation)
     {

@@ -217,7 +217,7 @@ class EntityFetcher extends QueryBuilder
      *
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders
-     * @return $this
+     * @return static
      */
     public function setQuery($query, $args = null)
     {

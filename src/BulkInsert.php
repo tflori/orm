@@ -113,7 +113,7 @@ class BulkInsert
      * Limit the amount of entities inserted at once.
      *
      * @param int $limit
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function limit($limit)
@@ -127,7 +127,7 @@ class BulkInsert
      *
      * **Caution**: Your db access layer (DBAL) may not support this feature.
      *
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function useAutoincrement()
@@ -141,7 +141,7 @@ class BulkInsert
      *
      * **Caution**: If this is disabled updating could cause a IncompletePrimaryKey exception.
      *
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function noAutoIncrement()
@@ -156,7 +156,7 @@ class BulkInsert
      * Provides an array of the just inserted entities in first argument.
      *
      * @param callable $callback
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function onSync(callable $callback = null)
@@ -168,7 +168,7 @@ class BulkInsert
     /**
      * Disable updating entities after insert
      *
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function noUpdates()
@@ -183,7 +183,7 @@ class BulkInsert
      * **Caution**: This option will need to update the primary key by autoincrement which maybe is not supported
      * by your db access layer (DBAL).
      *
-     * @return $this
+     * @return static
      * @codeCoverageIgnore trivial
      */
     public function updateEntities()

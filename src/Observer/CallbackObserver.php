@@ -14,7 +14,7 @@ class CallbackObserver extends AbstractObserver
      *
      * @param $event
      * @param callable $listener
-     * @return $this
+     * @return static
      */
     public function on($event, callable $listener)
     {
@@ -29,7 +29,7 @@ class CallbackObserver extends AbstractObserver
      * Remove all listeners for $event
      *
      * @param $event
-     * @return $this
+     * @return static
      */
     public function off($event)
     {
