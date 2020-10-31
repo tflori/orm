@@ -595,8 +595,8 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ?ObserverInterface $observer
-     * @return ?CallbackObserver
+     * @param ObserverInterface|null $observer
+     * @return CallbackObserver|null
      * @throws InvalidArgument
      */
     public function observe($class, ObserverInterface $observer = null)
@@ -623,7 +623,7 @@ class EntityManager
      * Returns whether or not an observer got detached.
      *
      * @param ObserverInterface $observer
-     * @param ?string $from
+     * @param string|null $from
      * @return bool
      */
     public function detach(ObserverInterface $observer, $from = null)

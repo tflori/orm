@@ -158,7 +158,7 @@ can be canceled).
 #### ORM\Observer\AbstractObserver::handle
 
 ```php
-public function handle( \ORM\Event $event ): boolean
+public function handle( ORM\Event $event ): boolean
 ```
 
 ##### Handles the $event.
@@ -213,7 +213,7 @@ Return false to stop event execution.
 #### ORM\Dbal\Type\Boolean::__construct
 
 ```php
-public function __construct( \ORM\Dbal\Dbal $dbal ): Boolean
+public function __construct( ORM\Dbal\Dbal $dbal )
 ```
 
 ##### Boolean constructor
@@ -236,7 +236,7 @@ public function __construct( \ORM\Dbal\Dbal $dbal ): Boolean
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -309,7 +309,7 @@ protected function getBoolean( boolean $bool ): string
 #### ORM\Dbal\Type\Boolean::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -376,8 +376,8 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ```php
 public function __construct(
-    \ORM\Dbal\Dbal $dbal, string $class, integer $limit = 20
-): BulkInsert
+    ORM\Dbal\Dbal $dbal, string $class, integer $limit = 20
+)
 ```
 
 ##### BulkInsert constructor.
@@ -401,7 +401,7 @@ public function __construct(
 #### ORM\BulkInsert::add
 
 ```php
-public function add( \ORM\Entity $entities )
+public function add( ORM\Entity $entities )
 ```
 
 ##### Add an entity to the bulk insert.
@@ -472,7 +472,7 @@ public function getLimit(): integer
 #### ORM\BulkInsert::limit
 
 ```php
-public function limit( integer $limit ): $this
+public function limit( integer $limit ): static
 ```
 
 ##### Limit the amount of entities inserted at once.
@@ -481,7 +481,7 @@ public function limit( integer $limit ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -495,7 +495,7 @@ public function limit( integer $limit ): $this
 #### ORM\BulkInsert::noAutoIncrement
 
 ```php
-public function noAutoIncrement(): $this
+public function noAutoIncrement(): static
 ```
 
 ##### Disable updating the primary key by auto increment.
@@ -504,7 +504,7 @@ public function noAutoIncrement(): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -512,7 +512,7 @@ public function noAutoIncrement(): $this
 #### ORM\BulkInsert::noUpdates
 
 ```php
-public function noUpdates(): $this
+public function noUpdates(): static
 ```
 
 ##### Disable updating entities after insert
@@ -521,7 +521,7 @@ public function noUpdates(): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -529,7 +529,7 @@ public function noUpdates(): $this
 #### ORM\BulkInsert::onSync
 
 ```php
-public function onSync( callable $callback = null ): $this
+public function onSync( callable $callback = null ): static
 ```
 
 ##### Executes $callback after insert
@@ -538,7 +538,7 @@ Provides an array of the just inserted entities in first argument.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -552,7 +552,7 @@ Provides an array of the just inserted entities in first argument.
 #### ORM\BulkInsert::updateEntities
 
 ```php
-public function updateEntities(): $this
+public function updateEntities(): static
 ```
 
 ##### Enable updating entities after insert
@@ -562,7 +562,7 @@ by your db access layer (DBAL).
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -570,7 +570,7 @@ by your db access layer (DBAL).
 #### ORM\BulkInsert::useAutoincrement
 
 ```php
-public function useAutoincrement(): $this
+public function useAutoincrement(): static
 ```
 
 ##### Enable updating the primary keys from autoincrement
@@ -579,7 +579,7 @@ public function useAutoincrement(): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 
@@ -619,7 +619,7 @@ can be canceled).
 #### ORM\Observer\CallbackObserver::handle
 
 ```php
-public function handle( \ORM\Event $event ): boolean
+public function handle( ORM\Event $event ): boolean
 ```
 
 ##### Handles the $event.
@@ -642,7 +642,7 @@ Return false to stop event execution.
 #### ORM\Observer\CallbackObserver::off
 
 ```php
-public function off( $event ): $this
+public function off( $event ): static
 ```
 
 ##### Remove all listeners for $event
@@ -651,7 +651,7 @@ public function off( $event ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -665,7 +665,7 @@ public function off( $event ): $this
 #### ORM\Observer\CallbackObserver::on
 
 ```php
-public function on( $event, callable $listener ): $this
+public function on( $event, callable $listener ): static
 ```
 
 ##### Register a new $listener for $event
@@ -674,7 +674,7 @@ public function on( $event, callable $listener ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -730,8 +730,8 @@ public function on( $event, callable $listener ): $this
 
 ```php
 public function __construct(
-    \ORM\Entity $entity, $attribute, $oldValue, $newValue
-): Changed
+    ORM\Entity $entity, $attribute, $oldValue, $newValue
+)
 ```
 
 
@@ -833,9 +833,7 @@ public function stop()
 #### ORM\Dbal\Column::__construct
 
 ```php
-public function __construct(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
-): Column
+public function __construct( ORM\Dbal\Dbal $dbal, array $columnDefinition )
 ```
 
 ##### Column constructor.
@@ -956,7 +954,7 @@ protected static function getRegisteredType( array $columnDefinition ): string
 #### ORM\Dbal\Column::getType
 
 ```php
-public function getType(): \ORM\Dbal\Type
+public function getType(): ORM\Dbal\Type
 ```
 
 ##### Determine and return the type
@@ -1030,7 +1028,7 @@ public static function registerType( string $type )
 #### ORM\Dbal\Column::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -1096,7 +1094,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 ```php
 public function __construct(
     integer $precision = null, boolean $dateOnly = false
-): DateTime
+)
 ```
 
 ##### DateTime constructor
@@ -1120,7 +1118,7 @@ public function __construct(
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -1186,7 +1184,7 @@ public function getPrecision(): integer
 #### ORM\Dbal\Type\DateTime::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -1264,8 +1262,8 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ```php
 public function __construct(
-    \ORM\EntityManager $entityManager, array $options = array()
-): Dbal
+    ORM\EntityManager $entityManager, array $options = array()
+)
 ```
 
 ##### Dbal constructor.
@@ -1341,7 +1339,7 @@ public function buildCompositeWhereInStatement(
 
 ```php
 protected function buildInsertStatement(
-    \ORM\Entity $entity, array<\ORM\Entity> $entities
+    ORM\Entity $entity, array<\ORM\Entity> $entities
 ): string
 ```
 
@@ -1366,7 +1364,7 @@ protected function buildInsertStatement(
 #### ORM\Dbal\Dbal::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -1391,7 +1389,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     string $table
-): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+): ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -1437,7 +1435,7 @@ protected function escapeBoolean( boolean $value ): string
 #### ORM\Dbal\Dbal::escapeDateTime
 
 ```php
-protected function escapeDateTime( \DateTime $value ): mixed
+protected function escapeDateTime( DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -1615,7 +1613,7 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Dbal::insert
 
 ```php
-public function insert( \ORM\Entity $entities ): boolean
+public function insert( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities into database
@@ -1638,7 +1636,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 #### ORM\Dbal\Dbal::insertAndSync
 
 ```php
-public function insertAndSync( \ORM\Entity $entities ): boolean
+public function insertAndSync( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities and update with default values from database
@@ -1662,7 +1660,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 
 ```php
 public function insertAndSyncWithAutoInc(
-    \ORM\Entity $entities
+    ORM\Entity $entities
 ): integer|boolean
 ```
 
@@ -1733,7 +1731,7 @@ public function setOption( string $option, $value ): static
 #### ORM\Dbal\Dbal::syncInserted
 
 ```php
-protected function syncInserted( \ORM\Entity $entities )
+protected function syncInserted( ORM\Entity $entities )
 ```
 
 ##### Sync the $entities after insert
@@ -1755,7 +1753,7 @@ protected function syncInserted( \ORM\Entity $entities )
 #### ORM\Dbal\Dbal::updateAutoincrement
 
 ```php
-protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+protected function updateAutoincrement( ORM\Entity $entity, $value )
 ```
 
 ##### Update the autoincrement value
@@ -1815,7 +1813,7 @@ protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
 public function __construct(
     string $type, string $name, string $user = null, string $pass = null, 
     string $host = null, string $port = null, array $attributes = array()
-): DbConfig
+)
 ```
 
 ##### Constructor
@@ -2051,8 +2049,8 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 ```php
 final public function __construct(
     array<mixed> $data = array(), 
-    \ORM\EntityManager $entityManager = null, boolean $fromDatabase = false
-): Entity
+    ORM\EntityManager $entityManager = null, boolean $fromDatabase = false
+)
 ```
 
 ##### Constructor
@@ -2201,7 +2199,7 @@ This method is only for many-to-many relations.
 #### ORM\Entity::describe
 
 ```php
-public static function describe(): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+public static function describe(): ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Get a description for this table.
@@ -2219,9 +2217,7 @@ public static function describe(): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
 #### ORM\Entity::detachObserver
 
 ```php
-public static function detachObserver(
-    \ORM\Observer\AbstractObserver $observer
-)
+public static function detachObserver( ORM\Observer\AbstractObserver $observer )
 ```
 
 ##### Stop observing the class by $observer
@@ -2312,7 +2308,7 @@ public function exists(): boolean
 ```php
 public function fetch(
     string $relation, boolean $getAll = false
-): \ORM\Entity|array<\ORM\Entity>|\ORM\EntityFetcher
+): ORM\Entity|array<\ORM\Entity>|ORM\EntityFetcher
 ```
 
 ##### Fetches related objects
@@ -2596,7 +2592,7 @@ $refresh to true.
 #### ORM\Entity::getRelation
 
 ```php
-public static function getRelation( string $relation ): \ORM\Relation
+public static function getRelation( string $relation ): ORM\Relation
 ```
 
 ##### Get the definition for $relation
@@ -2674,9 +2670,7 @@ public function hasPrimaryKey(): boolean
 #### ORM\Entity::insertEntity
 
 ```php
-private function insertEntity(
-    boolean $hasPrimaryKey
-): \ORM\Event\Inserted|null
+private function insertEntity( boolean $hasPrimaryKey ): ORM\Event\Inserted|null
 ```
 
 ##### Insert the row in the database
@@ -2776,8 +2770,8 @@ public static function isValidatorEnabled(): boolean
 
 ```php
 public static function observeBy(
-    \ORM\?AbstractObserver $observer = null
-): \ORM\?CallbackObserver
+    $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe the class using $observer
@@ -2794,14 +2788,14 @@ For more information about model events please consult the [documentation](https
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$observer` | **?AbstractObserver**  |  |
+| `$observer` | **Observer\AbstractObserver &#124; null**  |  |
 
 
 
@@ -2921,7 +2915,7 @@ Get called before the entity get updated in database.
 #### ORM\Entity::query
 
 ```php
-public static function query(): \ORM\EntityFetcher
+public static function query(): ORM\EntityFetcher
 ```
 
 ##### Create an entityFetcher for this entity
@@ -2983,7 +2977,7 @@ Helpful to reduce the size of serializations of the object (for caching, or toAr
 #### ORM\Entity::save
 
 ```php
-public function save(): \ORM\Entity
+public function save(): ORM\Entity
 ```
 
 ##### Save the entity to EntityManager
@@ -3055,7 +3049,7 @@ The method throws an error when the validation fails (also when the column does 
 #### ORM\Entity::setEntityManager
 
 ```php
-public function setEntityManager( \ORM\EntityManager $entityManager ): static
+public function setEntityManager( ORM\EntityManager $entityManager ): static
 ```
 
 
@@ -3146,7 +3140,7 @@ public static function setNamingSchemeTable( string $namingSchemeTable )
 #### ORM\Entity::setRelated
 
 ```php
-public function setRelated( string $relation, \ORM\Entity $entity = null )
+public function setRelated( string $relation, ORM\Entity $entity = null )
 ```
 
 ##### Set $relation to $entity
@@ -3244,7 +3238,7 @@ public function unserialize( string $serialized )
 #### ORM\Entity::updateEntity
 
 ```php
-private function updateEntity(): \ORM\Event\Updated|null
+private function updateEntity(): ORM\Event\Updated|null
 ```
 
 ##### Update the row in the database
@@ -3263,7 +3257,7 @@ private function updateEntity(): \ORM\Event\Updated|null
 ```php
 public static function validate(
     string $attribute, $value
-): boolean|\ORM\Dbal\Error
+): boolean|ORM\Dbal\Error
 ```
 
 ##### Validate $value for $attribute
@@ -3409,9 +3403,7 @@ Supported:
 #### ORM\EntityFetcher::__construct
 
 ```php
-public function __construct(
-    \ORM\EntityManager $entityManager, \ORM\Entity $class
-): EntityFetcher
+public function __construct( ORM\EntityManager $entityManager, $class )
 ```
 
 ##### Constructor
@@ -3477,7 +3469,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -3517,7 +3509,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\EntityFetcher::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -3536,7 +3528,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Add $column
@@ -3585,7 +3577,7 @@ public function columns( array $columns = null ): static
 
 ```php
 protected function convertPlaceholders(
-    string $expression, array $args, boolean $translateCols = true
+    string $expression, $args, boolean $translateCols = true
 ): string
 ```
 
@@ -3629,7 +3621,7 @@ public function count(): integer
 #### ORM\EntityFetcher::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): $this
+public function createRelatedJoin( $join, $relation ): static
 ```
 
 ##### Create the join with $join type
@@ -3638,7 +3630,7 @@ public function createRelatedJoin( $join, $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3653,7 +3645,7 @@ public function createRelatedJoin( $join, $relation ): $this
 #### ORM\EntityFetcher::first
 
 ```php
-private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+private function first( ORM\QueryBuilder\iterable $array ): mixed|null
 ```
 
 ##### Get the first item of an array
@@ -3677,9 +3669,9 @@ Stupid helper for a missing functionality in php
 
 ```php
 public function fullJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -3729,7 +3721,7 @@ private function getDefaultOperator( $value )
 #### ORM\EntityFetcher::getEntityManager
 
 ```php
-public function getEntityManager(): \ORM\EntityManager
+public function getEntityManager(): ORM\EntityManager
 ```
 
 
@@ -3779,7 +3771,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\EntityFetcher::getStatement
 
 ```php
-protected function getStatement(): \PDOStatement|boolean
+protected function getStatement(): PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -3849,9 +3841,9 @@ Optionally you can provide an expression in $column with question marks as place
 
 ```php
 public function join(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -3879,7 +3871,7 @@ can be set to true.
 #### ORM\EntityFetcher::joinRelated
 
 ```php
-public function joinRelated( $relation ): $this
+public function joinRelated( $relation ): static
 ```
 
 ##### Join $relation
@@ -3888,7 +3880,7 @@ public function joinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -3903,9 +3895,9 @@ public function joinRelated( $relation ): $this
 
 ```php
 public function leftJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -3933,7 +3925,7 @@ can be set to true.
 #### ORM\EntityFetcher::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): $this
+public function leftJoinRelated( $relation ): static
 ```
 
 ##### Left outer join $relation
@@ -3942,7 +3934,7 @@ public function leftJoinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -4025,7 +4017,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 #### ORM\EntityFetcher::one
 
 ```php
-public function one(): \ORM\Entity
+public function one(): ORM\Entity
 ```
 
 ##### Fetch one entity
@@ -4088,7 +4080,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -4128,7 +4120,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\EntityFetcher::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -4157,7 +4149,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\EntityFetcher::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -4204,9 +4196,9 @@ public function parenthesis(): static
 
 ```php
 public function rightJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -4258,10 +4250,13 @@ Please note that this will execute the query - further modifications will not ha
 
 
 
+**See Also:**
+
+* \PDOStatement::setFetchMode() 
 #### ORM\EntityFetcher::setQuery
 
 ```php
-public function setQuery( string $query, array $args = null ): $this
+public function setQuery( $query, array $args = null ): static
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -4270,7 +4265,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -4374,7 +4369,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\EntityFetcher::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -4403,7 +4398,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\EntityFetcher::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -4554,8 +4549,8 @@ Supported:
 
 ```php
 public function __construct(
-    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
-): Parenthesis
+    callable $onClose, ORM\QueryBuilder\ParenthesisInterface $parent
+)
 ```
 
 ##### Constructor
@@ -4616,7 +4611,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -4656,7 +4651,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -4675,7 +4670,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Add $column
@@ -4723,9 +4718,7 @@ public function columns( array $columns = null ): static
 #### ORM\Testing\EntityFetcherMock::convertPlaceholders
 
 ```php
-protected function convertPlaceholders(
-    string $expression, array $args
-): string
+protected function convertPlaceholders( string $expression, $args ): string
 ```
 
 ##### Replaces question marks in $expression with $args
@@ -4766,7 +4759,7 @@ public function count(): integer
 #### ORM\Testing\EntityFetcherMock::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): $this
+public function createRelatedJoin( $join, $relation ): static
 ```
 
 ##### Create the join with $join type
@@ -4775,7 +4768,7 @@ public function createRelatedJoin( $join, $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -4790,7 +4783,7 @@ public function createRelatedJoin( $join, $relation ): $this
 #### ORM\Testing\EntityFetcherMock::first
 
 ```php
-private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+private function first( ORM\QueryBuilder\iterable $array ): mixed|null
 ```
 
 ##### Get the first item of an array
@@ -4814,9 +4807,9 @@ Stupid helper for a missing functionality in php
 
 ```php
 public function fullJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -4866,7 +4859,7 @@ private function getDefaultOperator( $value )
 #### ORM\Testing\EntityFetcherMock::getEntityManager
 
 ```php
-public function getEntityManager(): \ORM\EntityManager
+public function getEntityManager(): ORM\EntityManager
 ```
 
 
@@ -4916,7 +4909,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\Testing\EntityFetcherMock::getStatement
 
 ```php
-protected function getStatement(): \PDOStatement|boolean
+protected function getStatement(): PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -4986,9 +4979,9 @@ Optionally you can provide an expression in $column with question marks as place
 
 ```php
 public function join(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -5016,7 +5009,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock::joinRelated
 
 ```php
-public function joinRelated( $relation ): $this
+public function joinRelated( $relation ): static
 ```
 
 ##### Join $relation
@@ -5025,7 +5018,7 @@ public function joinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -5040,9 +5033,9 @@ public function joinRelated( $relation ): $this
 
 ```php
 public function leftJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -5070,7 +5063,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): $this
+public function leftJoinRelated( $relation ): static
 ```
 
 ##### Left outer join $relation
@@ -5079,7 +5072,7 @@ public function leftJoinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -5162,7 +5155,7 @@ Changes the offset (only with limit) where fetching starts in the query.
 #### ORM\Testing\EntityFetcherMock::one
 
 ```php
-public function one(): \ORM\Entity
+public function one(): ORM\Entity
 ```
 
 ##### Fetch one entity
@@ -5225,7 +5218,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -5265,7 +5258,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -5294,7 +5287,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -5341,9 +5334,9 @@ public function parenthesis(): static
 
 ```php
 public function rightJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -5401,7 +5394,7 @@ Please note that this will execute the query - further modifications will not ha
 #### ORM\Testing\EntityFetcherMock::setQuery
 
 ```php
-public function setQuery( string $query, array $args = null ): $this
+public function setQuery( $query, array $args = null ): static
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -5410,7 +5403,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -5514,7 +5507,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -5543,7 +5536,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -5681,7 +5674,7 @@ private function wherePrefix( string $bool ): string
 #### ORM\EntityManager::__construct
 
 ```php
-public function __construct( array $options = array() ): EntityManager
+public function __construct( array $options = array() )
 ```
 
 ##### Constructor
@@ -5727,9 +5720,7 @@ protected static function buildChecksum( array $primaryKey ): string
 #### ORM\EntityManager::buildPrimaryKey
 
 ```php
-protected static function buildPrimaryKey(
-    string $class, array $primaryKey
-): array
+protected static function buildPrimaryKey( $class, array $primaryKey ): array
 ```
 
 ##### Builds the primary key with column names as keys
@@ -5800,7 +5791,7 @@ public function defineForParent( $class ): static
 #### ORM\EntityManager::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -5825,7 +5816,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     string $table
-): array<\ORM\Dbal\Column>|\ORM\Dbal\Table
+): array<\ORM\Dbal\Column>|ORM\Dbal\Table
 ```
 
 ##### Returns an array of columns from $table.
@@ -5848,9 +5839,7 @@ public function describe(
 #### ORM\EntityManager::detach
 
 ```php
-public function detach(
-    \ORM\ObserverInterface $observer, \ORM\?string $from = null
-): boolean
+public function detach( ORM\ObserverInterface $observer, $from = null ): boolean
 ```
 
 ##### Detach $observer from all classes
@@ -5870,7 +5859,7 @@ Returns whether or not an observer got detached.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$observer` | **ObserverInterface**  |  |
-| `$from` | **?string**  |  |
+| `$from` | **string &#124; null**  |  |
 
 
 
@@ -5925,7 +5914,7 @@ public function escapeValue( $value ): string
 ```php
 public function fetch(
     string $class, $primaryKey = null
-): \ORM\Entity|\ORM\EntityFetcher
+): ORM\Entity|ORM\EntityFetcher
 ```
 
 ##### Fetch one or more entities
@@ -5976,7 +5965,7 @@ Returns an array of entities added.
 #### ORM\EntityManager::fire
 
 ```php
-public function fire( \ORM\Event $event ): boolean
+public function fire( ORM\Event $event ): boolean
 ```
 
 ##### Fire $event on $entity
@@ -5999,7 +5988,7 @@ public function fire( \ORM\Event $event ): boolean
 #### ORM\EntityManager::getConnection
 
 ```php
-public function getConnection(): \PDO
+public function getConnection(): PDO
 ```
 
 ##### Get the pdo connection.
@@ -6016,7 +6005,7 @@ public function getConnection(): \PDO
 #### ORM\EntityManager::getDbal
 
 ```php
-public function getDbal(): \ORM\Dbal\Dbal
+public function getDbal(): ORM\Dbal\Dbal
 ```
 
 ##### Get the Datbase Abstraction Layer
@@ -6033,7 +6022,7 @@ public function getDbal(): \ORM\Dbal\Dbal
 #### ORM\EntityManager::getInstance
 
 ```php
-public static function getInstance( string $class = null ): \ORM\EntityManager
+public static function getInstance( string $class = null ): ORM\EntityManager
 ```
 
 ##### Get an instance of the EntityManager.
@@ -6060,7 +6049,7 @@ EntityManager is found it returns the last created EntityManager (null if no Ent
 #### ORM\EntityManager::getInstanceByNameSpace
 
 ```php
-private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
+private static function getInstanceByNameSpace( $class ): ORM\EntityManager
 ```
 
 ##### Get the instance by NameSpace mapping
@@ -6084,7 +6073,7 @@ private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
 #### ORM\EntityManager::getInstanceByParent
 
 ```php
-private static function getInstanceByParent( $class ): \ORM\EntityManager
+private static function getInstanceByParent( $class ): ORM\EntityManager
 ```
 
 ##### Get the instance by Parent class mapping
@@ -6108,7 +6097,7 @@ private static function getInstanceByParent( $class ): \ORM\EntityManager
 #### ORM\EntityManager::getNamer
 
 ```php
-public function getNamer(): \ORM\Namer
+public function getNamer(): ORM\Namer
 ```
 
 ##### Get the Namer instance
@@ -6148,7 +6137,7 @@ public function getOption( $option ): mixed
 #### ORM\EntityManager::has
 
 ```php
-public function has( \ORM\Entity $entity, $primaryKey = null ): boolean
+public function has( $entity, $primaryKey = null ): boolean
 ```
 
 ##### Check if the entity map has $entity
@@ -6173,8 +6162,8 @@ If you want to know if the entity already exists in the map use this method.
 
 ```php
 public function map(
-    \ORM\Entity $entity, boolean $update = false, string $class = null
-): \ORM\Entity
+    ORM\Entity $entity, boolean $update = false, string $class = null
+): ORM\Entity
 ```
 
 ##### Map $entity in the entity map
@@ -6205,8 +6194,8 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, \ORM\?ObserverInterface $observer = null
-): \ORM\?CallbackObserver
+    string $class, $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe $class using $observer
@@ -6222,7 +6211,7 @@ For more information about model events please consult the [documentation](https
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
@@ -6230,7 +6219,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **?ObserverInterface**  |  |
+| `$observer` | **ObserverInterface &#124; null**  |  |
 
 
 
@@ -6239,7 +6228,7 @@ For more information about model events please consult the [documentation](https
 ```php
 public function query(
     string $table, string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Get a query builder for $table
@@ -6335,7 +6324,7 @@ public static function setResolver( callable $resolver )
 #### ORM\EntityManager::sync
 
 ```php
-public function sync( \ORM\Entity $entity, boolean $reset = false ): boolean
+public function sync( ORM\Entity $entity, boolean $reset = false ): boolean
 ```
 
 ##### Synchronizing $entity with database
@@ -6361,7 +6350,7 @@ If $reset is true it also calls reset() on $entity.
 ```php
 public function useBulkInserts(
     string $class, integer $limit = 20
-): \ORM\BulkInsert
+): ORM\BulkInsert
 ```
 
 ##### Force $class to use bulk insert.
@@ -6455,7 +6444,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 #### ORM\Testing\EntityManagerMock::__construct
 
 ```php
-public function __construct( array $options = array() ): EntityManagerMock
+public function __construct( array $options = array() )
 ```
 
 ##### Constructor
@@ -6477,7 +6466,7 @@ public function __construct( array $options = array() ): EntityManagerMock
 #### ORM\Testing\EntityManagerMock::addEntity
 
 ```php
-public function addEntity( \ORM\Entity $entity )
+public function addEntity( ORM\Entity $entity )
 ```
 
 ##### Add an entity to be fetched by primary key
@@ -6503,8 +6492,8 @@ You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`
 
 ```php
 public function addResult(
-    $class, \ORM\Entity $entities
-): \ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface
+    $class, ORM\Entity $entities
+): ORM\Testing\EntityFetcherMock\Result|Mockery\MockInterface
 ```
 
 ##### Create and add a EntityFetcherMock\Result for $class
@@ -6552,9 +6541,7 @@ protected static function buildChecksum( array $primaryKey ): string
 #### ORM\Testing\EntityManagerMock::buildPrimaryKey
 
 ```php
-protected static function buildPrimaryKey(
-    string $class, array $primaryKey
-): array
+protected static function buildPrimaryKey( $class, array $primaryKey ): array
 ```
 
 ##### Builds the primary key with column names as keys
@@ -6625,7 +6612,7 @@ public function defineForParent( $class ): static
 #### ORM\Testing\EntityManagerMock::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -6650,7 +6637,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     string $table
-): array<\ORM\Dbal\Column>|\ORM\Dbal\Table
+): array<\ORM\Dbal\Column>|ORM\Dbal\Table
 ```
 
 ##### Returns an array of columns from $table.
@@ -6673,9 +6660,7 @@ public function describe(
 #### ORM\Testing\EntityManagerMock::detach
 
 ```php
-public function detach(
-    \ORM\ObserverInterface $observer, \ORM\?string $from = null
-): boolean
+public function detach( ORM\ObserverInterface $observer, $from = null ): boolean
 ```
 
 ##### Detach $observer from all classes
@@ -6695,7 +6680,7 @@ Returns whether or not an observer got detached.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$observer` | **\ORM\ObserverInterface**  |  |
-| `$from` | **\ORM\?string**  |  |
+| `$from` | **string &#124; null**  |  |
 
 
 
@@ -6750,7 +6735,7 @@ public function escapeValue( $value ): string
 ```php
 public function fetch(
     string $class, $primaryKey = null
-): \ORM\Entity|\ORM\EntityFetcher
+): ORM\Entity|ORM\EntityFetcher
 ```
 
 ##### Fetch one or more entities
@@ -6801,7 +6786,7 @@ Returns an array of entities added.
 #### ORM\Testing\EntityManagerMock::fire
 
 ```php
-public function fire( \ORM\Event $event ): boolean
+public function fire( ORM\Event $event ): boolean
 ```
 
 ##### Fire $event on $entity
@@ -6824,7 +6809,7 @@ public function fire( \ORM\Event $event ): boolean
 #### ORM\Testing\EntityManagerMock::getConnection
 
 ```php
-public function getConnection(): \PDO
+public function getConnection(): PDO
 ```
 
 ##### Get the pdo connection.
@@ -6841,7 +6826,7 @@ public function getConnection(): \PDO
 #### ORM\Testing\EntityManagerMock::getDbal
 
 ```php
-public function getDbal(): \ORM\Dbal\Dbal
+public function getDbal(): ORM\Dbal\Dbal
 ```
 
 ##### Get the Datbase Abstraction Layer
@@ -6858,7 +6843,7 @@ public function getDbal(): \ORM\Dbal\Dbal
 #### ORM\Testing\EntityManagerMock::getInstance
 
 ```php
-public static function getInstance( string $class = null ): \ORM\EntityManager
+public static function getInstance( string $class = null ): ORM\EntityManager
 ```
 
 ##### Get an instance of the EntityManager.
@@ -6885,7 +6870,7 @@ EntityManager is found it returns the last created EntityManager (null if no Ent
 #### ORM\Testing\EntityManagerMock::getInstanceByNameSpace
 
 ```php
-private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
+private static function getInstanceByNameSpace( $class ): ORM\EntityManager
 ```
 
 ##### Get the instance by NameSpace mapping
@@ -6909,7 +6894,7 @@ private static function getInstanceByNameSpace( $class ): \ORM\EntityManager
 #### ORM\Testing\EntityManagerMock::getInstanceByParent
 
 ```php
-private static function getInstanceByParent( $class ): \ORM\EntityManager
+private static function getInstanceByParent( $class ): ORM\EntityManager
 ```
 
 ##### Get the instance by Parent class mapping
@@ -6933,7 +6918,7 @@ private static function getInstanceByParent( $class ): \ORM\EntityManager
 #### ORM\Testing\EntityManagerMock::getNamer
 
 ```php
-public function getNamer(): \ORM\Namer
+public function getNamer(): ORM\Namer
 ```
 
 ##### Get the Namer instance
@@ -6973,7 +6958,7 @@ public function getOption( $option ): mixed
 #### ORM\Testing\EntityManagerMock::getResults
 
 ```php
-public function getResults( string $class, \ORM\EntityFetcher $fetcher ): array
+public function getResults( string $class, ORM\EntityFetcher $fetcher ): array
 ```
 
 ##### Get the results for $class and $query
@@ -6997,7 +6982,7 @@ The EntityFetcherMock\Result gets a quality for matching this query. Only the hi
 #### ORM\Testing\EntityManagerMock::has
 
 ```php
-public function has( \ORM\Entity $entity, $primaryKey = null ): boolean
+public function has( $entity, $primaryKey = null ): boolean
 ```
 
 ##### Check if the entity map has $entity
@@ -7022,8 +7007,8 @@ If you want to know if the entity already exists in the map use this method.
 
 ```php
 public function map(
-    \ORM\Entity $entity, boolean $update = false, string $class = null
-): \ORM\Entity
+    ORM\Entity $entity, boolean $update = false, string $class = null
+): ORM\Entity
 ```
 
 ##### Map $entity in the entity map
@@ -7054,8 +7039,8 @@ $user = $enitityManager->map(new User(['id' => 42]));
 
 ```php
 public function observe(
-    string $class, \ORM\?ObserverInterface $observer = null
-): \ORM\?CallbackObserver
+    string $class, $observer = null
+): ORM\Observer\CallbackObserver|null
 ```
 
 ##### Observe $class using $observer
@@ -7071,7 +7056,7 @@ For more information about model events please consult the [documentation](https
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\?CallbackObserver**
+ **Returns**: this method returns **\ORM\Observer\CallbackObserver|null**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
 
 ##### Parameters
@@ -7079,7 +7064,7 @@ For more information about model events please consult the [documentation](https
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` | **string**  |  |
-| `$observer` | **\ORM\?ObserverInterface**  |  |
+| `$observer` | **\ORM\ObserverInterface &#124; null**  |  |
 
 
 
@@ -7088,7 +7073,7 @@ For more information about model events please consult the [documentation](https
 ```php
 public function query(
     string $table, string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Get a query builder for $table
@@ -7112,7 +7097,7 @@ public function query(
 #### ORM\Testing\EntityManagerMock::retrieve
 
 ```php
-public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
+public function retrieve( string $class, array $primaryKey ): ORM\Entity|null
 ```
 
 ##### Retrieve an entity by $primaryKey
@@ -7208,7 +7193,7 @@ public static function setResolver( callable $resolver )
 #### ORM\Testing\EntityManagerMock::sync
 
 ```php
-public function sync( \ORM\Entity $entity, boolean $reset = false ): boolean
+public function sync( ORM\Entity $entity, boolean $reset = false ): boolean
 ```
 
 ##### Synchronizing $entity with database
@@ -7234,7 +7219,7 @@ If $reset is true it also calls reset() on $entity.
 ```php
 public function useBulkInserts(
     string $class, integer $limit = 20
-): \ORM\BulkInsert
+): ORM\BulkInsert
 ```
 
 ##### Force $class to use bulk insert.
@@ -7290,7 +7275,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 #### ORM\Dbal\Type\Enum::__construct
 
 ```php
-public function __construct( array<string> $allowedValues ): Enum
+public function __construct( array<string> $allowedValues )
 ```
 
 ##### Set constructor
@@ -7313,7 +7298,7 @@ public function __construct( array<string> $allowedValues ): Enum
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -7379,7 +7364,7 @@ public function getAllowedValues(): array<string>
 #### ORM\Dbal\Type\Enum::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -7439,8 +7424,8 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 ```php
 public function __construct(
     array $params = array(), null $code = null, null $message = null, 
-    \ORM\Dbal\Error $previous = null
-): Error
+    ORM\Dbal\Error $previous = null
+)
 ```
 
 ##### Error constructor
@@ -7501,7 +7486,7 @@ public function __construct(
 #### ORM\Event::__construct
 
 ```php
-public function __construct( \ORM\Entity $entity ): Event
+public function __construct( ORM\Entity $entity )
 ```
 
 
@@ -7613,7 +7598,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 #### ORM\Event\Fetched::__construct
 
 ```php
-public function __construct( \ORM\Entity $entity, array $rawData ): Fetched
+public function __construct( ORM\Entity $entity, array $rawData )
 ```
 
 
@@ -7882,7 +7867,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -7932,7 +7917,7 @@ public static function fits( array $columnDefinition ): boolean
 #### ORM\Dbal\Type\Json::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -8003,7 +7988,7 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 public function __construct(
     string $name, string $class, array $reference, string $opponent, 
     string $table
-): ManyToMany
+)
 ```
 
 ##### ManyToMany constructor.
@@ -8030,7 +8015,7 @@ public function __construct(
 
 ```php
 public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join, string $alias
+    ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -8057,7 +8042,7 @@ public function addJoin(
 
 ```php
 public function addRelated(
-    \ORM\Entity $self, array $entities, \ORM\EntityManager $entityManager
+    ORM\Entity $self, array $entities, ORM\EntityManager $entityManager
 )
 ```
 
@@ -8109,7 +8094,7 @@ protected static function convertShort( string $name, array $relDef ): array
 ```php
 public static function createRelation(
     string $name, array $relDef
-): \ORM\Relation
+): ORM\Relation
 ```
 
 ##### Factory for relation definition object
@@ -8135,7 +8120,7 @@ public static function createRelation(
 
 ```php
 public function deleteRelated(
-    \ORM\Entity $self, array $entities, \ORM\EntityManager $entityManager
+    ORM\Entity $self, array $entities, ORM\EntityManager $entityManager
 )
 ```
 
@@ -8161,7 +8146,7 @@ public function deleteRelated(
 
 ```php
 public function fetch(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
+    ORM\Entity $self, ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -8187,8 +8172,8 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php
 public function fetchAll(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
-): array<\ORM\Entity>|\ORM\Entity
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -8228,7 +8213,7 @@ public function getClass(): string
 #### ORM\Relation\ManyToMany::getForeignKey
 
 ```php
-protected function getForeignKey( \ORM\Entity $self, array $reference ): array
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -8252,7 +8237,7 @@ protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 #### ORM\Relation\ManyToMany::getOpponent
 
 ```php
-public function getOpponent(): \ORM\Relation
+public function getOpponent(): ORM\Relation
 ```
 
 
@@ -8300,7 +8285,7 @@ public function getTable(): string
 #### ORM\Relation\ManyToMany::setRelated
 
 ```php
-public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
+public function setRelated( ORM\Entity $self, $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -8380,8 +8365,8 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 ```php
 public function __construct(
-    \ORM\EntityManager $entityManager, array $options = array()
-): Dbal
+    ORM\EntityManager $entityManager, array $options = array()
+)
 ```
 
 ##### Dbal constructor.
@@ -8457,7 +8442,7 @@ public function buildCompositeWhereInStatement(
 
 ```php
 protected function buildInsertStatement(
-    \ORM\Entity $entity, array<\ORM\Entity> $entities
+    ORM\Entity $entity, array<\ORM\Entity> $entities
 ): string
 ```
 
@@ -8482,7 +8467,7 @@ protected function buildInsertStatement(
 #### ORM\Dbal\Mysql::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -8507,7 +8492,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     string $table
-): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+): ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -8553,7 +8538,7 @@ protected function escapeBoolean( boolean $value ): string
 #### ORM\Dbal\Mysql::escapeDateTime
 
 ```php
-protected function escapeDateTime( \DateTime $value ): mixed
+protected function escapeDateTime( DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -8731,7 +8716,7 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Mysql::insert
 
 ```php
-public function insert( \ORM\Entity $entities ): boolean
+public function insert( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities into database
@@ -8754,7 +8739,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 #### ORM\Dbal\Mysql::insertAndSync
 
 ```php
-public function insertAndSync( \ORM\Entity $entities ): boolean
+public function insertAndSync( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities and update with default values from database
@@ -8778,7 +8763,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 
 ```php
 public function insertAndSyncWithAutoInc(
-    \ORM\Entity $entities
+    ORM\Entity $entities
 ): integer|boolean
 ```
 
@@ -8873,7 +8858,7 @@ public function setOption( string $option, $value ): static
 #### ORM\Dbal\Mysql::syncInserted
 
 ```php
-protected function syncInserted( \ORM\Entity $entities )
+protected function syncInserted( ORM\Entity $entities )
 ```
 
 ##### Sync the $entities after insert
@@ -8895,7 +8880,7 @@ protected function syncInserted( \ORM\Entity $entities )
 #### ORM\Dbal\Mysql::updateAutoincrement
 
 ```php
-protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+protected function updateAutoincrement( ORM\Entity $entity, $value )
 ```
 
 ##### Update the autoincrement value
@@ -8960,7 +8945,7 @@ Namer is an artificial word and is more a name giver. We just don't wanted to wr
 #### ORM\Namer::__construct
 
 ```php
-public function __construct( array $options = array() ): Namer
+public function __construct( array $options = array() )
 ```
 
 ##### Namer constructor.
@@ -9516,7 +9501,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 #### ORM\Dbal\Error\NotNullable::__construct
 
 ```php
-public function __construct( \ORM\Dbal\Column $column ): NotNullable
+public function __construct( ORM\Dbal\Column $column )
 ```
 
 ##### Error constructor
@@ -9589,9 +9574,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 #### ORM\Dbal\Error\NotValid::__construct
 
 ```php
-public function __construct(
-    \ORM\Dbal\Column $column, \ORM\Dbal\Error $previous
-): NotValid
+public function __construct( ORM\Dbal\Column $column, ORM\Dbal\Error $previous )
 ```
 
 ##### NotValid constructor
@@ -9639,7 +9622,7 @@ public function __construct(
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -9689,7 +9672,7 @@ public static function fits( array $columnDefinition ): boolean
 #### ORM\Dbal\Type\Number::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -9735,7 +9718,7 @@ can be canceled).
 #### ORM\ObserverInterface::handle
 
 ```php
-public function handle( \ORM\Event $event ): boolean
+public function handle( ORM\Event $event ): boolean
 ```
 
 ##### Handles the $event.
@@ -9801,9 +9784,7 @@ Return false to stop event execution.
 #### ORM\Relation\OneToMany::__construct
 
 ```php
-public function __construct(
-    string $name, string $class, string $opponent
-): OneToMany
+public function __construct( string $name, string $class, string $opponent )
 ```
 
 ##### Owner constructor.
@@ -9828,7 +9809,7 @@ public function __construct(
 
 ```php
 public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join, string $alias
+    ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -9855,8 +9836,8 @@ public function addJoin(
 
 ```php
 public function addRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -9908,7 +9889,7 @@ protected static function convertShort( string $name, array $relDef ): array
 ```php
 public static function createRelation(
     string $name, array $relDef
-): \ORM\Relation
+): ORM\Relation
 ```
 
 ##### Factory for relation definition object
@@ -9934,8 +9915,8 @@ public static function createRelation(
 
 ```php
 public function deleteRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -9961,7 +9942,7 @@ public function deleteRelated(
 
 ```php
 public function fetch(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
+    ORM\Entity $self, ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -9987,8 +9968,8 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php
 public function fetchAll(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
-): array<\ORM\Entity>|\ORM\Entity
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -10028,7 +10009,7 @@ public function getClass(): string
 #### ORM\Relation\OneToMany::getForeignKey
 
 ```php
-protected function getForeignKey( \ORM\Entity $self, array $reference ): array
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -10052,7 +10033,7 @@ protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToMany::getOpponent
 
 ```php
-public function getOpponent(): \ORM\Relation
+public function getOpponent(): ORM\Relation
 ```
 
 
@@ -10084,7 +10065,7 @@ public function getReference(): array
 #### ORM\Relation\OneToMany::setRelated
 
 ```php
-public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
+public function setRelated( ORM\Entity $self, $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -10150,9 +10131,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 #### ORM\Relation\OneToOne::__construct
 
 ```php
-public function __construct(
-    string $name, string $class, string $opponent
-): OneToMany
+public function __construct( string $name, string $class, string $opponent )
 ```
 
 ##### Owner constructor.
@@ -10177,7 +10156,7 @@ public function __construct(
 
 ```php
 abstract public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join, string $alias
+    ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -10204,8 +10183,8 @@ abstract public function addJoin(
 
 ```php
 public function addRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -10257,7 +10236,7 @@ protected static function convertShort( string $name, array $relDef ): array
 ```php
 public static function createRelation(
     string $name, array $relDef
-): \ORM\Relation
+): ORM\Relation
 ```
 
 ##### Factory for relation definition object
@@ -10283,8 +10262,8 @@ public static function createRelation(
 
 ```php
 public function deleteRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -10310,7 +10289,7 @@ public function deleteRelated(
 
 ```php
 public function fetch(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
+    ORM\Entity $self, ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -10336,8 +10315,8 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php
 public function fetchAll(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
-): array<\ORM\Entity>|\ORM\Entity
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -10377,7 +10356,7 @@ public function getClass(): string
 #### ORM\Relation\OneToOne::getForeignKey
 
 ```php
-protected function getForeignKey( \ORM\Entity $self, array $reference ): array
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -10401,7 +10380,7 @@ protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToOne::getOpponent
 
 ```php
-public function getOpponent(): \ORM\Relation
+public function getOpponent(): ORM\Relation
 ```
 
 
@@ -10433,7 +10412,7 @@ public function getReference(): array
 #### ORM\Relation\OneToOne::setRelated
 
 ```php
-public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
+public function setRelated( ORM\Entity $self, $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -10528,9 +10507,7 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 #### ORM\Relation\Owner::__construct
 
 ```php
-public function __construct(
-    string $name, string $class, array $reference
-): Owner
+public function __construct( string $name, string $class, array $reference )
 ```
 
 ##### Owner constructor.
@@ -10555,7 +10532,7 @@ public function __construct(
 
 ```php
 public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join, string $alias
+    ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -10582,8 +10559,8 @@ public function addJoin(
 
 ```php
 public function addRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -10635,7 +10612,7 @@ protected static function convertShort( string $name, array $relDef ): array
 ```php
 public static function createRelation(
     string $name, array $relDef
-): \ORM\Relation
+): ORM\Relation
 ```
 
 ##### Factory for relation definition object
@@ -10661,8 +10638,8 @@ public static function createRelation(
 
 ```php
 public function deleteRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -10688,7 +10665,7 @@ public function deleteRelated(
 
 ```php
 public function fetch(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
+    ORM\Entity $self, ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -10714,8 +10691,8 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php
 public function fetchAll(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
-): array<\ORM\Entity>|\ORM\Entity
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -10755,7 +10732,7 @@ public function getClass(): string
 #### ORM\Relation\Owner::getForeignKey
 
 ```php
-protected function getForeignKey( \ORM\Entity $self, array $reference ): array
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -10779,7 +10756,7 @@ protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 #### ORM\Relation\Owner::getOpponent
 
 ```php
-public function getOpponent(): \ORM\Relation
+public function getOpponent(): ORM\Relation
 ```
 
 
@@ -10811,7 +10788,7 @@ public function getReference(): array
 #### ORM\Relation\Owner::setRelated
 
 ```php
-public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
+public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -10877,8 +10854,8 @@ public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
 
 ```php
 public function __construct(
-    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
-): Parenthesis
+    callable $onClose, ORM\QueryBuilder\ParenthesisInterface $parent
+)
 ```
 
 ##### Constructor
@@ -10919,7 +10896,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -10959,7 +10936,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\Parenthesis::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -11011,7 +10988,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -11051,7 +11028,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\Parenthesis::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -11080,7 +11057,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\Parenthesis::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -11168,7 +11145,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\Parenthesis::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -11197,7 +11174,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\Parenthesis::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -11299,7 +11276,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = '', string $value = ''
+    string $column, $operator = '', string $value = ''
 ): static
 ```
 
@@ -11339,7 +11316,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\ParenthesisInterface::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -11391,7 +11368,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = '', string $value = ''
+    string $column, $operator = '', string $value = ''
 ): static
 ```
 
@@ -11431,7 +11408,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\ParenthesisInterface::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -11460,7 +11437,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\ParenthesisInterface::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -11551,7 +11528,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\ParenthesisInterface::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -11580,7 +11557,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\ParenthesisInterface::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -11665,8 +11642,8 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 ```php
 public function __construct(
-    \ORM\EntityManager $entityManager, array $options = array()
-): Dbal
+    ORM\EntityManager $entityManager, array $options = array()
+)
 ```
 
 ##### Dbal constructor.
@@ -11742,7 +11719,7 @@ public function buildCompositeWhereInStatement(
 
 ```php
 protected function buildInsertStatement(
-    \ORM\Entity $entity, array<\ORM\Entity> $entities
+    ORM\Entity $entity, array<\ORM\Entity> $entities
 ): string
 ```
 
@@ -11767,7 +11744,7 @@ protected function buildInsertStatement(
 #### ORM\Dbal\Pgsql::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -11792,7 +11769,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     $schemaTable
-): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+): ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -11838,7 +11815,7 @@ protected function escapeBoolean( boolean $value ): string
 #### ORM\Dbal\Pgsql::escapeDateTime
 
 ```php
-protected function escapeDateTime( \DateTime $value ): mixed
+protected function escapeDateTime( DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -12016,7 +11993,7 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Pgsql::insert
 
 ```php
-public function insert( \ORM\Entity $entities ): boolean
+public function insert( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities into database
@@ -12039,7 +12016,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 #### ORM\Dbal\Pgsql::insertAndSync
 
 ```php
-public function insertAndSync( \ORM\Entity $entities ): boolean
+public function insertAndSync( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities and update with default values from database
@@ -12063,7 +12040,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 
 ```php
 public function insertAndSyncWithAutoInc(
-    \ORM\Entity $entities
+    ORM\Entity $entities
 ): integer|boolean
 ```
 
@@ -12134,7 +12111,7 @@ public function setOption( string $option, $value ): static
 #### ORM\Dbal\Pgsql::syncInserted
 
 ```php
-protected function syncInserted( \ORM\Entity $entities )
+protected function syncInserted( ORM\Entity $entities )
 ```
 
 ##### Sync the $entities after insert
@@ -12156,7 +12133,7 @@ protected function syncInserted( \ORM\Entity $entities )
 #### ORM\Dbal\Pgsql::updateAutoincrement
 
 ```php
-protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+protected function updateAutoincrement( ORM\Entity $entity, $value )
 ```
 
 ##### Update the autoincrement value
@@ -12267,8 +12244,8 @@ Supported:
 ```php
 public function __construct(
     string $tableName, string $alias = '', 
-    \ORM\EntityManager $entityManager = null
-): QueryBuilder
+    ORM\EntityManager $entityManager = null
+)
 ```
 
 ##### Constructor
@@ -12332,7 +12309,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -12372,7 +12349,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilder::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -12391,7 +12368,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Add $column
@@ -12439,9 +12416,7 @@ public function columns( array $columns = null ): static
 #### ORM\QueryBuilder\QueryBuilder::convertPlaceholders
 
 ```php
-protected function convertPlaceholders(
-    string $expression, array $args
-): string
+protected function convertPlaceholders( string $expression, $args ): string
 ```
 
 ##### Replaces question marks in $expression with $args
@@ -12465,7 +12440,7 @@ protected function convertPlaceholders(
 #### ORM\QueryBuilder\QueryBuilder::first
 
 ```php
-private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+private function first( ORM\QueryBuilder\iterable $array ): mixed|null
 ```
 
 ##### Get the first item of an array
@@ -12489,9 +12464,9 @@ Stupid helper for a missing functionality in php
 
 ```php
 public function fullJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -12541,7 +12516,7 @@ private function getDefaultOperator( $value )
 #### ORM\QueryBuilder\QueryBuilder::getEntityManager
 
 ```php
-public function getEntityManager(): \ORM\EntityManager
+public function getEntityManager(): ORM\EntityManager
 ```
 
 
@@ -12591,7 +12566,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\QueryBuilder\QueryBuilder::getStatement
 
 ```php
-protected function getStatement(): \PDOStatement|boolean
+protected function getStatement(): PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -12636,9 +12611,9 @@ Optionally you can provide an expression in $column with question marks as place
 
 ```php
 public function join(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -12667,9 +12642,9 @@ can be set to true.
 
 ```php
 public function leftJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -12832,7 +12807,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -12872,7 +12847,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilder::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -12901,7 +12876,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilder::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -12948,9 +12923,9 @@ public function parenthesis(): static
 
 ```php
 public function rightJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -13050,7 +13025,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilder::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -13079,7 +13054,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilder::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -13201,7 +13176,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = '', string $value = ''
+    string $column, $operator = '', string $value = ''
 ): static
 ```
 
@@ -13241,7 +13216,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilderInterface::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -13260,7 +13235,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Add $column
@@ -13309,9 +13284,9 @@ public function columns( $columns = null ): static
 
 ```php
 public function fullJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -13399,9 +13374,9 @@ Optionally you can provide an expression in $column with question marks as place
 
 ```php
 public function join(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -13430,9 +13405,9 @@ can be set to true.
 
 ```php
 public function leftJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -13575,7 +13550,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = '', string $value = ''
+    string $column, $operator = '', string $value = ''
 ): static
 ```
 
@@ -13615,7 +13590,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -13644,7 +13619,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilderInterface::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -13694,9 +13669,9 @@ public function parenthesis(): static
 
 ```php
 public function rightJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -13766,7 +13741,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\QueryBuilder\QueryBuilderInterface::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -13795,7 +13770,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\QueryBuilder\QueryBuilderInterface::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -13878,7 +13853,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 ```php
 abstract public function addJoin(
-    \ORM\EntityFetcher $fetcher, string $join, string $alias
+    ORM\EntityFetcher $fetcher, string $join, string $alias
 ): mixed
 ```
 
@@ -13905,8 +13880,8 @@ abstract public function addJoin(
 
 ```php
 public function addRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -13958,7 +13933,7 @@ protected static function convertShort( string $name, array $relDef ): array
 ```php
 public static function createRelation(
     string $name, array $relDef
-): \ORM\Relation
+): ORM\Relation
 ```
 
 ##### Factory for relation definition object
@@ -13984,8 +13959,8 @@ public static function createRelation(
 
 ```php
 public function deleteRelated(
-    \ORM\Entity $self, array<\ORM\Entity> $entities, 
-    \ORM\EntityManager $entityManager
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
 )
 ```
 
@@ -14011,7 +13986,7 @@ public function deleteRelated(
 
 ```php
 abstract public function fetch(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
+    ORM\Entity $self, ORM\EntityManager $entityManager
 ): mixed
 ```
 
@@ -14037,8 +14012,8 @@ Runs fetch on the EntityManager and returns its result.
 
 ```php
 public function fetchAll(
-    \ORM\Entity $self, \ORM\EntityManager $entityManager
-): array<\ORM\Entity>|\ORM\Entity
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
 ```
 
 ##### Fetch all from the relation
@@ -14078,7 +14053,7 @@ public function getClass(): string
 #### ORM\Relation::getForeignKey
 
 ```php
-protected function getForeignKey( \ORM\Entity $self, array $reference ): array
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
 ```
 
 ##### Get the foreign key for the given reference
@@ -14102,7 +14077,7 @@ protected function getForeignKey( \ORM\Entity $self, array $reference ): array
 #### ORM\Relation::getOpponent
 
 ```php
-public function getOpponent(): \ORM\Relation
+public function getOpponent(): ORM\Relation
 ```
 
 
@@ -14134,7 +14109,7 @@ public function getReference(): array
 #### ORM\Relation::setRelated
 
 ```php
-public function setRelated( \ORM\Entity $self, \ORM\Entity $entity = null )
+public function setRelated( ORM\Entity $self, $entity = null )
 ```
 
 ##### Set the relation to $entity
@@ -14261,8 +14236,8 @@ Supported:
 
 ```php
 public function __construct(
-    callable $onClose, \ORM\QueryBuilder\ParenthesisInterface $parent
-): Parenthesis
+    callable $onClose, ORM\QueryBuilder\ParenthesisInterface $parent
+)
 ```
 
 ##### Constructor
@@ -14285,7 +14260,7 @@ Create a parenthesis inside another parenthesis or a query.
 #### ORM\Testing\EntityFetcherMock\Result::addEntities
 
 ```php
-public function addEntities( array<\ORM\Entity> $entities ): $this
+public function addEntities( array<\ORM\Entity> $entities ): static
 ```
 
 ##### Add entities to the result
@@ -14294,7 +14269,7 @@ public function addEntities( array<\ORM\Entity> $entities ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -14346,7 +14321,7 @@ public function andParenthesis(): static
 
 ```php
 public function andWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -14386,7 +14361,7 @@ $query->andWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock\Result::close
 
 ```php
-public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuilder\ParenthesisInterface
+public function close(): ORM\QueryBuilder\QueryBuilderInterface|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Close parenthesis
@@ -14405,7 +14380,7 @@ public function close(): \ORM\QueryBuilder\QueryBuilderInterface|\ORM\QueryBuild
 ```php
 public function column(
     string $column, array $args = array(), string $alias = ''
-): \ORM\QueryBuilder\QueryBuilder
+): ORM\QueryBuilder\QueryBuilder
 ```
 
 ##### Add $column
@@ -14453,7 +14428,7 @@ public function columns( array $columns = null ): static
 #### ORM\Testing\EntityFetcherMock\Result::compare
 
 ```php
-public function compare( \ORM\EntityFetcher $fetcher ): integer
+public function compare( ORM\EntityFetcher $fetcher ): integer
 ```
 
 ##### Check if $fetcher matches the current query
@@ -14479,9 +14454,7 @@ Returns the score for the given EntityFetcher. The more conditions match the hig
 #### ORM\Testing\EntityFetcherMock\Result::convertPlaceholders
 
 ```php
-protected function convertPlaceholders(
-    string $expression, array $args
-): string
+protected function convertPlaceholders( string $expression, $args ): string
 ```
 
 ##### Replaces question marks in $expression with $args
@@ -14522,7 +14495,7 @@ public function count(): integer
 #### ORM\Testing\EntityFetcherMock\Result::createRelatedJoin
 
 ```php
-public function createRelatedJoin( $join, $relation ): $this
+public function createRelatedJoin( $join, $relation ): static
 ```
 
 ##### Create the join with $join type
@@ -14531,7 +14504,7 @@ public function createRelatedJoin( $join, $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -14546,7 +14519,7 @@ public function createRelatedJoin( $join, $relation ): $this
 #### ORM\Testing\EntityFetcherMock\Result::first
 
 ```php
-private function first( \ORM\QueryBuilder\iterable $array ): mixed|null
+private function first( ORM\QueryBuilder\iterable $array ): mixed|null
 ```
 
 ##### Get the first item of an array
@@ -14570,9 +14543,9 @@ Stupid helper for a missing functionality in php
 
 ```php
 public function fullJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Full (outer) join $tableName with $options
@@ -14639,7 +14612,7 @@ public function getEntities(): array<\ORM\Entity>
 #### ORM\Testing\EntityFetcherMock\Result::getEntityManager
 
 ```php
-public function getEntityManager(): \ORM\EntityManager
+public function getEntityManager(): ORM\EntityManager
 ```
 
 
@@ -14689,7 +14662,7 @@ Builds the statement from current where conditions, joins, columns and so on.
 #### ORM\Testing\EntityFetcherMock\Result::getStatement
 
 ```php
-protected function getStatement(): \PDOStatement|boolean
+protected function getStatement(): PDOStatement|boolean
 ```
 
 ##### Query database and return result
@@ -14759,9 +14732,9 @@ Optionally you can provide an expression in $column with question marks as place
 
 ```php
 public function join(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### (Inner) join $tableName with $options
@@ -14789,7 +14762,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock\Result::joinRelated
 
 ```php
-public function joinRelated( $relation ): $this
+public function joinRelated( $relation ): static
 ```
 
 ##### Join $relation
@@ -14798,7 +14771,7 @@ public function joinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -14813,9 +14786,9 @@ public function joinRelated( $relation ): $this
 
 ```php
 public function leftJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Left (outer) join $tableName with $options
@@ -14843,7 +14816,7 @@ can be set to true.
 #### ORM\Testing\EntityFetcherMock\Result::leftJoinRelated
 
 ```php
-public function leftJoinRelated( $relation ): $this
+public function leftJoinRelated( $relation ): static
 ```
 
 ##### Left outer join $relation
@@ -14852,7 +14825,7 @@ public function leftJoinRelated( $relation ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -14889,7 +14862,7 @@ Limits the amount of rows fetched from database.
 #### ORM\Testing\EntityFetcherMock\Result::matches
 
 ```php
-public function matches( string $expression ): $this
+public function matches( string $expression ): static
 ```
 
 ##### Add a regular expression that has to match
@@ -14898,7 +14871,7 @@ public function matches( string $expression ): $this
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -15024,7 +14997,7 @@ public function orParenthesis(): static
 
 ```php
 public function orWhere(
-    string $column, string $operator = null, string $value = null
+    string $column, $operator = null, string $value = null
 ): static
 ```
 
@@ -15064,7 +15037,7 @@ $query->orWhere('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock\Result::orWhereIn
 
 ```php
-public function orWhereIn( string $column, array $values ): static
+public function orWhereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with OR.
@@ -15093,7 +15066,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock\Result::orWhereNotIn
 
 ```php
-public function orWhereNotIn( string $column, array $values ): static
+public function orWhereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with OR.
@@ -15140,9 +15113,9 @@ public function parenthesis(): static
 
 ```php
 public function rightJoin(
-    string $tableName, string $expression = '', string $alias = '', 
+    string $tableName, $expression = '', string $alias = '', 
     array $args = array()
-): static|\ORM\QueryBuilder\ParenthesisInterface
+): static|ORM\QueryBuilder\ParenthesisInterface
 ```
 
 ##### Right (outer) join $tableName with $options
@@ -15200,7 +15173,7 @@ Please note that this will execute the query - further modifications will not ha
 #### ORM\Testing\EntityFetcherMock\Result::setQuery
 
 ```php
-public function setQuery( string $query, array $args = null ): $this
+public function setQuery( $query, array $args = null ): static
 ```
 
 ##### Set a raw query or use different QueryBuilder
@@ -15209,7 +15182,7 @@ For easier use and against sql injection it allows question mark placeholders.
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **$this**
+ **Returns**: this method returns **static**
 <br />
 
 ##### Parameters
@@ -15313,7 +15286,7 @@ $query->where('name = ?', ['John Doe']);
 #### ORM\Testing\EntityFetcherMock\Result::whereIn
 
 ```php
-public function whereIn( string $column, array $values ): static
+public function whereIn( $column, array $values ): static
 ```
 
 ##### Add a where in condition with AND.
@@ -15342,7 +15315,7 @@ If $values is empty the expression will be `1 = 0` because an empty parenthesis 
 #### ORM\Testing\EntityFetcherMock\Result::whereNotIn
 
 ```php
-public function whereNotIn( string $column, array $values ): static
+public function whereNotIn( $column, array $values ): static
 ```
 
 ##### Add a where not in condition with AND.
@@ -15435,7 +15408,7 @@ private function wherePrefix( string $bool ): string
 #### ORM\Testing\EntityFetcherMock\ResultRepository::__construct
 
 ```php
-public function __construct( \ORM\EntityManager $em ): ResultRepository
+public function __construct( ORM\EntityManager $em )
 ```
 
 ##### ResultRepository constructor.
@@ -15457,7 +15430,7 @@ public function __construct( \ORM\EntityManager $em ): ResultRepository
 #### ORM\Testing\EntityFetcherMock\ResultRepository::addEntity
 
 ```php
-public function addEntity( \ORM\Entity $entity )
+public function addEntity( ORM\Entity $entity )
 ```
 
 ##### Add an entity to be fetched by primary key
@@ -15483,8 +15456,8 @@ You can pass mocks from Entity too but we need to call `Entity::getPrimaryKey()`
 
 ```php
 public function addResult(
-    $class, \ORM\Entity $entities
-): \ORM\Testing\EntityFetcherMock\Result|\Mockery\MockInterface
+    $class, ORM\Entity $entities
+): ORM\Testing\EntityFetcherMock\Result|Mockery\MockInterface
 ```
 
 ##### Create and add a EntityFetcherMock\Result for $class
@@ -15533,7 +15506,7 @@ protected static function buildChecksum( array $primaryKey ): string
 
 ```php
 public static function completePrimaryKeys(
-    \ORM\Entity $entities
+    ORM\Entity $entities
 ): array<\ORM\Entity>
 ```
 
@@ -15559,7 +15532,7 @@ RANDOM_KEY_MIN and RANDOM_KEY_MAX (at the time writing this it is 1000000000 and
 #### ORM\Testing\EntityFetcherMock\ResultRepository::getResults
 
 ```php
-public function getResults( string $class, \ORM\EntityFetcher $fetcher ): array
+public function getResults( string $class, ORM\EntityFetcher $fetcher ): array
 ```
 
 ##### Get the results for $class and $query
@@ -15583,7 +15556,7 @@ The EntityFetcherMock\Result gets a quality for matching this query. Only the hi
 #### ORM\Testing\EntityFetcherMock\ResultRepository::retrieve
 
 ```php
-public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
+public function retrieve( string $class, array $primaryKey ): ORM\Entity|null
 ```
 
 ##### Retrieve an entity by $primaryKey
@@ -15645,7 +15618,7 @@ public function retrieve( string $class, array $primaryKey ): \ORM\Entity|null
 #### ORM\Event\Saved::__construct
 
 ```php
-public function __construct( \ORM\Event $originalEvent ): Saved
+public function __construct( ORM\Event $originalEvent )
 ```
 
 
@@ -15765,7 +15738,7 @@ public function stop()
 #### ORM\Dbal\Type\Set::__construct
 
 ```php
-public function __construct( array<string> $allowedValues ): Enum
+public function __construct( array<string> $allowedValues )
 ```
 
 ##### Set constructor
@@ -15788,7 +15761,7 @@ public function __construct( array<string> $allowedValues ): Enum
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -15854,7 +15827,7 @@ public function getAllowedValues(): array<string>
 #### ORM\Dbal\Type\Set::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -15935,8 +15908,8 @@ public function validate( $value ): boolean|\ORM\Dbal\Error
 
 ```php
 public function __construct(
-    \ORM\EntityManager $entityManager, array $options = array()
-): Dbal
+    ORM\EntityManager $entityManager, array $options = array()
+)
 ```
 
 ##### Dbal constructor.
@@ -16012,7 +15985,7 @@ public function buildCompositeWhereInStatement(
 
 ```php
 protected function buildInsertStatement(
-    \ORM\Entity $entity, array<\ORM\Entity> $entities
+    ORM\Entity $entity, array<\ORM\Entity> $entities
 ): string
 ```
 
@@ -16037,7 +16010,7 @@ protected function buildInsertStatement(
 #### ORM\Dbal\Sqlite::delete
 
 ```php
-public function delete( \ORM\Entity $entity ): boolean
+public function delete( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -16062,7 +16035,7 @@ This method does not delete from the map - you can still receive the entity via 
 ```php
 public function describe(
     $schemaTable
-): \ORM\Dbal\Table|array<\ORM\Dbal\Column>
+): ORM\Dbal\Table|array<\ORM\Dbal\Column>
 ```
 
 ##### Describe a table
@@ -16108,7 +16081,7 @@ protected function escapeBoolean( boolean $value ): string
 #### ORM\Dbal\Sqlite::escapeDateTime
 
 ```php
-protected function escapeDateTime( \DateTime $value ): mixed
+protected function escapeDateTime( DateTime $value ): mixed
 ```
 
 ##### Escape a date time object for query
@@ -16309,7 +16282,7 @@ protected function hasCompositeKey( array $rawColumns ): boolean
 #### ORM\Dbal\Sqlite::insert
 
 ```php
-public function insert( \ORM\Entity $entities ): boolean
+public function insert( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities into database
@@ -16332,7 +16305,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 #### ORM\Dbal\Sqlite::insertAndSync
 
 ```php
-public function insertAndSync( \ORM\Entity $entities ): boolean
+public function insertAndSync( ORM\Entity $entities ): boolean
 ```
 
 ##### Insert $entities and update with default values from database
@@ -16356,7 +16329,7 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 
 ```php
 public function insertAndSyncWithAutoInc(
-    \ORM\Entity $entities
+    ORM\Entity $entities
 ): integer|boolean
 ```
 
@@ -16454,7 +16427,7 @@ public function setOption( string $option, $value ): static
 #### ORM\Dbal\Sqlite::syncInserted
 
 ```php
-protected function syncInserted( \ORM\Entity $entities )
+protected function syncInserted( ORM\Entity $entities )
 ```
 
 ##### Sync the $entities after insert
@@ -16476,7 +16449,7 @@ protected function syncInserted( \ORM\Entity $entities )
 #### ORM\Dbal\Sqlite::updateAutoincrement
 
 ```php
-protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
+protected function updateAutoincrement( ORM\Entity $entity, $value )
 ```
 
 ##### Update the autoincrement value
@@ -16529,7 +16502,7 @@ protected function updateAutoincrement( \ORM\Entity $entity, integer $value )
 #### ORM\Dbal\Table::__construct
 
 ```php
-public function __construct( array<\ORM\Dbal\Column> $columns ): Table
+public function __construct( array<\ORM\Dbal\Column> $columns )
 ```
 
 ##### Table constructor.
@@ -16551,7 +16524,7 @@ public function __construct( array<\ORM\Dbal\Column> $columns ): Table
 #### ORM\Dbal\Table::getColumn
 
 ```php
-public function getColumn( string $col ): \ORM\Dbal\Column
+public function getColumn( string $col ): ORM\Dbal\Column
 ```
 
 ##### Get the Column object for $col
@@ -16574,7 +16547,7 @@ public function getColumn( string $col ): \ORM\Dbal\Column
 #### ORM\Dbal\Table::validate
 
 ```php
-public function validate( string $col, $value ): boolean|\ORM\Dbal\Error
+public function validate( string $col, $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Validate $value for column $col.
@@ -16655,7 +16628,7 @@ This is also the base type for any other data type
 #### ORM\Dbal\Type\Time::__construct
 
 ```php
-public function __construct( integer $precision = null ): Time
+public function __construct( integer $precision = null )
 ```
 
 ##### DateTime constructor
@@ -16678,7 +16651,7 @@ public function __construct( integer $precision = null ): Time
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -16744,7 +16717,7 @@ public function getPrecision(): integer
 #### ORM\Dbal\Type\Time::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -16821,7 +16794,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -16895,8 +16868,8 @@ public static function fits( array $columnDefinition ): boolean
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
-): \ORM\Dbal\Type
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
+): ORM\Dbal\Type
 ```
 
 ##### Create Type class for given $dbal and $columnDefinition
@@ -16945,7 +16918,7 @@ public static function fits( array $columnDefinition ): boolean
 #### ORM\Dbal\TypeInterface::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
@@ -17080,7 +17053,7 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 #### ORM\Event\UpdateEvent::__construct
 
 ```php
-public function __construct( \ORM\Entity $entity, array $dirty ): UpdateEvent
+public function __construct( ORM\Entity $entity, array $dirty )
 ```
 
 
@@ -17202,7 +17175,7 @@ With and without max / fixed length
 #### ORM\Dbal\Type\VarChar::__construct
 
 ```php
-public function __construct( integer $maxLength = null ): VarChar
+public function __construct( integer $maxLength = null )
 ```
 
 ##### VarChar constructor
@@ -17225,7 +17198,7 @@ public function __construct( integer $maxLength = null ): VarChar
 
 ```php
 public static function factory(
-    \ORM\Dbal\Dbal $dbal, array $columnDefinition
+    ORM\Dbal\Dbal $dbal, array $columnDefinition
 ): static
 ```
 
@@ -17291,7 +17264,7 @@ public function getMaxLength(): integer
 #### ORM\Dbal\Type\VarChar::validate
 
 ```php
-public function validate( $value ): boolean|\ORM\Dbal\Error
+public function validate( $value ): boolean|ORM\Dbal\Error
 ```
 
 ##### Check if $value is valid for this type
