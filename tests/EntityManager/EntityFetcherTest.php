@@ -380,6 +380,16 @@ class EntityFetcherTest extends TestCase
         self::assertSame('SELECT DISTINCT t0.* FROM "contact_phone" AS t0', $fetcher->getQuery());
     }
 
+    /** @test */
+    public function fetchModeCantBeChanged()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+
+        $this->pdo->shouldNotReceive('query');
+
+        $fetcher->setFetchMode(\PDO::FETCH_NUM);
+    }
+
     public function provideJoins()
     {
         return [
