@@ -13,7 +13,6 @@ use ORM\Exception\InvalidArgument;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
-use ORM\Observer\AbstractObserver;
 use ORM\Observer\CallbackObserver;
 use ORM\QueryBuilder\QueryBuilder;
 use PDO;

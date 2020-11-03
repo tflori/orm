@@ -3,7 +3,6 @@
 namespace ORM\Observer;
 
 use ORM\Event;
-use ORM\Exception\InvalidArgument;
 
 class CallbackObserver extends AbstractObserver
 {

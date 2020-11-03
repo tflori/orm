@@ -3,7 +3,6 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
-use PDOStatement;
 
 /**
  * Build a ansi sql query / select statement

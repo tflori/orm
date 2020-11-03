@@ -8,7 +8,6 @@ use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
-use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 
 /**

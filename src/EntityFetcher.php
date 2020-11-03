@@ -7,7 +7,6 @@ use ORM\EntityFetcher\TranslatesClasses;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\QueryBuilder\QueryBuilderInterface;
 use PDO;
-use PDOStatement;
 
 /**
  * Fetch entities from database
