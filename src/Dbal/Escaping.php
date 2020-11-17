@@ -17,21 +17,6 @@ trait Escaping
     protected $booleanFalse = '0';
 
     /**
-     * Extract content from parenthesis in $type
-     *
-     * @param string $type
-     * @return string
-     */
-    protected function extractParenthesis($type)
-    {
-        if (preg_match('/\((.+)\)/', $type, $match)) {
-            return $match[1];
-        }
-
-        return null;
-    }
-
-    /**
      * Escape a string for query
      *
      * @param string $value

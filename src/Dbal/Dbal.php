@@ -9,6 +9,7 @@ use ORM\Exception;
 use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
 use PDO;
+use PDOStatement;
 
 /**
  * Base class for database abstraction
@@ -80,6 +81,10 @@ abstract class Dbal
      */
     public function escapeIdentifier($identifier)
     {
+        if ($identifier instanceof Expression) {
+            return (string)$identifier;
+        }
+
         $quote = $this->quotingCharacter;
         $divider = $this->identifierDivider;
         return $quote . str_replace($divider, $quote . $divider . $quote, $identifier) . $quote;
@@ -94,10 +99,15 @@ abstract class Dbal
      */
     public function escapeValue($value)
     {
-        $type = is_object($value) ? get_class($value) : gettype($value);
         if ($value instanceof DateTime) {
-            $type = 'DateTime';
+            return $this->escapeDateTime($value);
         }
+
+        if ($value instanceof Expression) {
+            return (string)$value;
+        }
+
+        $type = is_object($value) ? get_class($value) : gettype($value);
         $method = [ $this, 'escape' . ucfirst($type) ];
 
         if (is_callable($method)) {
@@ -117,7 +127,7 @@ abstract class Dbal
      */
     public function describe($table)
     {
-        throw new UnsupportedDriver('Not supported for this driver');
+        throw new UnsupportedDriver('Describe is not supported by this driver');
     }
 
     /**
@@ -141,6 +151,17 @@ abstract class Dbal
         return true;
     }
 
+    public function insert($table, array ...$rows)
+    {
+        if (count($rows) === 0) {
+            return 0;
+        }
+
+        $insert = $this->buildInsert($table, $rows);
+        $statement = $this->entityManager->getConnection()->query($insert);
+        return $statement->rowCount();
+    }
+
     /**
      * Insert $entities into database
      *
@@ -148,16 +169,17 @@ abstract class Dbal
      *
      * @param Entity ...$entities
      * @return bool
-     * @throws Exception\InvalidArgument
      */
-    public function insert(Entity ...$entities)
+    public function insertEntities(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
+
         static::assertSameType($entities);
-        $insert = $this->buildInsertStatement(...$entities);
-        $this->entityManager->getConnection()->query($insert);
+        $this->insert($entities[0]::getTableName(), ...array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities));
         return true;
     }
 
@@ -175,8 +197,8 @@ abstract class Dbal
         if (count($entities) === 0) {
             return false;
         }
-        self::assertSameType($entities);
-        $this->insert(...$entities);
+
+        $this->insertEntities(...$entities);
         $this->syncInserted(...$entities);
         return true;
     }
@@ -207,7 +229,7 @@ abstract class Dbal
      * @return bool
      * @internal
      */
-    public function update(Entity $entity)
+    public function updateEntity(Entity $entity)
     {
         $data       = $entity->getData();
         $primaryKey = $entity->getPrimaryKey();
@@ -259,34 +281,27 @@ abstract class Dbal
     }
 
     /**
-     * Build the insert statement for $entity
+     * Build an insert statement for $rows
      *
-     * @param Entity $entity
-     * @param Entity[] $entities
+     * @param string $table
+     * @param array $rows
      * @return string
      */
-    protected function buildInsertStatement(Entity $entity, Entity ...$entities)
+    protected function buildInsert($table, array $rows)
     {
-        array_unshift($entities, $entity);
-        $cols = [];
-        $rows = [];
-        foreach ($entities as $entity) {
-            $data = $entity->getData();
-            $cols = array_unique(array_merge($cols, array_keys($data)));
-            $rows[] = $data;
+        // get all columns from rows
+        $columns = [];
+        foreach ($rows as $row) {
+            $columns = array_unique(array_merge($columns, array_keys($row)));
         }
 
-        $cols = array_combine($cols, array_map([$this, 'escapeIdentifier'], $cols));
+        $statement = 'INSERT INTO ' . $this->escapeIdentifier($table) . ' ' .
+            '(' . implode(',', array_map([$this, 'escapeIdentifier'], $columns)) . ') VALUES ';
 
-        $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES ';
-
-        $statement .= implode(',', array_map(function ($values) use ($cols) {
-            $result = [];
-            foreach ($cols as $key => $col) {
-                $result[] = isset($values[$key]) ? $this->escapeValue($values[$key]) : $this->escapeNULL();
-            }
-            return '(' . implode(',', $result) . ')';
+        $statement .= implode(',', array_map(function ($values) use ($columns) {
+            return '(' . implode(',', array_map(function ($column) use ($values) {
+                return isset($values[$column]) ? $this->escapeValue($values[$column]) : $this->escapeNULL();
+            }, $columns)) . ')';
         }, $rows));
 
         return $statement;
@@ -382,5 +397,33 @@ abstract class Dbal
         }
 
         return trim($type);
+    }
+
+    /**
+     * Extract content from parenthesis in $type
+     *
+     * @param string $type
+     * @return string
+     */
+    protected function extractParenthesis($type)
+    {
+        if (preg_match('/\((.+)\)/', $type, $match)) {
+            return $match[1];
+        }
+
+        return null;
+    }
+
+    protected function convertJoin($join)
+    {
+        if (!preg_match('/^JOIN\s+([^\s]+)\s+ON\s+(.*)/ism', $join, $match)) {
+            throw new Exception\InvalidArgument(
+                'Only inner joins with on clause are allowed in update statements'
+            );
+        }
+        $table = $match[1];
+        $condition = $match[2];
+
+        return [$table, $condition];
     }
 }

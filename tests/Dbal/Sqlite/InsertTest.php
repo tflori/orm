@@ -26,7 +26,8 @@ class InsertTest extends TestCase
 
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/INSERT INTO .* \("id","name","number"\) VALUES \(.*\)/'
-        ))->once()->andReturn(m::mock(\PDOStatement::class));
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/SELECT \* FROM .* WHERE \("id","name"\) IN \((\(.*\))(,\(.*\))*\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class));

@@ -3,6 +3,7 @@
 namespace ORM\Test\EntityManager;
 
 use Mockery as m;
+use ORM\EM;
 use ORM\EntityManager;
 use ORM\Test\EntityManager\Examples\Concrete;
 use ORM\Test\EntityManager\Examples\Entity;
@@ -11,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 class GetInstanceTest extends TestCase
 {
-
     /** @test */
     public function returnsTheLastCreatedEntityManager()
     {
@@ -76,5 +76,13 @@ class GetInstanceTest extends TestCase
         $spy->shouldReceive('__invoke')->with(Concrete::class)->once()->andReturn($em);
 
         self::assertSame($em, EntityManager::getInstance(Concrete::class));
+    }
+
+    /** @test */
+    public function emIsAnAliasForEntityManager()
+    {
+        $result = EM::getInstance();
+
+        self::assertInstanceOf(EntityManager::class, $result);
     }
 }

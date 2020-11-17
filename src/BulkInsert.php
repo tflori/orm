@@ -89,7 +89,7 @@ class BulkInsert
         $new = array_splice($this->new, 0, $this->limit);
 
         if (!$this->update) {
-            $success = $this->dbal->insert(...$new);
+            $success = $this->dbal->insertEntities(...$new);
         } elseif ($this->useAutoIncrement) {
             $success = $this->dbal->insertAndSyncWithAutoInc(...$new);
         } else {

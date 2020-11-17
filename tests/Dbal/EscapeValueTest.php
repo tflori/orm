@@ -3,6 +3,7 @@
 namespace ORM\Test\Dbal;
 
 use ORM\Dbal;
+use ORM\EM;
 use ORM\Exception\NotScalar;
 use ORM\Test\Examples\DateTimeDerivate;
 use ORM\Test\TestCase;
@@ -66,6 +67,14 @@ class EscapeValueTest extends TestCase
         $result = $this->dbal->escapeValue($value);
 
         self::assertSame($expected, $result);
+    }
+
+    /** @test */
+    public function doesNotConvertExpressions()
+    {
+        $result = $this->dbal->escapeValue(EM::raw('DATE(NOW())'));
+
+        self::assertSame('DATE(NOW())', $result);
     }
 
     /** @test */

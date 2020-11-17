@@ -52,7 +52,9 @@ class Pgsql extends Dbal
         $entity = reset($entities);
         $pdo = $this->entityManager->getConnection();
         $col = $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-        $result = $pdo->query($this->buildInsertStatement(...$entities) . ' RETURNING ' . $col);
+        $result = $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities)) . ' RETURNING ' . $col);
         while ($id = $result->fetchColumn()) {
             $this->updateAutoincrement($entity, $id);
             $entity = next($entity);

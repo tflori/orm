@@ -4,6 +4,7 @@ namespace ORM;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Expression;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
 use ORM\Event\Deleted;
@@ -326,7 +327,7 @@ class EntityManager
     }
 
     /**
-     * Get the Datbase Abstraction Layer
+     * Get the Database Abstraction Layer
      *
      * @return Dbal
      */
@@ -373,6 +374,17 @@ class EntityManager
     public function query($table, $alias = '')
     {
         return new QueryBuilder($table, $alias, $this);
+    }
+
+    /**
+     * Create a raw expression from $expression to disable escaping
+     *
+     * @param string $expression
+     * @return Expression
+     */
+    public static function raw($expression)
+    {
+        return new Expression($expression);
     }
 
     /**

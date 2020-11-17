@@ -2,8 +2,16 @@
 
 namespace ORM\QueryBuilder;
 
+use ORM\EntityManager;
 use PDOStatement;
 
+/**
+ * Trait ExecutesQueries for QueryBuilder
+ *
+ * Hold all methods required from the query builder to execute queries.
+ *
+ * @property EntityManager $entityManager
+ */
 trait ExecutesQueries
 {
     /** The result object from PDO

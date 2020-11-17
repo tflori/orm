@@ -57,7 +57,9 @@ class Mysql extends Dbal
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
         $pdo = $this->entityManager->getConnection();
         $pdo->beginTransaction();
-        $pdo->query($this->buildInsertStatement(...$entities));
+        $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities)));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
             ->fetchAll(PDO::FETCH_ASSOC);
         $pdo->commit();
