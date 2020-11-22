@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\UpdateJoinStatement;
 use ORM\Entity;
 use ORM\Exception;
 use PDO;
@@ -15,6 +16,8 @@ use PDOException;
  */
 class Mysql extends Dbal
 {
+    use UpdateJoinStatement;
+
     protected static $typeMapping = [
         'tinyint'   => Type\Number::class,
         'smallint'  => Type\Number::class,
@@ -88,6 +91,15 @@ class Mysql extends Dbal
         }
 
         return new Table($cols);
+    }
+
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        $query = $this->buildUpdateJoinStatement($table, $where, $updates, $joins);
+//        echo $query;
+//        return 0;
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     /**

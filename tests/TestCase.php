@@ -43,10 +43,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
         $this->em = $this->mocks['em'] = m::mock(TestEntityManager::class, [])->makePartial();
-        $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
+        $this->em->shouldReceive('getConnection')->andReturnUsing(function () {
+            return $this->pdo;
+        })->byDefault();
 
         $this->dbal = $this->mocks['dbal'] = m::mock(Dbal\Mysql::class, [$this->em])->makePartial();
-        $this->em->shouldReceive('getDbal')->andReturn($this->dbal)->byDefault();
+        $this->em->shouldReceive('getDbal')->andReturnUsing(function () {
+            return $this->dbal;
+        })->byDefault();
 
         QueryBuilder::$defaultEntityManager = $this->em;
     }

@@ -2,14 +2,12 @@
 
 namespace ORM\Dbal;
 
-use DateTime;
+use ORM\Dbal\QueryLanguage\UpdateStatement;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception;
-use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
 use PDO;
-use PDOStatement;
 
 /**
  * Base class for database abstraction
@@ -20,6 +18,7 @@ use PDOStatement;
 abstract class Dbal
 {
     use Escaping;
+    use UpdateStatement;
 
     /** @var array */
     protected static $typeMapping = [];
@@ -74,50 +73,6 @@ abstract class Dbal
     }
 
     /**
-     * Returns $identifier quoted for use in a sql statement
-     *
-     * @param string $identifier Identifier to quote
-     * @return string
-     */
-    public function escapeIdentifier($identifier)
-    {
-        if ($identifier instanceof Expression) {
-            return (string)$identifier;
-        }
-
-        $quote = $this->quotingCharacter;
-        $divider = $this->identifierDivider;
-        return $quote . str_replace($divider, $quote . $divider . $quote, $identifier) . $quote;
-    }
-
-    /**
-     * Returns $value formatted to use in a sql statement.
-     *
-     * @param  mixed $value The variable that should be returned in SQL syntax
-     * @return string
-     * @throws NotScalar
-     */
-    public function escapeValue($value)
-    {
-        if ($value instanceof DateTime) {
-            return $this->escapeDateTime($value);
-        }
-
-        if ($value instanceof Expression) {
-            return (string)$value;
-        }
-
-        $type = is_object($value) ? get_class($value) : gettype($value);
-        $method = [ $this, 'escape' . ucfirst($type) ];
-
-        if (is_callable($method)) {
-            return call_user_func($method, $value);
-        } else {
-            throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
-        }
-    }
-
-    /**
      * Describe a table
      *
      * @param string $table
@@ -128,27 +83,6 @@ abstract class Dbal
     public function describe($table)
     {
         throw new UnsupportedDriver('Describe is not supported by this driver');
-    }
-
-    /**
-     * @param Entity[] $entities
-     * @return bool
-     * @throws Exception\InvalidArgument
-     */
-    protected static function assertSameType(array $entities)
-    {
-        if (count($entities) < 2) {
-            return true;
-        }
-
-        $type = get_class(reset($entities));
-        foreach ($entities as $i => $entity) {
-            if (get_class($entity) !== $type) {
-                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
-            }
-        }
-
-        return true;
     }
 
     public function insert($table, array ...$rows)
@@ -223,6 +157,37 @@ abstract class Dbal
     }
 
     /**
+     * Update $table using $where to set $updates
+     *
+     * Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+     *
+     * For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+     *
+     * ```php
+     * $em->query('table')
+     *  ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+     *  ->update(['teenager' => true]);
+     * ```
+     *
+     * @param string $table The table to update
+     * @param array $where An array of where conditions
+     * @param array $updates An array of columns to update
+     * @param array $joins For internal use from query builder only
+     * @return int The number of affected rows
+     * @throws UnsupportedDriver
+     */
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        if (!empty($joins)) {
+            throw new UnsupportedDriver('Updates with joins are not supported by this driver');
+        }
+
+        $query = $this->buildUpdateStatement($table, $where, $updates);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
+    }
+
+    /**
      * Update $entity in database and returns success
      *
      * @param Entity $entity
@@ -236,23 +201,14 @@ abstract class Dbal
 
         $where = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col     = $entity::getColumnName($attribute);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+            $col = $entity::getColumnName($attribute);
+            $where[$col] = $value;
             if (isset($data[$col])) {
                 unset($data[$col]);
             }
         }
 
-        $set = [];
-        foreach ($data as $col => $value) {
-            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
-        }
-
-        $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'SET ' . implode(',', $set) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
-        $this->entityManager->getConnection()->query($statement);
-
+        $this->update($entity::getTableName(), $where, $data);
         return $this->entityManager->sync($entity, true);
     }
 
@@ -276,6 +232,27 @@ abstract class Dbal
         $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
                      'WHERE ' . implode(' AND ', $where);
         $this->entityManager->getConnection()->query($statement);
+
+        return true;
+    }
+
+    /**
+     * @param Entity[] $entities
+     * @return bool
+     * @throws Exception\InvalidArgument
+     */
+    protected static function assertSameType(array $entities)
+    {
+        if (count($entities) < 2) {
+            return true;
+        }
+
+        $type = get_class(reset($entities));
+        foreach ($entities as $i => $entity) {
+            if (get_class($entity) !== $type) {
+                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
+            }
+        }
 
         return true;
     }
@@ -412,18 +389,5 @@ abstract class Dbal
         }
 
         return null;
-    }
-
-    protected function convertJoin($join)
-    {
-        if (!preg_match('/^JOIN\s+([^\s]+)\s+ON\s+(.*)/ism', $join, $match)) {
-            throw new Exception\InvalidArgument(
-                'Only inner joins with on clause are allowed in update statements'
-            );
-        }
-        $table = $match[1];
-        $condition = $match[2];
-
-        return [$table, $condition];
     }
 }

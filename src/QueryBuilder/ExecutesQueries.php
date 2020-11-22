@@ -107,6 +107,27 @@ trait ExecutesQueries
     }
 
     /**
+     * Execute an update statement for the current query
+     *
+     * **NOTE:** not all drivers support UPDATE with JOIN (or FROM). Has to be implemented in the database abstraction
+     * layer.
+     *
+     * $updates should be an array which columns to update with what value. Use expressions to bypass escaping.
+     *
+     * @param array $updates An array of columns to update
+     * @return int The number of affected rows
+     */
+    public function update(array $updates)
+    {
+        return $this->entityManager->getDbal()->update(
+            EntityManager::raw($this->tableName . ($this->alias ? ' AS ' . $this->alias : '')),
+            $this->where,
+            $updates,
+            $this->joins
+        );
+    }
+
+    /**
      * Query database and return result
      *
      * Queries the database with current query and returns the resulted PDOStatement.

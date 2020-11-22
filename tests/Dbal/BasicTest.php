@@ -51,4 +51,18 @@ class BasicTest extends TestCase
 
         $this->dbal->describe('any');
     }
+
+
+
+    /** @test */
+    public function doesNotSupportUpdateWithJoins()
+    {
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Updates with joins are not supported by this driver');
+
+        $this->em->query('examples')
+            ->join('names', 'exampleId = examples.id')
+            ->where('examples.id', 42)
+            ->update(['foo' => EM::raw('names.foo')]);
+    }
 }

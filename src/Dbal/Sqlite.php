@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\UpdateFromStatement;
 use ORM\Entity;
 use ORM\Exception;
 use PDO;
@@ -14,6 +15,8 @@ use PDO;
  */
 class Sqlite extends Dbal
 {
+    use UpdateFromStatement;
+
     protected static $typeMapping = [
         'integer' => Type\Number::class,
         'int'     => Type\Number::class,
@@ -64,6 +67,13 @@ class Sqlite extends Dbal
         }
 
         return true;
+    }
+
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        $query = $this->buildUpdateFromStatement($table, $where, $updates, $joins);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     public function describe($schemaTable)

@@ -480,7 +480,7 @@ class EntityManager
      */
     public function update(Entity $entity)
     {
-        return $this->getDbal()->update($entity);
+        return $this->getDbal()->updateEntity($entity);
     }
 
     /**

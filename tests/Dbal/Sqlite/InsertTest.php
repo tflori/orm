@@ -29,7 +29,7 @@ class InsertTest extends TestCase
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with(m::pattern(
-            '/SELECT \* FROM .* WHERE \("id","name"\) IN \((\(.*\))(,\(.*\))*\)/'
+            '/SELECT \* FROM .* WHERE \("id","name"\) IN \(VALUES (\(.*\))(,\(.*\))*\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
         $statement->shouldReceive('fetch')->with()
