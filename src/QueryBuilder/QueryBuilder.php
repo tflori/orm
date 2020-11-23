@@ -167,7 +167,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             return $inverse ? '1 = 1' : '1 = 0';
         } elseif (is_array($column) && count($column) > 1) {
             return $em->getDbal()
-                ->buildCompositeWhereInStatement($column, $values, $inverse);
+                ->buildCompositeInExpression($column, $values, $inverse);
         } else {
             if (is_array($column)) {
                 $column = $this->first($column);

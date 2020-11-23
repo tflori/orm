@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\CompositeInExpression;
 use ORM\Dbal\QueryLanguage\UpdateJoinStatement;
 use ORM\Entity;
 use ORM\Exception;
@@ -17,6 +18,7 @@ use PDOException;
 class Mysql extends Dbal
 {
     use UpdateJoinStatement;
+    use CompositeInExpression;
 
     protected static $typeMapping = [
         'tinyint'   => Type\Number::class,
@@ -45,8 +47,6 @@ class Mysql extends Dbal
         'set'  => Type\Set::class,
         'json' => Type\Json::class,
     ];
-
-    protected static $compositeWhereInTemplate = '(%s) %s (%s)';
 
     public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
@@ -96,8 +96,6 @@ class Mysql extends Dbal
     public function update($table, array $where, array $updates, array $joins = [])
     {
         $query = $this->buildUpdateJoinStatement($table, $where, $updates, $joins);
-//        echo $query;
-//        return 0;
         $statement = $this->entityManager->getConnection()->query($query);
         return $statement->rowCount();
     }

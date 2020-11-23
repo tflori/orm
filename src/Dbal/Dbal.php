@@ -2,6 +2,8 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\CompositeInValuesExpression;
+use ORM\Dbal\QueryLanguage\InsertStatement;
 use ORM\Dbal\QueryLanguage\UpdateStatement;
 use ORM\Entity;
 use ORM\EntityManager;
@@ -19,11 +21,11 @@ abstract class Dbal
 {
     use Escaping;
     use UpdateStatement;
+    use InsertStatement;
+    use CompositeInValuesExpression;
 
     /** @var array */
     protected static $typeMapping = [];
-
-    protected static $compositeWhereInTemplate = '(%s) %s (VALUES %s)';
 
     /** @var EntityManager */
     protected $entityManager;
@@ -258,33 +260,6 @@ abstract class Dbal
     }
 
     /**
-     * Build an insert statement for $rows
-     *
-     * @param string $table
-     * @param array $rows
-     * @return string
-     */
-    protected function buildInsert($table, array $rows)
-    {
-        // get all columns from rows
-        $columns = [];
-        foreach ($rows as $row) {
-            $columns = array_unique(array_merge($columns, array_keys($row)));
-        }
-
-        $statement = 'INSERT INTO ' . $this->escapeIdentifier($table) . ' ' .
-            '(' . implode(',', array_map([$this, 'escapeIdentifier'], $columns)) . ') VALUES ';
-
-        $statement .= implode(',', array_map(function ($values) use ($columns) {
-            return '(' . implode(',', array_map(function ($column) use ($values) {
-                return isset($values[$column]) ? $this->escapeValue($values[$column]) : $this->escapeNULL();
-            }, $columns)) . ')';
-        }, $rows));
-
-        return $statement;
-    }
-
-    /**
      * Update the autoincrement value
      *
      * @param Entity     $entity
@@ -334,27 +309,6 @@ abstract class Dbal
                 break;
             }
         }
-    }
-
-    /**
-     * Build a where in statement for composite keys
-     *
-     * @param array $cols
-     * @param array $keys
-     * @param bool $inverse Whether it should be a IN or NOT IN operator
-     * @return string
-     */
-    public function buildCompositeWhereInStatement(array $cols, array $keys, $inverse = false)
-    {
-        $primaryKeys = array_map(function ($key) {
-            return '(' . implode(',', array_map([$this, 'escapeValue'], $key)) . ')';
-        }, $keys);
-
-        return vsprintf(static::$compositeWhereInTemplate, [
-                implode(',', $cols),
-                $inverse ? 'NOT IN' : 'IN',
-                implode(',', $primaryKeys)
-        ]);
     }
 
     /**
