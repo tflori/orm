@@ -149,7 +149,7 @@ class EventTest extends TestCase
         $this->em->shouldReceive('fire')->withArgs(function (Event $event) {
             return $event instanceof Event\Deleting && $event->entity instanceof Article;
         })->once()->andReturnTrue();
-        $this->mocks['dbal']->shouldReceive('delete')->with($article)->once()->andReturnTrue();
+        $this->mocks['dbal']->shouldReceive('deleteEntity')->with($article)->once()->andReturnTrue();
         $this->em->shouldReceive('fire')->withArgs(function (Event $event) {
             return $event instanceof Event\Deleted && $event->entity instanceof Article;
         })->once()->andReturnTrue();

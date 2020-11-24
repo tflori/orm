@@ -496,7 +496,7 @@ class EntityManager
         if ($this->fire(new Deleting($entity)) === false) {
             return false;
         }
-        $this->getDbal()->delete($entity);
+        $this->getDbal()->deleteEntity($entity);
         $entity->setOriginalData([]);
         $this->fire(new Deleted($entity));
         return true;

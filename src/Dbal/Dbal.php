@@ -3,6 +3,7 @@
 namespace ORM\Dbal;
 
 use ORM\Dbal\QueryLanguage\CompositeInValuesExpression;
+use ORM\Dbal\QueryLanguage\DeleteStatement;
 use ORM\Dbal\QueryLanguage\InsertStatement;
 use ORM\Dbal\QueryLanguage\UpdateStatement;
 use ORM\Entity;
@@ -23,6 +24,9 @@ abstract class Dbal
     use UpdateStatement;
     use InsertStatement;
     use CompositeInValuesExpression;
+    use DeleteStatement {
+        UpdateStatement::buildWhereClause insteadof DeleteStatement;
+    }
 
     /** @var array */
     protected static $typeMapping = [];
@@ -215,6 +219,29 @@ abstract class Dbal
     }
 
     /**
+     * Delete rows from $table using $where conditions
+     *
+     * Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+     *
+     * Examples:
+     * `$dbal->delete('someTable', ['id' => 23])`
+     * `$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+     *
+     * Tip: Use the query builder to construct where conditions:
+     * `$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+     *
+     * @param string $table The table where to delete rows
+     * @param array $where An array of where conditions
+     * @return int The number of deleted rows
+     */
+    public function delete($table, array $where)
+    {
+        $query = $this->buildDeleteStatement($table, $where);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
+    }
+
+    /**
      * Delete $entity from database
      *
      * This method does not delete from the map - you can still receive the entity via fetch.
@@ -222,19 +249,16 @@ abstract class Dbal
      * @param Entity $entity
      * @return bool
      */
-    public function delete(Entity $entity)
+    public function deleteEntity(Entity $entity)
     {
         $primaryKey = $entity->getPrimaryKey();
-        $where      = [];
+        $where = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col     = $entity::getColumnName($attribute);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+            $col = $entity::getColumnName($attribute);
+            $where[$col] = $value;
         }
 
-        $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
-        $this->entityManager->getConnection()->query($statement);
-
+        $this->delete($entity::getTableName(), $where);
         return true;
     }
 

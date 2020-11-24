@@ -224,4 +224,19 @@ class BasicTest extends TestCase
 
         $query->update(['col1' => 'value']);
     }
+
+    /** @test */
+    public function executesDbalDelete()
+    {
+        $query = new QueryBuilder('foo', '', $this->em);
+        $query->where('foo.id', 42);
+        $query->join('bar', 'foo.barId = bar.id');
+
+        $this->dbal->shouldReceive('delete')->with(
+            m::type(Expression::class),
+            ['foo.id = 42']
+        )->once()->andReturn(1);
+
+        $query->delete();
+    }
 }

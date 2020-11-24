@@ -408,7 +408,9 @@ class DataModificationTest extends TestCase
      * @test */
     public function deleteReturnsSuccess($entity, $statement)
     {
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()
+            ->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
 
         $result = $this->em->delete($entity);
 
@@ -422,7 +424,9 @@ class DataModificationTest extends TestCase
         $entity->setOriginalData($entity->getData());
         self::assertFalse($entity->isDirty());
 
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()
+            ->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->em->delete($entity);
 

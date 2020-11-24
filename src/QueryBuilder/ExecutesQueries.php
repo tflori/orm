@@ -128,6 +128,19 @@ trait ExecutesQueries
     }
 
     /**
+     * Execute a delete statement for the current query
+     *
+     * @return int The number of deleted rows
+     */
+    public function delete()
+    {
+        return $this->entityManager->getDbal()->delete(
+            EntityManager::raw($this->tableName . ($this->alias ? ' AS ' . $this->alias : '')),
+            $this->where
+        );
+    }
+
+    /**
      * Query database and return result
      *
      * Queries the database with current query and returns the resulted PDOStatement.
