@@ -30,5 +30,4 @@ trait InsertStatement
 
         return $statement;
     }
-
 }
