@@ -52,7 +52,14 @@ class Parenthesis implements ParenthesisInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Build a where in expression
+     *
+     * Calls buildWhereInExpression() from parent if there is a parent.
+     *
+     * @param string|array $column Column or expression with placeholders
+     * @param array $values Value (required when used with operator)
+     * @param bool $inverse
+     * @return string
      * @internal
      */
     public function buildWhereInExpression($column, array $values, $inverse = false)

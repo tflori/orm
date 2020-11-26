@@ -1237,7 +1237,6 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
 * [assertSameType](#ormdbaldbalassertsametype) 
-* [buildCompositeInExpression](#ormdbaldbalbuildcompositeinexpression) 
 * [buildDeleteStatement](#ormdbaldbalbuilddeletestatement) 
 * [buildInsert](#ormdbaldbalbuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbaldbalbuildsetclause) 
@@ -1311,31 +1310,6 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
-
-
-
-#### ORM\Dbal\Dbal::buildCompositeInExpression
-
-```php
-public function buildCompositeInExpression(
-    array $cols, array $values, $inverse = false
-)
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$cols` | **array**  |  |
-| `$values` | **array**  |  |
-| `$inverse` |   |  |
 
 
 
@@ -8749,7 +8723,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
 * [assertSameType](#ormdbalmysqlassertsametype) 
-* [buildCompositeInExpression](#ormdbalmysqlbuildcompositeinexpression) 
+* [buildCompositeInExpression](#ormdbalmysqlbuildcompositeinexpression) Build a where in expression for composite values
 * [buildDeleteStatement](#ormdbalmysqlbuilddeletestatement) 
 * [buildInsert](#ormdbalmysqlbuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbalmysqlbuildsetclause) 
@@ -8833,16 +8807,18 @@ protected static function assertSameType(
 
 ```php
 public function buildCompositeInExpression(
-    array $cols, array $values, $inverse = false
-)
+    array $cols, array $values, boolean $inverse = false
+): string
 ```
 
+##### Build a where in expression for composite values
 
 
 
 **Visibility:** this method is **public**.
 <br />
-
+ **Returns**: this method returns **string**
+<br />
 
 ##### Parameters
 
@@ -8850,7 +8826,7 @@ public function buildCompositeInExpression(
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
 | `$values` | **array**  |  |
-| `$inverse` |   |  |
+| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
 
 
 
@@ -12233,7 +12209,6 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
 * [assertSameType](#ormdbalpgsqlassertsametype) 
-* [buildCompositeInExpression](#ormdbalpgsqlbuildcompositeinexpression) 
 * [buildDeleteStatement](#ormdbalpgsqlbuilddeletestatement) 
 * [buildInsert](#ormdbalpgsqlbuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbalpgsqlbuildsetclause) 
@@ -12309,31 +12284,6 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
-
-
-
-#### ORM\Dbal\Pgsql::buildCompositeInExpression
-
-```php
-public function buildCompositeInExpression(
-    array $cols, array $values, $inverse = false
-)
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$cols` | **array**  |  |
-| `$values` | **array**  |  |
-| `$inverse` |   |  |
 
 
 
@@ -16842,7 +16792,6 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
 * [assertSameType](#ormdbalsqliteassertsametype) 
-* [buildCompositeInExpression](#ormdbalsqlitebuildcompositeinexpression) 
 * [buildDeleteStatement](#ormdbalsqlitebuilddeletestatement) 
 * [buildInsert](#ormdbalsqlitebuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbalsqlitebuildsetclause) 
@@ -16920,31 +16869,6 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
-
-
-
-#### ORM\Dbal\Sqlite::buildCompositeInExpression
-
-```php
-public function buildCompositeInExpression(
-    array $cols, array $values, $inverse = false
-)
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
-
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$cols` | **array**  |  |
-| `$values` | **array**  |  |
-| `$inverse` |   |  |
 
 
 
