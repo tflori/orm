@@ -25,6 +25,7 @@ permalink: /reference.html
 * [Column](#ormdbalcolumn)
 * [Dbal](#ormdbaldbal)
 * [Error](#ormdbalerror)
+* [Expression](#ormdbalexpression)
 * [Mysql](#ormdbalmysql)
 * [Other](#ormdbalother)
 * [Pgsql](#ormdbalpgsql)
@@ -1225,7 +1226,6 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 |------------|------|------|---------------------------------------|
 | **protected** | `$booleanFalse` | **string** |  |
 | **protected** | `$booleanTrue` | **string** |  |
-| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
@@ -1237,9 +1237,13 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
 * [assertSameType](#ormdbaldbalassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbaldbalbuildcompositewhereinstatement) Build a where in statement for composite keys
-* [buildInsertStatement](#ormdbaldbalbuildinsertstatement) Build the insert statement for $entity
-* [delete](#ormdbaldbaldelete) Delete $entity from database
+* [buildCompositeInExpression](#ormdbaldbalbuildcompositeinexpression) 
+* [buildDeleteStatement](#ormdbaldbalbuilddeletestatement) 
+* [buildInsert](#ormdbaldbalbuildinsert) Build an insert statement for $rows
+* [buildSetClause](#ormdbaldbalbuildsetclause) 
+* [buildUpdateStatement](#ormdbaldbalbuildupdatestatement) 
+* [delete](#ormdbaldbaldelete) Delete rows from $table using $where conditions
+* [deleteEntity](#ormdbaldbaldeleteentity) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
 * [escapeBoolean](#ormdbaldbalescapeboolean) Escape a boolean for query
 * [escapeDateTime](#ormdbaldbalescapedatetime) Escape a date time object for query
@@ -1250,12 +1254,14 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [escapeString](#ormdbaldbalescapestring) Escape a string for query
 * [escapeValue](#ormdbaldbalescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbaldbalextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbaldbalinsert) Insert $entities into database
+* [insert](#ormdbaldbalinsert) 
 * [insertAndSync](#ormdbaldbalinsertandsync) Insert $entities and update with default values from database
 * [insertAndSyncWithAutoInc](#ormdbaldbalinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
+* [insertEntities](#ormdbaldbalinsertentities) Insert $entities into database
 * [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
 * [setOption](#ormdbaldbalsetoption) Set $option to $value
 * [syncInserted](#ormdbaldbalsyncinserted) Sync the $entities after insert
+* [update](#ormdbaldbalupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbaldbalupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Dbal::__construct
@@ -1308,42 +1314,60 @@ protected static function assertSameType(
 
 
 
-#### ORM\Dbal\Dbal::buildCompositeWhereInStatement
+#### ORM\Dbal\Dbal::buildCompositeInExpression
 
 ```php
-public function buildCompositeWhereInStatement(
-    array $cols, array $keys, boolean $inverse = false
-): string
+public function buildCompositeInExpression(
+    array $cols, array $values, $inverse = false
+)
 ```
 
-##### Build a where in statement for composite keys
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **string**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$keys` | **array**  |  |
-| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
+| `$values` | **array**  |  |
+| `$inverse` |   |  |
 
 
 
-#### ORM\Dbal\Dbal::buildInsertStatement
+#### ORM\Dbal\Dbal::buildDeleteStatement
 
 ```php
-protected function buildInsertStatement(
-    ORM\Entity $entity, array<\ORM\Entity> $entities
-): string
+protected function buildDeleteStatement( $table, array $where )
 ```
 
-##### Build the insert statement for $entity
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+
+
+
+#### ORM\Dbal\Dbal::buildInsert
+
+```php
+protected function buildInsert( string $table, array $rows ): string
+```
+
+##### Build an insert statement for $rows
 
 
 
@@ -1356,15 +1380,91 @@ protected function buildInsertStatement(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$table` | **string**  |  |
+| `$rows` | **array**  |  |
+
+
+
+#### ORM\Dbal\Dbal::buildSetClause
+
+```php
+protected function buildSetClause( array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Dbal::buildUpdateStatement
+
+```php
+protected function buildUpdateStatement( $table, array $where, array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
 
 
 
 #### ORM\Dbal\Dbal::delete
 
 ```php
-public function delete( ORM\Entity $entity ): boolean
+public function delete( string $table, array $where ): integer
+```
+
+##### Delete rows from $table using $where conditions
+
+Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+
+Examples:
+`$dbal->delete('someTable', ['id' => 23])`
+`$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+
+Tip: Use the query builder to construct where conditions:
+`$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table where to delete rows |
+| `$where` | **array**  | An array of where conditions |
+
+
+
+#### ORM\Dbal\Dbal::deleteEntity
+
+```php
+public function deleteEntity( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -1613,23 +1713,22 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Dbal::insert
 
 ```php
-public function insert( ORM\Entity $entities ): boolean
+public function insert( $table, array $rows )
 ```
 
-##### Insert $entities into database
 
-The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entities` | **\ORM\Entity**  |  |
+| `$table` |   |  |
+| `$rows` | **array**  |  |
 
 
 
@@ -1672,6 +1771,29 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 <br />
  **Returns**: this method returns **integer|boolean**
 <br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver** or **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Dbal::insertEntities
+
+```php
+public function insertEntities( ORM\Entity $entities ): boolean
+```
+
+##### Insert $entities into database
+
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 ##### Parameters
 
@@ -1747,6 +1869,43 @@ protected function syncInserted( ORM\Entity $entities )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Dbal::update
+
+```php
+public function update(
+    string $table, array $where, array $updates, array $joins = array()
+): integer
+```
+
+##### Update $table using $where to set $updates
+
+Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+
+For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+
+```php
+$em->query('table')
+ ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+ ->update(['teenager' => true]);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />**Throws:** this method may throw **\ORM\Exception\UnsupportedDriver**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table to update |
+| `$where` | **array**  | An array of where conditions |
+| `$updates` | **array**  | An array of columns to update |
+| `$joins` | **array**  | For internal use from query builder only |
 
 
 
@@ -3369,6 +3528,7 @@ Supported:
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
 * [count](#ormentityfetchercount) Get the count of the resulting items
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
+* [delete](#ormentityfetcherdelete) Execute a delete statement for the current query
 * [first](#ormentityfetcherfirst) Get the first item of an array
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) Get the default operator for $value
@@ -3398,6 +3558,7 @@ Supported:
 * [setQuery](#ormentityfetchersetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormentityfetchertoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormentityfetchertranslatecolumn) Translate attribute names in an expression to their column names
+* [update](#ormentityfetcherupdate) Execute an update statement for the current query
 * [where](#ormentityfetcherwhere) Alias for andWhere
 * [whereIn](#ormentityfetcherwherein) Add a where in condition with AND.
 * [whereNotIn](#ormentityfetcherwherenotin) Add a where not in condition with AND.
@@ -3642,6 +3803,24 @@ public function createRelatedJoin( $join, $relation ): $this
 |-----------|------|-------------|
 | `$join` |   |  |
 | `$relation` |   |  |
+
+
+
+#### ORM\EntityFetcher::delete
+
+```php
+public function delete(): integer
+```
+
+##### Execute a delete statement for the current query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
 
 
 
@@ -4346,6 +4525,33 @@ protected function translateColumn( string $expression ): string
 
 
 
+#### ORM\EntityFetcher::update
+
+```php
+public function update( array $updates ): integer
+```
+
+##### Execute an update statement for the current query
+
+**NOTE:** not all drivers support UPDATE with JOIN (or FROM). Has to be implemented in the database abstraction
+layer.
+
+$updates should be an array which columns to update with what value. Use expressions to bypass escaping.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  | An array of columns to update |
+
+
+
 #### ORM\EntityFetcher::where
 
 ```php
@@ -4536,6 +4742,7 @@ Supported:
 * [convertPlaceholders](#ormtestingentityfetchermockconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
+* [delete](#ormtestingentityfetchermockdelete) Execute a delete statement for the current query
 * [first](#ormtestingentityfetchermockfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) Get the default operator for $value
@@ -4565,6 +4772,7 @@ Supported:
 * [setQuery](#ormtestingentityfetchermocksetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormtestingentityfetchermocktoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormtestingentityfetchermocktranslatecolumn) Translate attribute names in an expression to their column names
+* [update](#ormtestingentityfetchermockupdate) Execute an update statement for the current query
 * [where](#ormtestingentityfetchermockwhere) Alias for andWhere
 * [whereIn](#ormtestingentityfetchermockwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockwherenotin) Add a where not in condition with AND.
@@ -4802,6 +5010,24 @@ public function createRelatedJoin( $join, $relation ): $this
 |-----------|------|-------------|
 | `$join` |   |  |
 | `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock::delete
+
+```php
+public function delete(): integer
+```
+
+##### Execute a delete statement for the current query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
 
 
 
@@ -5506,6 +5732,33 @@ protected function translateColumn( string $expression ): string
 
 
 
+#### ORM\Testing\EntityFetcherMock::update
+
+```php
+public function update( array $updates ): integer
+```
+
+##### Execute an update statement for the current query
+
+**NOTE:** not all drivers support UPDATE with JOIN (or FROM). Has to be implemented in the database abstraction
+layer.
+
+$updates should be an array which columns to update with what value. Use expressions to bypass escaping.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  | An array of columns to update |
+
+
+
 #### ORM\Testing\EntityFetcherMock::where
 
 ```php
@@ -5699,7 +5952,7 @@ private function wherePrefix( string $bool ): string
 * [finishBulkInserts](#ormentitymanagerfinishbulkinserts) Finish the bulk insert for $class.
 * [fire](#ormentitymanagerfire) Fire $event on $entity
 * [getConnection](#ormentitymanagergetconnection) Get the pdo connection.
-* [getDbal](#ormentitymanagergetdbal) Get the Datbase Abstraction Layer
+* [getDbal](#ormentitymanagergetdbal) Get the Database Abstraction Layer
 * [getInstance](#ormentitymanagergetinstance) Get an instance of the EntityManager.
 * [getInstanceByNameSpace](#ormentitymanagergetinstancebynamespace) Get the instance by NameSpace mapping
 * [getInstanceByParent](#ormentitymanagergetinstancebyparent) Get the instance by Parent class mapping
@@ -5709,6 +5962,7 @@ private function wherePrefix( string $bool ): string
 * [map](#ormentitymanagermap) Map $entity in the entity map
 * [observe](#ormentitymanagerobserve) Observe $class using $observer
 * [query](#ormentitymanagerquery) Get a query builder for $table
+* [raw](#ormentitymanagerraw) Create a raw expression from $expression to disable escaping
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
 * [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
@@ -6052,7 +6306,7 @@ public function getConnection(): PDO
 public function getDbal(): ORM\Dbal\Dbal
 ```
 
-##### Get the Datbase Abstraction Layer
+##### Get the Database Abstraction Layer
 
 
 
@@ -6293,6 +6547,30 @@ public function query(
 
 
 
+#### ORM\EntityManager::raw
+
+```php
+public static function raw( string $expression ): ORM\Dbal\Expression
+```
+
+##### Create a raw expression from $expression to disable escaping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Dbal\Expression**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
 #### ORM\EntityManager::setConnection
 
 ```php
@@ -6467,7 +6745,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [finishBulkInserts](#ormtestingentitymanagermockfinishbulkinserts) Finish the bulk insert for $class.
 * [fire](#ormtestingentitymanagermockfire) Fire $event on $entity
 * [getConnection](#ormtestingentitymanagermockgetconnection) Get the pdo connection.
-* [getDbal](#ormtestingentitymanagermockgetdbal) Get the Datbase Abstraction Layer
+* [getDbal](#ormtestingentitymanagermockgetdbal) Get the Database Abstraction Layer
 * [getInstance](#ormtestingentitymanagermockgetinstance) Get an instance of the EntityManager.
 * [getInstanceByNameSpace](#ormtestingentitymanagermockgetinstancebynamespace) Get the instance by NameSpace mapping
 * [getInstanceByParent](#ormtestingentitymanagermockgetinstancebyparent) Get the instance by Parent class mapping
@@ -6478,6 +6756,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [map](#ormtestingentitymanagermockmap) Map $entity in the entity map
 * [observe](#ormtestingentitymanagermockobserve) Observe $class using $observer
 * [query](#ormtestingentitymanagermockquery) Get a query builder for $table
+* [raw](#ormtestingentitymanagermockraw) Create a raw expression from $expression to disable escaping
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
@@ -6873,7 +7152,7 @@ public function getConnection(): PDO
 public function getDbal(): ORM\Dbal\Dbal
 ```
 
-##### Get the Datbase Abstraction Layer
+##### Get the Database Abstraction Layer
 
 
 
@@ -7135,6 +7414,30 @@ public function query(
 |-----------|------|-------------|
 | `$table` | **string**  |  |
 | `$alias` | **string**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::raw
+
+```php
+public static function raw( string $expression ): ORM\Dbal\Expression
+```
+
+##### Create a raw expression from $expression to disable escaping
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Dbal\Expression**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
 
 
 
@@ -7597,6 +7900,70 @@ public function stop()
 
 Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
 
+
+
+
+
+
+
+---
+
+### ORM\Dbal\Expression
+
+
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$expression` |  |  |
+
+
+
+#### Methods
+
+* [__construct](#ormdbalexpression__construct) Expression constructor.
+* [__toString](#ormdbalexpression__tostring) 
+
+#### ORM\Dbal\Expression::__construct
+
+```php
+public function __construct( string $expression )
+```
+
+##### Expression constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$expression` | **string**  |  |
+
+
+
+#### ORM\Dbal\Expression::__toString
+
+```php
+public function __toString()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
 
 
 
@@ -8371,7 +8738,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 |------------|------|------|---------------------------------------|
 | **protected** | `$booleanFalse` | **string** |  |
 | **protected** | `$booleanTrue` | **string** |  |
-| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
@@ -8383,9 +8749,15 @@ public function setRelated( ORM\Entity $self, $entity = null )
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
 * [assertSameType](#ormdbalmysqlassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalmysqlbuildcompositewhereinstatement) Build a where in statement for composite keys
-* [buildInsertStatement](#ormdbalmysqlbuildinsertstatement) Build the insert statement for $entity
-* [delete](#ormdbalmysqldelete) Delete $entity from database
+* [buildCompositeInExpression](#ormdbalmysqlbuildcompositeinexpression) 
+* [buildDeleteStatement](#ormdbalmysqlbuilddeletestatement) 
+* [buildInsert](#ormdbalmysqlbuildinsert) Build an insert statement for $rows
+* [buildSetClause](#ormdbalmysqlbuildsetclause) 
+* [buildTuples](#ormdbalmysqlbuildtuples) 
+* [buildUpdateJoinStatement](#ormdbalmysqlbuildupdatejoinstatement) 
+* [buildUpdateStatement](#ormdbalmysqlbuildupdatestatement) 
+* [delete](#ormdbalmysqldelete) Delete rows from $table using $where conditions
+* [deleteEntity](#ormdbalmysqldeleteentity) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
 * [escapeBoolean](#ormdbalmysqlescapeboolean) Escape a boolean for query
 * [escapeDateTime](#ormdbalmysqlescapedatetime) Escape a date time object for query
@@ -8396,13 +8768,15 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [escapeString](#ormdbalmysqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalmysqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalmysqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalmysqlinsert) Insert $entities into database
+* [insert](#ormdbalmysqlinsert) 
 * [insertAndSync](#ormdbalmysqlinsertandsync) Insert $entities and update with default values from database
 * [insertAndSyncWithAutoInc](#ormdbalmysqlinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
+* [insertEntities](#ormdbalmysqlinsertentities) Insert $entities into database
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalmysqlsyncinserted) Sync the $entities after insert
+* [update](#ormdbalmysqlupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbalmysqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Mysql::__construct
@@ -8455,42 +8829,60 @@ protected static function assertSameType(
 
 
 
-#### ORM\Dbal\Mysql::buildCompositeWhereInStatement
+#### ORM\Dbal\Mysql::buildCompositeInExpression
 
 ```php
-public function buildCompositeWhereInStatement(
-    array $cols, array $keys, boolean $inverse = false
-): string
+public function buildCompositeInExpression(
+    array $cols, array $values, $inverse = false
+)
 ```
 
-##### Build a where in statement for composite keys
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **string**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$keys` | **array**  |  |
-| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
+| `$values` | **array**  |  |
+| `$inverse` |   |  |
 
 
 
-#### ORM\Dbal\Mysql::buildInsertStatement
+#### ORM\Dbal\Mysql::buildDeleteStatement
 
 ```php
-protected function buildInsertStatement(
-    ORM\Entity $entity, array<\ORM\Entity> $entities
-): string
+protected function buildDeleteStatement( $table, array $where )
 ```
 
-##### Build the insert statement for $entity
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildInsert
+
+```php
+protected function buildInsert( string $table, array $rows ): string
+```
+
+##### Build an insert statement for $rows
 
 
 
@@ -8503,15 +8895,138 @@ protected function buildInsertStatement(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$table` | **string**  |  |
+| `$rows` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildSetClause
+
+```php
+protected function buildSetClause( array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildTuples
+
+```php
+protected function buildTuples( array $values )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$values` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildUpdateJoinStatement
+
+```php
+protected function buildUpdateJoinStatement(
+    $table, array $where, array $updates, array $joins
+)
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
+| `$joins` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::buildUpdateStatement
+
+```php
+protected function buildUpdateStatement( $table, array $where, array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
 
 
 
 #### ORM\Dbal\Mysql::delete
 
 ```php
-public function delete( ORM\Entity $entity ): boolean
+public function delete( string $table, array $where ): integer
+```
+
+##### Delete rows from $table using $where conditions
+
+Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+
+Examples:
+`$dbal->delete('someTable', ['id' => 23])`
+`$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+
+Tip: Use the query builder to construct where conditions:
+`$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table where to delete rows |
+| `$where` | **array**  | An array of where conditions |
+
+
+
+#### ORM\Dbal\Mysql::deleteEntity
+
+```php
+public function deleteEntity( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -8760,23 +9275,22 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Mysql::insert
 
 ```php
-public function insert( ORM\Entity $entities ): boolean
+public function insert( $table, array $rows )
 ```
 
-##### Insert $entities into database
 
-The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entities` | **\ORM\Entity**  |  |
+| `$table` |   |  |
+| `$rows` | **array**  |  |
 
 
 
@@ -8818,6 +9332,29 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **integer|boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Mysql::insertEntities
+
+```php
+public function insertEntities( ORM\Entity $entities ): boolean
+```
+
+##### Insert $entities into database
+
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -8918,6 +9455,43 @@ protected function syncInserted( ORM\Entity $entities )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Mysql::update
+
+```php
+public function update(
+    string $table, array $where, array $updates, array $joins = array()
+): integer
+```
+
+##### Update $table using $where to set $updates
+
+Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+
+For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+
+```php
+$em->query('table')
+ ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+ ->update(['teenager' => true]);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table to update |
+| `$where` | **array**  | An array of where conditions |
+| `$updates` | **array**  | An array of columns to update |
+| `$joins` | **array**  | For internal use from query builder only |
 
 
 
@@ -10498,7 +11072,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 |------------|------|------|---------------------------------------|
 | **protected** | `$booleanFalse` | **string** |  |
 | **protected** | `$booleanTrue` | **string** |  |
-| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
@@ -11649,7 +12222,6 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 |------------|------|------|---------------------------------------|
 | **protected** | `$booleanFalse` |  |  |
 | **protected** | `$booleanTrue` |  |  |
-| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
@@ -11661,9 +12233,15 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
 * [assertSameType](#ormdbalpgsqlassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalpgsqlbuildcompositewhereinstatement) Build a where in statement for composite keys
-* [buildInsertStatement](#ormdbalpgsqlbuildinsertstatement) Build the insert statement for $entity
-* [delete](#ormdbalpgsqldelete) Delete $entity from database
+* [buildCompositeInExpression](#ormdbalpgsqlbuildcompositeinexpression) 
+* [buildDeleteStatement](#ormdbalpgsqlbuilddeletestatement) 
+* [buildInsert](#ormdbalpgsqlbuildinsert) Build an insert statement for $rows
+* [buildSetClause](#ormdbalpgsqlbuildsetclause) 
+* [buildUpdateFromStatement](#ormdbalpgsqlbuildupdatefromstatement) 
+* [buildUpdateStatement](#ormdbalpgsqlbuildupdatestatement) 
+* [convertJoin](#ormdbalpgsqlconvertjoin) 
+* [delete](#ormdbalpgsqldelete) Delete rows from $table using $where conditions
+* [deleteEntity](#ormdbalpgsqldeleteentity) Delete $entity from database
 * [describe](#ormdbalpgsqldescribe) Describe a table
 * [escapeBoolean](#ormdbalpgsqlescapeboolean) Escape a boolean for query
 * [escapeDateTime](#ormdbalpgsqlescapedatetime) Escape a date time object for query
@@ -11674,12 +12252,14 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 * [escapeString](#ormdbalpgsqlescapestring) Escape a string for query
 * [escapeValue](#ormdbalpgsqlescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalpgsqlextractparenthesis) Extract content from parenthesis in $type
-* [insert](#ormdbalpgsqlinsert) Insert $entities into database
+* [insert](#ormdbalpgsqlinsert) 
 * [insertAndSync](#ormdbalpgsqlinsertandsync) Insert $entities and update with default values from database
 * [insertAndSyncWithAutoInc](#ormdbalpgsqlinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
+* [insertEntities](#ormdbalpgsqlinsertentities) Insert $entities into database
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
 * [setOption](#ormdbalpgsqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalpgsqlsyncinserted) Sync the $entities after insert
+* [update](#ormdbalpgsqlupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbalpgsqlupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Pgsql::__construct
@@ -11732,42 +12312,60 @@ protected static function assertSameType(
 
 
 
-#### ORM\Dbal\Pgsql::buildCompositeWhereInStatement
+#### ORM\Dbal\Pgsql::buildCompositeInExpression
 
 ```php
-public function buildCompositeWhereInStatement(
-    array $cols, array $keys, boolean $inverse = false
-): string
+public function buildCompositeInExpression(
+    array $cols, array $values, $inverse = false
+)
 ```
 
-##### Build a where in statement for composite keys
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **string**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$keys` | **array**  |  |
-| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
+| `$values` | **array**  |  |
+| `$inverse` |   |  |
 
 
 
-#### ORM\Dbal\Pgsql::buildInsertStatement
+#### ORM\Dbal\Pgsql::buildDeleteStatement
 
 ```php
-protected function buildInsertStatement(
-    ORM\Entity $entity, array<\ORM\Entity> $entities
-): string
+protected function buildDeleteStatement( $table, array $where )
 ```
 
-##### Build the insert statement for $entity
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::buildInsert
+
+```php
+protected function buildInsert( string $table, array $rows ): string
+```
+
+##### Build an insert statement for $rows
 
 
 
@@ -11780,15 +12378,138 @@ protected function buildInsertStatement(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$table` | **string**  |  |
+| `$rows` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::buildSetClause
+
+```php
+protected function buildSetClause( array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::buildUpdateFromStatement
+
+```php
+protected function buildUpdateFromStatement(
+    $table, array $where, array $updates, array $joins
+)
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
+| `$joins` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::buildUpdateStatement
+
+```php
+protected function buildUpdateStatement( $table, array $where, array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::convertJoin
+
+```php
+protected function convertJoin( $join )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` |   |  |
 
 
 
 #### ORM\Dbal\Pgsql::delete
 
 ```php
-public function delete( ORM\Entity $entity ): boolean
+public function delete( string $table, array $where ): integer
+```
+
+##### Delete rows from $table using $where conditions
+
+Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+
+Examples:
+`$dbal->delete('someTable', ['id' => 23])`
+`$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+
+Tip: Use the query builder to construct where conditions:
+`$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table where to delete rows |
+| `$where` | **array**  | An array of where conditions |
+
+
+
+#### ORM\Dbal\Pgsql::deleteEntity
+
+```php
+public function deleteEntity( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -12037,23 +12758,22 @@ protected function extractParenthesis( string $type ): string
 #### ORM\Dbal\Pgsql::insert
 
 ```php
-public function insert( ORM\Entity $entities ): boolean
+public function insert( $table, array $rows )
 ```
 
-##### Insert $entities into database
 
-The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entities` | **\ORM\Entity**  |  |
+| `$table` |   |  |
+| `$rows` | **array**  |  |
 
 
 
@@ -12095,6 +12815,29 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **integer|boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::insertEntities
+
+```php
+public function insertEntities( ORM\Entity $entities ): boolean
+```
+
+##### Insert $entities into database
+
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -12171,6 +12914,43 @@ protected function syncInserted( ORM\Entity $entities )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::update
+
+```php
+public function update(
+    string $table, array $where, array $updates, array $joins = array()
+): integer
+```
+
+##### Update $table using $where to set $updates
+
+Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+
+For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+
+```php
+$em->query('table')
+ ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+ ->update(['teenager' => true]);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table to update |
+| `$where` | **array**  | An array of where conditions |
+| `$updates` | **array**  | An array of columns to update |
+| `$joins` | **array**  | For internal use from query builder only |
 
 
 
@@ -12258,6 +13038,7 @@ Supported:
 * [column](#ormquerybuilderquerybuildercolumn) Add $column
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
+* [delete](#ormquerybuilderquerybuilderdelete) Execute a delete statement for the current query
 * [first](#ormquerybuilderquerybuilderfirst) Get the first item of an array
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) Get the default operator for $value
@@ -12281,6 +13062,7 @@ Supported:
 * [reset](#ormquerybuilderquerybuilderreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormquerybuilderquerybuilderrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormquerybuilderquerybuildersetfetchmode) Proxy to PDOStatement::setFetchMode()
+* [update](#ormquerybuilderquerybuilderupdate) Execute an update statement for the current query
 * [where](#ormquerybuilderquerybuilderwhere) Alias for andWhere
 * [whereIn](#ormquerybuilderquerybuilderwherein) Add a where in condition with AND.
 * [whereNotIn](#ormquerybuilderquerybuilderwherenotin) Add a where not in condition with AND.
@@ -12481,6 +13263,24 @@ protected function convertPlaceholders( string $expression, $args ): string
 |-----------|------|-------------|
 | `$expression` | **string**  | Expression with placeholders |
 | `$args` | **array &#124; mixed**  | Arguments for placeholders |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::delete
+
+```php
+public function delete(): integer
+```
+
+##### Execute a delete statement for the current query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
 
 
 
@@ -13046,6 +13846,33 @@ Please note that this will execute the query - further modifications will not ha
 **See Also:**
 
 * \PDOStatement::setFetchMode() 
+#### ORM\QueryBuilder\QueryBuilder::update
+
+```php
+public function update( array $updates ): integer
+```
+
+##### Execute an update statement for the current query
+
+**NOTE:** not all drivers support UPDATE with JOIN (or FROM). Has to be implemented in the database abstraction
+layer.
+
+$updates should be an array which columns to update with what value. Use expressions to bypass escaping.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  | An array of columns to update |
+
+
+
 #### ORM\QueryBuilder\QueryBuilder::where
 
 ```php
@@ -14265,6 +15092,7 @@ Supported:
 * [convertPlaceholders](#ormtestingentityfetchermockresultconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockresultcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
+* [delete](#ormtestingentityfetchermockresultdelete) Execute a delete statement for the current query
 * [first](#ormtestingentityfetchermockresultfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) Get the default operator for $value
@@ -14296,6 +15124,7 @@ Supported:
 * [setQuery](#ormtestingentityfetchermockresultsetquery) Set a raw query or use different QueryBuilder
 * [toClassAndAlias](#ormtestingentityfetchermockresulttoclassandalias) Get class and alias by the match from translateColumn
 * [translateColumn](#ormtestingentityfetchermockresulttranslatecolumn) Translate attribute names in an expression to their column names
+* [update](#ormtestingentityfetchermockresultupdate) Execute an update statement for the current query
 * [where](#ormtestingentityfetchermockresultwhere) Alias for andWhere
 * [whereIn](#ormtestingentityfetchermockresultwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockresultwherenotin) Add a where not in condition with AND.
@@ -14582,6 +15411,24 @@ public function createRelatedJoin( $join, $relation ): $this
 |-----------|------|-------------|
 | `$join` |   |  |
 | `$relation` |   |  |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::delete
+
+```php
+public function delete(): integer
+```
+
+##### Execute a delete statement for the current query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
 
 
 
@@ -15329,6 +16176,33 @@ protected function translateColumn( string $expression ): string
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::update
+
+```php
+public function update( array $updates ): integer
+```
+
+##### Execute an update statement for the current query
+
+**NOTE:** not all drivers support UPDATE with JOIN (or FROM). Has to be implemented in the database abstraction
+layer.
+
+$updates should be an array which columns to update with what value. Use expressions to bypass escaping.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  | An array of columns to update |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::where
 
 ```php
@@ -15957,7 +16831,6 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 |------------|------|------|---------------------------------------|
 | **protected** | `$booleanFalse` | **string** |  |
 | **protected** | `$booleanTrue` | **string** |  |
-| **protected static** | `$compositeWhereInTemplate` |  |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
@@ -15969,9 +16842,15 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
 * [assertSameType](#ormdbalsqliteassertsametype) 
-* [buildCompositeWhereInStatement](#ormdbalsqlitebuildcompositewhereinstatement) Build a where in statement for composite keys
-* [buildInsertStatement](#ormdbalsqlitebuildinsertstatement) Build the insert statement for $entity
-* [delete](#ormdbalsqlitedelete) Delete $entity from database
+* [buildCompositeInExpression](#ormdbalsqlitebuildcompositeinexpression) 
+* [buildDeleteStatement](#ormdbalsqlitebuilddeletestatement) 
+* [buildInsert](#ormdbalsqlitebuildinsert) Build an insert statement for $rows
+* [buildSetClause](#ormdbalsqlitebuildsetclause) 
+* [buildUpdateFromStatement](#ormdbalsqlitebuildupdatefromstatement) 
+* [buildUpdateStatement](#ormdbalsqlitebuildupdatestatement) 
+* [convertJoin](#ormdbalsqliteconvertjoin) 
+* [delete](#ormdbalsqlitedelete) Delete rows from $table using $where conditions
+* [deleteEntity](#ormdbalsqlitedeleteentity) Delete $entity from database
 * [describe](#ormdbalsqlitedescribe) Describe a table
 * [escapeBoolean](#ormdbalsqliteescapeboolean) Escape a boolean for query
 * [escapeDateTime](#ormdbalsqliteescapedatetime) Escape a date time object for query
@@ -15983,13 +16862,15 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [escapeValue](#ormdbalsqliteescapevalue) Returns $value formatted to use in a sql statement.
 * [extractParenthesis](#ormdbalsqliteextractparenthesis) Extract content from parenthesis in $type
 * [hasCompositeKey](#ormdbalsqlitehascompositekey) Checks $rawColumns for a multiple primary key
-* [insert](#ormdbalsqliteinsert) Insert $entities into database
+* [insert](#ormdbalsqliteinsert) 
 * [insertAndSync](#ormdbalsqliteinsertandsync) Insert $entities and update with default values from database
 * [insertAndSyncWithAutoInc](#ormdbalsqliteinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
+* [insertEntities](#ormdbalsqliteinsertentities) Insert $entities into database
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
 * [syncInserted](#ormdbalsqlitesyncinserted) Sync the $entities after insert
+* [update](#ormdbalsqliteupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbalsqliteupdateautoincrement) Update the autoincrement value
 
 #### ORM\Dbal\Sqlite::__construct
@@ -16042,42 +16923,60 @@ protected static function assertSameType(
 
 
 
-#### ORM\Dbal\Sqlite::buildCompositeWhereInStatement
+#### ORM\Dbal\Sqlite::buildCompositeInExpression
 
 ```php
-public function buildCompositeWhereInStatement(
-    array $cols, array $keys, boolean $inverse = false
-): string
+public function buildCompositeInExpression(
+    array $cols, array $values, $inverse = false
+)
 ```
 
-##### Build a where in statement for composite keys
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **string**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$cols` | **array**  |  |
-| `$keys` | **array**  |  |
-| `$inverse` | **boolean**  | Whether it should be a IN or NOT IN operator |
+| `$values` | **array**  |  |
+| `$inverse` |   |  |
 
 
 
-#### ORM\Dbal\Sqlite::buildInsertStatement
+#### ORM\Dbal\Sqlite::buildDeleteStatement
 
 ```php
-protected function buildInsertStatement(
-    ORM\Entity $entity, array<\ORM\Entity> $entities
-): string
+protected function buildDeleteStatement( $table, array $where )
 ```
 
-##### Build the insert statement for $entity
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::buildInsert
+
+```php
+protected function buildInsert( string $table, array $rows ): string
+```
+
+##### Build an insert statement for $rows
 
 
 
@@ -16090,15 +16989,138 @@ protected function buildInsertStatement(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entity` | **\ORM\Entity**  |  |
-| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$table` | **string**  |  |
+| `$rows` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::buildSetClause
+
+```php
+protected function buildSetClause( array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::buildUpdateFromStatement
+
+```php
+protected function buildUpdateFromStatement(
+    $table, array $where, array $updates, array $joins
+)
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
+| `$joins` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::buildUpdateStatement
+
+```php
+protected function buildUpdateStatement( $table, array $where, array $updates )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` |   |  |
+| `$where` | **array**  |  |
+| `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::convertJoin
+
+```php
+protected function convertJoin( $join )
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` |   |  |
 
 
 
 #### ORM\Dbal\Sqlite::delete
 
 ```php
-public function delete( ORM\Entity $entity ): boolean
+public function delete( string $table, array $where ): integer
+```
+
+##### Delete rows from $table using $where conditions
+
+Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+
+Examples:
+`$dbal->delete('someTable', ['id' => 23])`
+`$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+
+Tip: Use the query builder to construct where conditions:
+`$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of deleted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table where to delete rows |
+| `$where` | **array**  | An array of where conditions |
+
+
+
+#### ORM\Dbal\Sqlite::deleteEntity
+
+```php
+public function deleteEntity( ORM\Entity $entity ): boolean
 ```
 
 ##### Delete $entity from database
@@ -16370,23 +17392,22 @@ protected function hasCompositeKey( array $rawColumns ): boolean
 #### ORM\Dbal\Sqlite::insert
 
 ```php
-public function insert( ORM\Entity $entities ): boolean
+public function insert( $table, array $rows )
 ```
 
-##### Insert $entities into database
 
-The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **boolean**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$entities` | **\ORM\Entity**  |  |
+| `$table` |   |  |
+| `$rows` | **array**  |  |
 
 
 
@@ -16428,6 +17449,29 @@ The entities have to be from same type otherwise a InvalidArgument will be throw
 **Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **integer|boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::insertEntities
+
+```php
+public function insertEntities( ORM\Entity $entities ): boolean
+```
+
+##### Insert $entities into database
+
+The entities have to be from same type otherwise a InvalidArgument will be thrown.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
 <br />
 
 ##### Parameters
@@ -16531,6 +17575,43 @@ protected function syncInserted( ORM\Entity $entities )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::update
+
+```php
+public function update(
+    string $table, array $where, array $updates, array $joins = array()
+): integer
+```
+
+##### Update $table using $where to set $updates
+
+Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+
+For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+
+```php
+$em->query('table')
+ ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+ ->update(['teenager' => true]);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of affected rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$table` | **string**  | The table to update |
+| `$where` | **array**  | An array of where conditions |
+| `$updates` | **array**  | An array of columns to update |
+| `$joins` | **array**  | For internal use from query builder only |
 
 
 
