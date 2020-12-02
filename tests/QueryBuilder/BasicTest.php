@@ -239,4 +239,21 @@ class BasicTest extends TestCase
 
         $query->delete();
     }
+
+    /** @test */
+    public function executesDbalInsert()
+    {
+        $query = new QueryBuilder('foo', '', $this->em);
+
+        $this->dbal->shouldReceive('insert')->with(
+            m::type(Expression::class),
+            ['col1' => 'val1.1', 'col2' => 'val2.1'],
+            ['col1' => 'val1.2', 'col2' => 'val2.2']
+        )->once()->andReturn(2);
+
+        $query->insert(
+            ['col1' => 'val1.1', 'col2' => 'val2.1'],
+            ['col1' => 'val1.2', 'col2' => 'val2.2']
+        );
+    }
 }

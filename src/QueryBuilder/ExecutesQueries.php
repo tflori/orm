@@ -128,7 +128,7 @@ trait ExecutesQueries
     }
 
     /**
-     * Execute a delete statement for the current query
+     * Execute a delete statement on the current table with current where conditions
      *
      * @return int The number of deleted rows
      */
@@ -137,6 +137,20 @@ trait ExecutesQueries
         return $this->entityManager->getDbal()->delete(
             EntityManager::raw($this->tableName . ($this->alias ? ' AS ' . $this->alias : '')),
             $this->where
+        );
+    }
+
+    /**
+     * Execute a insert statement on the current table
+     *
+     * @param array ...$rows
+     * @return int The number of inserted rows
+     */
+    public function insert(array ...$rows)
+    {
+        return $this->entityManager->getDbal()->insert(
+            EntityManager::raw($this->tableName . ($this->alias ? ' AS ' . $this->alias : '')),
+            ...$rows
         );
     }
 
