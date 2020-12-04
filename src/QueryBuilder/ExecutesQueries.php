@@ -141,7 +141,7 @@ trait ExecutesQueries
     }
 
     /**
-     * Execute a insert statement on the current table
+     * Execute an insert statement on the current table
      *
      * @param array ...$rows
      * @return int The number of inserted rows
@@ -149,7 +149,7 @@ trait ExecutesQueries
     public function insert(array ...$rows)
     {
         return $this->entityManager->getDbal()->insert(
-            EntityManager::raw($this->tableName . ($this->alias ? ' AS ' . $this->alias : '')),
+            EntityManager::raw($this->tableName),
             ...$rows
         );
     }

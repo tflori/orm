@@ -3502,7 +3502,7 @@ Supported:
 * [convertPlaceholders](#ormentityfetcherconvertplaceholders) Replaces questionmarks in $expression with $args
 * [count](#ormentityfetchercount) Get the count of the resulting items
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
-* [delete](#ormentityfetcherdelete) Execute a delete statement for the current query
+* [delete](#ormentityfetcherdelete) Execute a delete statement on the current table with current where conditions
 * [first](#ormentityfetcherfirst) Get the first item of an array
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) Get the default operator for $value
@@ -3512,6 +3512,7 @@ Supported:
 * [getStatement](#ormentityfetchergetstatement) Query database and return result
 * [getTableAndAlias](#ormentityfetchergettableandalias) Get the table name and alias for a class
 * [groupBy](#ormentityfetchergroupby) Group By $column
+* [insert](#ormentityfetcherinsert) Execute an insert statement on the current table
 * [join](#ormentityfetcherjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormentityfetcherjoinrelated) Join $relation
 * [leftJoin](#ormentityfetcherleftjoin) Left (outer) join $tableName with $options
@@ -3786,7 +3787,7 @@ public function createRelatedJoin( $join, $relation ): $this
 public function delete(): integer
 ```
 
-##### Execute a delete statement for the current query
+##### Execute a delete statement on the current table with current where conditions
 
 
 
@@ -3992,6 +3993,30 @@ Optionally you can provide an expression in $column with question marks as place
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression for groups |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\EntityFetcher::insert
+
+```php
+public function insert( array $rows ): integer
+```
+
+##### Execute an insert statement on the current table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of inserted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$rows` | **array**  |  |
 
 
 
@@ -4716,7 +4741,7 @@ Supported:
 * [convertPlaceholders](#ormtestingentityfetchermockconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
-* [delete](#ormtestingentityfetchermockdelete) Execute a delete statement for the current query
+* [delete](#ormtestingentityfetchermockdelete) Execute a delete statement on the current table with current where conditions
 * [first](#ormtestingentityfetchermockfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) Get the default operator for $value
@@ -4726,6 +4751,7 @@ Supported:
 * [getStatement](#ormtestingentityfetchermockgetstatement) Query database and return result
 * [getTableAndAlias](#ormtestingentityfetchermockgettableandalias) Get the table name and alias for a class
 * [groupBy](#ormtestingentityfetchermockgroupby) Group By $column
+* [insert](#ormtestingentityfetchermockinsert) Execute an insert statement on the current table
 * [join](#ormtestingentityfetchermockjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormtestingentityfetchermockjoinrelated) Join $relation
 * [leftJoin](#ormtestingentityfetchermockleftjoin) Left (outer) join $tableName with $options
@@ -4993,7 +5019,7 @@ public function createRelatedJoin( $join, $relation ): $this
 public function delete(): integer
 ```
 
-##### Execute a delete statement for the current query
+##### Execute a delete statement on the current table with current where conditions
 
 
 
@@ -5199,6 +5225,30 @@ Optionally you can provide an expression in $column with question marks as place
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression for groups |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock::insert
+
+```php
+public function insert( array $rows ): integer
+```
+
+##### Execute an insert statement on the current table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of inserted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$rows` | **array**  |  |
 
 
 
@@ -12988,7 +13038,7 @@ Supported:
 * [column](#ormquerybuilderquerybuildercolumn) Add $column
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
-* [delete](#ormquerybuilderquerybuilderdelete) Execute a delete statement for the current query
+* [delete](#ormquerybuilderquerybuilderdelete) Execute a delete statement on the current table with current where conditions
 * [first](#ormquerybuilderquerybuilderfirst) Get the first item of an array
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) Get the default operator for $value
@@ -12997,6 +13047,7 @@ Supported:
 * [getQuery](#ormquerybuilderquerybuildergetquery) Get the query / select statement
 * [getStatement](#ormquerybuilderquerybuildergetstatement) Query database and return result
 * [groupBy](#ormquerybuilderquerybuildergroupby) Group By $column
+* [insert](#ormquerybuilderquerybuilderinsert) Execute an insert statement on the current table
 * [join](#ormquerybuilderquerybuilderjoin) (Inner) join $tableName with $options
 * [leftJoin](#ormquerybuilderquerybuilderleftjoin) Left (outer) join $tableName with $options
 * [limit](#ormquerybuilderquerybuilderlimit) Set $limit
@@ -13222,7 +13273,7 @@ protected function convertPlaceholders( string $expression, $args ): string
 public function delete(): integer
 ```
 
-##### Execute a delete statement for the current query
+##### Execute a delete statement on the current table with current where conditions
 
 
 
@@ -13403,6 +13454,30 @@ Optionally you can provide an expression in $column with question marks as place
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression for groups |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\QueryBuilder\QueryBuilder::insert
+
+```php
+public function insert( array $rows ): integer
+```
+
+##### Execute an insert statement on the current table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of inserted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$rows` | **array**  |  |
 
 
 
@@ -15042,7 +15117,7 @@ Supported:
 * [convertPlaceholders](#ormtestingentityfetchermockresultconvertplaceholders) Replaces question marks in $expression with $args
 * [count](#ormtestingentityfetchermockresultcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
-* [delete](#ormtestingentityfetchermockresultdelete) Execute a delete statement for the current query
+* [delete](#ormtestingentityfetchermockresultdelete) Execute a delete statement on the current table with current where conditions
 * [first](#ormtestingentityfetchermockresultfirst) Get the first item of an array
 * [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) Get the default operator for $value
@@ -15053,6 +15128,7 @@ Supported:
 * [getStatement](#ormtestingentityfetchermockresultgetstatement) Query database and return result
 * [getTableAndAlias](#ormtestingentityfetchermockresultgettableandalias) Get the table name and alias for a class
 * [groupBy](#ormtestingentityfetchermockresultgroupby) Group By $column
+* [insert](#ormtestingentityfetchermockresultinsert) Execute an insert statement on the current table
 * [join](#ormtestingentityfetchermockresultjoin) (Inner) join $tableName with $options
 * [joinRelated](#ormtestingentityfetchermockresultjoinrelated) Join $relation
 * [leftJoin](#ormtestingentityfetchermockresultleftjoin) Left (outer) join $tableName with $options
@@ -15370,7 +15446,7 @@ public function createRelatedJoin( $join, $relation ): $this
 public function delete(): integer
 ```
 
-##### Execute a delete statement for the current query
+##### Execute a delete statement on the current table with current where conditions
 
 
 
@@ -15593,6 +15669,30 @@ Optionally you can provide an expression in $column with question marks as place
 |-----------|------|-------------|
 | `$column` | **string**  | Column or expression for groups |
 | `$args` | **array**  | Arguments for expression |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::insert
+
+```php
+public function insert( array $rows ): integer
+```
+
+##### Execute an insert statement on the current table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **integer**
+<br />**Response description:** The number of inserted rows
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$rows` | **array**  |  |
 
 
 

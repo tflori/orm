@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\EntityFetcher\ExecutesQueries;
 use ORM\EntityFetcher\MakesJoins;
 use ORM\EntityFetcher\TranslatesClasses;
 use ORM\QueryBuilder\QueryBuilder;
@@ -31,6 +32,7 @@ class EntityFetcher extends QueryBuilder
 {
     use TranslatesClasses;
     use MakesJoins;
+    use ExecutesQueries;
 
     /** The entity class that we want to fetch
      * @var string|Entity */

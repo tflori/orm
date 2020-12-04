@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Test\EntityManager;
+namespace ORM\Test\EntityFetcher;
 
 use Mockery\Mock;
 use ORM\EntityFetcher;
@@ -10,12 +10,11 @@ use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\RelationExample;
-use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
 
-class EntityFetcherTest extends TestCase
+class BasicTest extends TestCase
 {
     /** @test */
     public function runsQueryWithoutParameters()
