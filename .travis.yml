@@ -26,7 +26,11 @@ before_script:
 
 script:
   - composer code-style
-  - vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always
+  - if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then
+      vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always;
+    else;
+      vendor/bin/phpunit -c phpunit.xml --color=always;
+    fi
 
 after_script:
   - if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then
