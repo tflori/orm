@@ -28,7 +28,7 @@ script:
   - composer code-style
   - if [ "$TRAVIS_PHP_VERSION" = "7.1" ]; then
       vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always;
-    else;
+    else
       vendor/bin/phpunit -c phpunit.xml --color=always;
     fi
 
