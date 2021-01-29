@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\UpdateFromStatement;
 use ORM\Entity;
 use ORM\Exception;
 use PDO;
@@ -14,6 +15,8 @@ use PDO;
  */
 class Sqlite extends Dbal
 {
+    use UpdateFromStatement;
+
     protected static $typeMapping = [
         'integer' => Type\Number::class,
         'int'     => Type\Number::class,
@@ -48,7 +51,9 @@ class Sqlite extends Dbal
         $table = $this->escapeIdentifier($entity::getTableName());
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
         $pdo->beginTransaction();
-        $pdo->query($this->buildInsertStatement(...$entities));
+        $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities)));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
                             ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
             ->fetchAll(PDO::FETCH_ASSOC);
@@ -62,6 +67,13 @@ class Sqlite extends Dbal
         }
 
         return true;
+    }
+
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        $query = $this->buildUpdateFromStatement($table, $where, $updates, $joins);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     public function describe($schemaTable)

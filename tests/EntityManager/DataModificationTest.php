@@ -215,10 +215,12 @@ class DataModificationTest extends TestCase
 
         $this->pdo->shouldReceive('query')
             ->with('INSERT INTO "psr0_studly_caps" ("id","foo") VALUES (42,\'bar\')')
-            ->once()->andReturn(m::mock(\PDOStatement::class));
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with('SELECT * FROM "psr0_studly_caps" WHERE "id" IN (42)')
             ->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
         $result = $this->em->insert($entity);
@@ -246,10 +248,12 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)
             ->atLeast()->once()->andReturn($driver);
         $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
-            ->once()->andReturn(m::mock(\PDOStatement::class));
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT \* FROM .* WHERE .* IN (.*)/'))
             ->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
         $result = $this->em->insert($entity, false);
@@ -318,7 +322,8 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/SELECT \* FROM .* WHERE "id" IN \(42\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false)->ordered();
 
         $result = $this->em->insert($entity);
@@ -368,9 +373,11 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideUpdateStatements
      * @test */
-    public function updateReturnsSuccessAndSyncs($entity, $statement)
+    public function updateReturnsSuccessAndSyncs($entity, $query)
     {
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
+        $statement = m::mock(\PDOStatement::class);
+        $statement->shouldReceive('rowCount')->andReturn(1);
+        $this->pdo->shouldReceive('query')->with($query)->once()->andReturn($statement);
         $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
 
         $result = $this->em->update($entity);
@@ -401,7 +408,9 @@ class DataModificationTest extends TestCase
      * @test */
     public function deleteReturnsSuccess($entity, $statement)
     {
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()
+            ->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
 
         $result = $this->em->delete($entity);
 
@@ -415,7 +424,9 @@ class DataModificationTest extends TestCase
         $entity->setOriginalData($entity->getData());
         self::assertFalse($entity->isDirty());
 
-        $this->pdo->shouldReceive('query')->with($statement)->once()->andReturn(m::mock(\PDOStatement::class));
+        $this->pdo->shouldReceive('query')->with($statement)->once()
+            ->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->em->delete($entity);
 

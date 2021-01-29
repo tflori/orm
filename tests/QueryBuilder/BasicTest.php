@@ -2,6 +2,8 @@
 
 namespace ORM\Test\QueryBuilder;
 
+use Mockery as m;
+use ORM\Dbal\Expression;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\TestCase;
 
@@ -204,5 +206,54 @@ class BasicTest extends TestCase
 
         self::assertSame('SELECT DISTINCT SQL_NO_CACHE * FROM foobar', $query->getQuery());
         self::assertSame($query, $result);
+    }
+
+    /** @test */
+    public function executesDbalUpdate()
+    {
+        $query = new QueryBuilder('foo', '', $this->em);
+        $query->where('foo.id', 42);
+        $query->join('bar', 'foo.barId = bar.id');
+
+        $this->dbal->shouldReceive('update')->with(
+            m::type(Expression::class),
+            ['foo.id = 42'],
+            ['col1' => 'value'],
+            ['JOIN bar ON foo.barId = bar.id']
+        )->once()->andReturn(1);
+
+        $query->update(['col1' => 'value']);
+    }
+
+    /** @test */
+    public function executesDbalDelete()
+    {
+        $query = new QueryBuilder('foo', '', $this->em);
+        $query->where('foo.id', 42);
+        $query->join('bar', 'foo.barId = bar.id');
+
+        $this->dbal->shouldReceive('delete')->with(
+            m::type(Expression::class),
+            ['foo.id = 42']
+        )->once()->andReturn(1);
+
+        $query->delete();
+    }
+
+    /** @test */
+    public function executesDbalInsert()
+    {
+        $query = new QueryBuilder('foo', '', $this->em);
+
+        $this->dbal->shouldReceive('insert')->with(
+            m::type(Expression::class),
+            ['col1' => 'val1.1', 'col2' => 'val2.1'],
+            ['col1' => 'val1.2', 'col2' => 'val2.2']
+        )->once()->andReturn(2);
+
+        $query->insert(
+            ['col1' => 'val1.1', 'col2' => 'val2.1'],
+            ['col1' => 'val1.2', 'col2' => 'val2.2']
+        );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Test\EntityManager;
+namespace ORM\Test\EntityFetcher;
 
 use Mockery\Mock;
 use ORM\EntityFetcher;
@@ -10,12 +10,11 @@ use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\ContactPhone;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\RelationExample;
-use ORM\Test\Entity\Examples\Snake_Ucfirst;
 use ORM\Test\Entity\Examples\StaticTableName;
 use ORM\Test\Entity\Examples\StudlyCaps;
 use ORM\Test\TestCase;
 
-class EntityFetcherTest extends TestCase
+class BasicTest extends TestCase
 {
     /** @test */
     public function runsQueryWithoutParameters()
@@ -44,6 +43,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturn(true);
         $statement->shouldReceive('fetch')->andReturn(false);
 
         $result = $fetcher->one();
@@ -121,7 +121,8 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
-        $statement->shouldReceive('fetch')->once()->with(\PDO::FETCH_ASSOC)->andReturn([
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->once()->with()->andReturn([
             'id' => 42,
             'name' => 'mobile',
             'number' => '+49 151 00000000'
@@ -144,6 +145,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -169,6 +171,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -192,6 +195,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -217,6 +221,7 @@ class EntityFetcherTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
         $statement->shouldReceive('fetch')->andReturn([
             'id' => 42,
             'name' => 'mobile',
@@ -305,6 +310,38 @@ class EntityFetcherTest extends TestCase
     }
 
     /** @test */
+    public function returnsAllItemsAfterReset()
+    {
+        $e1 = $this->em->map(new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile'
+        ], $this->em, true));
+        $e2 = $this->em->map(new ContactPhone([
+            'id' => 43,
+            'name' => 'mobile'
+        ], $this->em, true));
+        $e3 = $this->em->map(new ContactPhone([
+            'id' => 44,
+            'name' => 'mobile'
+        ], $this->em, true));
+
+        /** @var EntityFetcher|Mock $fetcher */
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $this->pdo->shouldReceive('query')->once()
+            ->with('SELECT DISTINCT t0.* FROM "contact_phone" AS t0')
+            ->andReturn($statement = \Mockery::mock(\PDOStatement::class));
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()->times(4)
+            ->andReturn($e1->getData(), $e2->getData(), $e3->getData(), false);
+
+        $fetcher->all();
+
+        $contactPhones = $fetcher->reset()->all();
+
+        self::assertSame([$e1, $e2, $e3], $contactPhones);
+    }
+
+    /** @test */
     public function allReturnsLimitedAmount()
     {
         $e1 = new ContactPhone([
@@ -340,6 +377,16 @@ class EntityFetcherTest extends TestCase
         $fetcher->column('c');
 
         self::assertSame('SELECT DISTINCT t0.* FROM "contact_phone" AS t0', $fetcher->getQuery());
+    }
+
+    /** @test */
+    public function fetchModeCantBeChanged()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+
+        $this->pdo->shouldNotReceive('query');
+
+        $fetcher->setFetchMode(\PDO::FETCH_NUM);
     }
 
     public function provideJoins()

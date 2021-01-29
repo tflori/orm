@@ -246,7 +246,7 @@ class WhereConditionsTest extends TestCase
         $cols = ['a', 'b'];
         $values = [[42, 23], [23, 42]];
 
-        $this->dbal->shouldReceive('buildCompositeWhereInStatement')
+        $this->dbal->shouldReceive('buildCompositeInExpression')
             ->with($cols, $values, false)->once()->passthru();
 
         $query->whereIn($cols, $values);
@@ -261,7 +261,7 @@ class WhereConditionsTest extends TestCase
         $cols = ['a', 'b'];
         $values = [[42, 23], [23, 42]];
 
-        $this->dbal->shouldReceive('buildCompositeWhereInStatement')
+        $this->dbal->shouldReceive('buildCompositeInExpression')
             ->with($cols, $values, true)->once()->passthru();
 
         $query->whereNotIn($cols, $values);

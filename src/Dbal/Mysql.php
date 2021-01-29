@@ -2,6 +2,8 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\CompositeInExpression;
+use ORM\Dbal\QueryLanguage\UpdateJoinStatement;
 use ORM\Entity;
 use ORM\Exception;
 use PDO;
@@ -15,6 +17,9 @@ use PDOException;
  */
 class Mysql extends Dbal
 {
+    use UpdateJoinStatement;
+    use CompositeInExpression;
+
     protected static $typeMapping = [
         'tinyint'   => Type\Number::class,
         'smallint'  => Type\Number::class,
@@ -43,8 +48,6 @@ class Mysql extends Dbal
         'json' => Type\Json::class,
     ];
 
-    protected static $compositeWhereInTemplate = '(%s) %s (%s)';
-
     public function insertAndSyncWithAutoInc(Entity ...$entities)
     {
         if (count($entities) === 0) {
@@ -57,7 +60,9 @@ class Mysql extends Dbal
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
         $pdo = $this->entityManager->getConnection();
         $pdo->beginTransaction();
-        $pdo->query($this->buildInsertStatement(...$entities));
+        $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities)));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
             ->fetchAll(PDO::FETCH_ASSOC);
         $pdo->commit();
@@ -86,6 +91,13 @@ class Mysql extends Dbal
         }
 
         return new Table($cols);
+    }
+
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        $query = $this->buildUpdateJoinStatement($table, $where, $updates, $joins);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     /**

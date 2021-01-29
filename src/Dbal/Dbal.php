@@ -2,13 +2,14 @@
 
 namespace ORM\Dbal;
 
-use DateTime;
+use ORM\Dbal\QueryLanguage\CompositeInValuesExpression;
+use ORM\Dbal\QueryLanguage\DeleteStatement;
+use ORM\Dbal\QueryLanguage\InsertStatement;
+use ORM\Dbal\QueryLanguage\UpdateStatement;
 use ORM\Entity;
 use ORM\EntityManager;
 use ORM\Exception;
-use ORM\Exception\NotScalar;
 use ORM\Exception\UnsupportedDriver;
-use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 
 /**
@@ -20,11 +21,15 @@ use PDO;
 abstract class Dbal
 {
     use Escaping;
+    use UpdateStatement;
+    use InsertStatement;
+    use CompositeInValuesExpression;
+    use DeleteStatement {
+        UpdateStatement::buildWhereClause insteadof DeleteStatement;
+    }
 
     /** @var array */
     protected static $typeMapping = [];
-
-    protected static $compositeWhereInTemplate = '(%s) %s (VALUES %s)';
 
     /** @var EntityManager */
     protected $entityManager;
@@ -74,41 +79,6 @@ abstract class Dbal
     }
 
     /**
-     * Returns $identifier quoted for use in a sql statement
-     *
-     * @param string $identifier Identifier to quote
-     * @return string
-     */
-    public function escapeIdentifier($identifier)
-    {
-        $quote = $this->quotingCharacter;
-        $divider = $this->identifierDivider;
-        return $quote . str_replace($divider, $quote . $divider . $quote, $identifier) . $quote;
-    }
-
-    /**
-     * Returns $value formatted to use in a sql statement.
-     *
-     * @param  mixed $value The variable that should be returned in SQL syntax
-     * @return string
-     * @throws NotScalar
-     */
-    public function escapeValue($value)
-    {
-        $type = is_object($value) ? get_class($value) : gettype($value);
-        if ($value instanceof DateTime) {
-            $type = 'DateTime';
-        }
-        $method = [ $this, 'escape' . ucfirst($type) ];
-
-        if (is_callable($method)) {
-            return call_user_func($method, $value);
-        } else {
-            throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
-        }
-    }
-
-    /**
      * Describe a table
      *
      * @param string $table
@@ -118,28 +88,18 @@ abstract class Dbal
      */
     public function describe($table)
     {
-        throw new UnsupportedDriver('Not supported for this driver');
+        throw new UnsupportedDriver('Describe is not supported by this driver');
     }
 
-    /**
-     * @param Entity[] $entities
-     * @return bool
-     * @throws Exception\InvalidArgument
-     */
-    protected static function assertSameType(array $entities)
+    public function insert($table, array ...$rows)
     {
-        if (count($entities) < 2) {
-            return true;
+        if (count($rows) === 0) {
+            return 0;
         }
 
-        $type = get_class(reset($entities));
-        foreach ($entities as $i => $entity) {
-            if (get_class($entity) !== $type) {
-                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
-            }
-        }
-
-        return true;
+        $insert = $this->buildInsert($table, $rows);
+        $statement = $this->entityManager->getConnection()->query($insert);
+        return $statement->rowCount();
     }
 
     /**
@@ -149,16 +109,17 @@ abstract class Dbal
      *
      * @param Entity ...$entities
      * @return bool
-     * @throws Exception\InvalidArgument
      */
-    public function insert(Entity ...$entities)
+    public function insertEntities(Entity ...$entities)
     {
         if (count($entities) === 0) {
             return false;
         }
+
         static::assertSameType($entities);
-        $insert = $this->buildInsertStatement(...$entities);
-        $this->entityManager->getConnection()->query($insert);
+        $this->insert($entities[0]::getTableName(), ...array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities));
         return true;
     }
 
@@ -176,8 +137,8 @@ abstract class Dbal
         if (count($entities) === 0) {
             return false;
         }
-        self::assertSameType($entities);
-        $this->insert(...$entities);
+
+        $this->insertEntities(...$entities);
         $this->syncInserted(...$entities);
         return true;
     }
@@ -202,37 +163,82 @@ abstract class Dbal
     }
 
     /**
+     * Update $table using $where to set $updates
+     *
+     * Simple usage: `update('table', ['id' => 23], ['name' => 'John Doe'])`
+     *
+     * For advanced queries with parenthesis, joins (if supported from your DBMS) etc. use QueryBuilder:
+     *
+     * ```php
+     * $em->query('table')
+     *  ->where('birth_date', '>', EM::raw('DATE_SUB(NOW(), INTERVAL 18 YEARS)'))
+     *  ->update(['teenager' => true]);
+     * ```
+     *
+     * @param string $table The table to update
+     * @param array $where An array of where conditions
+     * @param array $updates An array of columns to update
+     * @param array $joins For internal use from query builder only
+     * @return int The number of affected rows
+     * @throws UnsupportedDriver
+     */
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        if (!empty($joins)) {
+            throw new UnsupportedDriver('Updates with joins are not supported by this driver');
+        }
+
+        $query = $this->buildUpdateStatement($table, $where, $updates);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
+    }
+
+    /**
      * Update $entity in database and returns success
      *
      * @param Entity $entity
      * @return bool
      * @internal
      */
-    public function update(Entity $entity)
+    public function updateEntity(Entity $entity)
     {
         $data       = $entity->getData();
         $primaryKey = $entity->getPrimaryKey();
 
         $where = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col     = $entity::getColumnName($attribute);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+            $col = $entity::getColumnName($attribute);
+            $where[$col] = $value;
             if (isset($data[$col])) {
                 unset($data[$col]);
             }
         }
 
-        $set = [];
-        foreach ($data as $col => $value) {
-            $set[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
-        }
-
-        $statement = 'UPDATE ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'SET ' . implode(',', $set) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
-        $this->entityManager->getConnection()->query($statement);
-
+        $this->update($entity::getTableName(), $where, $data);
         return $this->entityManager->sync($entity, true);
+    }
+
+    /**
+     * Delete rows from $table using $where conditions
+     *
+     * Where conditions can be an array of key => value pairs to check for equality or an array of expressions.
+     *
+     * Examples:
+     * `$dbal->delete('someTable', ['id' => 23])`
+     * `$dbal->delete('user', ['name = \'john\'', 'OR email=\'john.doe@example.com\''])`
+     *
+     * Tip: Use the query builder to construct where conditions:
+     * `$em->query('user')->where('name', 'john')->orWhere('email', '...')->delete();`
+     *
+     * @param string $table The table where to delete rows
+     * @param array $where An array of where conditions
+     * @return int The number of deleted rows
+     */
+    public function delete($table, array $where)
+    {
+        $query = $this->buildDeleteStatement($table, $where);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     /**
@@ -243,54 +249,38 @@ abstract class Dbal
      * @param Entity $entity
      * @return bool
      */
-    public function delete(Entity $entity)
+    public function deleteEntity(Entity $entity)
     {
         $primaryKey = $entity->getPrimaryKey();
-        $where      = [];
+        $where = [];
         foreach ($primaryKey as $attribute => $value) {
-            $col     = $entity::getColumnName($attribute);
-            $where[] = $this->escapeIdentifier($col) . ' = ' . $this->escapeValue($value);
+            $col = $entity::getColumnName($attribute);
+            $where[$col] = $value;
         }
 
-        $statement = 'DELETE FROM ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     'WHERE ' . implode(' AND ', $where);
-        $this->entityManager->getConnection()->query($statement);
-
+        $this->delete($entity::getTableName(), $where);
         return true;
     }
 
     /**
-     * Build the insert statement for $entity
-     *
-     * @param Entity $entity
      * @param Entity[] $entities
-     * @return string
+     * @return bool
+     * @throws Exception\InvalidArgument
      */
-    protected function buildInsertStatement(Entity $entity, Entity ...$entities)
+    protected static function assertSameType(array $entities)
     {
-        array_unshift($entities, $entity);
-        $cols = [];
-        $rows = [];
-        foreach ($entities as $entity) {
-            $data = $entity->getData();
-            $cols = array_unique(array_merge($cols, array_keys($data)));
-            $rows[] = $data;
+        if (count($entities) < 2) {
+            return true;
         }
 
-        $cols = array_combine($cols, array_map([$this, 'escapeIdentifier'], $cols));
-
-        $statement = 'INSERT INTO ' . $this->escapeIdentifier($entity::getTableName()) . ' ' .
-                     '(' . implode(',', $cols) . ') VALUES ';
-
-        $statement .= implode(',', array_map(function ($values) use ($cols) {
-            $result = [];
-            foreach ($cols as $key => $col) {
-                $result[] = isset($values[$key]) ? $this->escapeValue($values[$key]) : $this->escapeNULL();
+        $type = get_class(reset($entities));
+        foreach ($entities as $i => $entity) {
+            if (get_class($entity) !== $type) {
+                throw new Exception\InvalidArgument(sprintf('$entities[%d] is not from the same type', $i));
             }
-            return '(' . implode(',', $result) . ')';
-        }, $rows));
+        }
 
-        return $statement;
+        return true;
     }
 
     /**
@@ -321,14 +311,14 @@ abstract class Dbal
         $primary = array_combine($vars, $cols);
         $cols = array_map([$this, 'escapeIdentifier'], $cols);
 
-        $query = new QueryBuilder($this->escapeIdentifier($entity::getTableName()), '', $this->entityManager);
-        $query->whereIn($cols, array_map(function (Entity $entity) {
-            return $entity->getPrimaryKey();
-        }, $entities));
+        $query = $this->entityManager->query($this->escapeIdentifier($entity::getTableName()))
+            ->whereIn($cols, array_map(function (Entity $entity) {
+                return $entity->getPrimaryKey();
+            }, $entities))
+            ->setFetchMode(PDO::FETCH_ASSOC);
 
-        $statement = $this->entityManager->getConnection()->query($query->getQuery());
         $left = $entities;
-        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+        while ($row = $query->one()) {
             foreach ($left as $k => $entity) {
                 foreach ($primary as $var => $col) {
                     if ($entity->$var != $row[$col]) {
@@ -343,27 +333,6 @@ abstract class Dbal
                 break;
             }
         }
-    }
-
-    /**
-     * Build a where in statement for composite keys
-     *
-     * @param array $cols
-     * @param array $keys
-     * @param bool $inverse Whether it should be a IN or NOT IN operator
-     * @return string
-     */
-    public function buildCompositeWhereInStatement(array $cols, array $keys, $inverse = false)
-    {
-        $primaryKeys = array_map(function ($key) {
-            return '(' . implode(',', array_map([$this, 'escapeValue'], $key)) . ')';
-        }, $keys);
-
-        return vsprintf(static::$compositeWhereInTemplate, [
-                implode(',', $cols),
-                $inverse ? 'NOT IN' : 'IN',
-                implode(',', $primaryKeys)
-        ]);
     }
 
     /**
@@ -383,5 +352,20 @@ abstract class Dbal
         }
 
         return trim($type);
+    }
+
+    /**
+     * Extract content from parenthesis in $type
+     *
+     * @param string $type
+     * @return string
+     */
+    protected function extractParenthesis($type)
+    {
+        if (preg_match('/\((.+)\)/', $type, $match)) {
+            return $match[1];
+        }
+
+        return null;
     }
 }

@@ -3,7 +3,7 @@ layout: default
 title: Entity Events and Observers
 permalink: /events.html
 ---
-## Entity Events and Observers
+## Entity Events and Observers<br><small>(ORM 1 >= 1.9)</small>
 
 Entities can be observed using observers. An observer has to implement the `ORM\ObserverInterface` and can be registered
 in your entity manager for any subclass of `ORM\Entity`.
@@ -103,7 +103,7 @@ Entity::observeBy()->on('loadingRelation', function () {
 });
 ```
 
-### Event Methods
+### Event Methods<br><small>(ORM 1 >= 1.0)</small>
 
 This section describes the methods that get called during the entity livecycle. As they have to be declared in the
 entity classes you can't define independent observers. Probably all these methods will be declared deprecated in future

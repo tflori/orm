@@ -25,6 +25,7 @@ use ORM\EntityManager;
 class QueryBuilder extends Parenthesis implements QueryBuilderInterface
 {
     use MakesJoins;
+    use ExecutesQueries;
 
     /** The table to query
      * @var string */
@@ -155,7 +156,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Build a where in expression
+     *
+     * Calls buildWhereInExpression() from parent if there is a parent.
+     *
+     * @param string|array $column Column or expression with placeholders
+     * @param array $values Array of values
+     * @param bool $inverse
+     * @return string
      * @internal
      */
     public function buildWhereInExpression($column, array $values, $inverse = false)
@@ -166,7 +174,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             return $inverse ? '1 = 1' : '1 = 0';
         } elseif (is_array($column) && count($column) > 1) {
             return $em->getDbal()
-                ->buildCompositeWhereInStatement($column, $values, $inverse);
+                ->buildCompositeInExpression($column, $values, $inverse);
         } else {
             if (is_array($column)) {
                 $column = $this->first($column);
@@ -198,6 +206,14 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
         return null;
     }
 
+    /**
+     * Get the default operator for $value
+     *
+     * Arrays use `IN` by default - all others use `=`
+     *
+     * @param mixed $value The value to determine the operator
+     * @return string
+     */
     private function getDefaultOperator($value)
     {
         if (is_array($value)) {

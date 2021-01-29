@@ -1,6 +1,6 @@
 <?php
 
-namespace ORM\Test\EntityManager\EntityFetcher;
+namespace ORM\Test\EntityFetcher;
 
 use Mockery\Mock;
 use Mockery as m;

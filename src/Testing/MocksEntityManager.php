@@ -6,7 +6,6 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ORM\Exception\IncompletePrimaryKey;
 use PDO;
 
 /**

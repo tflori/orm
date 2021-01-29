@@ -4,6 +4,7 @@ namespace ORM;
 
 use ORM\Dbal\Column;
 use ORM\Dbal\Dbal;
+use ORM\Dbal\Expression;
 use ORM\Dbal\Other;
 use ORM\Dbal\Table;
 use ORM\Event\Deleted;
@@ -13,8 +14,8 @@ use ORM\Exception\InvalidArgument;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\NoConnection;
 use ORM\Exception\NoEntity;
-use ORM\Observer\AbstractObserver;
 use ORM\Observer\CallbackObserver;
+use ORM\QueryBuilder\QueryBuilder;
 use PDO;
 use ReflectionClass;
 
@@ -326,7 +327,7 @@ class EntityManager
     }
 
     /**
-     * Get the Datbase Abstraction Layer
+     * Get the Database Abstraction Layer
      *
      * @return Dbal
      */
@@ -361,6 +362,29 @@ class EntityManager
         }
 
         return $this->namer;
+    }
+
+    /**
+     * Get a query builder for $table
+     *
+     * @param string $table
+     * @param string $alias
+     * @return QueryBuilder
+     */
+    public function query($table, $alias = '')
+    {
+        return new QueryBuilder($table, $alias, $this);
+    }
+
+    /**
+     * Create a raw expression from $expression to disable escaping
+     *
+     * @param string $expression
+     * @return Expression
+     */
+    public static function raw($expression)
+    {
+        return new Expression($expression);
     }
 
     /**
@@ -456,7 +480,7 @@ class EntityManager
      */
     public function update(Entity $entity)
     {
-        return $this->getDbal()->update($entity);
+        return $this->getDbal()->updateEntity($entity);
     }
 
     /**
@@ -472,7 +496,7 @@ class EntityManager
         if ($this->fire(new Deleting($entity)) === false) {
             return false;
         }
-        $this->getDbal()->delete($entity);
+        $this->getDbal()->deleteEntity($entity);
         $entity->setOriginalData([]);
         $this->fire(new Deleted($entity));
         return true;

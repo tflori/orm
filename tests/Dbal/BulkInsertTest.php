@@ -3,6 +3,7 @@
 namespace ORM\Test\Dbal;
 
 use Mockery as m;
+use ORM\Dbal\Dbal;
 use ORM\Dbal\Mysql;
 use ORM\Dbal\Other;
 use ORM\Dbal\Pgsql;
@@ -30,9 +31,10 @@ class BulkInsertTest extends TestCase
      * @test */
     public function insertReturnsFalseWithoutEntities($driver)
     {
+        /** @var Dbal $dbal */
         $dbal = new $driver($this->em);
 
-        self::assertFalse($dbal->insert());
+        self::assertFalse($dbal->insertEntities());
         self::assertFalse($dbal->insertAndSync());
         self::assertFalse($dbal->insertAndSyncWithAutoInc());
     }
@@ -42,12 +44,13 @@ class BulkInsertTest extends TestCase
      * @test */
     public function insertThrowsWhenTypesDiffer($driver)
     {
+        /** @var Dbal $dbal */
         $dbal = new $driver($this->em);
 
         self::expectException(InvalidArgument::class);
         self::expectExceptionMessage('$entities[1] is not from the same type');
 
-        self::assertFalse($dbal->insert(new Article, new Category));
+        self::assertFalse($dbal->insertEntities(new Article, new Category));
         self::assertFalse($dbal->insertAndSync(new Article, new Category));
         self::assertFalse($dbal->insertAndSyncWithAutoInc(new Article, new Category));
     }
@@ -62,9 +65,10 @@ class BulkInsertTest extends TestCase
 
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/INSERT INTO .* \("id","text"\) VALUES \(23,\'foo\'\),\(42,NULL\)/'
-        ))->once()->andReturn(m::mock(\PDOStatement::class));
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(2);
 
-        $this->dbal->insert(...$articles);
+        $this->dbal->insertEntities(...$articles);
     }
 
     /** @test */
@@ -77,11 +81,13 @@ class BulkInsertTest extends TestCase
 
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/INSERT INTO .* \("id","name","number"\) VALUES \(.*\),\(.*\)/'
-        ))->once()->andReturn(m::mock(\PDOStatement::class));
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(2);
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/SELECT \* FROM .* WHERE \("id","name"\) IN \((VALUES )?(\(.*\))(,\(.*\))*\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()
             ->times(3)->andReturn(
                 ['id' => 23, 'name' => 'business', 'number' => '+1 555 2424', 'created' => date('c')],
                 ['id' => 23, 'name' => 'mobile', 'number' => '+1 555 2323', 'created' => date('c')],

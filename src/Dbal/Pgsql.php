@@ -2,6 +2,7 @@
 
 namespace ORM\Dbal;
 
+use ORM\Dbal\QueryLanguage\UpdateFromStatement;
 use ORM\Entity;
 use ORM\Exception;
 use ORM\QueryBuilder\QueryBuilder;
@@ -15,6 +16,8 @@ use PDO;
  */
 class Pgsql extends Dbal
 {
+    use UpdateFromStatement;
+
     protected static $typeMapping = [
         'integer'          => Type\Number::class,
         'smallint'         => Type\Number::class,
@@ -52,13 +55,22 @@ class Pgsql extends Dbal
         $entity = reset($entities);
         $pdo = $this->entityManager->getConnection();
         $col = $entity::getColumnName($entity::getPrimaryKeyVars()[0]);
-        $result = $pdo->query($this->buildInsertStatement(...$entities) . ' RETURNING ' . $col);
+        $result = $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+            return $entity->getData();
+        }, $entities)) . ' RETURNING ' . $col);
         while ($id = $result->fetchColumn()) {
             $this->updateAutoincrement($entity, $id);
             $entity = next($entity);
         }
         $this->syncInserted(...$entities);
         return true;
+    }
+
+    public function update($table, array $where, array $updates, array $joins = [])
+    {
+        $query = $this->buildUpdateFromStatement($table, $where, $updates, $joins);
+        $statement = $this->entityManager->getConnection()->query($query);
+        return $statement->rowCount();
     }
 
     public function describe($schemaTable)

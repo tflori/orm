@@ -2,6 +2,7 @@
 
 namespace ORM\Test;
 
+use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\Mock;
 use ORM\Dbal;
@@ -31,7 +32,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         TestEntity::resetStaticsForTest();
         TestEntityManager::resetStaticsForTest();
 
-        $this->mocks['pdo'] = $this->pdo = \Mockery::mock(\PDO::class);
+        $this->pdo = $this->mocks['pdo'] = m::mock(\PDO::class);
         $this->pdo->shouldReceive('quote')->andReturnUsing(function ($var) {
             return '\'' . addslashes($var) . '\'';
         })->byDefault();
@@ -41,11 +42,15 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mssql')->byDefault();
         $this->pdo->shouldReceive('lastInsertId')->andReturn('666')->byDefault();
 
-        $this->mocks['em'] = $this->em = \Mockery::mock(TestEntityManager::class, [])->makePartial();
-        $this->em->shouldReceive('getConnection')->andReturn($this->pdo)->byDefault();
+        $this->em = $this->mocks['em'] = m::mock(TestEntityManager::class, [])->makePartial();
+        $this->em->shouldReceive('getConnection')->andReturnUsing(function () {
+            return $this->pdo;
+        })->byDefault();
 
-        $this->mocks['dbal'] = $this->dbal = \Mockery::mock(Dbal\Mysql::class, [$this->em])->makePartial();
-        $this->em->shouldReceive('getDbal')->andReturn($this->dbal)->byDefault();
+        $this->dbal = $this->mocks['dbal'] = m::mock(Dbal\Mysql::class, [$this->em])->makePartial();
+        $this->em->shouldReceive('getDbal')->andReturnUsing(function () {
+            return $this->dbal;
+        })->byDefault();
 
         QueryBuilder::$defaultEntityManager = $this->em;
     }
@@ -64,7 +69,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function addMockeryExpectationsToAssertionCount()
     {
-        $container = \Mockery::getContainer();
+        $container = m::getContainer();
         if ($container != null) {
             $count = $container->mockery_getExpectationCount();
             $this->addToAssertionCount($count);
@@ -73,7 +78,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     protected function closeMockery()
     {
-        \Mockery::close();
+        m::close();
     }
 
     protected static function setProtectedProperty($object, $property, $value)

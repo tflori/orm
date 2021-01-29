@@ -84,7 +84,8 @@ class ManyToManyTest extends TestCase
             ' JOIN "article_category" ON "article_category"."category_id" = "t0"."id"' .
             ' WHERE "article_category"."article_id" = 42'
         )->once()->andReturn($statement = m::mock(PDOStatement::class));
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->times(3)
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()->times(3)
             ->andReturn(
                 ['id' => 12, 'name' => 'Foos'],
                 ['id' => 33, 'name' => 'Bars'],
@@ -106,7 +107,8 @@ class ManyToManyTest extends TestCase
             ' JOIN "article_category" ON "article_category"."category_id" = "t0"."id"' .
             ' WHERE "article_category"."article_id" = 42'
         )->once()->andReturn($statement = m::mock(PDOStatement::class));
-        $statement->shouldReceive('fetch')->with(\PDO::FETCH_ASSOC)->times(3)
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()->times(3)
             ->andReturn(
                 ['id' => 1, 'name' => 'Foos'],
                 ['id' => 2, 'name' => 'Bars'],

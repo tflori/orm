@@ -7,9 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
-use ORM\QueryBuilder\QueryBuilder;
 use ORM\Relation;
-use PDO;
 
 /**
  * ManyToMany Relation

@@ -4,6 +4,7 @@ namespace ORM\Dbal;
 
 use DateTime;
 use DateTimeZone;
+use ORM\Exception\NotScalar;
 
 trait Escaping
 {
@@ -17,18 +18,47 @@ trait Escaping
     protected $booleanFalse = '0';
 
     /**
-     * Extract content from parenthesis in $type
+     * Returns $identifier quoted for use in a sql statement
      *
-     * @param string $type
+     * @param string $identifier Identifier to quote
      * @return string
      */
-    protected function extractParenthesis($type)
+    public function escapeIdentifier($identifier)
     {
-        if (preg_match('/\((.+)\)/', $type, $match)) {
-            return $match[1];
+        if ($identifier instanceof Expression) {
+            return (string)$identifier;
         }
 
-        return null;
+        $quote = $this->quotingCharacter;
+        $divider = $this->identifierDivider;
+        return $quote . str_replace($divider, $quote . $divider . $quote, $identifier) . $quote;
+    }
+
+    /**
+     * Returns $value formatted to use in a sql statement.
+     *
+     * @param  mixed $value The variable that should be returned in SQL syntax
+     * @return string
+     * @throws NotScalar
+     */
+    public function escapeValue($value)
+    {
+        if ($value instanceof DateTime) {
+            return $this->escapeDateTime($value);
+        }
+
+        if ($value instanceof Expression) {
+            return (string)$value;
+        }
+
+        $type = is_object($value) ? get_class($value) : gettype($value);
+        $method = [ $this, 'escape' . ucfirst($type) ];
+
+        if (is_callable($method)) {
+            return call_user_func($method, $value);
+        } else {
+            throw new NotScalar('$value has to be scalar data type. ' . gettype($value) . ' given');
+        }
     }
 
     /**

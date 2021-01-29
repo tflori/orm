@@ -108,7 +108,7 @@ class BulkInsertTest extends TestCase
         $bulk = (new BulkInsert($this->dbal, Article::class))->limit(2)->noUpdates();
         $articles = [new Article, new Article];
 
-        $this->dbal->shouldReceive('insert')->with(...$articles)
+        $this->dbal->shouldReceive('insertEntities')->with(...$articles)
             ->once()->andReturn(true);
 
         $bulk->add(...$articles);
