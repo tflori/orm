@@ -54,18 +54,25 @@ $entityManager->fetch(User::class, 1);
 
 ### Fetching with query builder
 
-By calling `EntityManager::fetch()` and providing only the entity class you will receive an object from 
-`EntityFetcher`. This class implements the `QueryBuilderInterface` and uses the `QueryBuilder` to delegate the method
-calls. The difference between the query builder and the `EntityFetcher` is that the `QueryBuilder` will just return the
-query while the `EntityFetcher` will specify the columns to fetch and provides functions to fetch one or more entities.
+The query builder is a feature to write sql statements with a fluent interface. You can define where conditions, joins,
+group by clause, ordering and even parenthesis for where conditions. You can use this tool to fetch entities by creating
+an `EntityFetcher` with `EntityManager::fetch()` and providing the entity class. You can then receive one or all
+entities from the query.
 
-Long text short: query builder builds an query (`string QueryBuilder::getQuery()`) and entity fetcher fetches objects of 
-entities (`Entity EntityFetcher::all()`).
+In fact `EntityFetcher` extends the `QueryBuilder` and for more information about building queries please have a look at
+the [QueryBuilder](querybuilder.md) documentation.
 
-The `EntityFetcher` does not fetch relations. If you need to fetch a lot of objects and relations consider using more
-than one entity fetcher. See the documentation about relations for more details.
+Please note that the `EntityFetcher` does not allow fetching other columns than the columns from the main table of
+the class, is always distinct and restricts to change the fetch mode. Example usages:
 
-For information how to join, build where conditions and so on please have look in the [API Reference](reference.md).
+```php
+// fetch a user by $email
+$user = $entityManager->fetch(User::class)->where('email', $email)->one();
+// get all articles from last 7 days (mysql)
+$articles = $entityManager->fetch(Article::class)
+    ->where('created', '>', $entityManager::raw('DATE_SUB(NOW(), INTERVAL 7 DAY)'))
+    ->all();
+```
 
 ### Set and get columns
 

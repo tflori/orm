@@ -16,7 +16,7 @@ interface QueryBuilderInterface extends ParenthesisInterface
     /**
      * Set $columns
      *
-     * @param $columns
+     * @param array|null $columns
      * @return $this
      */
     public function columns(array $columns = null);

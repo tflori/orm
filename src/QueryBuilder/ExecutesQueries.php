@@ -32,7 +32,7 @@ trait ExecutesQueries
      * Please note that this will execute the query - further modifications will not have any effect.
      *
      * @param int $mode
-     * @param null $classNameObject
+     * @param int|string|object $classNameObject
      * @param array $ctorarfg
      * @return $this
      * @see PDOStatement::setFetchMode()

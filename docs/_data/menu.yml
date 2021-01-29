@@ -5,6 +5,7 @@ Working With Entities: /entities.html
 Relation Definition: /relationDefinition.html
 Working With Relations: /relations.html
 Events and Observers: /events.html
+Use QueryBuilder: /querybuilder.html
 Validate Data: /validate.html
 Bulk Inserts: /bulkInserts.html
 Testing: /testing.html

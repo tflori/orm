@@ -4427,7 +4427,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $ctorarfg = array()
 ): $this
 ```
 
@@ -4445,7 +4445,7 @@ Please note that this will execute the query - further modifications will not ha
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$mode` | **integer**  |  |
-| `$classNameObject` | **null**  |  |
+| `$classNameObject` | **integer &#124; string &#124; object**  |  |
 | `$ctorarfg` | **array**  |  |
 
 
@@ -5659,7 +5659,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $ctorarfg = array()
 ): $this
 ```
 
@@ -5677,7 +5677,7 @@ Please note that this will execute the query - further modifications will not ha
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$mode` | **integer**  |  |
-| `$classNameObject` | **null**  |  |
+| `$classNameObject` | **integer &#124; string &#124; object**  |  |
 | `$ctorarfg` | **array**  |  |
 
 
@@ -13845,7 +13845,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $ctorarfg = array()
 ): $this
 ```
 
@@ -13863,7 +13863,7 @@ Please note that this will execute the query - further modifications will not ha
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$mode` | **integer**  |  |
-| `$classNameObject` | **null**  |  |
+| `$classNameObject` | **integer &#124; string &#124; object**  |  |
 | `$ctorarfg` | **array**  |  |
 
 
@@ -14194,7 +14194,7 @@ public function columns( $columns = null ): $this
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$columns` |   |  |
+| `$columns` | **array &#124; null**  |  |
 
 
 
@@ -16129,7 +16129,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, null $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $ctorarfg = array()
 ): $this
 ```
 
@@ -16147,7 +16147,7 @@ Please note that this will execute the query - further modifications will not ha
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$mode` | **integer**  |  |
-| `$classNameObject` | **null**  |  |
+| `$classNameObject` | **integer &#124; string &#124; object**  |  |
 | `$ctorarfg` | **array**  |  |
 
 
