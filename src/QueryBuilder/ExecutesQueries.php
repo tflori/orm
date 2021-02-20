@@ -31,20 +31,20 @@ trait ExecutesQueries
      *
      * Please note that this will execute the query - further modifications will not have any effect.
      *
-     * @param int $mode
-     * @param int|string|object $classNameObject
-     * @param array $ctorarfg
+     * @param int $mode one of the PDO::FETCH_ constants
+     * @param int|string|object $classNameObject class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO)
+     * @param array $constructorArgs arguments to pass to the constructor (FETCH_CLASS)
      * @return $this
      * @see PDOStatement::setFetchMode()
      */
-    public function setFetchMode($mode, $classNameObject = null, array $ctorarfg = [])
+    public function setFetchMode($mode, $classNameObject = null, array $constructorArgs = null)
     {
-        $result = $this->getStatement();
-        if (!$result) {
+        $statement = $this->getStatement();
+        if (!$statement) {
             return $this;
         }
 
-        $result->setFetchMode($mode, $classNameObject, $ctorarfg);
+        $statement->setFetchMode(...array_filter([$mode, $classNameObject, $constructorArgs]));
         return $this;
     }
 
@@ -60,14 +60,14 @@ trait ExecutesQueries
      */
     public function one()
     {
-        $result = $this->getStatement();
-        if (!$result) {
+        $statement = $this->getStatement();
+        if (!$statement) {
             return null;
         }
 
         $cursor = $this->cursor;
         if (!isset($this->rows[$cursor])) {
-            $this->rows[$cursor] = $result->fetch();
+            $this->rows[$cursor] = $statement->fetch();
         }
 
         $this->cursor++;

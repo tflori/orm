@@ -86,7 +86,7 @@ class BulkInsertTest extends TestCase
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/SELECT \* FROM .* WHERE \("id","name"\) IN \((VALUES )?(\(.*\))(,\(.*\))*\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
         $statement->shouldReceive('fetch')->with()
             ->times(3)->andReturn(
                 ['id' => 23, 'name' => 'business', 'number' => '+1 555 2424', 'created' => date('c')],

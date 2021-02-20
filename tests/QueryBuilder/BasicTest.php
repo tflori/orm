@@ -4,6 +4,8 @@ namespace ORM\Test\QueryBuilder;
 
 use Mockery as m;
 use ORM\Dbal\Expression;
+use ORM\DbConfig;
+use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\TestCase;
 
@@ -255,5 +257,47 @@ class BasicTest extends TestCase
             ['col1' => 'val1.1', 'col2' => 'val2.1'],
             ['col1' => 'val1.2', 'col2' => 'val2.2']
         );
+    }
+
+    /** @test */
+    public function throwsWithClassName()
+    {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
+        $em = new EntityManager([
+            EntityManager::OPT_CONNECTION => new DbConfig('sqlite', '/tmp/test.sqlite')
+        ]);
+        $query = $em->query('sqlite_master');
+
+        if (PHP_VERSION_ID >= 80000) {
+            self::expectException(\ArgumentCountError::class);
+            self::expectExceptionMessage(
+                'PDOStatement::setFetchMode() expects exactly 1 arguments for the fetch mode provided, 3 given'
+            );
+        } else {
+            self::expectException(\PDOException::class);
+            self::expectExceptionMessage(
+                'SQLSTATE[HY000]: General error: fetch mode doesn\'t allow any extra arguments'
+            );
+        }
+
+        $query->setFetchMode(\PDO::FETCH_ASSOC, static::class);
+    }
+
+    /** @test */
+    public function doesNotPassNull()
+    {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
+        $em = new EntityManager([
+            EntityManager::OPT_CONNECTION => new DbConfig('sqlite', '/tmp/test.sqlite')
+        ]);
+        $query = $em->query('sqlite_master');
+
+        $query->setFetchMode(\PDO::FETCH_ASSOC, null);
     }
 }

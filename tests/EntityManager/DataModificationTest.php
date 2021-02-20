@@ -219,7 +219,7 @@ class DataModificationTest extends TestCase
         $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with('SELECT * FROM "psr0_studly_caps" WHERE "id" IN (42)')
             ->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
         $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
@@ -252,7 +252,7 @@ class DataModificationTest extends TestCase
         $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT \* FROM .* WHERE .* IN (.*)/'))
             ->once()->andReturn($statement = m::mock(\PDOStatement::class));
-        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
         $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false);
 
@@ -322,7 +322,7 @@ class DataModificationTest extends TestCase
         $this->pdo->shouldReceive('query')->with(m::pattern(
             '/SELECT \* FROM .* WHERE "id" IN \(42\)/'
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
-        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
         $statement->shouldReceive('fetch')->with()
             ->twice()->andReturn(['id' => 42, 'foo' => 'bar'], false)->ordered();
 

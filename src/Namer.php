@@ -327,7 +327,7 @@ class Namer
     {
         if (isset($accessor[0])) {
             $from = $accessor[0] === '-' ?
-                count($array) - abs($accessor) : (int) $accessor;
+                count($array) - abs((int) $accessor) : (int) $accessor;
 
             if ($from >= count($array)) {
                 return '';

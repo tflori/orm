@@ -121,7 +121,7 @@ class BasicTest extends TestCase
         $fetcher = $this->em->fetch(ContactPhone::class);
         $statement = \Mockery::mock(\PDOStatement::class);
         $this->pdo->shouldReceive('query')->andReturn($statement);
-        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC, null, [])->andReturnTrue();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
         $statement->shouldReceive('fetch')->once()->with()->andReturn([
             'id' => 42,
             'name' => 'mobile',

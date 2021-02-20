@@ -4427,7 +4427,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $constructorArgs = null
 ): $this
 ```
 
@@ -4444,9 +4444,9 @@ Please note that this will execute the query - further modifications will not ha
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$mode` | **integer**  |  |
-| `$classNameObject` | **integer &#124; string &#124; object**  |  |
-| `$ctorarfg` | **array**  |  |
+| `$mode` | **integer**  | one of the PDO::FETCH_ constants |
+| `$classNameObject` | **integer &#124; string &#124; object**  | class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO) |
+| `$constructorArgs` | **array**  | arguments to pass to the constructor (FETCH_CLASS) |
 
 
 
@@ -5659,7 +5659,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $constructorArgs = null
 ): $this
 ```
 
@@ -5676,9 +5676,9 @@ Please note that this will execute the query - further modifications will not ha
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$mode` | **integer**  |  |
-| `$classNameObject` | **integer &#124; string &#124; object**  |  |
-| `$ctorarfg` | **array**  |  |
+| `$mode` | **integer**  | one of the PDO::FETCH_ constants |
+| `$classNameObject` | **integer &#124; string &#124; object**  | class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO) |
+| `$constructorArgs` | **array**  | arguments to pass to the constructor (FETCH_CLASS) |
 
 
 
@@ -13845,7 +13845,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $constructorArgs = null
 ): $this
 ```
 
@@ -13862,9 +13862,9 @@ Please note that this will execute the query - further modifications will not ha
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$mode` | **integer**  |  |
-| `$classNameObject` | **integer &#124; string &#124; object**  |  |
-| `$ctorarfg` | **array**  |  |
+| `$mode` | **integer**  | one of the PDO::FETCH_ constants |
+| `$classNameObject` | **integer &#124; string &#124; object**  | class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO) |
+| `$constructorArgs` | **array**  | arguments to pass to the constructor (FETCH_CLASS) |
 
 
 
@@ -16129,7 +16129,7 @@ can be set to true.
 
 ```php
 public function setFetchMode(
-    integer $mode, $classNameObject = null, array $ctorarfg = array()
+    integer $mode, $classNameObject = null, array $constructorArgs = null
 ): $this
 ```
 
@@ -16146,9 +16146,9 @@ Please note that this will execute the query - further modifications will not ha
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$mode` | **integer**  |  |
-| `$classNameObject` | **integer &#124; string &#124; object**  |  |
-| `$ctorarfg` | **array**  |  |
+| `$mode` | **integer**  | one of the PDO::FETCH_ constants |
+| `$classNameObject` | **integer &#124; string &#124; object**  | class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO) |
+| `$constructorArgs` | **array**  | arguments to pass to the constructor (FETCH_CLASS) |
 
 
 

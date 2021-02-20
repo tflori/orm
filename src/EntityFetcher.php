@@ -203,7 +203,7 @@ class EntityFetcher extends QueryBuilder
 
     /** @return $this
      * @internal */
-    public function setFetchMode($mode, $classNameObject = null, array $ctorarfg = [])
+    public function setFetchMode($mode, $classNameObject = null, array $ctorargs = null)
     {
         return $this;
     }
