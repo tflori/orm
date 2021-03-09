@@ -274,7 +274,7 @@ class BasicTest extends TestCase
         if (PHP_VERSION_ID >= 80000) {
             self::expectException(\ArgumentCountError::class);
             self::expectExceptionMessage(
-                'PDOStatement::setFetchMode() expects exactly 1 arguments for the fetch mode provided, 3 given'
+                'PDOStatement::setFetchMode() expects exactly 1 arguments for the fetch mode provided'
             );
         } else {
             self::expectException(\PDOException::class);
