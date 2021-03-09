@@ -126,6 +126,10 @@ class EntityManager
             return call_user_func(self::$resolver, $class);
         }
 
+        if (!self::$emMapping['last']) {
+            throw new Exception('No entity manager initialized');
+        }
+
         if (empty($class)) {
             $trace = debug_backtrace();
             if (empty($trace[1]['class'])) {
@@ -135,14 +139,9 @@ class EntityManager
         }
 
         if (!isset(self::$emMapping['byClass'][$class])) {
-            if (!($em = self::getInstanceByParent($class)) && !($em = self::getInstanceByNameSpace($class))) {
-                if (!self::$emMapping['last']) {
-                    throw new Exception('No entity manager initialized');
-                }
-                return self::$emMapping['last'];
-            }
-
-            self::$emMapping['byClass'][$class] = $em;
+            self::$emMapping['byClass'][$class] = self::getInstanceByParent($class) ?:
+                self::getInstanceByNameSpace($class) ?:
+                self::$emMapping['last'];
         }
 
         return self::$emMapping['byClass'][$class];
