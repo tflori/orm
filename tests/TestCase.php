@@ -29,6 +29,11 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected function setUp()
     {
         parent::setUp();
+        $this->initMocks();
+    }
+
+    protected function initMocks()
+    {
         TestEntity::resetStaticsForTest();
         TestEntityManager::resetStaticsForTest();
 

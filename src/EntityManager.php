@@ -136,6 +136,9 @@ class EntityManager
 
         if (!isset(self::$emMapping['byClass'][$class])) {
             if (!($em = self::getInstanceByParent($class)) && !($em = self::getInstanceByNameSpace($class))) {
+                if (!self::$emMapping['last']) {
+                    throw new Exception('No entity manager initialized');
+                }
                 return self::$emMapping['last'];
             }
 

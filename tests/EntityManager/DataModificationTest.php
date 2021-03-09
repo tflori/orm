@@ -17,10 +17,11 @@ class DataModificationTest extends TestCase
     public function provideEntitiesWithPrimary()
     {
         return [
-            [new StudlyCaps(['id' => 42]), 'studly_caps', '.*"id" = 42'],
-            [new StudlyCaps(['id' => 1]), 'studly_caps', '.*"id" = 1'],
+            [StudlyCaps::class, ['id' => 42], 'studly_caps', '.*"id" = 42'],
+            [StudlyCaps::class, ['id' => 1], 'studly_caps', '.*"id" = 1'],
             [
-                new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 42]),
+                StaticTableName::class,
+                ['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 42],
                 'my_table',
                 '.*table" = \'a\' AND .*name" = \'b\' AND .*bar" = 42'
             ],
@@ -29,8 +30,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideEntitiesWithPrimary
      * @test */
-    public function syncQueriesTheDatabase($entity, $table, $whereConditions)
+    public function syncQueriesTheDatabase($class, $data, $table, $whereConditions)
     {
+        $entity = new $class($data);
         $this->pdo->shouldReceive('query')->once()
             ->with(m::pattern('/^SELECT .*\* FROM "' . $table . '".* WHERE ' . $whereConditions . '/'))
             ->andThrow(new \PDOException('Query failed'));
@@ -42,16 +44,18 @@ class DataModificationTest extends TestCase
     public function provideEntitiesWithIncompletePrimary()
     {
         return [
-            [new StudlyCaps(), 'id'],
-            [new StaticTableName(), 'table'],
-            [new StaticTableName(['stn_table' => 'a']), 'name'],
+            [StudlyCaps::class, [], 'id'],
+            [StaticTableName::class, [], 'table'],
+            [StaticTableName::class, ['stn_table' => 'a'], 'name'],
         ];
     }
 
     /** @dataProvider provideEntitiesWithIncompletePrimary
      * @test */
-    public function syncThrowsWithIncompletePrimary($entity, $message)
+    public function syncThrowsWithIncompletePrimary($class, $data, $message)
     {
+        $entity = new $class($data);
+
         self::expectException(IncompletePrimaryKey::class);
         self::expectExceptionMessage('Incomplete primary key - missing ' . $message);
 
@@ -61,13 +65,15 @@ class DataModificationTest extends TestCase
     public function provideChangedEntities()
     {
         return [
-            [new StudlyCaps(['id' => 42]), ['id' => 42, 'foo' => 'bar']],
+            [StudlyCaps::class, ['id' => 42], ['id' => 42, 'foo' => 'bar']],
             [
-                new StaticTableName([
-                    'stn_table' => 'a', 'stn_name' => 'b'
-                ]),
+                StaticTableName::class,
+                ['stn_table' => 'a', 'stn_name' => 'b'],
                 [
-                    'stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'col' => 'foobar'
+                    'stn_table' => 'a',
+                    'stn_name' => 'b',
+                    'bar' => 'default',
+                    'col' => 'foobar',
                 ]
             ],
         ];
@@ -75,10 +81,10 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideChangedEntities
      * @test */
-    public function syncUpdatesOriginalData($entity, $newData)
+    public function syncUpdatesOriginalData($class, $data, $newData)
     {
         /** @var Mock|Entity $entity */
-        $entity = m::mock($entity);
+        $entity = m::mock(new $class($data));
 
         /** @var Mock $statement */
         $statement = m::mock(\PDOStatement::class);
@@ -186,10 +192,13 @@ class DataModificationTest extends TestCase
     {
         return [
             [
-                new StudlyCaps(['id' => 42, 'foo' => 'bar']),
-                'INSERT INTO "studly_caps" ("id","foo") VALUES (42,\'bar\')'],
+                StudlyCaps::class,
+                ['id' => 42, 'foo' => 'bar'],
+                'INSERT INTO "studly_caps" ("id","foo") VALUES (42,\'bar\')'
+            ],
             [
-                new StudlyCaps(['foo' => 'bar']),
+                StudlyCaps::class,
+                ['foo' => 'bar'],
                 'INSERT INTO "studly_caps" ("foo") VALUES (\'bar\')'
             ],
         ];
@@ -197,8 +206,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideInsertStatements
      * @test */
-    public function insertStatement($entity, $statement)
+    public function insertStatement($class, $data, $statement)
     {
+        $entity = new $class($data);
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
         $this->pdo->shouldReceive('beginTransaction')->with()->once();
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
@@ -347,13 +357,19 @@ class DataModificationTest extends TestCase
     public function provideUpdateStatements()
     {
         return [
-            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = 42'],
             [
-                new StudlyCaps(['id' => '42', 'foo' => 'bar']),
+                StudlyCaps::class,
+                ['id' => 42, 'foo' => 'bar'],
+                'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = 42'
+            ],
+            [
+                StudlyCaps::class,
+                ['id' => '42', 'foo' => 'bar'],
                 'UPDATE "studly_caps" SET "foo" = \'bar\' WHERE "id" = \'42\''
             ],
             [
-                new StaticTableName(['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'stn_col1' => 'abc']),
+                StaticTableName::class,
+                ['stn_table' => 'a', 'stn_name' => 'b', 'bar' => 'default', 'stn_col1' => 'abc'],
                 'UPDATE "my_table" SET "stn_col1" = \'abc\''
                 . ' WHERE "stn_table" = \'a\' AND "stn_name" = \'b\' AND "bar" = \'default\''
             ]
@@ -362,8 +378,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideUpdateStatements
      * @test */
-    public function updateStatement($entity, $statement)
+    public function updateStatement($class, $data, $statement)
     {
+        $entity = new $class($data);
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -373,8 +390,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideUpdateStatements
      * @test */
-    public function updateReturnsSuccessAndSyncs($entity, $query)
+    public function updateReturnsSuccessAndSyncs($class, $data, $query)
     {
+        $entity = new $class($data);
         $statement = m::mock(\PDOStatement::class);
         $statement->shouldReceive('rowCount')->andReturn(1);
         $this->pdo->shouldReceive('query')->with($query)->once()->andReturn($statement);
@@ -388,15 +406,16 @@ class DataModificationTest extends TestCase
     public function provideDeleteStatements()
     {
         return [
-            [new StudlyCaps(['id' => 42, 'foo' => 'bar']), 'DELETE FROM "studly_caps" WHERE "id" = 42'],
-            [new StudlyCaps(['id' => '42']), 'DELETE FROM "studly_caps" WHERE "id" = \'42\'']
+            [StudlyCaps::class, ['id' => 42, 'foo' => 'bar'], 'DELETE FROM "studly_caps" WHERE "id" = 42'],
+            [StudlyCaps::class, ['id' => '42'], 'DELETE FROM "studly_caps" WHERE "id" = \'42\'']
         ];
     }
 
     /** @dataProvider provideDeleteStatements
      * @test */
-    public function deleteStatement($entity, $statement)
+    public function deleteStatement($class, $data, $statement)
     {
+        $entity = new $class($data);
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
 
         self::expectException(\PDOException::class);
@@ -406,8 +425,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideDeleteStatements
      * @test */
-    public function deleteReturnsSuccess($entity, $statement)
+    public function deleteReturnsSuccess($class, $data, $statement)
     {
+        $entity = new $class($data);
         $this->pdo->shouldReceive('query')->with($statement)->once()
             ->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
@@ -419,8 +439,9 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideDeleteStatements
      * @test */
-    public function deleteRemovesOriginalData(Entity $entity, $statement)
+    public function deleteRemovesOriginalData($class, $data, $statement)
     {
+        $entity = new $class($data);
         $entity->setOriginalData($entity->getData());
         self::assertFalse($entity->isDirty());
 

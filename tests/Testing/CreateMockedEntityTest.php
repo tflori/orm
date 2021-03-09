@@ -6,8 +6,10 @@ use Mockery as m;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery\MockInterface;
 use ORM\EntityManager;
+use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\TestEntityManager;
 use ORM\Testing\MocksEntityManager;
 
 class CreateMockedEntityTest extends MockeryTestCase
@@ -25,6 +27,17 @@ class CreateMockedEntityTest extends MockeryTestCase
     protected function tearDown()
     {
         m::close();
+    }
+
+    /** @test */
+    public function throwsWithoutInitializing()
+    {
+        TestEntityManager::resetStaticsForTest();
+
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('No entity manager initialized');
+
+        $this->ormCreateMockedEntity(Article::class);
     }
 
     /** @test */

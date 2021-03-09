@@ -129,17 +129,20 @@ class CallbackObserverTest extends TestCase
 
     public function provideEvents()
     {
+        /** @var Article|m\MockInterface $article */
+        $article = m::mock(Article::class)->makePartial();
+
         return [
-            [new Fetched(new Article(), [])],
-            [new Changed(new Article(), 'title', 'Foo', 'Bar')],
-            [new Saving(new Article())],
-            [new Saved(new Inserted(new Article()))],
-            [new Inserting(new Article())],
-            [new Inserted(new Article())],
-            [new Updating(new Article(), ['title' => ['Foo', 'Bar']])],
-            [new Updated(new Article(), ['title' => ['Foo', 'Bar']])],
-            [new Deleting(new Article())],
-            [new Deleted(new Article())],
+            [new Fetched($article, [])],
+            [new Changed($article, 'title', 'Foo', 'Bar')],
+            [new Saving($article)],
+            [new Saved(new Inserted($article))],
+            [new Inserting($article)],
+            [new Inserted($article)],
+            [new Updating($article, ['title' => ['Foo', 'Bar']])],
+            [new Updated($article, ['title' => ['Foo', 'Bar']])],
+            [new Deleting($article)],
+            [new Deleted($article)],
         ];
     }
 
