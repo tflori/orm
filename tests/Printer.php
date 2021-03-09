@@ -2,12 +2,12 @@
 
 namespace ORM\Test;
 
-use PHPUnit_Framework_AssertionFailedError;
-use PHPUnit_Framework_Test;
-use PHPUnit_Framework_Warning;
-use PHPUnit_TextUI_ResultPrinter;
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Test;
+use PHPUnit\Framework\Warning;
+use PHPUnit\TextUI\ResultPrinter;
 
-class Printer extends PHPUnit_TextUI_ResultPrinter
+class Printer extends ResultPrinter
 {
 
     /**
@@ -37,7 +37,7 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
     /**
      * {@inheritdoc}
      */
-    protected function writeProgress($progress)
+    protected function writeProgress(string $progress): void
     {
         if ($this->hasReplacementSymbol($progress)) {
             $progress = static::$symbols[$progress];
@@ -49,61 +49,58 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
     /**
      * {@inheritdoc}
      */
-    public function addError(PHPUnit_Framework_Test $test, \Exception $e, $time)
+    public function addError(Test $test, \Throwable $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-red');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-red');
         parent::addError($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
+    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-red');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-red');
         parent::addFailure($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function addWarning(PHPUnit_Framework_Test $test, PHPUnit_Framework_Warning $e, $time)
+    public function addWarning(Test $test, Warning $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-yellow');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-yellow');
         parent::addWarning($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function addIncompleteTest(PHPUnit_Framework_Test $test, \Exception $e, $time)
+    public function addIncompleteTest(Test $test, \Throwable $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-yellow');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-yellow');
         parent::addIncompleteTest($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function addRiskyTest(PHPUnit_Framework_Test $test, \Exception $e, $time)
+    public function addRiskyTest(Test $test, \Throwable $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-yellow');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-yellow');
         parent::addRiskyTest($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function addSkippedTest(PHPUnit_Framework_Test $test, \Exception $e, $time)
+    public function addSkippedTest(Test $test, \Throwable $e, float $time): void
     {
-        $this->buildTestRow(get_class($test), $test->getName(), $time, $test->getNumAssertions(), 'fg-cyan');
+        $this->buildTestRow(get_class($test), $test->getName(), $time, 'fg-cyan');
         parent::addSkippedTest($test, $e, $time);
     }
     /**
      * {@inheritdoc}
      */
-    public function endTest(PHPUnit_Framework_Test $test, $time)
+    public function endTest(Test $test, float $time): void
     {
-        $testName = \PHPUnit_Util_Test::describe($test);
-        if ($this->hasCompoundClassName($testName)) {
-            list($className, $methodName) = explode('::', $testName);
-            $this->buildTestRow($className, $methodName, $time, $test->getNumAssertions());
-        }
+        list($className, $methodName) = \PHPUnit\Util\Test::describe($test);
+        $this->buildTestRow($className, $methodName, $time);
         parent::endTest($test, $time);
     }
     /**
@@ -111,21 +108,19 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
      *
      * We'll handle the coloring ourselves.
      */
-    protected function writeProgressWithColor($color, $buffer)
+    protected function writeProgressWithColor(string $color, string $buffer): void
     {
-        return $this->writeProgress($buffer);
+        $this->writeProgress($buffer);
     }
-
     /**
      * Formats the results for a single test.
      *
-     * @param        $className
-     * @param        $methodName
-     * @param        $time
-     * @param int    $count
-     * @param string $color
+     * @param $className
+     * @param $methodName
+     * @param $time
+     * @param $color
      */
-    protected function buildTestRow($className, $methodName, $time, $count = 0, $color = 'fg-white')
+    protected function buildTestRow($className, $methodName, $time, $color = 'fg-white')
     {
         if ($className != $this->previousClassName) {
             $this->write(PHP_EOL . $this->formatWithColor('fg-magenta', $className) . PHP_EOL);
@@ -133,10 +128,9 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
         }
 
         $this->testRow = sprintf(
-            "(%s, %s) %s",
+            "(%s) %s",
             $this->formatTestDuration($time),
-            $this->formatAssertionCount($count),
-            $this->formatWithColor($color, $this->formatMethodName($methodName))
+            $this->formatWithColor($color, "{$this->formatMethodName($methodName)}")
         );
     }
     /**
@@ -181,22 +175,12 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
      */
     protected function formatTestDuration($time)
     {
-        $text = sprintf('%d ms', round($time * 1000));
-        return $time > 0.5 ? $this->formatWithColor('fg-yellow', $text) : $text;
+        $testDurationInMs = round($time * 1000);
+        $duration = $testDurationInMs > 500
+            ? $this->formatWithColor('fg-yellow', $testDurationInMs)
+            : $testDurationInMs;
+        return sprintf('%s ms', $duration);
     }
-
-    /**
-     * Colours the assertion if the test has 0 assertions.
-     *
-     * @param $count
-     * @return string
-     */
-    protected function formatAssertionCount($count)
-    {
-        $text = sprintf('%d assertions', $count);
-        return $count == 0 ? $this->formatWithColor('fg-red', $text) : $text;
-    }
-
     /**
      * Verifies if we have a replacement symbol available.
      *
@@ -215,6 +199,6 @@ class Printer extends PHPUnit_TextUI_ResultPrinter
      */
     protected function hasCompoundClassName($testName)
     {
-        return ! empty($testName) && strpos($testName, '::') > -1;
+        return !empty($testName) && strpos($testName, '::') > -1;
     }
 }
