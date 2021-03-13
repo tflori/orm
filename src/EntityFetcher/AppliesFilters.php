@@ -29,15 +29,15 @@ trait AppliesFilters
      * `$fetcher->withoutFilter(Filter::class)`.
      *
      * @param $class
-     * @param FilterInterface $filter
+     * @param FilterInterface|callable $filter
      */
-    public static function registerFilterGlobally($class, FilterInterface $filter)
+    public static function registerFilterGlobally($class, $filter)
     {
         if (isset(static::$globalFilters[$class])) {
             static::$globalFilters[$class] = [];
         }
 
-        static::$globalFilters[$class][] = $filter;
+        static::$globalFilters[$class][] = static::normalizeFilter($filter);
     }
 
     /**
@@ -57,19 +57,10 @@ trait AppliesFilters
      *
      * @param FilterInterface|callable $filter
      * @return $this
-     * @throws InvalidArgument
      */
     public function filter($filter)
     {
-        if (is_callable($filter)) {
-            $filter = new CallableFilter($filter);
-        }
-
-        if (!$filter instanceof FilterInterface) {
-            throw new InvalidArgument('Argument 1 for ' . __METHOD__ . ' should be an instance of FilterInterface');
-        }
-
-        $this->filters[] = $filter;
+        $this->filters[] = static::normalizeFilter($filter);
         return $this;
     }
 
@@ -92,5 +83,25 @@ trait AppliesFilters
         foreach ($this->filters as $filter) {
             $filter->apply($this);
         }
+    }
+
+    /**
+     * Converts callables into a CallableFilter
+     *
+     * @param FilterInterface|callable $filter
+     * @return CallableFilter|FilterInterface
+     * @throws InvalidArgument
+     */
+    protected static function normalizeFilter($filter)
+    {
+        if (is_callable($filter)) {
+            $filter = new CallableFilter($filter);
+        }
+
+        if (!$filter instanceof FilterInterface) {
+            throw new InvalidArgument('Argument 1 for ' . __METHOD__ . ' should be an instance of FilterInterface');
+        }
+
+        return $filter;
     }
 }
