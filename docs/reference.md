@@ -15,6 +15,7 @@ permalink: /reference.html
 * [EntityManager](#ormentitymanager)
 * [Event](#ormevent)
 * [Exception](#ormexception)
+* [Helper](#ormhelper)
 * [Namer](#ormnamer)
 * [ObserverInterface](#ormobserverinterface)
 * [Relation](#ormrelation)
@@ -2095,6 +2096,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected static** | `$autoIncrement` | **boolean** | Whether or not the primary key is auto incremented. |
+| **protected static** | `$booted` | **array&lt;boolean>** |  |
 | **protected static** | `$columnAliases` | **array&lt;string>** | Fixed column names (ignore other settings) |
 | **protected static** | `$columnPrefix` | **string** | A prefix for column names. |
 | **protected** | `$data` | **array&lt;mixed>** | The current data of a row. |
@@ -2124,6 +2126,9 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__isset](#ormentity__isset) Check if a column is defined
 * [__set](#ormentity__set) 
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
+* [boot](#ormentityboot) Boot the class
+* [bootIfNotBooted](#ormentitybootifnotbooted) Boot the class if it not already booted
+* [bootTraits](#ormentityboottraits) Boot the traits of the class
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [describe](#ormentitydescribe) Get a description for this table.
 * [detachObserver](#ormentitydetachobserver) Stop observing the class by $observer
@@ -2301,6 +2306,57 @@ This method does not take care about already existing relations and will fail ha
 |-----------|------|-------------|
 | `$relation` | **string**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
+
+
+
+#### ORM\Entity::boot
+
+```php
+protected static function boot()
+```
+
+##### Boot the class
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+
+
+#### ORM\Entity::bootIfNotBooted
+
+```php
+public static function bootIfNotBooted()
+```
+
+##### Boot the class if it not already booted
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+
+
+#### ORM\Entity::bootTraits
+
+```php
+protected static function bootTraits()
+```
+
+##### Boot the traits of the class
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
 
 
 
@@ -8101,6 +8157,78 @@ public function stop()
 Describes a class that generates primary keys in the protected method generatePrimaryKey()
 
 
+
+
+
+
+
+---
+
+### ORM\Helper
+
+
+
+
+
+
+
+
+
+
+
+#### Methods
+
+* [shortName](#ormhelpershortname) Gets the short name of a class without creating a Reflection
+* [traitUsesRecursive](#ormhelpertraitusesrecursive) Get all traits used by the class and it&#039;s parents.
+
+#### ORM\Helper::shortName
+
+```php
+public static function shortName( string $class ): string
+```
+
+##### Gets the short name of a class without creating a Reflection
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **string**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+
+
+
+#### ORM\Helper::traitUsesRecursive
+
+```php
+public static function traitUsesRecursive(
+    string $class, boolean $withParents = true
+): array<string>
+```
+
+##### Get all traits used by the class and it's parents.
+
+Iterates recursively through traits to get traits used by traits.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,string&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$withParents` | **boolean**  |  |
 
 
 

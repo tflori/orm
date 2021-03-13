@@ -6,7 +6,9 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
+use ORM\Exception\NoEntity;
 use PDO;
+use ReflectionClass;
 
 /**
  * A trait to mock ORM\EntityManager
@@ -61,6 +63,12 @@ trait MocksEntityManager
      */
     public function ormCreateMockedEntity($class, $data = [])
     {
+        $reflection = new ReflectionClass($class);
+        if (!$reflection->isSubclassOf(Entity::class)) {
+            throw new NoEntity($class . ' is not a subclass of Entity');
+        }
+        /** @var string|Entity $class */
+        $class::bootIfNotBooted();
         /** @var EntityManagerMock $em */
         $em = $this->ormGetEntityManagerInstance($class);
 

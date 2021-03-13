@@ -53,6 +53,7 @@ class EntityFetcher extends QueryBuilder
     {
         $this->entityManager = $entityManager;
         $this->class         = $class;
+        $class::bootIfNotBooted();
 
         list($this->tableName, $this->alias) = $this->getTableAndAlias($class);
         $this->columns   = [ 't0.*' ];
