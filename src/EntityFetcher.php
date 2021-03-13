@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\EntityFetcher\AppliesFilters;
 use ORM\EntityFetcher\ExecutesQueries;
 use ORM\EntityFetcher\MakesJoins;
 use ORM\EntityFetcher\TranslatesClasses;
@@ -30,9 +31,7 @@ use PDO;
  */
 class EntityFetcher extends QueryBuilder
 {
-    use TranslatesClasses;
-    use MakesJoins;
-    use ExecutesQueries;
+    use TranslatesClasses, MakesJoins, ExecutesQueries, AppliesFilters;
 
     /** The entity class that we want to fetch
      * @var string|Entity */
@@ -157,6 +156,8 @@ class EntityFetcher extends QueryBuilder
     /** {@inheritdoc} */
     public function getQuery()
     {
+        $this->applyFilters();
+
         if ($this->query) {
             return $this->query instanceof QueryBuilderInterface ? $this->query->getQuery() : $this->query;
         }
