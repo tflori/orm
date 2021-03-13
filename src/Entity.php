@@ -3,6 +3,7 @@
 namespace ORM;
 
 use ORM\Dbal\Error;
+use ORM\Entity\Booting;
 use ORM\Entity\EventHandlers;
 use ORM\Entity\GeneratesPrimaryKeys;
 use ORM\Entity\Naming;
@@ -39,7 +40,7 @@ use Serializable;
  */
 abstract class Entity implements Serializable
 {
-    use Validation, Relations, Naming, EventHandlers;
+    use Validation, Relations, Naming, EventHandlers, Booting;
 
     /** @deprecated Use Relation::OPT_CLASS instead */
     const OPT_RELATION_CLASS       = 'class';
@@ -100,8 +101,10 @@ abstract class Entity implements Serializable
      */
     final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
     {
-        $this->data          = array_merge($this->data, $data);
+        static::bootIfNotBooted();
+
         $this->entityManager = $entityManager ?: EM::getInstance(static::class);
+        $this->data          = array_merge($this->data, $data);
         if ($fromDatabase) {
             $this->exists = true;
             $this->originalData = $data;
@@ -618,6 +621,7 @@ abstract class Entity implements Serializable
      */
     public function unserialize($serialized)
     {
+        static::bootIfNotBooted();
         list($this->data, $this->relatedObjects, $this->exists) = unserialize($serialized);
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);

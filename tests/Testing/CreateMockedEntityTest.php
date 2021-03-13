@@ -41,6 +41,15 @@ class CreateMockedEntityTest extends MockeryTestCase
     }
 
     /** @test */
+    public function throwsIfClassIsNotAnEntity()
+    {
+        self::expectException(Exception\NoEntity::class);
+        self::expectExceptionMessage(' is not a subclass of Entity');
+
+        $this->ormCreateMockedEntity(self::class);
+    }
+
+    /** @test */
     public function returnsTheEntity()
     {
         $article = $this->ormCreateMockedEntity(Article::class);

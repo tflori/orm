@@ -3,9 +3,12 @@
 namespace ORM\Test\Entity\Examples;
 
 use ORM\Entity;
+use ORM\Test\Entity\Examples\Concerns\WithTimestamps;
 
 class Article extends Entity
 {
+    use WithTimestamps;
+
     protected static $includedAttributes = [
         'intro',
     ];
