@@ -150,13 +150,7 @@ class EntityFetcher extends QueryBuilder
      */
     public function count()
     {
-        // set the columns and reset after get query
-        $this->columns  = [ 'COUNT(DISTINCT t0.*)' ];
-        $this->modifier = [];
-        $query          = $this->getQuery();
-        $this->columns  = [ 't0.*' ];
-        $this->modifier = [ 'DISTINCT' ];
-
+        $query = 'SELECT COUNT(*) FROM (' . $this->getQuery() . ') AS stmt';
         return (int) $this->entityManager->getConnection()->query($query)->fetchColumn();
     }
 

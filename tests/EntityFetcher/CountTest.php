@@ -20,7 +20,7 @@ class CountTest extends TestCase
 
         $this->statement = m::mock(\PDOStatement::class);
 
-        $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT COUNT\(DISTINCT t0\.\*\) FROM ".*" AS t0/'))
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^SELECT COUNT\(\*\) FROM \(.*\) AS stmt/'))
             ->andReturn($this->statement)->byDefault();
         $this->statement->shouldReceive('fetchColumn')->with()
             ->andReturn(42)->byDefault();
@@ -42,7 +42,8 @@ class CountTest extends TestCase
         /** @var EntityFetcher $fetcher */
         $fetcher = $this->em->fetch(StudlyCaps::class);
 
-        $this->pdo->shouldReceive('query')->with('SELECT COUNT(DISTINCT t0.*) FROM "studly_caps" AS t0')
+        $this->pdo->shouldReceive('query')
+            ->with('SELECT COUNT(*) FROM (SELECT DISTINCT t0.* FROM "studly_caps" AS t0) AS stmt')
             ->once()->andReturn($this->statement);
         $this->statement->shouldReceive('fetchColumn')->with()
             ->once()->andReturn(42);
