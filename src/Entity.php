@@ -157,6 +157,11 @@ abstract class Entity implements Serializable
         EM::getInstance(static::class)->detach($observer, static::class);
     }
 
+    public static function registerGlobalFilter($filter)
+    {
+        EntityFetcher::registerGlobalFilter(static::class, $filter);
+    }
+
     /**
      * Get the primary key vars
      *

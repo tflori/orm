@@ -3,6 +3,7 @@
 namespace ORM\Test\EntityFetcher;
 
 use Mockery as m;
+use ORM\EntityFetcher;
 use ORM\Exception\InvalidArgument;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\EntityFetcher\Examples\NotDeletedFilter;
@@ -66,5 +67,42 @@ class FilterTest extends TestCase
         self::expectExceptionMessage('should be an instance of');
 
         $fetcher->filter($any);
+    }
+
+    /** @test */
+    public function globalFiltersAreAutomaticallyApplied()
+    {
+        $filter = m::mock(NotDeletedFilter::class)->makePartial();
+        EntityFetcher::registerGlobalFilter(Article::class, $filter);
+
+        $fetcher = Article::query();
+        $fetcher->getQuery();
+
+        $filter->shouldHaveReceived('apply')->once();
+    }
+
+    /** @test */
+    public function globalFiltersCanBeRegisteredThroughEntity()
+    {
+        $filter = m::mock(NotDeletedFilter::class)->makePartial();
+        Article::registerGlobalFilter($filter);
+
+        $fetcher = Article::query();
+        $fetcher->getQuery();
+
+        $filter->shouldHaveReceived('apply');
+    }
+    
+    /** @test */
+    public function globalFiltersCanBeExcluded()
+    {
+        $filter = m::mock(NotDeletedFilter::class)->makePartial();
+        Article::registerGlobalFilter($filter);
+
+        $fetcher = Article::query();
+        $fetcher->withoutFilter(NotDeletedFilter::class);
+        $fetcher->getQuery();
+
+        $filter->shouldNotHaveReceived('apply');
     }
 }

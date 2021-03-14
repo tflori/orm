@@ -31,12 +31,8 @@ trait AppliesFilters
      * @param $class
      * @param FilterInterface|callable $filter
      */
-    public static function registerFilterGlobally($class, $filter)
+    public static function registerGlobalFilter($class, $filter)
     {
-        if (isset(static::$globalFilters[$class])) {
-            static::$globalFilters[$class] = [];
-        }
-
         static::$globalFilters[$class][] = static::normalizeFilter($filter);
     }
 
@@ -76,8 +72,10 @@ trait AppliesFilters
 
         $globalFilters = isset(static::$globalFilters[$this->class]) ? static::$globalFilters[$this->class] : [];
         foreach ($globalFilters as $filter) {
-            if (in_array(get_class($filter), $this->excludedFilters)) {
-                continue;
+            foreach ($this->excludedFilters as $excludedFilter) {
+                if ($filter instanceof $excludedFilter) {
+                    continue 2;
+                }
             }
             $filter->apply($this);
         }
