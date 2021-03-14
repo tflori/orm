@@ -72,6 +72,7 @@ trait AppliesFilters
         if ($this->filtersApplied) {
             return;
         }
+        $this->filtersApplied = true;
 
         $globalFilters = isset(static::$globalFilters[$this->class]) ? static::$globalFilters[$this->class] : [];
         foreach ($globalFilters as $filter) {
@@ -89,7 +90,7 @@ trait AppliesFilters
      * Converts callables into a CallableFilter
      *
      * @param FilterInterface|callable $filter
-     * @return CallableFilter|FilterInterface
+     * @return FilterInterface
      * @throws InvalidArgument
      */
     protected static function normalizeFilter($filter)
@@ -99,7 +100,10 @@ trait AppliesFilters
         }
 
         if (!$filter instanceof FilterInterface) {
-            throw new InvalidArgument('Argument 1 for ' . __METHOD__ . ' should be an instance of FilterInterface');
+            throw new InvalidArgument(sprintf(
+                'Argument $filter should be an instance of %s or a callable',
+                FilterInterface::class
+            ));
         }
 
         return $filter;
