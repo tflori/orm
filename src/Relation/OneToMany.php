@@ -39,9 +39,20 @@ class OneToMany extends Relation
      */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
+        $owner = $this->getOpponent();
+        if (!$owner instanceof Owner) {
+            throw new InvalidConfiguration(sprintf(
+                'No owner defined for relation %s:%s referencing %s:%s',
+                get_class($self),
+                $this->name,
+                $this->class,
+                $this->opponent
+            ));
+        }
+
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
-        $this->getOpponent()->apply($fetcher, $self);
+        $owner->apply($fetcher, $self);
 
         foreach ($this->filters as $filter) {
             $fetcher->filter($filter);

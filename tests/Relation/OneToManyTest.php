@@ -52,7 +52,7 @@ class OneToManyTest extends TestCase
         $entity = new Snake_Ucfirst([], $this->em);
 
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Reference is not defined in opponent');
+        self::expectExceptionMessage('No owner defined for relation');
 
         $entity->fetch('invalid');
     }
