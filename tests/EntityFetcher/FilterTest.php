@@ -94,7 +94,7 @@ class FilterTest extends TestCase
     }
     
     /** @test */
-    public function globalFiltersCanBeExcluded()
+    public function filtersCanBeExcluded()
     {
         $filter = m::mock(NotDeletedFilter::class)->makePartial();
         Article::registerGlobalFilter($filter);

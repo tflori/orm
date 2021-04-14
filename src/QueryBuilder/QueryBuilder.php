@@ -3,6 +3,7 @@
 namespace ORM\QueryBuilder;
 
 use ORM\EntityManager;
+use ORM\Helper;
 
 /**
  * Build a ansi sql query / select statement
@@ -177,8 +178,8 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 ->buildCompositeInExpression($column, $values, $inverse);
         } else {
             if (is_array($column)) {
-                $column = $this->first($column);
-                $values = array_map([$this, 'first'], $values);
+                $column = Helper::first($column);
+                $values = array_map([Helper::class, 'first'], $values);
             }
 
             return vsprintf('%s %s %s', [
@@ -187,23 +188,6 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
                 '(' . implode(',', array_map([$em, 'escapeValue'], $values)) . ')'
             ]);
         }
-    }
-
-    /**
-     * Get the first item of an array
-     *
-     * Stupid helper for a missing functionality in php
-     *
-     * @param iterable $array
-     * @return mixed|null
-     * @codeCoverageIgnore trivial
-     */
-    private function first($array)
-    {
-        foreach ($array as $item) {
-            return $item;
-        }
-        return null;
     }
 
     /**

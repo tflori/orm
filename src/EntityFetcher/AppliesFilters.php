@@ -71,15 +71,12 @@ trait AppliesFilters
         $this->filtersApplied = true;
 
         $globalFilters = isset(static::$globalFilters[$this->class]) ? static::$globalFilters[$this->class] : [];
-        foreach ($globalFilters as $filter) {
+        foreach (array_merge($globalFilters, $this->filters) as $filter) {
             foreach ($this->excludedFilters as $excludedFilter) {
                 if ($filter instanceof $excludedFilter) {
                     continue 2;
                 }
             }
-            $filter->apply($this);
-        }
-        foreach ($this->filters as $filter) {
             $filter->apply($this);
         }
     }

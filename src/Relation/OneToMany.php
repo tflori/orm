@@ -4,6 +4,7 @@ namespace ORM\Relation;
 
 use ORM\Entity;
 use ORM\EntityFetcher;
+use ORM\EntityFetcher\FilterInterface;
 use ORM\EntityManager;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Relation;
@@ -22,12 +23,14 @@ class OneToMany extends Relation
      * @param string $name
      * @param string $class
      * @param string $opponent
+     * @param FilterInterface[] $filters
      */
-    public function __construct($name, $class, $opponent)
+    public function __construct($name, $class, $opponent, array $filters = [])
     {
-        $this->name     = $name;
-        $this->class    = $class;
+        $this->name = $name;
+        $this->class = $class;
         $this->opponent = $opponent;
+        $this->filters = $filters;
     }
 
     /**
@@ -36,18 +39,13 @@ class OneToMany extends Relation
      */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $reference = $this->getOpponent()->getReference();
-        if (empty($reference)) {
-            throw new InvalidConfiguration('Reference is not defined in opponent');
-        }
-        $foreignKey = $this->getForeignKey($self, array_flip($reference));
-
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
-        foreach ($foreignKey as $col => $value) {
-            $fetcher->where($col, $value);
-        }
+        $this->getOpponent()->apply($fetcher, $self);
 
+        foreach ($this->filters as $filter) {
+            $fetcher->filter($filter);
+        }
         return $fetcher;
     }
 

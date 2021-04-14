@@ -38,13 +38,21 @@ class Owner extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $key = array_map([$self, '__get' ], array_keys($this->reference));
+        $key = array_map([$self, 'getAttribute' ], array_keys($this->reference));
 
         if (in_array(null, $key)) {
             return null;
         }
 
         return $entityManager->fetch($this->class, $key);
+    }
+
+    public function apply(EntityFetcher $fetcher, Entity $entity)
+    {
+        $foreignKey = $this->getForeignKey($entity, array_flip($this->reference));
+        foreach ($foreignKey as $col => $value) {
+            $fetcher->where($col, $value);
+        }
     }
 
     /**
@@ -60,17 +68,17 @@ class Owner extends Relation
 
         foreach ($this->reference as $fkAttribute => $attribute) {
             if ($entity === null) {
-                $self->__set($fkAttribute, null);
+                $self->setAttribute($fkAttribute, null);
                 continue;
             }
 
-            $value = $entity->__get($attribute);
+            $value = $entity->getAttribute($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
-            $self->__set($fkAttribute, $value);
+            $self->setAttribute($fkAttribute, $value);
         }
     }
 
