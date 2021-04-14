@@ -6,6 +6,7 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
 use ORM\Relation\ManyToMany;
+use ORM\Relation\Morphed;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
 use ORM\Relation\Owner;
@@ -19,6 +20,8 @@ use ORM\Relation\Owner;
 abstract class Relation
 {
     const OPT_CLASS        = 'class';
+    const OPT_MORPH_COLUMN = 'morphColumn';
+    const OPT_MORPH        = 'morph';
     const OPT_REFERENCE    = 'reference';
     const OPT_CARDINALITY  = 'cardinality';
     const OPT_OPPONENT     = 'opponent';
@@ -61,6 +64,8 @@ abstract class Relation
         }
 
         $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $morphColumn = isset($relDef[self::OPT_MORPH_COLUMN]) ? $relDef[self::OPT_MORPH_COLUMN] : null;
+        $morph       = isset($relDef[self::OPT_MORPH]) ? $relDef[self::OPT_MORPH] : null;
         $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
         $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
         $opponent    = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
@@ -70,7 +75,9 @@ abstract class Relation
         // create instances from filter classes
         $filters = array_map([static::class, 'createFilter'], $filters);
 
-        if ($reference && !isset($table)) {
+        if ($reference && $morphColumn && $morph) {
+            return new Morphed($name, $morphColumn, $morph, $reference);
+        } elseif ($reference && !isset($table)) {
             return new Owner($name, $class, $reference);
         } elseif ($table) {
             return new ManyToMany($name, $class, $reference, $opponent, $table, $filters);
@@ -99,6 +106,20 @@ abstract class Relation
         if (is_array($short[0])) {
             $reference = array_shift($short);
 
+            // morphed relations
+            if (is_array($class)) {
+                if (count($class) != 1) {
+                    throw new InvalidConfiguration('Invalid short form for relation' . $name);
+                }
+                foreach ($class as $morphColumn => $morph) {
+                    return [
+                        self::OPT_CARDINALITY => self::CARDINALITY_ONE,
+                        self::OPT_MORPH_COLUMN => $morphColumn,
+                        self::OPT_MORPH => $morph,
+                        self::OPT_REFERENCE => $reference,
+                    ];
+                }
+            }
 
             if ($cardinality === self::CARDINALITY_ONE || $length === 2) {
                 return [

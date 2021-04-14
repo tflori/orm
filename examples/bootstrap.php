@@ -34,3 +34,28 @@ $em->getConnection()->query("INSERT INTO user (username, password) VALUES
   ('user_b', '" . md5('password_b') . "'),
   ('user_c', '" . md5('password_c') . "')
 ");
+
+$em->getConnection()->query("DROP TABLE IF EXISTS comment");
+$em->getConnection()->query("CREATE TABLE comment (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    parent_type VARCHAR(50) NOT NULL,
+    parent_id INTEGER NOT NULL,
+    author VARCHAR(50) DEFAULT 'Anonymous' NOT NULL,
+    text TEXT
+)");
+
+$em->getConnection()->query("DROP TABLE IF EXISTS article");
+$em->getConnection()->query("CREATE TABLE article (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    author VARCHAR(50) DEFAULT 'Anonymous' NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    text TEXT
+)");
+
+$em->getConnection()->query("DROP TABLE IF EXISTS image");
+$em->getConnection()->query("CREATE TABLE image (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    author VARCHAR(50) DEFAULT 'Anonymous' NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    caption VARCHAR(255)
+)");

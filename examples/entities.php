@@ -18,3 +18,27 @@ class User extends ORM\Entity
         return ucwords(preg_replace('/[^A-Za-z0-9\-]+/', ' ', $this->username));
     }
 }
+
+class Comment extends ORM\Entity
+{
+    protected static $relations = [
+        'parent' => [['parentType' => [
+            'article' => Article::class,
+            'image' => Image::class,
+        ]], ['parentId' => 'id']],
+    ];
+}
+
+class Article extends ORM\Entity
+{
+    protected static $relations = [
+        'comments' => [Comment::class, 'parent'],
+    ];
+}
+
+class Image extends ORM\Entity
+{
+    protected static $relations = [
+        'comments' => [Comment::class, 'parent'],
+    ];
+}
