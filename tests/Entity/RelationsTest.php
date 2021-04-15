@@ -10,6 +10,7 @@ use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
 use ORM\Exception\UndefinedRelation;
 use ORM\Exception\NoEntityManager;
+use ORM\Relation;
 use ORM\Relation\ManyToMany;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
@@ -132,6 +133,20 @@ class RelationsTest extends TestCase
         self::expectExceptionMessage('Invalid short form for relation invalid');
 
         RelationExample::getRelation('invalid');
+    }
+
+    /** @test */
+    public function throwsWhenNoTableIsGiven()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Article::class,
+            ['id' => 'category_id'],
+            'categories',
+            // here comes the table: 'article_categories',
+        ]);
     }
 
     public function provideRelationDefinitionsWithReference()
