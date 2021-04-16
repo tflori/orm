@@ -149,6 +149,28 @@ class RelationsTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function throwsWhenClassIsMissing()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Relation::OPT_OPPONENT => 'something',
+        ]);
+    }
+
+    /** @test */
+    public function throwsWhenOpponentAndReferenceIsMissing()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Relation::OPT_CLASS => Article::class,
+        ]);
+    }
+
     public function provideRelationDefinitionsWithReference()
     {
         return array_filter($this->provideRelationDefinitions(), function ($definition) {

@@ -82,6 +82,7 @@ abstract class Relation
      * @param string $name
      * @param array $short
      * @return ?Relation
+     * @codeCoverageIgnore
      */
     public static function fromShort($name, array $short)
     {
