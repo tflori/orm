@@ -18,4 +18,15 @@ class OneToOne extends OneToMany
     {
         return parent::fetch($self, $entityManager)->one();
     }
+
+    public static function fromShort($name, array $short)
+    {
+        // the cardinality is mandatory for one to one
+        if ($short[0] !== self::CARDINALITY_ONE) {
+            return null;
+        }
+        array_shift($short);
+
+        return static::createStaticFromShort($name, $short);
+    }
 }

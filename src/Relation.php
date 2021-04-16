@@ -53,13 +53,51 @@ abstract class Relation
      * @param string $name
      * @param array $relDef
      * @return Relation
+     * @throws InvalidConfiguration
      */
     public static function createRelation($name, $relDef)
     {
         if (isset($relDef[0])) {
-            $relDef = self::convertShort($name, $relDef);
+            $relationClasses = [
+                Owner::class,
+                ManyToMany::class,
+                OneToMany::class,
+                OneToOne::class,
+            ];
+            /** @var string|Relation $relationClass */
+            foreach ($relationClasses as $relationClass) {
+                if ($relation = $relationClass::fromShort($name, $relDef)) {
+                    return $relation;
+                }
+            }
+            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
         }
 
+        return self::fromAssoc($name, $relDef);
+    }
+
+    /**
+     * Creates a relation from short form
+     *
+     * @param string $name
+     * @param array $short
+     * @return ?Relation
+     */
+    public static function fromShort($name, array $short)
+    {
+        return null;
+    }
+
+    /**
+     * Create a relation by assoc definition
+     *
+     * @param $name
+     * @param array $relDef
+     * @return Relation
+     * @throws InvalidConfiguration
+     */
+    protected static function fromAssoc($name, array $relDef)
+    {
         $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
         $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
         $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
@@ -70,6 +108,10 @@ abstract class Relation
         // create instances from filter classes
         $filters = array_map([static::class, 'createFilter'], $filters);
 
+        if (!$class || !$reference && !$opponent) {
+            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
+        }
+
         if ($reference && !isset($table)) {
             return new Owner($name, $class, $reference);
         } elseif ($table) {
@@ -79,67 +121,6 @@ abstract class Relation
         } else {
             return new OneToOne($name, $class, $opponent, $filters);
         }
-    }
-
-    /**
-     * Converts short form to assoc form
-     *
-     * @param string $name
-     * @param array $short
-     * @return array
-     * @throws InvalidConfiguration
-     */
-    protected static function convertShort($name, $short)
-    {
-        $length = count($short);
-        $cardinality = in_array($short[0], [self::CARDINALITY_ONE, self::CARDINALITY_MANY]) ?
-            array_shift($short) : self::CARDINALITY_MANY;
-        $class = array_shift($short);
-
-        if (is_array($short[0])) {
-            $reference = array_shift($short);
-
-
-            if ($cardinality === self::CARDINALITY_ONE || $length === 2) {
-                return [
-                    self::OPT_CARDINALITY => self::CARDINALITY_ONE,
-                    self::OPT_CLASS       => $class,
-                    self::OPT_REFERENCE   => $reference,
-                ];
-            }
-        }
-
-        $opponent = array_shift($short);
-
-        if (isset($reference)) {
-            if (!isset($short[0]) || !is_string($short[0])) {
-                throw new InvalidConfiguration('Invalid short form for relation ' . $name);
-            }
-            $table = array_shift($short);
-            $relDef = [
-                self::OPT_CARDINALITY => self::CARDINALITY_MANY,
-                self::OPT_CLASS       => $class,
-                self::OPT_REFERENCE   => $reference,
-                self::OPT_OPPONENT    => $opponent,
-                self::OPT_TABLE       => $table,
-            ];
-        } else {
-            $relDef = [
-                self::OPT_CARDINALITY => $cardinality,
-                self::OPT_CLASS       => $class,
-                self::OPT_OPPONENT    => $opponent,
-            ];
-        }
-
-        if (isset($short[0]) && is_array($short[0])) {
-            $relDef[self::OPT_FILTERS] = array_shift($short);
-        }
-
-        if (!empty($short)) {
-            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
-        }
-
-        return $relDef;
     }
 
     protected static function createFilter($class)

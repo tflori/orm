@@ -33,6 +33,31 @@ class OneToMany extends Relation
         $this->filters = $filters;
     }
 
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            return null;
+        } elseif ($short[0] === self::CARDINALITY_MANY) {
+            array_shift($short);
+        }
+
+        return static::createStaticFromShort($name, $short);
+    }
+
+    protected static function createStaticFromShort($name, array $short)
+    {
+        // get filters
+        $filters = [];
+        if (count($short) === 3 && is_array($short[2])) {
+            $filters = array_map([self::class, 'createFilter'], array_pop($short));
+        }
+
+        if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {
+            return new static($name, $short[0], $short[1], $filters);
+        }
+        return null;
+    }
+
     /**
      * {@inheritdoc}
      * @throws InvalidConfiguration

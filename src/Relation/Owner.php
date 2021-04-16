@@ -35,6 +35,18 @@ class Owner extends Relation
         $this->reference = $reference;
     }
 
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            array_shift($short);
+        }
+
+        if (count($short) === 2 && is_string($short[0]) && is_array($short[1])) {
+            return new self($name, $short[0], $short[1]);
+        }
+        return null;
+    }
+
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
