@@ -42,6 +42,7 @@ class ManyToMany extends Relation
         $this->filters = $filters;
     }
 
+    /** {@inheritDoc} */
     public static function fromShort($name, array $short)
     {
         // remove cardinality if given

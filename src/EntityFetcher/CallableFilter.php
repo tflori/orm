@@ -16,6 +16,7 @@ class CallableFilter implements FilterInterface
         $this->filter = $filter;
     }
 
+    /** {@inheritDoc} */
     public function apply(EntityFetcher $fetcher)
     {
         call_user_func($this->filter, $fetcher);

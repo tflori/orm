@@ -9,6 +9,7 @@ use ORM\Entity\GeneratesPrimaryKeys;
 use ORM\Entity\Naming;
 use ORM\Entity\Relations;
 use ORM\Entity\Validation;
+use ORM\EntityFetcher\FilterInterface;
 use ORM\EntityManager as EM;
 use ORM\Event\Changed;
 use ORM\Event\Fetched;
@@ -157,6 +158,11 @@ abstract class Entity implements Serializable
         EM::getInstance(static::class)->detach($observer, static::class);
     }
 
+    /**
+     * Register a filter that is added to every fetcher for this entity
+     *
+     * @param FilterInterface|callable $filter
+     */
     public static function registerGlobalFilter($filter)
     {
         EntityFetcher::registerGlobalFilter(static::class, $filter);

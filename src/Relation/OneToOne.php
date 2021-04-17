@@ -19,6 +19,7 @@ class OneToOne extends OneToMany
         return parent::fetch($self, $entityManager)->one();
     }
 
+    /** {@inheritDoc} */
     public static function fromShort($name, array $short)
     {
         // the cardinality is mandatory for one to one

@@ -81,6 +81,8 @@ abstract class Relation
      *
      * @param string $name
      * @param array $short
+     * @internal
+     * @see Relation::createRelation()
      * @return ?Relation
      * @codeCoverageIgnore
      */
@@ -94,6 +96,8 @@ abstract class Relation
      *
      * @param $name
      * @param array $relDef
+     * @internal
+     * @see Relation::createRelation()
      * @return Relation
      * @throws InvalidConfiguration
      */
@@ -124,6 +128,12 @@ abstract class Relation
         }
     }
 
+    /**
+     * Create an instance from $class
+     *
+     * @param string|mixed $class
+     * @return mixed
+     */
     protected static function createFilter($class)
     {
         if (is_string($class) && class_exists($class)) {

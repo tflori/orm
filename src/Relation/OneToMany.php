@@ -33,6 +33,7 @@ class OneToMany extends Relation
         $this->filters = $filters;
     }
 
+    /** {@inheritDoc} */
     public static function fromShort($name, array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
@@ -44,6 +45,13 @@ class OneToMany extends Relation
         return static::createStaticFromShort($name, $short);
     }
 
+    /**
+     * Create static::class from $short
+     *
+     * @param $name
+     * @param array $short
+     * @return static|null
+     */
     protected static function createStaticFromShort($name, array $short)
     {
         // get filters
