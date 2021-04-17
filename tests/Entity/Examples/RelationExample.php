@@ -24,6 +24,11 @@ class RelationExample extends Entity
         'dmgd' => [DamagedABBRVCase::class, ['dmgdId' => 'id']],
         'invalid' => [StudlyCaps::class, 'opponent', 'something'], // additional data is not allowed
         'mySnake' => ['one', Snake_Ucfirst::class, 'relation'],
+        'mySnakeAssoc' => [
+            Relation::OPT_CARDINALITY => Relation::CARDINALITY_ONE,
+            Relation::OPT_CLASS => Snake_Ucfirst::class,
+            Relation::OPT_OPPONENT => 'relation',
+        ],
         'snake' => [Snake_Ucfirst::class, ['snakeId' => 'id']]
     ];
 }

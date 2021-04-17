@@ -69,6 +69,14 @@ class RelationsTest extends TestCase
                 'dmgd'
             ],
             [
+                RelationExample::class,
+                'mySnakeAssoc',
+                OneToOne::class,
+                Snake_Ucfirst::class,
+                null,
+                'relation'
+            ],
+            [
                 Snake_Ucfirst::class,
                 'relations',
                 OneToMany::class,
@@ -88,6 +96,15 @@ class RelationsTest extends TestCase
             [
                 Category::class,
                 'articles',
+                ManyToMany::class,
+                Article::class,
+                ['id' => 'category_id'],
+                'categories',
+                'article_category'
+            ],
+            [
+                Category::class,
+                'articlesAssoc',
                 ManyToMany::class,
                 Article::class,
                 ['id' => 'category_id'],
