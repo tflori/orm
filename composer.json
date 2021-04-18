@@ -26,6 +26,9 @@
       "ORM\\Test\\": "tests/"
     }
   },
+  "archive": {
+    "exclude": ["/tests", "/docs", "/examples"]
+  },
   "scripts": {
     "code-style": [
       "phpcs --standard=PSR2 src",
