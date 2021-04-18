@@ -18,6 +18,7 @@ exclude_patterns:
     - "**/tests/"
     - "Tests/"
     - "example.php"
+    - "examples/"
     - "**/vendor/"
     - "**/*_test.go"
     - "**/*.d.ts"
