@@ -77,6 +77,14 @@ class RelationsTest extends TestCase
                 'relation'
             ],
             [
+                RelationExample::class,
+                'anotherSnake',
+                OneToOne::class,
+                Snake_Ucfirst::class,
+                null,
+                'relation'
+            ],
+            [
                 Snake_Ucfirst::class,
                 'relations',
                 OneToMany::class,

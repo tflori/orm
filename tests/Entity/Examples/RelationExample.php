@@ -31,4 +31,9 @@ class RelationExample extends Entity
         ],
         'snake' => [Snake_Ucfirst::class, ['snakeId' => 'id']]
     ];
+
+    protected static function anotherSnakeRelation()
+    {
+        return new Relation\OneToOne('anotherSnake', Snake_Ucfirst::class, 'relation');
+    }
 }

@@ -8923,8 +8923,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 ```php
 public function __construct(
     string $name, string $class, array $reference, string $opponent, 
-    string $table, 
-    array<\ORM\EntityFetcher\FilterInterface> $filters = array()
+    string $table, $filters = array()
 )
 ```
 
@@ -8945,7 +8944,7 @@ public function __construct(
 | `$reference` | **array**  |  |
 | `$opponent` | **string**  |  |
 | `$table` | **string**  |  |
-| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface>**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 
@@ -10958,8 +10957,7 @@ Return false to stop event execution.
 
 ```php
 public function __construct(
-    string $name, string $class, string $opponent, 
-    array<\ORM\EntityFetcher\FilterInterface> $filters = array()
+    string $name, string $class, string $opponent, $filters = array()
 )
 ```
 
@@ -10978,7 +10976,7 @@ public function __construct(
 | `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
-| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface>**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 
@@ -11362,8 +11360,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 
 ```php
 public function __construct(
-    string $name, string $class, string $opponent, 
-    array<\ORM\EntityFetcher\FilterInterface> $filters = array()
+    string $name, string $class, string $opponent, $filters = array()
 )
 ```
 
@@ -11382,7 +11379,7 @@ public function __construct(
 | `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
-| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface>**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 

@@ -30,7 +30,7 @@ class ManyToMany extends Relation
      * @param array $reference
      * @param string $opponent
      * @param string $table
-     * @param FilterInterface[] $filters
+     * @param FilterInterface[]|callable[] $filters
      */
     public function __construct($name, $class, array $reference, $opponent, $table, array $filters = [])
     {

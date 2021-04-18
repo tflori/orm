@@ -23,7 +23,7 @@ class OneToMany extends Relation
      * @param string $name
      * @param string $class
      * @param string $opponent
-     * @param FilterInterface[] $filters
+     * @param FilterInterface[]|callable[] $filters
      */
     public function __construct($name, $class, $opponent, array $filters = [])
     {
