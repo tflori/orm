@@ -39,6 +39,9 @@ $fetcher = $entityManager->fetch(Article::class);
 $fetcher->filter(new FilterPublished);
 ```
 
+For an example of a more complex filter have a look at the
+[code examples](https://github.com/tflori/orm/blob/master/examples) in the source.
+
 ### Global Filtering
 
 We can now also register that filter for every `EntityFetcher` that will be created for the `Article` class with
