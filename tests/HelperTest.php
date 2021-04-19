@@ -47,4 +47,12 @@ class HelperTest extends TestCase
         self::assertArrayHasKey(WithCreated::class, $result);
         self::assertArrayHasKey(WithUpdated::class, $result);
     }
+
+    /** @test */
+    public function returnsDefaultWhenTheArrayIsEmpty()
+    {
+        $result = Helper::first([], 'foo bar');
+
+        self::assertSame('foo bar', $result);
+    }
 }

@@ -35,6 +35,19 @@ class Owner extends Relation
         $this->reference = $reference;
     }
 
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            array_shift($short);
+        }
+
+        if (count($short) === 2 && is_string($short[0]) && is_array($short[1])) {
+            return new self($name, $short[0], $short[1]);
+        }
+        return null;
+    }
+
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
@@ -47,6 +60,17 @@ class Owner extends Relation
         return $entityManager->fetch($this->class, $key);
     }
 
+    /**
+     * Apply where conditions for $entity on $fetcher
+     *
+     * Called from non-owner to find related elements. Example:
+     *   $user->fetch('articles') creates an EntityFetcher for Article and calls
+     *     $opponent->apply($fetcher, $user) that will call
+     *       $fetcher->where('authorId', $user->id)
+     *
+     * @param EntityFetcher $fetcher
+     * @param Entity $entity
+     */
     public function apply(EntityFetcher $fetcher, Entity $entity)
     {
         $foreignKey = $this->getForeignKey($entity, array_flip($this->reference));

@@ -86,6 +86,16 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         m::close();
     }
 
+    protected static function getProtectedProperty($object, $property)
+    {
+        $reflection = new ReflectionClass($object);
+        $propertyReflection = $reflection->getProperty($property);
+        $propertyReflection->setAccessible(true);
+        $value = $propertyReflection->getValue($object);
+        $propertyReflection->setAccessible(false);
+        return $value;
+    }
+
     protected static function setProtectedProperty($object, $property, $value)
     {
         $reflection = new ReflectionClass($object);

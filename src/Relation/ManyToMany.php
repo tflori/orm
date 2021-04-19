@@ -30,7 +30,7 @@ class ManyToMany extends Relation
      * @param array $reference
      * @param string $opponent
      * @param string $table
-     * @param FilterInterface[] $filters
+     * @param FilterInterface[]|callable[] $filters
      */
     public function __construct($name, $class, array $reference, $opponent, $table, array $filters = [])
     {
@@ -40,6 +40,28 @@ class ManyToMany extends Relation
         $this->reference = $reference;
         $this->table = $table;
         $this->filters = $filters;
+    }
+
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        // remove cardinality if given
+        if ($short[0] === self::CARDINALITY_MANY) {
+            array_shift($short);
+        }
+
+        // get filters
+        $filters = [];
+        if (count($short) === 5 && is_array($short[4])) {
+            $filters = array_map([self::class, 'createFilter'], array_pop($short));
+        }
+
+        if (count($short) === 4 &&
+            is_string($short[0]) && is_array($short[1]) && is_string($short[2]) && is_string($short[3])
+        ) {
+            return new self($name, $short[0], $short[1], $short[2], $short[3], $filters);
+        }
+        return null;
     }
 
     /**

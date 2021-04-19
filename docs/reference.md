@@ -68,6 +68,12 @@ permalink: /reference.html
 * [GeneratesPrimaryKeys](#ormentitygeneratesprimarykeys)
 
 
+### ORM\EntityFetcher
+
+* [CallableFilter](#ormentityfetchercallablefilter)
+* [FilterInterface](#ormentityfetcherfilterinterface)
+
+
 ### ORM\Event
 
 * [Changed](#ormeventchanged)
@@ -583,6 +589,78 @@ public function useAutoincrement(): $this
 <br />
  **Returns**: this method returns **$this**
 <br />
+
+
+
+
+
+---
+
+### ORM\EntityFetcher\CallableFilter
+
+
+**Implements:** [ORM\EntityFetcher\FilterInterface](#ormentityfetcherfilterinterface)
+
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$filter` |  |  |
+
+
+
+#### Methods
+
+* [__construct](#ormentityfetchercallablefilter__construct) 
+* [apply](#ormentityfetchercallablefilterapply) Apply this filter to $fetcher
+
+#### ORM\EntityFetcher\CallableFilter::__construct
+
+```php
+public function __construct( callable $filter )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filter` | **callable**  |  |
+
+
+
+#### ORM\EntityFetcher\CallableFilter::apply
+
+```php
+public function apply( ORM\EntityFetcher $fetcher ): void
+```
+
+##### Apply this filter to $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **void**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
 
 
 
@@ -2165,6 +2243,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [prePersist](#ormentityprepersist) Empty event handler
 * [preUpdate](#ormentitypreupdate) Empty event handler
 * [query](#ormentityquery) Create an entityFetcher for this entity
+* [registerGlobalFilter](#ormentityregisterglobalfilter) Register a filter that is added to every fetcher for this entity
 * [reset](#ormentityreset) Resets the entity or $attribute to original data
 * [resetRelated](#ormentityresetrelated) Resets all loaded relations or $relation
 * [save](#ormentitysave) Save the entity to EntityManager
@@ -3119,6 +3198,29 @@ public static function query(): ORM\EntityFetcher
 
 
 
+#### ORM\Entity::registerGlobalFilter
+
+```php
+public static function registerGlobalFilter( $filter )
+```
+
+##### Register a filter that is added to every fetcher for this entity
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\Entity::reset
 
 ```php
@@ -3530,6 +3632,10 @@ Supported:
 | **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
+| **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
+| **protected** | `$filters` | **array&lt;EntityFetcher \ FilterInterface>** | A list of filters to apply additionally |
+| **protected** | `$filtersApplied` | **boolean** | Boolean if the filters where applied |
+| **protected static** | `$globalFilters` | **array&lt;EntityFetcher \ FilterInterface[]>** | Filters that always should be applied for an entity |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
@@ -3552,6 +3658,7 @@ Supported:
 * [all](#ormentityfetcherall) Fetch an array of entities
 * [andParenthesis](#ormentityfetcherandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormentityfetcherandwhere) Add a where condition with AND.
+* [applyFilters](#ormentityfetcherapplyfilters) Apply the filters on $this
 * [close](#ormentityfetcherclose) Close parenthesis
 * [column](#ormentityfetchercolumn) Add $column
 * [columns](#ormentityfetchercolumns) Set $columns
@@ -3559,7 +3666,7 @@ Supported:
 * [count](#ormentityfetchercount) Get the count of the resulting items
 * [createRelatedJoin](#ormentityfetchercreaterelatedjoin) Create the join with $join type
 * [delete](#ormentityfetcherdelete) Execute a delete statement on the current table with current where conditions
-* [first](#ormentityfetcherfirst) Get the first item of an array
+* [filter](#ormentityfetcherfilter) Apply an additional $filter before executing
 * [fullJoin](#ormentityfetcherfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormentityfetchergetentitymanager) 
@@ -3575,6 +3682,7 @@ Supported:
 * [leftJoinRelated](#ormentityfetcherleftjoinrelated) Left outer join $relation
 * [limit](#ormentityfetcherlimit) Set $limit
 * [modifier](#ormentityfetchermodifier) Add $modifier
+* [normalizeFilter](#ormentityfetchernormalizefilter) Converts callables into a CallableFilter
 * [offset](#ormentityfetcheroffset) Set $offset
 * [one](#ormentityfetcherone) Fetch one entity
 * [orderBy](#ormentityfetcherorderby) Order By $column in $direction
@@ -3583,6 +3691,7 @@ Supported:
 * [orWhereIn](#ormentityfetcherorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormentityfetcherorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormentityfetcherparenthesis) Alias for andParenthesis
+* [registerGlobalFilter](#ormentityfetcherregisterglobalfilter) Register $filter globally for $class
 * [reset](#ormentityfetcherreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormentityfetcherrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormentityfetchersetfetchmode) Proxy to PDOStatement::setFetchMode()
@@ -3594,6 +3703,7 @@ Supported:
 * [whereIn](#ormentityfetcherwherein) Add a where in condition with AND.
 * [whereNotIn](#ormentityfetcherwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormentityfetcherwhereprefix) Get the prefix for a where condition or empty if not needed
+* [withoutFilter](#ormentityfetcherwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\EntityFetcher::__construct
 
@@ -3698,6 +3808,22 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\EntityFetcher::applyFilters
+
+```php
+protected function applyFilters()
+```
+
+##### Apply the filters on $this
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
 
 
 
@@ -3855,26 +3981,26 @@ public function delete(): integer
 
 
 
-#### ORM\EntityFetcher::first
+#### ORM\EntityFetcher::filter
 
 ```php
-private function first( ORM\QueryBuilder\iterable $array ): mixed|null
+public function filter( $filter ): $this
 ```
 
-##### Get the first item of an array
+##### Apply an additional $filter before executing
 
-Stupid helper for a missing functionality in php
 
-**Visibility:** this method is **private**.
+
+**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed|null**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$array` | **QueryBuilder\iterable**  |  |
+| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -4230,6 +4356,32 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 
 
+#### ORM\EntityFetcher::normalizeFilter
+
+```php
+protected static function normalizeFilter(
+    $filter
+): ORM\EntityFetcher\FilterInterface
+```
+
+##### Converts callables into a CallableFilter
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\ORM\EntityFetcher\FilterInterface**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\EntityFetcher::offset
 
 ```php
@@ -4431,6 +4583,31 @@ public function parenthesis(): $this
 
 
 
+#### ORM\EntityFetcher::registerGlobalFilter
+
+```php
+public static function registerGlobalFilter( $class, $filter )
+```
+
+##### Register $filter globally for $class
+
+A registered filter will be applied in all entity fetchers for the class if not excluded by
+`$fetcher->withoutFilter(Filter::class)`.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\EntityFetcher::reset
 
 ```php
@@ -4518,6 +4695,8 @@ public function setQuery( $query, array $args = null ): $this
 ##### Set a raw query or use different QueryBuilder
 
 For easier use and against sql injection it allows question mark placeholders.
+
+Please be aware that this query is not touched at all and neither filters nor where conditions are applied.
 
 **Visibility:** this method is **public**.
 <br />
@@ -4730,6 +4909,29 @@ private function wherePrefix( string $bool ): string
 
 
 
+#### ORM\EntityFetcher::withoutFilter
+
+```php
+public function withoutFilter( string $filterClass ): $this
+```
+
+##### Exclude $filterClass for this fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filterClass` | **string**  |  |
+
+
+
 
 
 ---
@@ -4769,6 +4971,10 @@ Supported:
 | **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **public** | `$entityManager` | **EntityManagerMock** |  |
+| **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
+| **protected** | `$filters` | **array&lt; \ ORM \ EntityFetcher \ FilterInterface>** | A list of filters to apply additionally |
+| **protected** | `$filtersApplied` | **boolean** | Boolean if the filters where applied |
+| **protected static** | `$globalFilters` | **array&lt; \ ORM \ EntityFetcher \ FilterInterface[]>** | Filters that always should be applied for an entity |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
@@ -4791,6 +4997,7 @@ Supported:
 * [all](#ormtestingentityfetchermockall) Get all rows from the query result
 * [andParenthesis](#ormtestingentityfetchermockandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockandwhere) Add a where condition with AND.
+* [applyFilters](#ormtestingentityfetchermockapplyfilters) Apply the filters on $this
 * [close](#ormtestingentityfetchermockclose) Close parenthesis
 * [column](#ormtestingentityfetchermockcolumn) Add $column
 * [columns](#ormtestingentityfetchermockcolumns) Set $columns
@@ -4798,7 +5005,7 @@ Supported:
 * [count](#ormtestingentityfetchermockcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockcreaterelatedjoin) Create the join with $join type
 * [delete](#ormtestingentityfetchermockdelete) Execute a delete statement on the current table with current where conditions
-* [first](#ormtestingentityfetchermockfirst) Get the first item of an array
+* [filter](#ormtestingentityfetchermockfilter) Apply an additional $filter before executing
 * [fullJoin](#ormtestingentityfetchermockfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormtestingentityfetchermockgetentitymanager) 
@@ -4814,6 +5021,7 @@ Supported:
 * [leftJoinRelated](#ormtestingentityfetchermockleftjoinrelated) Left outer join $relation
 * [limit](#ormtestingentityfetchermocklimit) Set $limit
 * [modifier](#ormtestingentityfetchermockmodifier) Add $modifier
+* [normalizeFilter](#ormtestingentityfetchermocknormalizefilter) Converts callables into a CallableFilter
 * [offset](#ormtestingentityfetchermockoffset) Set $offset
 * [one](#ormtestingentityfetchermockone) Fetch one entity
 * [orderBy](#ormtestingentityfetchermockorderby) Order By $column in $direction
@@ -4822,6 +5030,7 @@ Supported:
 * [orWhereIn](#ormtestingentityfetchermockorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormtestingentityfetchermockorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockparenthesis) Alias for andParenthesis
+* [registerGlobalFilter](#ormtestingentityfetchermockregisterglobalfilter) Register $filter globally for $class
 * [reset](#ormtestingentityfetchermockreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormtestingentityfetchermockrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormtestingentityfetchermocksetfetchmode) Proxy to PDOStatement::setFetchMode()
@@ -4833,6 +5042,7 @@ Supported:
 * [whereIn](#ormtestingentityfetchermockwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormtestingentityfetchermockwhereprefix) Get the prefix for a where condition or empty if not needed
+* [withoutFilter](#ormtestingentityfetchermockwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\Testing\EntityFetcherMock::__construct
 
@@ -4934,6 +5144,22 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock::applyFilters
+
+```php
+protected function applyFilters()
+```
+
+##### Apply the filters on $this
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
 
 
 
@@ -5087,26 +5313,26 @@ public function delete(): integer
 
 
 
-#### ORM\Testing\EntityFetcherMock::first
+#### ORM\Testing\EntityFetcherMock::filter
 
 ```php
-private function first( ORM\QueryBuilder\iterable $array ): mixed|null
+public function filter( $filter ): $this
 ```
 
-##### Get the first item of an array
+##### Apply an additional $filter before executing
 
-Stupid helper for a missing functionality in php
 
-**Visibility:** this method is **private**.
+
+**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed|null**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$array` | **\ORM\QueryBuilder\iterable**  |  |
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -5462,6 +5688,32 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 
 
+#### ORM\Testing\EntityFetcherMock::normalizeFilter
+
+```php
+protected static function normalizeFilter(
+    $filter
+): ORM\EntityFetcher\FilterInterface
+```
+
+##### Converts callables into a CallableFilter
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\ORM\EntityFetcher\FilterInterface**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::offset
 
 ```php
@@ -5663,6 +5915,31 @@ public function parenthesis(): $this
 
 
 
+#### ORM\Testing\EntityFetcherMock::registerGlobalFilter
+
+```php
+public static function registerGlobalFilter( $class, $filter )
+```
+
+##### Register $filter globally for $class
+
+A registered filter will be applied in all entity fetchers for the class if not excluded by
+`$fetcher->withoutFilter(Filter::class)`.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::reset
 
 ```php
@@ -5750,6 +6027,8 @@ public function setQuery( $query, array $args = null ): $this
 ##### Set a raw query or use different QueryBuilder
 
 For easier use and against sql injection it allows question mark placeholders.
+
+Please be aware that this query is not touched at all and neither filters nor where conditions are applied.
 
 **Visibility:** this method is **public**.
 <br />
@@ -5959,6 +6238,29 @@ private function wherePrefix( string $bool ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
+
+
+
+#### ORM\Testing\EntityFetcherMock::withoutFilter
+
+```php
+public function withoutFilter( string $filterClass ): $this
+```
+
+##### Exclude $filterClass for this fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filterClass` | **string**  |  |
 
 
 
@@ -8148,6 +8450,49 @@ public function stop()
 
 ---
 
+### ORM\EntityFetcher\FilterInterface
+
+
+
+
+
+
+
+
+
+
+
+#### Methods
+
+* [apply](#ormentityfetcherfilterinterfaceapply) Apply this filter to $fetcher
+
+#### ORM\EntityFetcher\FilterInterface::apply
+
+```php
+public function apply( ORM\EntityFetcher $fetcher ): void
+```
+
+##### Apply this filter to $fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **void**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+
+
+
+
+
+---
+
 ### ORM\Entity\GeneratesPrimaryKeys
 
 
@@ -8178,8 +8523,34 @@ Describes a class that generates primary keys in the protected method generatePr
 
 #### Methods
 
+* [first](#ormhelperfirst) Get the first element of $array
 * [shortName](#ormhelpershortname) Gets the short name of a class without creating a Reflection
 * [traitUsesRecursive](#ormhelpertraitusesrecursive) Get all traits used by the class and it&#039;s parents.
+
+#### ORM\Helper::first
+
+```php
+public static function first( array $array, $default = null ): mixed
+```
+
+##### Get the first element of $array
+
+Returns $default if the array is empty.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$default` | **mixed**  |  |
+
+
 
 #### ORM\Helper::shortName
 
@@ -8521,10 +8892,11 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
-| **protected** | `$table` | **string'categories** | The table that holds the foreign keys |
+| **protected** | `$table` | **string** | The table that holds the foreign keys |
 
 
 
@@ -8533,11 +8905,12 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
 * [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
-* [convertShort](#ormrelationmanytomanyconvertshort) Converts short form to assoc form
+* [createFilter](#ormrelationmanytomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
+* [fromShort](#ormrelationmanytomanyfromshort) {@inheritDoc}
 * [getClass](#ormrelationmanytomanygetclass) 
 * [getForeignKey](#ormrelationmanytomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationmanytomanygetopponent) 
@@ -8550,7 +8923,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 ```php
 public function __construct(
     string $name, string $class, array $reference, string $opponent, 
-    string $table
+    string $table, $filters = array()
 )
 ```
 
@@ -8571,6 +8944,7 @@ public function __construct(
 | `$reference` | **array**  |  |
 | `$opponent` | **string**  |  |
 | `$table` | **string**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 
@@ -8627,28 +9001,27 @@ public function addRelated(
 
 
 
-#### ORM\Relation\ManyToMany::convertShort
+#### ORM\Relation\ManyToMany::createFilter
 
 ```php
-protected static function convertShort( string $name, array $relDef ): array
+protected static function createFilter( $class ): mixed
 ```
 
-##### Converts short form to assoc form
+##### Create an instance from $class
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+ **Returns**: this method returns **mixed**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$relDef` | **array**  |  |
+| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -8668,7 +9041,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -8757,6 +9130,30 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\ManyToMany::fromShort
+
+```php
+public static function fromShort( $name, array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
+
+
+
 #### ORM\Relation\ManyToMany::getClass
 
 ```php
@@ -8800,7 +9197,7 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\ManyToMany::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation
+public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -8808,7 +9205,7 @@ public function getOpponent(): ORM\Relation
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Relation**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />
 
 
@@ -10531,6 +10928,7 @@ Return false to stop event execution.
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
@@ -10542,11 +10940,13 @@ Return false to stop event execution.
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
 * [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
-* [convertShort](#ormrelationonetomanyconvertshort) Converts short form to assoc form
+* [createFilter](#ormrelationonetomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
+* [createStaticFromShort](#ormrelationonetomanycreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
+* [fromShort](#ormrelationonetomanyfromshort) {@inheritDoc}
 * [getClass](#ormrelationonetomanygetclass) 
 * [getForeignKey](#ormrelationonetomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetomanygetopponent) 
@@ -10556,7 +10956,9 @@ Return false to stop event execution.
 #### ORM\Relation\OneToMany::__construct
 
 ```php
-public function __construct( string $name, string $class, string $opponent )
+public function __construct(
+    string $name, string $class, string $opponent, $filters = array()
+)
 ```
 
 ##### Owner constructor.
@@ -10574,6 +10976,7 @@ public function __construct( string $name, string $class, string $opponent )
 | `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 
@@ -10631,28 +11034,27 @@ public function addRelated(
 
 
 
-#### ORM\Relation\OneToMany::convertShort
+#### ORM\Relation\OneToMany::createFilter
 
 ```php
-protected static function convertShort( string $name, array $relDef ): array
+protected static function createFilter( $class ): mixed
 ```
 
-##### Converts short form to assoc form
+##### Create an instance from $class
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+ **Returns**: this method returns **mixed**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$relDef` | **array**  |  |
+| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -10672,7 +11074,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -10680,6 +11082,33 @@ public static function createRelation(
 |-----------|------|-------------|
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\OneToMany::createStaticFromShort
+
+```php
+protected static function createStaticFromShort(
+    $name, array $short
+): static|null
+```
+
+##### Create static::class from $short
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
 
 
 
@@ -10762,6 +11191,30 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\OneToMany::fromShort
+
+```php
+public static function fromShort( $name, array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToMany::getClass
 
 ```php
@@ -10805,7 +11258,7 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToMany::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation
+public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -10813,7 +11266,7 @@ public function getOpponent(): ORM\Relation
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Relation**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />
 
 
@@ -10878,6 +11331,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
@@ -10889,11 +11343,13 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
 * [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
-* [convertShort](#ormrelationonetooneconvertshort) Converts short form to assoc form
+* [createFilter](#ormrelationonetoonecreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
+* [createStaticFromShort](#ormrelationonetoonecreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
 * [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
+* [fromShort](#ormrelationonetoonefromshort) {@inheritDoc}
 * [getClass](#ormrelationonetoonegetclass) 
 * [getForeignKey](#ormrelationonetoonegetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetoonegetopponent) 
@@ -10903,7 +11359,9 @@ public function setRelated( ORM\Entity $self, $entity = null )
 #### ORM\Relation\OneToOne::__construct
 
 ```php
-public function __construct( string $name, string $class, string $opponent )
+public function __construct(
+    string $name, string $class, string $opponent, $filters = array()
+)
 ```
 
 ##### Owner constructor.
@@ -10921,6 +11379,7 @@ public function __construct( string $name, string $class, string $opponent )
 | `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
 
 
 
@@ -10978,28 +11437,27 @@ public function addRelated(
 
 
 
-#### ORM\Relation\OneToOne::convertShort
+#### ORM\Relation\OneToOne::createFilter
 
 ```php
-protected static function convertShort( string $name, array $relDef ): array
+protected static function createFilter( $class ): mixed
 ```
 
-##### Converts short form to assoc form
+##### Create an instance from $class
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+ **Returns**: this method returns **mixed**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$relDef` | **array**  |  |
+| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -11019,7 +11477,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -11027,6 +11485,33 @@ public static function createRelation(
 |-----------|------|-------------|
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\OneToOne::createStaticFromShort
+
+```php
+protected static function createStaticFromShort(
+    $name, array $short
+): static|null
+```
+
+##### Create static::class from $short
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
 
 
 
@@ -11109,6 +11594,30 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\OneToOne::fromShort
+
+```php
+public static function fromShort( $name, array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToOne::getClass
 
 ```php
@@ -11152,7 +11661,7 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToOne::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation
+public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -11160,7 +11669,7 @@ public function getOpponent(): ORM\Relation
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Relation**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />
 
 
@@ -11253,6 +11762,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
@@ -11264,11 +11774,13 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [__construct](#ormrelationowner__construct) Owner constructor.
 * [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
-* [convertShort](#ormrelationownerconvertshort) Converts short form to assoc form
+* [apply](#ormrelationownerapply) Apply where conditions for $entity on $fetcher
+* [createFilter](#ormrelationownercreatefilter) Create an instance from $class
 * [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
+* [fromShort](#ormrelationownerfromshort) {@inheritDoc}
 * [getClass](#ormrelationownergetclass) 
 * [getForeignKey](#ormrelationownergetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationownergetopponent) 
@@ -11353,28 +11865,53 @@ public function addRelated(
 
 
 
-#### ORM\Relation\Owner::convertShort
+#### ORM\Relation\Owner::apply
 
 ```php
-protected static function convertShort( string $name, array $relDef ): array
+public function apply( ORM\EntityFetcher $fetcher, ORM\Entity $entity )
 ```
 
-##### Converts short form to assoc form
+##### Apply where conditions for $entity on $fetcher
+
+Called from non-owner to find related elements. Example:
+  $user->fetch('articles') creates an EntityFetcher for Article and calls
+    $opponent->apply($fetcher, $user) that will call
+      $fetcher->where('authorId', $user->id)
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Relation\Owner::createFilter
+
+```php
+protected static function createFilter( $class ): mixed
+```
+
+##### Create an instance from $class
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+ **Returns**: this method returns **mixed**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$relDef` | **array**  |  |
+| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -11394,7 +11931,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -11484,6 +12021,30 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\Owner::fromShort
+
+```php
+public static function fromShort( $name, array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` |   |  |
+| `$short` | **array**  |  |
+
+
+
 #### ORM\Relation\Owner::getClass
 
 ```php
@@ -11527,7 +12088,7 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\Owner::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation
+public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -11535,7 +12096,7 @@ public function getOpponent(): ORM\Relation
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Relation**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />
 
 
@@ -13167,7 +13728,6 @@ Supported:
 * [columns](#ormquerybuilderquerybuildercolumns) Set $columns
 * [convertPlaceholders](#ormquerybuilderquerybuilderconvertplaceholders) Replaces question marks in $expression with $args
 * [delete](#ormquerybuilderquerybuilderdelete) Execute a delete statement on the current table with current where conditions
-* [first](#ormquerybuilderquerybuilderfirst) Get the first item of an array
 * [fullJoin](#ormquerybuilderquerybuilderfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormquerybuilderquerybuildergetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormquerybuilderquerybuildergetentitymanager) 
@@ -13410,29 +13970,6 @@ public function delete(): integer
  **Returns**: this method returns **integer**
 <br />**Response description:** The number of deleted rows
 <br />
-
-
-
-#### ORM\QueryBuilder\QueryBuilder::first
-
-```php
-private function first( ORM\QueryBuilder\iterable $array ): mixed|null
-```
-
-##### Get the first item of an array
-
-Stupid helper for a missing functionality in php
-
-**Visibility:** this method is **private**.
-<br />
- **Returns**: this method returns **mixed|null**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$array` | **iterable**  |  |
 
 
 
@@ -14865,6 +15402,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | OPT_CARDINALITY | `'cardinality'` |
 | OPT_OPPONENT | `'opponent'` |
 | OPT_TABLE | `'table'` |
+| OPT_FILTERS | `'filters'` |
 | CARDINALITY_ONE | `'one'` |
 | CARDINALITY_MANY | `'many'` |
 
@@ -14874,6 +15412,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
 | **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
@@ -14884,7 +15423,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 * [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
-* [convertShort](#ormrelationconvertshort) Converts short form to assoc form
+* [createFilter](#ormrelationcreatefilter) Create an instance from $class
 * [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationfetch) Fetch the relation
@@ -14949,28 +15488,27 @@ public function addRelated(
 
 
 
-#### ORM\Relation::convertShort
+#### ORM\Relation::createFilter
 
 ```php
-protected static function convertShort( string $name, array $relDef ): array
+protected static function createFilter( $class ): mixed
 ```
 
-##### Converts short form to assoc form
+##### Create an instance from $class
 
 
 
 **Static:** this method is **static**.
 <br />**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+ **Returns**: this method returns **mixed**
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
-| `$relDef` | **array**  |  |
+| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -14990,7 +15528,7 @@ public static function createRelation(
 <br />**Visibility:** this method is **public**.
 <br />
  **Returns**: this method returns **\ORM\Relation**
-<br />
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 ##### Parameters
 
@@ -15123,7 +15661,7 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation
+public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -15131,7 +15669,7 @@ public function getOpponent(): ORM\Relation
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Relation**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />
 
 
@@ -15214,6 +15752,10 @@ Supported:
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
 | **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
+| **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
+| **protected** | `$filters` | **array&lt; \ ORM \ EntityFetcher \ FilterInterface>** | A list of filters to apply additionally |
+| **protected** | `$filtersApplied` | **boolean** | Boolean if the filters where applied |
+| **protected static** | `$globalFilters` | **array&lt; \ ORM \ EntityFetcher \ FilterInterface[]>** | Filters that always should be applied for an entity |
 | **protected** | `$groupBy` | **array&lt;string>** | Group by conditions get concatenated with comma |
 | **protected** | `$joins` | **array&lt;string>** | Joins get concatenated with space |
 | **protected** | `$limit` | **integer** | Limit amount of rows |
@@ -15238,6 +15780,7 @@ Supported:
 * [all](#ormtestingentityfetchermockresultall) Get all rows from the query result
 * [andParenthesis](#ormtestingentityfetchermockresultandparenthesis) Add a parenthesis with AND
 * [andWhere](#ormtestingentityfetchermockresultandwhere) Add a where condition with AND.
+* [applyFilters](#ormtestingentityfetchermockresultapplyfilters) Apply the filters on $this
 * [close](#ormtestingentityfetchermockresultclose) Close parenthesis
 * [column](#ormtestingentityfetchermockresultcolumn) Add $column
 * [columns](#ormtestingentityfetchermockresultcolumns) Set $columns
@@ -15246,7 +15789,7 @@ Supported:
 * [count](#ormtestingentityfetchermockresultcount) Get the count of the resulting items
 * [createRelatedJoin](#ormtestingentityfetchermockresultcreaterelatedjoin) Create the join with $join type
 * [delete](#ormtestingentityfetchermockresultdelete) Execute a delete statement on the current table with current where conditions
-* [first](#ormtestingentityfetchermockresultfirst) Get the first item of an array
+* [filter](#ormtestingentityfetchermockresultfilter) Apply an additional $filter before executing
 * [fullJoin](#ormtestingentityfetchermockresultfulljoin) Full (outer) join $tableName with $options
 * [getDefaultOperator](#ormtestingentityfetchermockresultgetdefaultoperator) Get the default operator for $value
 * [getEntities](#ormtestingentityfetchermockresultgetentities) Get the entities for this result
@@ -15264,6 +15807,7 @@ Supported:
 * [limit](#ormtestingentityfetchermockresultlimit) Set $limit
 * [matches](#ormtestingentityfetchermockresultmatches) Add a regular expression that has to match
 * [modifier](#ormtestingentityfetchermockresultmodifier) Add $modifier
+* [normalizeFilter](#ormtestingentityfetchermockresultnormalizefilter) Converts callables into a CallableFilter
 * [offset](#ormtestingentityfetchermockresultoffset) Set $offset
 * [one](#ormtestingentityfetchermockresultone) Get the next row from the query result
 * [orderBy](#ormtestingentityfetchermockresultorderby) Order By $column in $direction
@@ -15272,6 +15816,7 @@ Supported:
 * [orWhereIn](#ormtestingentityfetchermockresultorwherein) Add a where in condition with OR.
 * [orWhereNotIn](#ormtestingentityfetchermockresultorwherenotin) Add a where not in condition with OR.
 * [parenthesis](#ormtestingentityfetchermockresultparenthesis) Alias for andParenthesis
+* [registerGlobalFilter](#ormtestingentityfetchermockresultregisterglobalfilter) Register $filter globally for $class
 * [reset](#ormtestingentityfetchermockresultreset) Reset the position of the cursor to the first row
 * [rightJoin](#ormtestingentityfetchermockresultrightjoin) Right (outer) join $tableName with $options
 * [setFetchMode](#ormtestingentityfetchermockresultsetfetchmode) Proxy to PDOStatement::setFetchMode()
@@ -15283,6 +15828,7 @@ Supported:
 * [whereIn](#ormtestingentityfetchermockresultwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockresultwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormtestingentityfetchermockresultwhereprefix) Get the prefix for a where condition or empty if not needed
+* [withoutFilter](#ormtestingentityfetchermockresultwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\Testing\EntityFetcherMock\Result::__construct
 
@@ -15407,6 +15953,22 @@ $query->andWhere('name = ?', ['John Doe']);
 | `$column` | **string**  | Column or expression with placeholders |
 | `$operator` | **string &#124; array**  | Operator, value or array of values |
 | `$value` | **string**  | Value (required when used with operator) |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::applyFilters
+
+```php
+protected function applyFilters()
+```
+
+##### Apply the filters on $this
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
 
 
 
@@ -15586,26 +16148,26 @@ public function delete(): integer
 
 
 
-#### ORM\Testing\EntityFetcherMock\Result::first
+#### ORM\Testing\EntityFetcherMock\Result::filter
 
 ```php
-private function first( ORM\QueryBuilder\iterable $array ): mixed|null
+public function filter( $filter ): $this
 ```
 
-##### Get the first item of an array
+##### Apply an additional $filter before executing
 
-Stupid helper for a missing functionality in php
 
-**Visibility:** this method is **private**.
+
+**Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed|null**
+ **Returns**: this method returns **$this**
 <br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$array` | **\ORM\QueryBuilder\iterable**  |  |
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -16001,6 +16563,32 @@ Add query modifiers such as SQL_CALC_FOUND_ROWS or DISTINCT.
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::normalizeFilter
+
+```php
+protected static function normalizeFilter(
+    $filter
+): ORM\EntityFetcher\FilterInterface
+```
+
+##### Converts callables into a CallableFilter
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\ORM\EntityFetcher\FilterInterface**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidArgument**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::offset
 
 ```php
@@ -16205,6 +16793,31 @@ public function parenthesis(): $this
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::registerGlobalFilter
+
+```php
+public static function registerGlobalFilter( $class, $filter )
+```
+
+##### Register $filter globally for $class
+
+A registered filter will be applied in all entity fetchers for the class if not excluded by
+`$fetcher->withoutFilter(Filter::class)`.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` |   |  |
+| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::reset
 
 ```php
@@ -16292,6 +16905,8 @@ public function setQuery( $query, array $args = null ): $this
 ##### Set a raw query or use different QueryBuilder
 
 For easier use and against sql injection it allows question mark placeholders.
+
+Please be aware that this query is not touched at all and neither filters nor where conditions are applied.
 
 **Visibility:** this method is **public**.
 <br />
@@ -16501,6 +17116,29 @@ private function wherePrefix( string $bool ): string
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$bool` | **string**  | The prefix to use ('AND' or 'OR') |
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::withoutFilter
+
+```php
+public function withoutFilter( string $filterClass ): $this
+```
+
+##### Exclude $filterClass for this fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$filterClass` | **string**  |  |
 
 
 

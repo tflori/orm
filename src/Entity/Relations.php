@@ -33,17 +33,24 @@ trait Relations
      */
     public static function getRelation($relation)
     {
+        static::bootIfNotBooted();
+
+        $em = EM::getInstance(static::class);
+        $name = $relation . 'Relation';
+        $method = $em->getNamer()->getMethodName($name, self::$namingSchemeMethods);
+
         if (!isset(static::$relations[$relation])) {
-            throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
+            if (!method_exists(static::class, $method)) {
+                throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
+            }
+            static::$relations[$relation] = call_user_func([static::class, $method]);
         }
 
-        $relDef = &static::$relations[$relation];
-
-        if (!$relDef instanceof Relation) {
-            $relDef = Relation::createRelation($relation, $relDef);
+        if (!static::$relations[$relation] instanceof Relation) {
+            static::$relations[$relation] = Relation::createRelation($relation, static::$relations[$relation]);
         }
 
-        return $relDef;
+        return static::$relations[$relation];
     }
 
     /**

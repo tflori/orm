@@ -23,7 +23,7 @@ class OneToMany extends Relation
      * @param string $name
      * @param string $class
      * @param string $opponent
-     * @param FilterInterface[] $filters
+     * @param FilterInterface[]|callable[] $filters
      */
     public function __construct($name, $class, $opponent, array $filters = [])
     {
@@ -31,6 +31,39 @@ class OneToMany extends Relation
         $this->class = $class;
         $this->opponent = $opponent;
         $this->filters = $filters;
+    }
+
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            return null;
+        } elseif ($short[0] === self::CARDINALITY_MANY) {
+            array_shift($short);
+        }
+
+        return static::createStaticFromShort($name, $short);
+    }
+
+    /**
+     * Create static::class from $short
+     *
+     * @param $name
+     * @param array $short
+     * @return static|null
+     */
+    protected static function createStaticFromShort($name, array $short)
+    {
+        // get filters
+        $filters = [];
+        if (count($short) === 3 && is_array($short[2])) {
+            $filters = array_map([self::class, 'createFilter'], array_pop($short));
+        }
+
+        if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {
+            return new static($name, $short[0], $short[1], $filters);
+        }
+        return null;
     }
 
     /**

@@ -10,6 +10,7 @@ use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
 use ORM\Exception\UndefinedRelation;
 use ORM\Exception\NoEntityManager;
+use ORM\Relation;
 use ORM\Relation\ManyToMany;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
@@ -68,6 +69,22 @@ class RelationsTest extends TestCase
                 'dmgd'
             ],
             [
+                RelationExample::class,
+                'mySnakeAssoc',
+                OneToOne::class,
+                Snake_Ucfirst::class,
+                null,
+                'relation'
+            ],
+            [
+                RelationExample::class,
+                'anotherSnake',
+                OneToOne::class,
+                Snake_Ucfirst::class,
+                null,
+                'relation'
+            ],
+            [
                 Snake_Ucfirst::class,
                 'relations',
                 OneToMany::class,
@@ -87,6 +104,15 @@ class RelationsTest extends TestCase
             [
                 Category::class,
                 'articles',
+                ManyToMany::class,
+                Article::class,
+                ['id' => 'category_id'],
+                'categories',
+                'article_category'
+            ],
+            [
+                Category::class,
+                'articlesAssoc',
                 ManyToMany::class,
                 Article::class,
                 ['id' => 'category_id'],
@@ -132,6 +158,42 @@ class RelationsTest extends TestCase
         self::expectExceptionMessage('Invalid short form for relation invalid');
 
         RelationExample::getRelation('invalid');
+    }
+
+    /** @test */
+    public function throwsWhenNoTableIsGiven()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Article::class,
+            ['id' => 'category_id'],
+            'categories',
+            // here comes the table: 'article_categories',
+        ]);
+    }
+
+    /** @test */
+    public function throwsWhenClassIsMissing()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Relation::OPT_OPPONENT => 'something',
+        ]);
+    }
+
+    /** @test */
+    public function throwsWhenOpponentAndReferenceIsMissing()
+    {
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('Invalid short form for relation test');
+
+        Relation::createRelation('test', [
+            Relation::OPT_CLASS => Article::class,
+        ]);
     }
 
     public function provideRelationDefinitionsWithReference()
