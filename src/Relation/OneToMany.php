@@ -70,16 +70,6 @@ class OneToMany extends Relation
     public function fetch(Entity $self, EntityManager $entityManager)
     {
         $owner = $this->getOpponent();
-        if (!$owner instanceof Owner) {
-            throw new InvalidConfiguration(sprintf(
-                'No owner defined for relation %s:%s referencing %s:%s',
-                get_class($self),
-                $this->name,
-                $this->class,
-                $this->opponent
-            ));
-        }
-
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $owner->apply($fetcher, $self);
@@ -93,11 +83,38 @@ class OneToMany extends Relation
     /** {@inheritdoc} */
     public function addJoin(EntityFetcher $fetcher, $join, $alias)
     {
-        $expression = [];
-        foreach ($this->getOpponent()->getReference() as $hisVar => $myVar) {
-            $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
+        $owner = $this->getOpponent();
+        $parenthesis = call_user_func([$fetcher, $join], $this->class, false, $this->name);
+        $owner->applyJoin($parenthesis, $alias, $this);
+        $parenthesis->close();
+    }
+
+    /**
+     * @return Owner
+     * @throws InvalidConfiguration
+     */
+    protected function getOpponent()
+    {
+        $opponent = call_user_func([ $this->class, 'getRelation' ], $this->opponent);
+
+        if (!$opponent) {
+            throw new InvalidConfiguration(sprintf(
+                "No owner defined for relation %s of entity %s",
+                $this->name,
+                $this->parent
+            ));
         }
 
-        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        if (!$opponent instanceof Owner) {
+            throw new InvalidConfiguration(sprintf(
+                "The opponent of a non-owner relation has to be the owner of the relation. Relation of type %s " .
+                "returned for relation %s of entity %s",
+                get_class($opponent),
+                $this->name,
+                $this->parent
+            ));
+        }
+
+        return $opponent;
     }
 }

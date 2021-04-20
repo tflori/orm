@@ -125,7 +125,7 @@ abstract class Relation
         $filters = array_map([static::class, 'createFilter'], $filters);
 
         if (!$class && (!$morphColumn || !$morph) || !$reference && !$opponent) {
-            throw new InvalidConfiguration('Invalid relation ' . $name . ' for entity ' . $parent);
+            throw new InvalidConfiguration(sprintf("Invalid relation %s for entity %s", $name, $parent));
         }
 
         if ($reference && $morphColumn && $morph) {
@@ -176,14 +176,6 @@ abstract class Relation
     public function getReference()
     {
         return $this->reference;
-    }
-
-    /**
-     * @return Owner|ManyToMany
-     */
-    public function getOpponent()
-    {
-        return call_user_func([ $this->class, 'getRelation' ], $this->opponent);
     }
 
     /**

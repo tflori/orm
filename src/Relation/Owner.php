@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
+use ORM\QueryBuilder\Parenthesis;
 use ORM\Relation;
 
 /**
@@ -74,6 +75,20 @@ class Owner extends Relation
         $foreignKey = $this->getForeignKey($entity, array_flip($this->reference));
         foreach ($foreignKey as $col => $value) {
             $fetcher->where($col, $value);
+        }
+    }
+
+    /**
+     * Adds the join clause to the entity fetcher
+     *
+     * @param Parenthesis $join
+     * @param string $yourAlias
+     * @param OneToMany $opponent
+     */
+    public function applyJoin(Parenthesis $join, $yourAlias, OneToMany $opponent)
+    {
+        foreach ($this->reference as $myColumn => $yourColumn) {
+            $join->where(sprintf("%s.%s = %s.%s", $yourAlias, $yourColumn, $opponent->name, $myColumn));
         }
     }
 

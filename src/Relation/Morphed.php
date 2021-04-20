@@ -9,7 +9,7 @@ use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
 use ORM\Exception\InvalidType;
 use ORM\Helper;
-use ORM\Relation;
+use ORM\QueryBuilder\Parenthesis;
 
 class Morphed extends Owner
 {
@@ -70,6 +70,29 @@ class Morphed extends Owner
         $foreignKey = $this->getForeignKey($entity, array_flip($reference));
         foreach ($foreignKey as $col => $value) {
             $fetcher->where($col, $value);
+        }
+    }
+
+    public function applyJoin(Parenthesis $join, $yourAlias, OneToMany $opponent)
+    {
+        if ($this->morphMap) {
+            $type = array_search($opponent->parent, $this->morphMap);
+            if (!$type) {
+                // maybe try with instance of then?
+                throw new InvalidType(sprintf(
+                    'Reference %s does not support entities of %s',
+                    $this->name,
+                    $opponent->parent
+                ));
+            }
+        } else {
+            $type = $opponent->parent;
+        }
+        $join->where(sprintf('%s.%s', $opponent->name, $this->morphColumn), '=', $type);
+
+        $reference = $this->getMorphedReference($type);
+        foreach ($reference as $myColumn => $yourColumn) {
+            $join->where(sprintf("%s.%s = %s.%s", $yourAlias, $yourColumn, $opponent->name, $myColumn));
         }
     }
 

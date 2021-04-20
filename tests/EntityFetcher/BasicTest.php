@@ -494,12 +494,20 @@ class BasicTest extends TestCase
     public function provideRelations()
     {
         return [
-            [RelationExample::class, 'dmgd', '"damaged_abbrv_case" AS dmgd ON "t0"."dmgd_id" = "dmgd"."id"'],
-            [DamagedABBRVCase::class, 'relation', '"relation_example" AS relation ON "t0"."id" = "relation"."dmgd_id"'],
+            [
+                RelationExample::class,
+                'dmgd',
+                '"damaged_abbrv_case" AS dmgd ON "t0"."dmgd_id" = "dmgd"."id"'
+            ],
+            [
+                DamagedABBRVCase::class,
+                'relation',
+                '"relation_example" AS relation ON \("t0"."id" = "relation"."dmgd_id"\)'
+            ],
             [
                 RelationExample::class,
                 'contactPhones',
-                '"contact_phone" AS contactPhones ON "t0"."id" = "contactPhones"."relation_id"'
+                '"contact_phone" AS contactPhones ON \("t0"."id" = "contactPhones"."relation_id"\)'
             ],
             [
                 Article::class,
@@ -557,7 +565,7 @@ class BasicTest extends TestCase
 
         self::assertRegExp(
             '/SELECT DISTINCT t0\.\* .* JOIN "contact_phone" AS contactPhones ON ' .
-            '"relation"."id" = "contactPhones"."relation_id"/',
+            '\("relation"."id" = "contactPhones"."relation_id"\)/',
             $fetcher->getQuery()
         );
     }
