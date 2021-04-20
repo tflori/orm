@@ -48,6 +48,21 @@ class Morphed extends Owner
         }
     }
 
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            array_shift($short);
+        }
+
+        if (count($short) === 2 && is_array($short[0]) && count($short[0]) === 1 && is_array($short[1])) {
+            foreach ($short[0] as $morphColumn => $morph) {
+                return new self($name, $morphColumn, $morph, $short[1]);
+            }
+        }
+        return null;
+    }
+
     public function apply(EntityFetcher $fetcher, Entity $entity)
     {
         $type = $this->getType($entity);

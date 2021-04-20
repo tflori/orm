@@ -66,6 +66,7 @@ abstract class Relation
                 ManyToMany::class,
                 OneToMany::class,
                 OneToOne::class,
+                Morphed::class,
             ];
             /** @var string|Relation $relationClass */
             foreach ($relationClasses as $relationClass) {
