@@ -20,7 +20,7 @@ class OneToOne extends OneToMany
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         // the cardinality is mandatory for one to one
         if ($short[0] !== self::CARDINALITY_ONE) {
@@ -28,6 +28,6 @@ class OneToOne extends OneToMany
         }
         array_shift($short);
 
-        return static::createStaticFromShort($name, $short);
+        return static::createStaticFromShort($short);
     }
 }

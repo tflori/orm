@@ -31,14 +31,12 @@ class Morphed extends Owner
 
     /**
      * Morphed constructor.
-     * @param string $name
      * @param string $morphColumn
      * @param string|array $morph
      * @param array $reference
      */
-    public function __construct($name, $morphColumn, $morph, array $reference)
+    public function __construct($morphColumn, $morph, array $reference)
     {
-        $this->name = $name;
         $this->morphColumn = $morphColumn;
         $this->reference = $reference;
         if (is_array($morph)) {
@@ -49,7 +47,7 @@ class Morphed extends Owner
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
             array_shift($short);
@@ -57,7 +55,7 @@ class Morphed extends Owner
 
         if (count($short) === 2 && is_array($short[0]) && count($short[0]) === 1 && is_array($short[1])) {
             foreach ($short[0] as $morphColumn => $morph) {
-                return new self($name, $morphColumn, $morph, $short[1]);
+                return new self($morphColumn, $morph, $short[1]);
             }
         }
         return null;

@@ -24,26 +24,24 @@ class Owner extends Relation
     /**
      * Owner constructor.
      *
-     * @param string $name
      * @param string $class
      * @param array  $reference
      */
-    public function __construct($name, $class, array $reference)
+    public function __construct($class, array $reference)
     {
-        $this->name      = $name;
         $this->class     = $class;
         $this->reference = $reference;
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
             array_shift($short);
         }
 
         if (count($short) === 2 && is_string($short[0]) && is_array($short[1])) {
-            return new self($name, $short[0], $short[1]);
+            return new self($short[0], $short[1]);
         }
         return null;
     }
@@ -87,7 +85,11 @@ class Owner extends Relation
     public function setRelated(Entity $self, Entity $entity = null)
     {
         if ($entity !== null && !$entity instanceof $this->class) {
-            throw new InvalidRelation('Invalid entity for relation ' . $this->name);
+            throw new InvalidRelation(sprintf(
+                "Invalid entity for relation %s of entity %s",
+                $this->name,
+                $this->parent
+            ));
         }
 
         foreach ($this->reference as $fkAttribute => $attribute) {

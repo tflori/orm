@@ -27,30 +27,33 @@ trait Relations
      *
      * It normalize the short definition form and create a Relation object from it.
      *
-     * @param string $relation
+     * @param string $name
      * @return Relation
      * @throws UndefinedRelation
      */
-    public static function getRelation($relation)
+    public static function getRelation($name)
     {
         static::bootIfNotBooted();
 
         $em = EM::getInstance(static::class);
-        $name = $relation . 'Relation';
-        $method = $em->getNamer()->getMethodName($name, self::$namingSchemeMethods);
+        $method = $em->getNamer()->getMethodName($name . 'Relation', self::$namingSchemeMethods);
 
-        if (!isset(static::$relations[$relation])) {
+        if (!isset(static::$relations[$name])) {
             if (!method_exists(static::class, $method)) {
-                throw new UndefinedRelation('Relation ' . $relation . ' is not defined');
+                throw new UndefinedRelation('Relation ' . $name . ' is not defined');
             }
-            static::$relations[$relation] = call_user_func([static::class, $method]);
+            $relation = call_user_func([static::class, $method]);
+            $relation->bind(static::class, $name);
+            static::$relations[$name] = $relation;
         }
 
-        if (!static::$relations[$relation] instanceof Relation) {
-            static::$relations[$relation] = Relation::createRelation($relation, static::$relations[$relation]);
+        if (!static::$relations[$name] instanceof Relation) {
+            $relation = Relation::createRelation(static::class, $name, static::$relations[$name]);
+            $relation->bind(static::class, $name);
+            static::$relations[$name] = $relation;
         }
 
-        return static::$relations[$relation];
+        return static::$relations[$name];
     }
 
     /**

@@ -25,16 +25,14 @@ class ManyToMany extends Relation
     /**
      * ManyToMany constructor.
      *
-     * @param string $name
      * @param string $class
      * @param array $reference
      * @param string $opponent
      * @param string $table
      * @param FilterInterface[]|callable[] $filters
      */
-    public function __construct($name, $class, array $reference, $opponent, $table, array $filters = [])
+    public function __construct($class, array $reference, $opponent, $table, array $filters = [])
     {
-        $this->name = $name;
         $this->class = $class;
         $this->opponent = $opponent;
         $this->reference = $reference;
@@ -43,7 +41,7 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         // remove cardinality if given
         if ($short[0] === self::CARDINALITY_MANY) {
@@ -59,7 +57,7 @@ class ManyToMany extends Relation
         if (count($short) === 4 &&
             is_string($short[0]) && is_array($short[1]) && is_string($short[2]) && is_string($short[3])
         ) {
-            return new self($name, $short[0], $short[1], $short[2], $short[3], $filters);
+            return new self($short[0], $short[1], $short[2], $short[3], $filters);
         }
         return null;
     }
@@ -127,7 +125,11 @@ class ManyToMany extends Relation
         $associations = [];
         foreach ($entities as $entity) {
             if (!$entity instanceof $this->class) {
-                throw new InvalidRelation('Invalid entity for relation ' . $this->name);
+                throw new InvalidRelation(sprintf(
+                    "Invalid entity for relation %s of entity %s",
+                    $this->name,
+                    $this->parent
+                ));
             }
 
             $association = $baseAssociation;
@@ -178,7 +180,11 @@ class ManyToMany extends Relation
 
         foreach ($entities as $entity) {
             if (!$entity instanceof $this->class) {
-                throw new InvalidRelation('Invalid entity for relation ' . $this->name);
+                throw new InvalidRelation(sprintf(
+                    "Invalid entity for relation %s of entity %s",
+                    $this->name,
+                    $this->parent
+                ));
             }
 
             $condition = [];

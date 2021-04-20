@@ -30,6 +30,10 @@ abstract class Relation
     const CARDINALITY_ONE  = 'one';
     const CARDINALITY_MANY = 'many';
 
+    /** The parent entity that defined this relation
+     * @var string */
+    protected $parent;
+
     /** The name of the relation for error messages
      * @var string */
     protected $name;
@@ -53,12 +57,13 @@ abstract class Relation
     /**
      * Factory for relation definition object
      *
+     * @param string $parent
      * @param string $name
      * @param array $relDef
      * @return Relation
      * @throws InvalidConfiguration
      */
-    public static function createRelation($name, $relDef)
+    public static function createRelation($parent, $name, $relDef)
     {
         if (isset($relDef[0])) {
             $relationClasses = [
@@ -70,27 +75,26 @@ abstract class Relation
             ];
             /** @var string|Relation $relationClass */
             foreach ($relationClasses as $relationClass) {
-                if ($relation = $relationClass::fromShort($name, $relDef)) {
+                if ($relation = $relationClass::fromShort($relDef)) {
                     return $relation;
                 }
             }
-            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
+            throw new InvalidConfiguration('Invalid short form for relation ' . $name . ' for entity ' . $parent);
         }
 
-        return self::fromAssoc($name, $relDef);
+        return self::fromAssoc($parent, $name, $relDef);
     }
 
     /**
      * Creates a relation from short form
      *
-     * @param string $name
      * @param array $short
      * @internal
      * @see Relation::createRelation()
      * @return ?Relation
      * @codeCoverageIgnore
      */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         return null;
     }
@@ -98,14 +102,15 @@ abstract class Relation
     /**
      * Create a relation by assoc definition
      *
-     * @param $name
+     * @param string $parent
+     * @param string $name
      * @param array $relDef
      * @internal
      * @see Relation::createRelation()
      * @return Relation
      * @throws InvalidConfiguration
      */
-    protected static function fromAssoc($name, array $relDef)
+    protected static function fromAssoc($parent, $name, array $relDef)
     {
         $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
         $morphColumn = isset($relDef[self::OPT_MORPH_COLUMN]) ? $relDef[self::OPT_MORPH_COLUMN] : null;
@@ -119,20 +124,20 @@ abstract class Relation
         // create instances from filter classes
         $filters = array_map([static::class, 'createFilter'], $filters);
 
-        if (!$class || !$reference && !$opponent) {
-            throw new InvalidConfiguration('Invalid short form for relation ' . $name);
+        if (!$class && (!$morphColumn || !$morph) || !$reference && !$opponent) {
+            throw new InvalidConfiguration('Invalid relation ' . $name . ' for entity ' . $parent);
         }
 
         if ($reference && $morphColumn && $morph) {
-            return new Morphed($name, $morphColumn, $morph, $reference);
+            return new Morphed($morphColumn, $morph, $reference);
         } elseif ($reference && !isset($table)) {
-            return new Owner($name, $class, $reference);
+            return new Owner($class, $reference);
         } elseif ($table) {
-            return new ManyToMany($name, $class, $reference, $opponent, $table, $filters);
+            return new ManyToMany($class, $reference, $opponent, $table, $filters);
         } elseif (!$cardinality || $cardinality === self::CARDINALITY_MANY) {
-            return new OneToMany($name, $class, $opponent, $filters);
+            return new OneToMany($class, $opponent, $filters);
         } else {
-            return new OneToOne($name, $class, $opponent, $filters);
+            return new OneToOne($class, $opponent, $filters);
         }
     }
 
@@ -151,11 +156,18 @@ abstract class Relation
     }
 
     /**
-     * @return string
+     * Bind this relation to class $parent with $name
+     *
+     * @param string $parent
+     * @param string $name
      */
-    public function getClass()
+    public function bind($parent, $name)
     {
-        return $this->class;
+        if ($this->name || $this->parent) {
+            throw new \LogicException('Method ' . __METHOD__ . ' should only be called once');
+        }
+        $this->name = $name;
+        $this->parent = $parent;
     }
 
     /**
@@ -272,6 +284,7 @@ abstract class Relation
      * @param EntityFetcher $fetcher
      * @param string        $join
      * @param string        $alias
+     * @internal Used only from EntityFetcher
      * @return mixed
      */
     abstract public function addJoin(EntityFetcher $fetcher, $join, $alias);
