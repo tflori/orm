@@ -96,6 +96,7 @@ permalink: /reference.html
 * [InvalidConfiguration](#ormexceptioninvalidconfiguration)
 * [InvalidName](#ormexceptioninvalidname)
 * [InvalidRelation](#ormexceptioninvalidrelation)
+* [InvalidType](#ormexceptioninvalidtype)
 * [NoConnection](#ormexceptionnoconnection)
 * [NoEntity](#ormexceptionnoentity)
 * [NoEntityManager](#ormexceptionnoentitymanager)
@@ -124,6 +125,7 @@ permalink: /reference.html
 ### ORM\Relation
 
 * [ManyToMany](#ormrelationmanytomany)
+* [Morphed](#ormrelationmorphed)
 * [OneToMany](#ormrelationonetomany)
 * [OneToOne](#ormrelationonetoone)
 * [Owner](#ormrelationowner)
@@ -2860,7 +2862,7 @@ $refresh to true.
 #### ORM\Entity::getRelation
 
 ```php
-public static function getRelation( string $relation ): ORM\Relation
+public static function getRelation( string $name ): ORM\Relation
 ```
 
 ##### Get the definition for $relation
@@ -2877,7 +2879,7 @@ It normalize the short definition form and create a Relation object from it.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$relation` | **string**  |  |
+| `$name` | **string**  |  |
 
 
 
@@ -8777,6 +8779,23 @@ Every ORM exception extends this class. So you can easily catch all exceptions f
 
 ---
 
+### ORM\Exception\InvalidType
+
+**Extends:** [ORM\Exception](#ormexception)
+
+
+#### Base exception for ORM
+
+Every ORM exception extends this class. So you can easily catch all exceptions from ORM.
+
+
+
+
+
+
+
+---
+
 ### ORM\Dbal\Type\Json
 
 **Extends:** [ORM\Dbal\Type](#ormdbaltype)
@@ -8895,6 +8914,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 | **protected** | `$table` | **string** | The table that holds the foreign keys |
 
@@ -8903,7 +8923,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 #### Methods
 
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
-* [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
+* [addJoin](#ormrelationmanytomanyaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
 * [createFilter](#ormrelationmanytomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
@@ -8911,10 +8931,8 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
 * [fromShort](#ormrelationmanytomanyfromshort) {@inheritDoc}
-* [getClass](#ormrelationmanytomanygetclass) 
 * [getForeignKey](#ormrelationmanytomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationmanytomanygetopponent) 
-* [getReference](#ormrelationmanytomanygetreference) 
 * [getTable](#ormrelationmanytomanygettable) 
 * [setRelated](#ormrelationmanytomanysetrelated) Set the relation to $entity
 
@@ -8922,8 +8940,8 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 ```php
 public function __construct(
-    string $name, string $class, array $reference, string $opponent, 
-    string $table, $filters = array()
+    string $class, array $reference, string $opponent, string $table, 
+    $filters = array()
 )
 ```
 
@@ -8939,7 +8957,6 @@ public function __construct(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$reference` | **array**  |  |
 | `$opponent` | **string**  |  |
@@ -8951,27 +8968,24 @@ public function __construct(
 #### ORM\Relation\ManyToMany::addJoin
 
 ```php
-public function addJoin(
-    ORM\EntityFetcher $fetcher, string $join, string $alias
-): mixed
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
 ```
 
-##### Join this relation in $fetcher
+##### {@inheritdoc}
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
-| `$join` | **string**  |  |
-| `$alias` | **string**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
 
 
 
@@ -9029,7 +9043,7 @@ protected static function createFilter( $class ): mixed
 
 ```php
 public static function createRelation(
-    string $name, array $relDef
+    string $parent, string $name, array $relDef
 ): ORM\Relation
 ```
 
@@ -9047,6 +9061,7 @@ public static function createRelation(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` | **string**  |  |
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
 
@@ -9133,7 +9148,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\ManyToMany::fromShort
 
 ```php
-public static function fromShort( $name, array $short )
+public static function fromShort( array $short )
 ```
 
 ##### {@inheritDoc}
@@ -9149,24 +9164,7 @@ public static function fromShort( $name, array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\ManyToMany::getClass
-
-```php
-public function getClass(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
 
 
 
@@ -9197,32 +9195,16 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\ManyToMany::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
+protected function getOpponent(): ORM\Relation\ManyToMany
 ```
 
 
 
 
-**Visibility:** this method is **public**.
+**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
-<br />
-
-
-
-#### ORM\Relation\ManyToMany::getReference
-
-```php
-public function getReference(): array
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
+ **Returns**: this method returns **\ORM\Relation\ManyToMany**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 
 
@@ -9262,6 +9244,500 @@ public function setRelated( ORM\Entity $self, $entity = null )
 |-----------|------|-------------|
 | `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity &#124; null**  |  |
+
+
+
+
+
+---
+
+### ORM\Relation\Morphed
+
+**Extends:** [ORM\Relation\Owner](#ormrelationowner)
+
+
+#### Owner Relation
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
+| **protected** | `$morphColumn` | **string** | Column where the type gets persisted |
+| **protected** | `$morphMap` | **array** | Array of value =&gt; class pairs |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
+| **protected** | `$reference` | **array** | Reference definition |
+| **protected** | `$super` | **string** | The parent class that all morphed elements have to extend |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationmorphed__construct) Morphed constructor.
+* [addJoin](#ormrelationmorphedaddjoin) {@inheritdoc}
+* [addRelated](#ormrelationmorphedaddrelated) Add $entities to association table
+* [apply](#ormrelationmorphedapply) Apply where conditions for $entity on $fetcher
+* [applyJoin](#ormrelationmorphedapplyjoin) Adds the join clause to the entity fetcher
+* [cleanReferences](#ormrelationmorphedcleanreferences) Belongs to set related
+* [createFilter](#ormrelationmorphedcreatefilter) Create an instance from $class
+* [createRelation](#ormrelationmorphedcreaterelation) Factory for relation definition object
+* [deleteRelated](#ormrelationmorpheddeleterelated) Delete $entities from association table
+* [fetch](#ormrelationmorphedfetch) Fetch the relation
+* [fetchAll](#ormrelationmorphedfetchall) Fetch all from the relation
+* [fromShort](#ormrelationmorphedfromshort) {@inheritDoc}
+* [getForeignKey](#ormrelationmorphedgetforeignkey) Get the foreign key for the given reference
+* [getMorphedClass](#ormrelationmorphedgetmorphedclass) Get the class for $type
+* [getMorphedReference](#ormrelationmorphedgetmorphedreference) Get the reference for $type
+* [getType](#ormrelationmorphedgettype) Get the type of an entity
+* [hasForeignKeysByType](#ormrelationmorphedhasforeignkeysbytype) Check if the foreign keys differ by type
+* [setRelated](#ormrelationmorphedsetrelated) Set the relation to $entity
+
+#### ORM\Relation\Morphed::__construct
+
+```php
+public function __construct( string $morphColumn, $morph, array $reference )
+```
+
+##### Morphed constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$morphColumn` | **string**  |  |
+| `$morph` | **string &#124; array**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\Morphed::addJoin
+
+```php
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
+```
+
+##### {@inheritdoc}
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
+
+
+
+#### ORM\Relation\Morphed::addRelated
+
+```php
+public function addRelated(
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Morphed::apply
+
+```php
+public function apply( ORM\EntityFetcher $fetcher, ORM\Entity $entity )
+```
+
+##### Apply where conditions for $entity on $fetcher
+
+Called from non-owner to find related elements. Example:
+  $user->fetch('articles') creates an EntityFetcher for Article and calls
+    $opponent->apply($fetcher, $user) that will call
+      $fetcher->where('authorId', $user->id)
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$entity` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Relation\Morphed::applyJoin
+
+```php
+public function applyJoin(
+    ORM\QueryBuilder\Parenthesis $join, string $yourAlias, 
+    ORM\Relation\OneToMany $opponent
+)
+```
+
+##### Adds the join clause to the entity fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` | **\ORM\QueryBuilder\Parenthesis**  |  |
+| `$yourAlias` | **string**  |  |
+| `$opponent` | **OneToMany**  |  |
+
+
+
+#### ORM\Relation\Morphed::cleanReferences
+
+```php
+protected function cleanReferences( ORM\Entity $self, string $newType = null )
+```
+
+##### Belongs to set related
+
+When we define different columns per type for the id we have to clean up every column
+that is currently unused to prevent cascaded removals.
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$newType` | **string**  |  |
+
+
+
+#### ORM\Relation\Morphed::createFilter
+
+```php
+protected static function createFilter( $class ): mixed
+```
+
+##### Create an instance from $class
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string &#124; mixed**  |  |
+
+
+
+#### ORM\Relation\Morphed::createRelation
+
+```php
+public static function createRelation(
+    string $parent, string $name, array $relDef
+): ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$parent` | **string**  |  |
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\Morphed::deleteRelated
+
+```php
+public function deleteRelated(
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Morphed::fetch
+
+```php
+public function fetch(
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Morphed::fetchAll
+
+```php
+public function fetchAll(
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Morphed::fromShort
+
+```php
+public static function fromShort( array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$short` | **array**  |  |
+
+
+
+#### ORM\Relation\Morphed::getForeignKey
+
+```php
+protected function getForeignKey( ORM\Entity $self, array $reference ): array
+```
+
+##### Get the foreign key for the given reference
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$reference` | **array**  |  |
+
+
+
+#### ORM\Relation\Morphed::getMorphedClass
+
+```php
+protected function getMorphedClass( string $type ): string
+```
+
+##### Get the class for $type
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **string**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidType**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$type` | **string**  |  |
+
+
+
+#### ORM\Relation\Morphed::getMorphedReference
+
+```php
+protected function getMorphedReference( string $type ): array
+```
+
+##### Get the reference for $type
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **array**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidType**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$type` | **string**  |  |
+
+
+
+#### ORM\Relation\Morphed::getType
+
+```php
+protected function getType( $class ): integer|string
+```
+
+##### Get the type of an entity
+
+Because of morph maps the type could be something different than the class name.
+
+If the type is not a subclass of $this->super or the it throws.
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **integer|string**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidType**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **\ORM\Entity &#124; string**  |  |
+
+
+
+#### ORM\Relation\Morphed::hasForeignKeysByType
+
+```php
+protected function hasForeignKeysByType(): boolean
+```
+
+##### Check if the foreign keys differ by type
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
+#### ORM\Relation\Morphed::setRelated
+
+```php
+public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity**  |  |
 
 
 
@@ -10931,6 +11407,7 @@ Return false to stop event execution.
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
@@ -10938,7 +11415,7 @@ Return false to stop event execution.
 #### Methods
 
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
-* [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
+* [addJoin](#ormrelationonetomanyaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
 * [createFilter](#ormrelationonetomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
@@ -10947,17 +11424,15 @@ Return false to stop event execution.
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
 * [fromShort](#ormrelationonetomanyfromshort) {@inheritDoc}
-* [getClass](#ormrelationonetomanygetclass) 
 * [getForeignKey](#ormrelationonetomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetomanygetopponent) 
-* [getReference](#ormrelationonetomanygetreference) 
 * [setRelated](#ormrelationonetomanysetrelated) Set the relation to $entity
 
 #### ORM\Relation\OneToMany::__construct
 
 ```php
 public function __construct(
-    string $name, string $class, string $opponent, $filters = array()
+    string $class, string $opponent, $filters = array()
 )
 ```
 
@@ -10973,7 +11448,6 @@ public function __construct(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
 | `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
@@ -10983,27 +11457,24 @@ public function __construct(
 #### ORM\Relation\OneToMany::addJoin
 
 ```php
-public function addJoin(
-    ORM\EntityFetcher $fetcher, string $join, string $alias
-): mixed
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
 ```
 
-##### Join this relation in $fetcher
+##### {@inheritdoc}
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
-| `$join` | **string**  |  |
-| `$alias` | **string**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
 
 
 
@@ -11062,7 +11533,7 @@ protected static function createFilter( $class ): mixed
 
 ```php
 public static function createRelation(
-    string $name, array $relDef
+    string $parent, string $name, array $relDef
 ): ORM\Relation
 ```
 
@@ -11080,6 +11551,7 @@ public static function createRelation(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` | **string**  |  |
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
 
@@ -11088,9 +11560,7 @@ public static function createRelation(
 #### ORM\Relation\OneToMany::createStaticFromShort
 
 ```php
-protected static function createStaticFromShort(
-    $name, array $short
-): static|null
+protected static function createStaticFromShort( array $short ): static|null
 ```
 
 ##### Create static::class from $short
@@ -11107,7 +11577,6 @@ protected static function createStaticFromShort(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -11194,7 +11663,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\OneToMany::fromShort
 
 ```php
-public static function fromShort( $name, array $short )
+public static function fromShort( array $short )
 ```
 
 ##### {@inheritDoc}
@@ -11210,24 +11679,7 @@ public static function fromShort( $name, array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\OneToMany::getClass
-
-```php
-public function getClass(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
 
 
 
@@ -11258,32 +11710,16 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToMany::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
+protected function getOpponent(): ORM\Relation\Owner
 ```
 
 
 
 
-**Visibility:** this method is **public**.
+**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
-<br />
-
-
-
-#### ORM\Relation\OneToMany::getReference
-
-```php
-public function getReference(): array
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
+ **Returns**: this method returns **\ORM\Relation\Owner**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 
 
@@ -11334,6 +11770,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
@@ -11341,7 +11778,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 #### Methods
 
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
-* [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
+* [addJoin](#ormrelationonetooneaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
 * [createFilter](#ormrelationonetoonecreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
@@ -11350,17 +11787,15 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
 * [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
 * [fromShort](#ormrelationonetoonefromshort) {@inheritDoc}
-* [getClass](#ormrelationonetoonegetclass) 
 * [getForeignKey](#ormrelationonetoonegetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetoonegetopponent) 
-* [getReference](#ormrelationonetoonegetreference) 
 * [setRelated](#ormrelationonetoonesetrelated) Set the relation to $entity
 
 #### ORM\Relation\OneToOne::__construct
 
 ```php
 public function __construct(
-    string $name, string $class, string $opponent, $filters = array()
+    string $class, string $opponent, $filters = array()
 )
 ```
 
@@ -11376,7 +11811,6 @@ public function __construct(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$opponent` | **string**  |  |
 | `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
@@ -11386,27 +11820,24 @@ public function __construct(
 #### ORM\Relation\OneToOne::addJoin
 
 ```php
-abstract public function addJoin(
-    ORM\EntityFetcher $fetcher, string $join, string $alias
-): mixed
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
 ```
 
-##### Join this relation in $fetcher
+##### {@inheritdoc}
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
-| `$join` | **string**  |  |
-| `$alias` | **string**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
 
 
 
@@ -11465,7 +11896,7 @@ protected static function createFilter( $class ): mixed
 
 ```php
 public static function createRelation(
-    string $name, array $relDef
+    string $parent, string $name, array $relDef
 ): ORM\Relation
 ```
 
@@ -11483,6 +11914,7 @@ public static function createRelation(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` | **string**  |  |
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
 
@@ -11491,9 +11923,7 @@ public static function createRelation(
 #### ORM\Relation\OneToOne::createStaticFromShort
 
 ```php
-protected static function createStaticFromShort(
-    $name, array $short
-): static|null
+protected static function createStaticFromShort( array $short ): static|null
 ```
 
 ##### Create static::class from $short
@@ -11510,7 +11940,6 @@ protected static function createStaticFromShort(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -11597,7 +12026,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\OneToOne::fromShort
 
 ```php
-public static function fromShort( $name, array $short )
+public static function fromShort( array $short )
 ```
 
 ##### {@inheritDoc}
@@ -11613,24 +12042,7 @@ public static function fromShort( $name, array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\OneToOne::getClass
-
-```php
-public function getClass(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
 
 
 
@@ -11661,32 +12073,16 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToOne::getOpponent
 
 ```php
-public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
+protected function getOpponent(): ORM\Relation\Owner
 ```
 
 
 
 
-**Visibility:** this method is **public**.
+**Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
-<br />
-
-
-
-#### ORM\Relation\OneToOne::getReference
-
-```php
-public function getReference(): array
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
+ **Returns**: this method returns **\ORM\Relation\Owner**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
 
 
 
@@ -11765,6 +12161,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
@@ -11772,25 +12169,23 @@ public function setRelated( ORM\Entity $self, $entity = null )
 #### Methods
 
 * [__construct](#ormrelationowner__construct) Owner constructor.
-* [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
+* [addJoin](#ormrelationowneraddjoin) {@inheritdoc}
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
 * [apply](#ormrelationownerapply) Apply where conditions for $entity on $fetcher
+* [applyJoin](#ormrelationownerapplyjoin) Adds the join clause to the entity fetcher
 * [createFilter](#ormrelationownercreatefilter) Create an instance from $class
 * [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
 * [fromShort](#ormrelationownerfromshort) {@inheritDoc}
-* [getClass](#ormrelationownergetclass) 
 * [getForeignKey](#ormrelationownergetforeignkey) Get the foreign key for the given reference
-* [getOpponent](#ormrelationownergetopponent) 
-* [getReference](#ormrelationownergetreference) 
 * [setRelated](#ormrelationownersetrelated) Set the relation to $entity
 
 #### ORM\Relation\Owner::__construct
 
 ```php
-public function __construct( string $name, string $class, array $reference )
+public function __construct( string $class, array $reference )
 ```
 
 ##### Owner constructor.
@@ -11805,7 +12200,6 @@ public function __construct( string $name, string $class, array $reference )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` | **string**  |  |
 | `$class` | **string**  |  |
 | `$reference` | **array**  |  |
 
@@ -11814,27 +12208,24 @@ public function __construct( string $name, string $class, array $reference )
 #### ORM\Relation\Owner::addJoin
 
 ```php
-public function addJoin(
-    ORM\EntityFetcher $fetcher, string $join, string $alias
-): mixed
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
 ```
 
-##### Join this relation in $fetcher
+##### {@inheritdoc}
 
 
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **mixed**
-<br />
+
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
-| `$join` | **string**  |  |
-| `$alias` | **string**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
 
 
 
@@ -11891,6 +12282,33 @@ Called from non-owner to find related elements. Example:
 
 
 
+#### ORM\Relation\Owner::applyJoin
+
+```php
+public function applyJoin(
+    ORM\QueryBuilder\Parenthesis $join, string $yourAlias, 
+    ORM\Relation\OneToMany $opponent
+)
+```
+
+##### Adds the join clause to the entity fetcher
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$join` | **\ORM\QueryBuilder\Parenthesis**  |  |
+| `$yourAlias` | **string**  |  |
+| `$opponent` | **OneToMany**  |  |
+
+
+
 #### ORM\Relation\Owner::createFilter
 
 ```php
@@ -11919,7 +12337,7 @@ protected static function createFilter( $class ): mixed
 
 ```php
 public static function createRelation(
-    string $name, array $relDef
+    string $parent, string $name, array $relDef
 ): ORM\Relation
 ```
 
@@ -11937,6 +12355,7 @@ public static function createRelation(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` | **string**  |  |
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
 
@@ -12024,7 +12443,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\Owner::fromShort
 
 ```php
-public static function fromShort( $name, array $short )
+public static function fromShort( array $short )
 ```
 
 ##### {@inheritDoc}
@@ -12040,24 +12459,7 @@ public static function fromShort( $name, array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$name` |   |  |
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\Owner::getClass
-
-```php
-public function getClass(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
 
 
 
@@ -12082,38 +12484,6 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 |-----------|------|-------------|
 | `$self` | **\ORM\Entity**  |  |
 | `$reference` | **array**  |  |
-
-
-
-#### ORM\Relation\Owner::getOpponent
-
-```php
-public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
-<br />
-
-
-
-#### ORM\Relation\Owner::getReference
-
-```php
-public function getReference(): array
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
 
 
 
@@ -15398,6 +15768,8 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | Name | Value |
 |------|-------|
 | OPT_CLASS | `'class'` |
+| OPT_MORPH_COLUMN | `'morphColumn'` |
+| OPT_MORPH | `'morph'` |
 | OPT_REFERENCE | `'reference'` |
 | OPT_CARDINALITY | `'cardinality'` |
 | OPT_OPPONENT | `'opponent'` |
@@ -15415,51 +15787,21 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
 
 #### Methods
 
-* [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
 * [createFilter](#ormrelationcreatefilter) Create an instance from $class
 * [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationfetch) Fetch the relation
 * [fetchAll](#ormrelationfetchall) Fetch all from the relation
-* [getClass](#ormrelationgetclass) 
 * [getForeignKey](#ormrelationgetforeignkey) Get the foreign key for the given reference
-* [getOpponent](#ormrelationgetopponent) 
-* [getReference](#ormrelationgetreference) 
 * [setRelated](#ormrelationsetrelated) Set the relation to $entity
-
-#### ORM\Relation::addJoin
-
-```php
-abstract public function addJoin(
-    ORM\EntityFetcher $fetcher, string $join, string $alias
-): mixed
-```
-
-##### Join this relation in $fetcher
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$fetcher` | **EntityFetcher**  |  |
-| `$join` | **string**  |  |
-| `$alias` | **string**  |  |
-
-
 
 #### ORM\Relation::addRelated
 
@@ -15516,7 +15858,7 @@ protected static function createFilter( $class ): mixed
 
 ```php
 public static function createRelation(
-    string $name, array $relDef
+    string $parent, string $name, array $relDef
 ): ORM\Relation
 ```
 
@@ -15534,6 +15876,7 @@ public static function createRelation(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` | **string**  |  |
 | `$name` | **string**  |  |
 | `$relDef` | **array**  |  |
 
@@ -15618,22 +15961,6 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
-#### ORM\Relation::getClass
-
-```php
-public function getClass(): string
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **string**
-<br />
-
-
-
 #### ORM\Relation::getForeignKey
 
 ```php
@@ -15655,38 +15982,6 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 |-----------|------|-------------|
 | `$self` | **Entity**  |  |
 | `$reference` | **array**  |  |
-
-
-
-#### ORM\Relation::getOpponent
-
-```php
-public function getOpponent(): ORM\Relation\Owner|ORM\Relation\ManyToMany
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
-<br />
-
-
-
-#### ORM\Relation::getReference
-
-```php
-public function getReference(): array
-```
-
-
-
-
-**Visibility:** this method is **public**.
-<br />
- **Returns**: this method returns **array**
-<br />
 
 
 
