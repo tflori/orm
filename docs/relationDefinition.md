@@ -149,6 +149,7 @@ These are the options for relation definitions.
 | `cardinality` | `OPT_CARDINALITY` | `string` | How many related objects (one or many) can exist |
 | `opponent`    | `OPT_OPPONENT`    | `string` | The name of the relation in related class        |
 | `table`       | `OPT_TABLE`       | `string` | The table name for many to many relations        |
+| `filters`     | `OPT_FILTERS`     | `array`  | Filter classes to apply to entity fetchers       |
 
 Since version 1.9 you can also define relations in a separate method named `<relation>Relation`. The method has to be
 static and should either return a Relation object. Example:
