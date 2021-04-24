@@ -5,13 +5,14 @@ namespace ORM\Entity;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager as EM;
+use ORM\Exception;
 use ORM\Exception\UndefinedRelation;
 use ORM\Relation;
 
 trait Relations
 {
     /** Relation definitions
-     * @var array */
+     * @var array|Relation[] */
     protected static $relations = [];
 
     /** The entity manager from which this entity got created
@@ -43,16 +44,15 @@ trait Relations
                 throw new UndefinedRelation('Relation ' . $name . ' is not defined');
             }
             $relation = call_user_func([static::class, $method]);
-            $relation->bind(static::class, $name);
             static::$relations[$name] = $relation;
         }
 
         if (!static::$relations[$name] instanceof Relation) {
             $relation = Relation::createRelation(static::class, $name, static::$relations[$name]);
-            $relation->bind(static::class, $name);
             static::$relations[$name] = $relation;
         }
 
+        static::$relations[$name]->bind(static::class, $name);
         return static::$relations[$name];
     }
 

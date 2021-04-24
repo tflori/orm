@@ -5,6 +5,7 @@ namespace ORM\Test\Entity;
 use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exception;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
@@ -201,7 +202,7 @@ class RelationsTest extends TestCase
     {
         $relation = Article::getRelation('writer');
 
-        self::expectException(\LogicException::class);
+        self::expectException(Exception::class);
 
         $relation->bind(Category::class, 'writer');
     }

@@ -173,10 +173,12 @@ class Article extends ORM\ENtity {
 Also since version 1.9 you can use the boot method to create relations:
 
 ```php
-class Article extends ORM\Entity {
+use ORM\Entity;
+use ORM\Relation;
+class Article extends Entity {
     protected static function boot() {
-        static::$relations['user'] = new Owner('user', User::class, ['userId' => 'id']);
-        static::$relations['comments'] = new OneToMany('comments', ArticleComments::class, 'article');
+        static::$relations['user'] = new Relation\Owner(User::class, ['userId' => 'id']);
+        static::$relations['comments'] = new Relation\OneToMany(ArticleComments::class, 'article');
     }
 }
 ```
