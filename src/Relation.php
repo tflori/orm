@@ -160,6 +160,7 @@ abstract class Relation
      *
      * @param string $parent
      * @param string $name
+     * @internal
      */
     public function bind($parent, $name)
     {
@@ -168,14 +169,6 @@ abstract class Relation
         }
         $this->name = $name;
         $this->parent = $parent;
-    }
-
-    /**
-     * @return array
-     */
-    public function getReference()
-    {
-        return $this->reference;
     }
 
     /**

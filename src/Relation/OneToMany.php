@@ -97,14 +97,6 @@ class OneToMany extends Relation
     {
         $opponent = call_user_func([ $this->class, 'getRelation' ], $this->opponent);
 
-        if (!$opponent) {
-            throw new InvalidConfiguration(sprintf(
-                "No owner defined for relation %s of entity %s",
-                $this->name,
-                $this->parent
-            ));
-        }
-
         if (!$opponent instanceof Owner) {
             throw new InvalidConfiguration(sprintf(
                 "The opponent of a non-owner relation has to be the owner of the relation. Relation of type %s " .

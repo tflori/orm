@@ -61,6 +61,7 @@ class Morphed extends Owner
         return null;
     }
 
+    /** {@inheritDoc} */
     public function apply(EntityFetcher $fetcher, Entity $entity)
     {
         $type = $this->getType($entity);
@@ -73,21 +74,10 @@ class Morphed extends Owner
         }
     }
 
+    /** {@inheritDoc} */
     public function applyJoin(Parenthesis $join, $yourAlias, OneToMany $opponent)
     {
-        if ($this->morphMap) {
-            $type = array_search($opponent->parent, $this->morphMap);
-            if (!$type) {
-                // maybe try with instance of then?
-                throw new InvalidType(sprintf(
-                    'Reference %s does not support entities of %s',
-                    $this->name,
-                    $opponent->parent
-                ));
-            }
-        } else {
-            $type = $opponent->parent;
-        }
+        $type = $this->getType($opponent->parent);
         $join->where(sprintf('%s.%s', $opponent->name, $this->morphColumn), '=', $type);
 
         $reference = $this->getMorphedReference($type);
@@ -96,6 +86,7 @@ class Morphed extends Owner
         }
     }
 
+    /** {@inheritDoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
         $type = $self->getAttribute($this->morphColumn);
@@ -110,23 +101,23 @@ class Morphed extends Owner
         return $entityManager->fetch($class, $key);
     }
 
+    /** {@inheritDoc} */
     public function setRelated(Entity $self, Entity $entity = null)
     {
+        if ($entity === null) {
+            $self->setAttribute($this->morphColumn, null);
+            $this->cleanReferences($self);
+            return;
+        }
+
         $type = $this->getType($entity);
         $self->setAttribute($this->morphColumn, $type);
         $reference = $this->getMorphedReference($type);
 
         // if the reference is different per type we clean other references
-        if (is_array(Helper::first($this->reference)) && isset($this->reference[$type])) {
-            $this->cleanOtherReferences($self, $type);
-        }
+        $this->cleanReferences($self, $type);
 
         foreach ($reference as $fkAttribute => $attribute) {
-            if ($entity === null) {
-                $self->setAttribute($fkAttribute, null);
-                continue;
-            }
-
             $value = $entity->getAttribute($attribute);
 
             if ($value === null) {
@@ -137,11 +128,13 @@ class Morphed extends Owner
         }
     }
 
-    public function addJoin(EntityFetcher $fetcher, $join, $alias)
-    {
-        throw new InvalidRelation('Morphed relations do not allow joins');
-    }
-
+    /**
+     * Get the class for $type
+     *
+     * @param string $type
+     * @return string
+     * @throws InvalidType
+     */
     protected function getMorphedClass($type)
     {
         if ($this->morphMap) {
@@ -158,9 +151,16 @@ class Morphed extends Owner
         return $type;
     }
 
+    /**
+     * Get the reference for $type
+     *
+     * @param string $type
+     * @return array
+     * @throws InvalidType
+     */
     protected function getMorphedReference($type)
     {
-        if (!is_array(Helper::first($this->reference))) {
+        if (!$this->morphMap || !is_array(Helper::first($this->reference))) {
             return $this->reference;
         }
 
@@ -168,24 +168,30 @@ class Morphed extends Owner
             return $this->reference[$type];
         }
 
-        $reference = [];
-        foreach ($this->reference as $fkColumn => $pkMap) {
-            if (!isset($pkMap[$type])) {
-                throw new InvalidType(sprintf(
-                    'Reference %s does not support type %s',
-                    $this->name,
-                    $type
-                ));
-            }
-            $reference[$fkColumn] = $pkMap[$type];
-        }
-        return $reference;
+        return array_map(function ($pkMap) use ($type) {
+            return $pkMap[$type];
+        }, $this->reference);
     }
 
-    protected function getType(Entity $entity)
+    /**
+     * Get the type of an entity
+     *
+     * Because of morph maps the type could be something different than the class name.
+     *
+     * If the type is not a subclass of $this->super or the it throws.
+     *
+     * @param Entity|string $class
+     * @return int|string
+     * @throws InvalidType
+     */
+    protected function getType($class)
     {
+        if ($class instanceof Entity) {
+            $entity = $class;
+            $class = get_class($class);
+        }
+
         if ($this->morphMap) {
-            $class = get_class($entity);
             $type = array_search($class, $this->morphMap);
             if (!$type) {
                 // maybe try with instance of then?
@@ -198,32 +204,72 @@ class Morphed extends Owner
             return $type;
         }
 
-        if (!$entity instanceof $this->super) {
+        if (isset($entity) && !$entity instanceof $this->super) {
             throw new InvalidType(sprintf(
                 'Reference %s does not support entities of %s',
                 $this->name,
-                get_class($entity)
+                $class
             ));
         }
 
-        return get_class($entity); // what about mocks?
+        return $class; // what about mocks?
     }
 
     /**
+     * Belongs to set related
+     *
+     * When we define different columns per type for the id we have to clean up every column
+     * that is currently unused to prevent cascaded removals.
+     *
      * @param Entity $self
      * @param string $newType
      */
-    protected function cleanOtherReferences(Entity $self, $newType)
+    protected function cleanReferences(Entity $self, $newType = null)
     {
-        $otherReferences = array_filter($this->reference, function ($refType) use ($newType) {
-            return $refType !== $newType;
-        }, ARRAY_FILTER_USE_KEY);
-        $referencedColumns = array_reduce($otherReferences, function ($carry, $reference) {
-            return array_merge($carry, array_keys($reference));
-        }, []);
-        $referencedColumns = array_diff($referencedColumns, array_keys($this->reference[$newType]));
-        foreach ($referencedColumns as $column) {
+        $fkByType = $this->hasForeignKeysByType();
+        if (!$fkByType && $newType) {
+            return;
+        }
+
+        $fkAttributes = array_keys($this->reference);
+        if ($fkByType) {
+            $fkAttributes = array_reduce($this->reference, function ($carry, $reference) {
+                return array_merge($carry, array_keys($reference));
+            }, []);
+
+            if ($newType !== null) {
+                $fkAttributes = array_diff($fkAttributes, array_keys($this->reference[$newType]));
+            }
+        }
+
+        foreach ($fkAttributes as $column) {
             $self->setAttribute($column, null);
         }
+    }
+
+    /**
+     * This method is not available for morphed relations.
+     *
+     * @param EntityFetcher $fetcher
+     * @param string $join
+     * @param string $alias
+     * @internal
+     * @throws InvalidRelation
+     */
+    public function addJoin(EntityFetcher $fetcher, $join, $alias)
+    {
+        throw new InvalidRelation('Morphed relations do not allow joins');
+    }
+
+    /**
+     * Check if the foreign keys differ by type
+     *
+     * @return bool
+     */
+    protected function hasForeignKeysByType()
+    {
+        return is_array(Helper::first($this->reference)) &&
+            $this->morphMap &&
+            count(array_diff(array_keys($this->morphMap), array_keys($this->reference))) === 0;
     }
 }

@@ -196,6 +196,16 @@ class RelationsTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function throwsWhenBindIsCalledManually()
+    {
+        $relation = Article::getRelation('writer');
+
+        self::expectException(\LogicException::class);
+
+        $relation->bind(Category::class, 'writer');
+    }
+
     public function provideRelationDefinitionsWithReference()
     {
         return array_filter($this->provideRelationDefinitions(), function ($definition) {

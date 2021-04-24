@@ -74,14 +74,14 @@ class ManyToMany extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-
+        $opponent = $this->getOpponent();
         $foreignKey = $this->getForeignKey($self, $this->reference);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $table   = $entityManager->escapeIdentifier($this->table);
 
         $expression = [];
-        foreach ($this->getOpponent()->reference as $t0Var => $fkCol) {
+        foreach ($opponent->reference as $t0Var => $fkCol) {
             $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
         }
 
@@ -236,14 +236,6 @@ class ManyToMany extends Relation
     protected function getOpponent()
     {
         $opponent = call_user_func([ $this->class, 'getRelation' ], $this->opponent);
-
-        if (!$opponent) {
-            throw new InvalidConfiguration(sprintf(
-                'No owner defined for relation %s of entity %s',
-                $this->name,
-                $this->parent
-            ));
-        }
 
         if (!$opponent instanceof ManyToMany) {
             throw new InvalidConfiguration(sprintf(

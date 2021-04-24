@@ -5,6 +5,8 @@ namespace ORM\Test\Relation;
 use Mockery as m;
 use ORM\EntityFetcher;
 use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
+use ORM\Exception\UndefinedRelation;
 use ORM\Relation\ManyToMany;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
@@ -68,6 +70,28 @@ class ManyToManyTest extends TestCase
         self::expectExceptionMessage('Key incomplete for join');
 
         $entity->fetch('categories');
+    }
+
+    /** @test */
+    public function throwsWhenTheOpponentIsNotDefined()
+    {
+        $relation = new ManyToMany(Article::class, ['id' => 'article_id'], 'related', 'related_articles');
+
+        self::expectException(UndefinedRelation::class);
+        self::expectExceptionMessage('Relation related is not defined');
+
+        $relation->fetch(new Article(), $this->em);
+    }
+
+    /** @test */
+    public function throwsWhenTheOpponentIsNotManyToMany()
+    {
+        $relation = new ManyToMany(Article::class, ['id' => 'article_id'], 'writer', 'related_articles');
+
+        self::expectException(InvalidConfiguration::class);
+        self::expectExceptionMessage('The opponent of a many to many relation has to be a many to many relation');
+
+        $relation->fetch(new Article(), $this->em);
     }
 
     /** @test */

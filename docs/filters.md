@@ -97,7 +97,6 @@ class User extends Entity {
     protected static function recentArticlesRelation()
     {
         return new OneToMany(
-            'recentArticles', 
             Article::class, 
             'author', 
             [new FilterPublished(), function (EntityFetcher $query) {
