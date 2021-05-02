@@ -3,6 +3,7 @@
 namespace ORM\Test\EntityFetcher;
 
 use Mockery as m;
+use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\Exception\InvalidArgument;
 use ORM\Test\Entity\Examples\Article;
@@ -86,6 +87,18 @@ class FilterTest extends TestCase
     {
         $filter = m::mock(NotDeletedFilter::class)->makePartial();
         Article::registerGlobalFilter($filter);
+
+        $fetcher = Article::query();
+        $fetcher->getQuery();
+
+        $filter->shouldHaveReceived('apply');
+    }
+
+    /** @test */
+    public function globalFiltersCanBeRegisteredForTheSuperClass()
+    {
+        $filter = m::mock(NotDeletedFilter::class)->makePartial();
+        Entity::registerGlobalFilter($filter);
 
         $fetcher = Article::query();
         $fetcher->getQuery();

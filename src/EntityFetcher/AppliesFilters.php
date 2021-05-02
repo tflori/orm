@@ -37,6 +37,27 @@ trait AppliesFilters
     }
 
     /**
+     * Get the filters registered for $class
+     *
+     * A filter can be registered for the super class too.
+     *
+     * @param string $class
+     * @return array
+     */
+    public static function getGlobalFilters($class)
+    {
+        $result = [];
+        $reflection = new \ReflectionClass($class);
+        foreach (static::$globalFilters as $regClass => $filters) {
+            if ($class === $regClass || $reflection->isSubclassOf($regClass)) {
+                $result = array_merge($result, $filters);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Exclude $filterClass for this fetcher
      *
      * @param string $filterClass
@@ -70,7 +91,7 @@ trait AppliesFilters
         }
         $this->filtersApplied = true;
 
-        $globalFilters = isset(static::$globalFilters[$this->class]) ? static::$globalFilters[$this->class] : [];
+        $globalFilters = self::getGlobalFilters($this->class);
         foreach (array_merge($globalFilters, $this->filters) as $filter) {
             foreach ($this->excludedFilters as $excludedFilter) {
                 if ($filter instanceof $excludedFilter) {
