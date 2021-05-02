@@ -3671,6 +3671,7 @@ Supported:
 * [getDefaultOperator](#ormentityfetchergetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormentityfetchergetentitymanager) 
 * [getExpression](#ormentityfetchergetexpression) Get the expression
+* [getGlobalFilters](#ormentityfetchergetglobalfilters) Get the filters registered for $class
 * [getQuery](#ormentityfetchergetquery) Get the query / select statement
 * [getStatement](#ormentityfetchergetstatement) Query database and return result
 * [getTableAndAlias](#ormentityfetchergettableandalias) Get the table name and alias for a class
@@ -4089,6 +4090,30 @@ Returns the complete expression inside this parenthesis.
 <br />
  **Returns**: this method returns **string**
 <br />
+
+
+
+#### ORM\EntityFetcher::getGlobalFilters
+
+```php
+public static function getGlobalFilters( string $class ): array
+```
+
+##### Get the filters registered for $class
+
+A filter can be registered for the super class too.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
 
 
 
@@ -5010,6 +5035,7 @@ Supported:
 * [getDefaultOperator](#ormtestingentityfetchermockgetdefaultoperator) Get the default operator for $value
 * [getEntityManager](#ormtestingentityfetchermockgetentitymanager) 
 * [getExpression](#ormtestingentityfetchermockgetexpression) Get the expression
+* [getGlobalFilters](#ormtestingentityfetchermockgetglobalfilters) Get the filters registered for $class
 * [getQuery](#ormtestingentityfetchermockgetquery) Get the query / select statement
 * [getStatement](#ormtestingentityfetchermockgetstatement) Query database and return result
 * [getTableAndAlias](#ormtestingentityfetchermockgettableandalias) Get the table name and alias for a class
@@ -5421,6 +5447,30 @@ Returns the complete expression inside this parenthesis.
 <br />
  **Returns**: this method returns **string**
 <br />
+
+
+
+#### ORM\Testing\EntityFetcherMock::getGlobalFilters
+
+```php
+public static function getGlobalFilters( string $class ): array
+```
+
+##### Get the filters registered for $class
+
+A filter can be registered for the super class too.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
 
 
 
@@ -15795,6 +15845,7 @@ Supported:
 * [getEntities](#ormtestingentityfetchermockresultgetentities) Get the entities for this result
 * [getEntityManager](#ormtestingentityfetchermockresultgetentitymanager) 
 * [getExpression](#ormtestingentityfetchermockresultgetexpression) Get the expression
+* [getGlobalFilters](#ormtestingentityfetchermockresultgetglobalfilters) Get the filters registered for $class
 * [getQuery](#ormtestingentityfetchermockresultgetquery) Get the query / select statement
 * [getStatement](#ormtestingentityfetchermockresultgetstatement) Query database and return result
 * [getTableAndAlias](#ormtestingentityfetchermockresultgettableandalias) Get the table name and alias for a class
@@ -16273,6 +16324,30 @@ Returns the complete expression inside this parenthesis.
 <br />
  **Returns**: this method returns **string**
 <br />
+
+
+
+#### ORM\Testing\EntityFetcherMock\Result::getGlobalFilters
+
+```php
+public static function getGlobalFilters( string $class ): array
+```
+
+##### Get the filters registered for $class
+
+A filter can be registered for the super class too.
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
 
 
 
