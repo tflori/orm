@@ -24,7 +24,7 @@ class RelationsFilterTest extends TestCase
 
         self::assertInstanceOf(Relation\OneToOne::class, $relation);
         self::assertCount(1, self::getProtectedProperty($relation, 'filters'));
-        self::assertInstanceOf(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
+        self::assertSame(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
     }
 
     /** @test */
@@ -41,7 +41,7 @@ class RelationsFilterTest extends TestCase
                 $this->em,
                 Article::class,
             ])->makePartial());
-        $fetcher->shouldReceive('filter')->with(m::type(NotDeletedFilter::class))
+        $fetcher->shouldReceive('filter')->with(NotDeletedFilter::class)
             ->once();
         $fetcher->shouldReceive('one')->andReturn(null);
 
@@ -59,7 +59,7 @@ class RelationsFilterTest extends TestCase
 
         self::assertInstanceOf(Relation\OneToMany::class, $relation);
         self::assertCount(1, self::getProtectedProperty($relation, 'filters'));
-        self::assertInstanceOf(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
+        self::assertSame(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
     }
 
     /** @test */
@@ -76,7 +76,7 @@ class RelationsFilterTest extends TestCase
                 $this->em,
                 Article::class,
             ])->makePartial());
-        $fetcher->shouldReceive('filter')->with(m::type(NotDeletedFilter::class))
+        $fetcher->shouldReceive('filter')->with(NotDeletedFilter::class)
             ->once();
         $fetcher->shouldReceive('one')->andReturn(null);
 
@@ -97,7 +97,7 @@ class RelationsFilterTest extends TestCase
 
         self::assertInstanceOf(Relation\ManyToMany::class, $relation);
         self::assertCount(1, self::getProtectedProperty($relation, 'filters'));
-        self::assertInstanceOf(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
+        self::assertSame(NotDeletedFilter::class, self::getProtectedProperty($relation, 'filters')[0]);
     }
 
     /** @test */
@@ -117,7 +117,7 @@ class RelationsFilterTest extends TestCase
                 $this->em,
                 Article::class,
             ])->makePartial());
-        $fetcher->shouldReceive('filter')->with(m::type(NotDeletedFilter::class))
+        $fetcher->shouldReceive('filter')->with(NotDeletedFilter::class)
             ->once();
         $fetcher->shouldReceive('one')->andReturn(null);
 

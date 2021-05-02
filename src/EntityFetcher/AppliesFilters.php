@@ -29,11 +29,32 @@ trait AppliesFilters
      * `$fetcher->withoutFilter(Filter::class)`.
      *
      * @param $class
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      */
     public static function registerGlobalFilter($class, $filter)
     {
         static::$globalFilters[$class][] = static::normalizeFilter($filter);
+    }
+
+    /**
+     * Get the filters registered for $class
+     *
+     * A filter can be registered for the super class too.
+     *
+     * @param string $class
+     * @return array
+     */
+    public static function getGlobalFilters($class)
+    {
+        $result = [];
+        $reflection = new \ReflectionClass($class);
+        foreach (static::$globalFilters as $regClass => $filters) {
+            if ($class === $regClass || $reflection->isSubclassOf($regClass)) {
+                $result = array_merge($result, $filters);
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -51,7 +72,7 @@ trait AppliesFilters
     /**
      * Apply an additional $filter before executing
      *
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      * @return $this
      */
     public function filter($filter)
@@ -70,7 +91,7 @@ trait AppliesFilters
         }
         $this->filtersApplied = true;
 
-        $globalFilters = isset(static::$globalFilters[$this->class]) ? static::$globalFilters[$this->class] : [];
+        $globalFilters = self::getGlobalFilters($this->class);
         foreach (array_merge($globalFilters, $this->filters) as $filter) {
             foreach ($this->excludedFilters as $excludedFilter) {
                 if ($filter instanceof $excludedFilter) {
@@ -82,9 +103,9 @@ trait AppliesFilters
     }
 
     /**
-     * Converts callables into a CallableFilter
+     * Converts callables into a CallableFilter and class names into instances
      *
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      * @return FilterInterface
      * @throws InvalidArgument
      */
@@ -92,6 +113,8 @@ trait AppliesFilters
     {
         if (is_callable($filter)) {
             $filter = new CallableFilter($filter);
+        } elseif (is_string($filter) && class_exists($filter)) {
+            $filter = new $filter;
         }
 
         if (!$filter instanceof FilterInterface) {
