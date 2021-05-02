@@ -29,7 +29,7 @@ trait AppliesFilters
      * `$fetcher->withoutFilter(Filter::class)`.
      *
      * @param $class
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      */
     public static function registerGlobalFilter($class, $filter)
     {
@@ -72,7 +72,7 @@ trait AppliesFilters
     /**
      * Apply an additional $filter before executing
      *
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      * @return $this
      */
     public function filter($filter)
@@ -103,9 +103,9 @@ trait AppliesFilters
     }
 
     /**
-     * Converts callables into a CallableFilter
+     * Converts callables into a CallableFilter and class names into instances
      *
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      * @return FilterInterface
      * @throws InvalidArgument
      */
@@ -113,6 +113,8 @@ trait AppliesFilters
     {
         if (is_callable($filter)) {
             $filter = new CallableFilter($filter);
+        } elseif (is_string($filter) && class_exists($filter)) {
+            $filter = new $filter;
         }
 
         if (!$filter instanceof FilterInterface) {

@@ -57,7 +57,7 @@ class OneToMany extends Relation
         // get filters
         $filters = [];
         if (count($short) === 3 && is_array($short[2])) {
-            $filters = array_map([self::class, 'createFilter'], array_pop($short));
+            $filters = array_pop($short);
         }
 
         if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {

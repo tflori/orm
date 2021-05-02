@@ -3217,7 +3217,7 @@ public static function registerGlobalFilter( $filter )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -3683,7 +3683,7 @@ Supported:
 * [leftJoinRelated](#ormentityfetcherleftjoinrelated) Left outer join $relation
 * [limit](#ormentityfetcherlimit) Set $limit
 * [modifier](#ormentityfetchermodifier) Add $modifier
-* [normalizeFilter](#ormentityfetchernormalizefilter) Converts callables into a CallableFilter
+* [normalizeFilter](#ormentityfetchernormalizefilter) Converts callables into a CallableFilter and class names into instances
 * [offset](#ormentityfetcheroffset) Set $offset
 * [one](#ormentityfetcherone) Fetch one entity
 * [orderBy](#ormentityfetcherorderby) Order By $column in $direction
@@ -4001,7 +4001,7 @@ public function filter( $filter ): $this
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -4389,7 +4389,7 @@ protected static function normalizeFilter(
 ): ORM\EntityFetcher\FilterInterface
 ```
 
-##### Converts callables into a CallableFilter
+##### Converts callables into a CallableFilter and class names into instances
 
 
 
@@ -4403,7 +4403,7 @@ protected static function normalizeFilter(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -4629,7 +4629,7 @@ A registered filter will be applied in all entity fetchers for the class if not 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
-| `$filter` | **EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -5047,7 +5047,7 @@ Supported:
 * [leftJoinRelated](#ormtestingentityfetchermockleftjoinrelated) Left outer join $relation
 * [limit](#ormtestingentityfetchermocklimit) Set $limit
 * [modifier](#ormtestingentityfetchermockmodifier) Add $modifier
-* [normalizeFilter](#ormtestingentityfetchermocknormalizefilter) Converts callables into a CallableFilter
+* [normalizeFilter](#ormtestingentityfetchermocknormalizefilter) Converts callables into a CallableFilter and class names into instances
 * [offset](#ormtestingentityfetchermockoffset) Set $offset
 * [one](#ormtestingentityfetchermockone) Fetch one entity
 * [orderBy](#ormtestingentityfetchermockorderby) Order By $column in $direction
@@ -5358,7 +5358,7 @@ public function filter( $filter ): $this
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -5746,7 +5746,7 @@ protected static function normalizeFilter(
 ): ORM\EntityFetcher\FilterInterface
 ```
 
-##### Converts callables into a CallableFilter
+##### Converts callables into a CallableFilter and class names into instances
 
 
 
@@ -5760,7 +5760,7 @@ protected static function normalizeFilter(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -5986,7 +5986,7 @@ A registered filter will be applied in all entity fetchers for the class if not 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -8955,7 +8955,6 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
 * [addJoin](#ormrelationmanytomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
-* [createFilter](#ormrelationmanytomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
@@ -9048,30 +9047,6 @@ public function addRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
-
-
-
-#### ORM\Relation\ManyToMany::createFilter
-
-```php
-protected static function createFilter( $class ): mixed
-```
-
-##### Create an instance from $class
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -10990,7 +10965,6 @@ Return false to stop event execution.
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
 * [addJoin](#ormrelationonetomanyaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
-* [createFilter](#ormrelationonetomanycreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
 * [createStaticFromShort](#ormrelationonetomanycreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
@@ -11081,30 +11055,6 @@ public function addRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
-
-
-
-#### ORM\Relation\OneToMany::createFilter
-
-```php
-protected static function createFilter( $class ): mixed
-```
-
-##### Create an instance from $class
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -11393,7 +11343,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
 * [addJoin](#ormrelationonetooneaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
-* [createFilter](#ormrelationonetoonecreatefilter) Create an instance from $class
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
 * [createStaticFromShort](#ormrelationonetoonecreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
@@ -11484,30 +11433,6 @@ public function addRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
-
-
-
-#### ORM\Relation\OneToOne::createFilter
-
-```php
-protected static function createFilter( $class ): mixed
-```
-
-##### Create an instance from $class
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -11825,7 +11750,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [addJoin](#ormrelationowneraddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
 * [apply](#ormrelationownerapply) Apply where conditions for $entity on $fetcher
-* [createFilter](#ormrelationownercreatefilter) Create an instance from $class
 * [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
@@ -11938,30 +11862,6 @@ Called from non-owner to find related elements. Example:
 |-----------|------|-------------|
 | `$fetcher` | **\ORM\EntityFetcher**  |  |
 | `$entity` | **\ORM\Entity**  |  |
-
-
-
-#### ORM\Relation\Owner::createFilter
-
-```php
-protected static function createFilter( $class ): mixed
-```
-
-##### Create an instance from $class
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -15473,7 +15373,6 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 * [addJoin](#ormrelationaddjoin) Join this relation in $fetcher
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
-* [createFilter](#ormrelationcreatefilter) Create an instance from $class
 * [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationfetch) Fetch the relation
@@ -15535,30 +15434,6 @@ public function addRelated(
 | `$self` | **Entity**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
 | `$entityManager` | **EntityManager**  |  |
-
-
-
-#### ORM\Relation::createFilter
-
-```php
-protected static function createFilter( $class ): mixed
-```
-
-##### Create an instance from $class
-
-
-
-**Static:** this method is **static**.
-<br />**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **mixed**
-<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$class` | **string &#124; mixed**  |  |
 
 
 
@@ -15858,7 +15733,7 @@ Supported:
 * [limit](#ormtestingentityfetchermockresultlimit) Set $limit
 * [matches](#ormtestingentityfetchermockresultmatches) Add a regular expression that has to match
 * [modifier](#ormtestingentityfetchermockresultmodifier) Add $modifier
-* [normalizeFilter](#ormtestingentityfetchermockresultnormalizefilter) Converts callables into a CallableFilter
+* [normalizeFilter](#ormtestingentityfetchermockresultnormalizefilter) Converts callables into a CallableFilter and class names into instances
 * [offset](#ormtestingentityfetchermockresultoffset) Set $offset
 * [one](#ormtestingentityfetchermockresultone) Get the next row from the query result
 * [orderBy](#ormtestingentityfetchermockresultorderby) Order By $column in $direction
@@ -16218,7 +16093,7 @@ public function filter( $filter ): $this
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -16646,7 +16521,7 @@ protected static function normalizeFilter(
 ): ORM\EntityFetcher\FilterInterface
 ```
 
-##### Converts callables into a CallableFilter
+##### Converts callables into a CallableFilter and class names into instances
 
 
 
@@ -16660,7 +16535,7 @@ protected static function normalizeFilter(
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 
@@ -16889,7 +16764,7 @@ A registered filter will be applied in all entity fetchers for the class if not 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$class` |   |  |
-| `$filter` | **\ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
+| `$filter` | **string &#124; \ORM\EntityFetcher\FilterInterface &#124; callable**  |  |
 
 
 

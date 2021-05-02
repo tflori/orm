@@ -17,7 +17,8 @@ at [QueryBuilder](querybuilder.md) to read more about building queries.
 ### Basic Filtering
 
 You can create filters by implementing the `FilterInterface` and then applying it on any `EntityFetcher` with 
-`$fetcher->filter($filter)`.
+`$fetcher->filter($filter)`. This method allows you to pass either a class name of a filter, an instance of a filter,
+a callable or a closure.
 
 Assuming we often want to filter a specific column `published` to be before now to allow future publications:
 
@@ -33,10 +34,22 @@ class FilterPublished implements FilterInterface
     }
 }
 
+function filterPublished(EntityFetcher $fetcher) {
+    $fetcher->where('published', '<=', date('c'));
+}
+
 /** @var ORM\EntityManager $entityManager */
 $articles = $entityManager->fetch(Article::class)
-    ->filter(new FilterPublished)
+    ->filter(FilterPublished::class)
     ->all();
+
+// other options
+$fetcher = $entityManager->fetch(Article::class);
+$fetcher->filter('filterPublished'); // a callable
+$fetcher->filter(new FilterPublished()); // an instance
+$fetcher->filter(function (EntityFetcher $fetcher) { // a closure
+    $fetcher->where('published', '<=', date('c'));
+});
 ```
 
 For an example of a more complex filter have a look at the

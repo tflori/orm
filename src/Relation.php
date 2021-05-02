@@ -110,9 +110,6 @@ abstract class Relation
         $cardinality = isset($relDef[self::OPT_CARDINALITY]) ? $relDef[self::OPT_CARDINALITY] : null;
         $filters     = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
 
-        // create instances from filter classes
-        $filters = array_map([static::class, 'createFilter'], $filters);
-
         if (!$class || !$reference && !$opponent) {
             throw new InvalidConfiguration('Invalid short form for relation ' . $name);
         }
@@ -126,20 +123,6 @@ abstract class Relation
         } else {
             return new OneToOne($name, $class, $opponent, $filters);
         }
-    }
-
-    /**
-     * Create an instance from $class
-     *
-     * @param string|mixed $class
-     * @return mixed
-     */
-    protected static function createFilter($class)
-    {
-        if (is_string($class) && class_exists($class)) {
-            return new $class;
-        }
-        return $class;
     }
 
     /**

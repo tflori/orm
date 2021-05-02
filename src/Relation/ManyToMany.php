@@ -53,7 +53,7 @@ class ManyToMany extends Relation
         // get filters
         $filters = [];
         if (count($short) === 5 && is_array($short[4])) {
-            $filters = array_map([self::class, 'createFilter'], array_pop($short));
+            $filters = array_pop($short);
         }
 
         if (count($short) === 4 &&

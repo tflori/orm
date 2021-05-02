@@ -161,7 +161,7 @@ abstract class Entity implements Serializable
     /**
      * Register a filter that is added to every fetcher for this entity
      *
-     * @param FilterInterface|callable $filter
+     * @param string|FilterInterface|callable $filter
      */
     public static function registerGlobalFilter($filter)
     {
