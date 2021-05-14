@@ -59,6 +59,16 @@ class FilterTest extends TestCase
     }
 
     /** @test */
+    public function filtersCanBeClassNames()
+    {
+        $fetcher = Article::query();
+
+        $fetcher->filter(NotDeletedFilter::class);
+
+        self::assertContains('"t0"."deleted" IS NULL', $fetcher->getQuery());
+    }
+
+    /** @test */
     public function throwsWhenReceivingOtherObjects()
     {
         $fetcher = Article::query();
