@@ -35,16 +35,48 @@ class Owner extends Relation
         $this->reference = $reference;
     }
 
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        if ($short[0] === self::CARDINALITY_ONE) {
+            array_shift($short);
+        }
+
+        if (count($short) === 2 && is_string($short[0]) && is_array($short[1])) {
+            return new self($name, $short[0], $short[1]);
+        }
+        return null;
+    }
+
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $key = array_map([$self, '__get' ], array_keys($this->reference));
+        $key = array_map([$self, 'getAttribute' ], array_keys($this->reference));
 
         if (in_array(null, $key)) {
             return null;
         }
 
         return $entityManager->fetch($this->class, $key);
+    }
+
+    /**
+     * Apply where conditions for $entity on $fetcher
+     *
+     * Called from non-owner to find related elements. Example:
+     *   $user->fetch('articles') creates an EntityFetcher for Article and calls
+     *     $opponent->apply($fetcher, $user) that will call
+     *       $fetcher->where('authorId', $user->id)
+     *
+     * @param EntityFetcher $fetcher
+     * @param Entity $entity
+     */
+    public function apply(EntityFetcher $fetcher, Entity $entity)
+    {
+        $foreignKey = $this->getForeignKey($entity, array_flip($this->reference));
+        foreach ($foreignKey as $col => $value) {
+            $fetcher->where($col, $value);
+        }
     }
 
     /**
@@ -60,17 +92,17 @@ class Owner extends Relation
 
         foreach ($this->reference as $fkAttribute => $attribute) {
             if ($entity === null) {
-                $self->__set($fkAttribute, null);
+                $self->setAttribute($fkAttribute, null);
                 continue;
             }
 
-            $value = $entity->__get($attribute);
+            $value = $entity->getAttribute($attribute);
 
             if ($value === null) {
                 throw new IncompletePrimaryKey('Key incomplete to save foreign key');
             }
 
-            $self->__set($fkAttribute, $value);
+            $self->setAttribute($fkAttribute, $value);
         }
     }
 

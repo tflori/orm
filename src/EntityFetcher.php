@@ -2,6 +2,7 @@
 
 namespace ORM;
 
+use ORM\EntityFetcher\AppliesFilters;
 use ORM\EntityFetcher\ExecutesQueries;
 use ORM\EntityFetcher\MakesJoins;
 use ORM\EntityFetcher\TranslatesClasses;
@@ -30,9 +31,7 @@ use PDO;
  */
 class EntityFetcher extends QueryBuilder
 {
-    use TranslatesClasses;
-    use MakesJoins;
-    use ExecutesQueries;
+    use TranslatesClasses, MakesJoins, ExecutesQueries, AppliesFilters;
 
     /** The entity class that we want to fetch
      * @var string|Entity */
@@ -160,6 +159,8 @@ class EntityFetcher extends QueryBuilder
         if ($this->query) {
             return $this->query instanceof QueryBuilderInterface ? $this->query->getQuery() : $this->query;
         }
+
+        $this->applyFilters();
         return parent::getQuery();
     }
 
@@ -167,6 +168,8 @@ class EntityFetcher extends QueryBuilder
      * Set a raw query or use different QueryBuilder
      *
      * For easier use and against sql injection it allows question mark placeholders.
+     *
+     * Please be aware that this query is not touched at all and neither filters nor where conditions are applied.
      *
      * @param string|QueryBuilderInterface $query Raw query string or a QueryBuilderInterface
      * @param array                        $args  The arguments for placeholders

@@ -40,4 +40,21 @@ class Helper
     {
         return basename(str_replace('\\', '/', $class));
     }
+
+    /**
+     * Get the first element of $array
+     *
+     * Returns $default if the array is empty.
+     *
+     * @param array $array
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function first(array $array, $default = null)
+    {
+        foreach ($array as $k => $v) {
+            return $v;
+        }
+        return $default;
+    }
 }

@@ -222,7 +222,7 @@ Expecting something specific can be more hard overall we recommend to just provi
 of your TestCase. A result without conditions will be used if no other result matches.
 
 ```php
-use ORM\Test\Entity\Examples\Article;function getArticles($search = '')
+function getArticles($search = '')
 {
     $fetcher = $GLOBALS['di']->get('entityManager')->fetch(Article::class);
     if (!empty($search)) {

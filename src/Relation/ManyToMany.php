@@ -4,6 +4,7 @@ namespace ORM\Relation;
 
 use ORM\Entity;
 use ORM\EntityFetcher;
+use ORM\EntityFetcher\FilterInterface;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
@@ -18,7 +19,7 @@ use ORM\Relation;
 class ManyToMany extends Relation
 {
     /** The table that holds the foreign keys
-     * @var string'categories */
+     * @var string */
     protected $table;
 
     /**
@@ -26,17 +27,41 @@ class ManyToMany extends Relation
      *
      * @param string $name
      * @param string $class
-     * @param array  $reference
+     * @param array $reference
      * @param string $opponent
      * @param string $table
+     * @param FilterInterface[]|callable[] $filters
      */
-    public function __construct($name, $class, array $reference, $opponent, $table)
+    public function __construct($name, $class, array $reference, $opponent, $table, array $filters = [])
     {
-        $this->name      = $name;
-        $this->class     = $class;
-        $this->opponent  = $opponent;
+        $this->name = $name;
+        $this->class = $class;
+        $this->opponent = $opponent;
         $this->reference = $reference;
-        $this->table     = $table;
+        $this->table = $table;
+        $this->filters = $filters;
+    }
+
+    /** {@inheritDoc} */
+    public static function fromShort($name, array $short)
+    {
+        // remove cardinality if given
+        if ($short[0] === self::CARDINALITY_MANY) {
+            array_shift($short);
+        }
+
+        // get filters
+        $filters = [];
+        if (count($short) === 5 && is_array($short[4])) {
+            $filters = array_pop($short);
+        }
+
+        if (count($short) === 4 &&
+            is_string($short[0]) && is_array($short[1]) && is_string($short[2]) && is_string($short[3])
+        ) {
+            return new self($name, $short[0], $short[1], $short[2], $short[3], $filters);
+        }
+        return null;
     }
 
     /**
@@ -65,6 +90,10 @@ class ManyToMany extends Relation
 
         foreach ($foreignKey as $col => $value) {
             $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
+        }
+
+        foreach ($this->filters as $filter) {
+            $fetcher->filter($filter);
         }
         return $fetcher;
     }

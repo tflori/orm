@@ -140,6 +140,8 @@ class Article extends ORM\ENtity {
 
 > We prefer the first one but the third one has auto completion.
 
+These are the options for relation definitions.
+
 | Option        | Const             | Type     | Description                                      |
 |---------------|-------------------|----------|--------------------------------------------------|
 | `class`       | `OPT_CLASS`       | `string` | The full qualified name of related class         |
@@ -147,6 +149,38 @@ class Article extends ORM\ENtity {
 | `cardinality` | `OPT_CARDINALITY` | `string` | How many related objects (one or many) can exist |
 | `opponent`    | `OPT_OPPONENT`    | `string` | The name of the relation in related class        |
 | `table`       | `OPT_TABLE`       | `string` | The table name for many to many relations        |
+| `filters`     | `OPT_FILTERS`     | `array`  | Filter classes to apply to entity fetchers       |
+
+Since version 1.9 you can also define relations in a separate method named `<relation>Relation`. The method has to be
+static and should either return a Relation object. Example:
+
+```php
+use ORM\Relation\OneToMany;
+use ORM\Relation\Owner;
+
+class Article extends ORM\ENtity {
+  protected static function userRelation() {
+    return new Owner('user', User::class, ['userId' => 'id']);
+  }
+  
+  protected static function commentsRelation() {
+    return new OneToMany('comments', ArticleComments::class, 'article');
+  }
+}
+```
+
+> These methods could also return an array with the relation definition like above, but we don't recommend that.
+
+Also since version 1.9 you can use the boot method to create relations:
+
+```php
+class Article extends ORM\Entity {
+    protected static function boot() {
+        static::$relations['user'] = new Owner('user', User::class, ['userId' => 'id']);
+        static::$relations['comments'] = new OneToMany('comments', ArticleComments::class, 'article');
+    }
+}
+```
 
 ### RelationExample Types
 
