@@ -9714,7 +9714,7 @@ protected function getMorphedReference( string $type ): array
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\InvalidType**<br />
+<br />
 
 ##### Parameters
 
