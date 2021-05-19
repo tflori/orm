@@ -357,11 +357,6 @@ A morphed relation defines additionally a type on the owner side to reference di
 you don't need to create several tables that store the same data. On the other hand this approach comes with some
 drawbacks (see below).
 
-1. You can't write a join from the owner to the different entities
-2. 
-3. There is no many-to-many relationship definition for morphed relations. In that case you also need to create an 
-   entity in between.
-   
 To define morphed relations you have to pass the morph definition (attribute `'morph'`) and the morph column (attribute
 `'morphColumn'` instead of a class. The morph column is obviously just a string with the attribute or column name.
 
