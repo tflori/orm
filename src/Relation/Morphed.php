@@ -39,9 +39,17 @@ class Morphed extends Owner
     {
         $this->morphColumn = $morphColumn;
         $this->reference = $reference;
+        $referenceKeys = array_keys($reference);
+        $firstReference = Helper::first($reference);
         if (is_array($morph)) {
             $this->morphMap = $morph;
         } else {
+            if (class_exists($referenceKeys[0])) {
+                $this->morphMap = array_combine($referenceKeys, $referenceKeys);
+            } elseif (is_array($firstReference)) {
+                $classes = array_keys($firstReference);
+                $this->morphMap = array_combine($classes, $classes);
+            }
             $this->super = $morph;
         }
     }
@@ -156,15 +164,22 @@ class Morphed extends Owner
      *
      * @param string $type
      * @return array
-     * @throws InvalidType
      */
     protected function getMorphedReference($type)
     {
-        if (!$this->morphMap || !is_array(Helper::first($this->reference))) {
+        // the reference defines only a foreign key
+        if (count($this->reference) === 1 && isset($this->reference[0])) {
+            // then the primary key is referenced
+            $class = class_exists($type) ? $type : $this->getMorphedClass($type);
+            /** @var Entity|string $class */
+            return [$this->reference[0] => $class::getPrimaryKeyVars()[0]];
+        }
+
+        if (!is_array(Helper::first($this->reference))) {
             return $this->reference;
         }
 
-        if (isset($this->reference[$type])) {
+        if ($this->morphMap && isset($this->reference[$type])) {
             return $this->reference[$type];
         }
 
@@ -242,6 +257,11 @@ class Morphed extends Owner
             }
         }
 
+        // the reference defines only a foreign key
+        if (count($this->reference) === 1 && isset($this->reference[0])) {
+            $self->setAttribute($this->reference[0], null);
+        }
+
         foreach ($fkAttributes as $column) {
             $self->setAttribute($column, null);
         }
@@ -268,8 +288,7 @@ class Morphed extends Owner
      */
     protected function hasForeignKeysByType()
     {
-        return is_array(Helper::first($this->reference)) &&
-            $this->morphMap &&
-            count(array_diff(array_keys($this->morphMap), array_keys($this->reference))) === 0;
+        return $this->morphMap && is_array(Helper::first($this->reference)) &&
+            array_diff(array_keys($this->morphMap), array_keys($this->reference)) === [];
     }
 }

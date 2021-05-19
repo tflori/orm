@@ -10,7 +10,7 @@ class Tag extends Entity
         'parent' => [['parentType' => [
             'image' => Image::class,
             'article' => Article::class,
-        ]], ['parentId' => 'id']],
+        ]], ['parentId']],
         'parentNoMap' => [['parentType' => Taggable::class], ['parentId' => 'id']],
         'parentDifferentPk' => [
             ['parentType' => [

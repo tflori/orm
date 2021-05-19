@@ -23,7 +23,7 @@ class MorphedRelationTest extends TestCase
     {
         $relation = Relation::createRelation(static::class, 'parent', [
             ['parentType' => Entity::class],
-            ['parentId' => 'id'],
+            ['parentId'],
         ]);
 
         self::assertInstanceOf(Relation\Morphed::class, $relation);
@@ -343,5 +343,35 @@ class MorphedRelationTest extends TestCase
         self::assertNull($tag->parentType);
         self::assertNull($tag->articleId);
         self::assertNull($tag->imageId);
+    }
+
+    // implicit morph maps
+
+    /** @test */
+    public function definingReferencesPerClassImpliesAMorphMap()
+    {
+        $relation = new Relation\Morphed('parentType', Entity::class, [
+            Article::class => ['articleId' => 'id'],
+            Image::class => ['imageId' => 'id'],
+        ]);
+
+        self::expectException(InvalidType::class);
+
+        $relation->setRelated(new Tag(), new User(['id' => 23]));
+    }
+
+    /** @test */
+    public function definingDifferentPkPerClassImpliesAMorphMap()
+    {
+        $relation = new Relation\Morphed('parentType', Entity::class, [
+            'parentId' => [
+                Article::class => 'id',
+                Image::class => 'imgId',
+            ]
+        ]);
+
+        self::expectException(InvalidType::class);
+
+        $relation->setRelated(new Tag(), new User(['id' => 23]));
     }
 }
