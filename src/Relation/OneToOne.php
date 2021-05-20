@@ -30,4 +30,14 @@ class OneToOne extends OneToMany
 
         return static::createStaticFromShort($short);
     }
+
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        if (!isset($relDef[self::OPT_CARDINALITY]) || $relDef[self::OPT_CARDINALITY] === self::CARDINALITY_MANY) {
+            return null;
+        }
+
+        return self::createStaticFromAssoc($relDef);
+    }
 }

@@ -47,6 +47,18 @@ class Owner extends Relation
         return null;
     }
 
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+
+        if ($class && $reference && !isset($relDef[self::OPT_TABLE])) {
+            return new Owner($class, $reference);
+        }
+        return null;
+    }
+
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {

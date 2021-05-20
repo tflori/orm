@@ -65,15 +65,16 @@ abstract class Relation
      */
     public static function createRelation($parent, $name, $relDef)
     {
+        /** @var string[]|Relation[] $relationClasses */
+        $relationClasses = [
+            Owner::class,
+            ManyToMany::class,
+            OneToMany::class,
+            OneToOne::class,
+            Morphed::class,
+        ];
+
         if (isset($relDef[0])) {
-            $relationClasses = [
-                Owner::class,
-                ManyToMany::class,
-                OneToMany::class,
-                OneToOne::class,
-                Morphed::class,
-            ];
-            /** @var string|Relation $relationClass */
             foreach ($relationClasses as $relationClass) {
                 if ($relation = $relationClass::fromShort($relDef)) {
                     return $relation;
@@ -82,7 +83,13 @@ abstract class Relation
             throw new InvalidConfiguration('Invalid short form for relation ' . $name . ' for entity ' . $parent);
         }
 
-        return self::fromAssoc($parent, $name, $relDef);
+        foreach ($relationClasses as $relationClass) {
+            if ($relation = $relationClass::fromAssoc($relDef)) {
+                return $relation;
+            }
+        }
+
+        throw new InvalidConfiguration(sprintf("Invalid relation %s for entity %s", $name, $parent));
     }
 
     /**
@@ -102,40 +109,15 @@ abstract class Relation
     /**
      * Create a relation by assoc definition
      *
-     * @param string $parent
-     * @param string $name
      * @param array $relDef
      * @internal
      * @see Relation::createRelation()
-     * @return Relation
-     * @throws InvalidConfiguration
+     * @return ?Relation
+     * @codeCoverageIgnore
      */
-    protected static function fromAssoc($parent, $name, array $relDef)
+    protected static function fromAssoc(array $relDef)
     {
-        $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
-        $morphColumn = isset($relDef[self::OPT_MORPH_COLUMN]) ? $relDef[self::OPT_MORPH_COLUMN] : null;
-        $morph       = isset($relDef[self::OPT_MORPH]) ? $relDef[self::OPT_MORPH] : null;
-        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
-        $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
-        $opponent    = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
-        $cardinality = isset($relDef[self::OPT_CARDINALITY]) ? $relDef[self::OPT_CARDINALITY] : null;
-        $filters     = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
-
-        if (!$class && (!$morphColumn || !$morph) || !$reference && !$opponent) {
-            throw new InvalidConfiguration(sprintf("Invalid relation %s for entity %s", $name, $parent));
-        }
-
-        if ($reference && $morphColumn && $morph) {
-            return new Morphed($morphColumn, $morph, $reference);
-        } elseif ($reference && !isset($table)) {
-            return new Owner($class, $reference);
-        } elseif ($table) {
-            return new ManyToMany($class, $reference, $opponent, $table, $filters);
-        } elseif (!$cardinality || $cardinality === self::CARDINALITY_MANY) {
-            return new OneToMany($class, $opponent, $filters);
-        } else {
-            return new OneToOne($class, $opponent, $filters);
-        }
+        return null;
     }
 
     /**

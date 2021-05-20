@@ -70,6 +70,19 @@ class Morphed extends Owner
     }
 
     /** {@inheritDoc} */
+    public static function fromAssoc(array $relDef)
+    {
+        $morphColumn = isset($relDef[self::OPT_MORPH_COLUMN]) ? $relDef[self::OPT_MORPH_COLUMN] : null;
+        $morph       = isset($relDef[self::OPT_MORPH]) ? $relDef[self::OPT_MORPH] : null;
+        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+
+        if ($morphColumn && $morph && $reference) {
+            return new self($morphColumn, $morph, $reference);
+        }
+        return null;
+    }
+
+    /** {@inheritDoc} */
     public function apply(EntityFetcher $fetcher, Entity $entity)
     {
         $type = $this->getType($entity);

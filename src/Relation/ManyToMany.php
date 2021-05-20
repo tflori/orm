@@ -63,6 +63,21 @@ class ManyToMany extends Relation
         return null;
     }
 
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+        $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
+        $opponent    = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $filters     = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
+
+        if ($class && $reference && $opponent && $table) {
+            return new ManyToMany($class, $reference, $opponent, $table, $filters);
+        }
+        return null;
+    }
+
     /**
      * @return string
      */

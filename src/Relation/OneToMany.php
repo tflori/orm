@@ -43,6 +43,16 @@ class OneToMany extends Relation
         return static::createStaticFromShort($short);
     }
 
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        if (isset($relDef[self::OPT_CARDINALITY]) && $relDef[self::OPT_CARDINALITY] === self::CARDINALITY_ONE) {
+            return null;
+        }
+
+        return self::createStaticFromAssoc($relDef);
+    }
+
     /**
      * Create static::class from $short
      *
@@ -59,6 +69,24 @@ class OneToMany extends Relation
 
         if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {
             return new static($short[0], $short[1], $filters);
+        }
+        return null;
+    }
+
+    /**
+     * Create static::class from $relDef
+     *
+     * @param array $relDef
+     * @return static|null
+     */
+    protected static function createStaticFromAssoc(array $relDef)
+    {
+        $class = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $opponent = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $filters = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
+
+        if ($class && $opponent && !isset($relDef['table'])) {
+            return new static($class, $opponent, $filters);
         }
         return null;
     }
