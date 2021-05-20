@@ -52,7 +52,7 @@ class OneToManyTest extends TestCase
         $entity = new Snake_Ucfirst([], $this->em);
 
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('The opponent of a non-owner relation has to be the owner of the relation');
+        self::expectExceptionMessage('The opponent of a OneToMany relation has to be a Owner relation');
 
         $entity->fetch('invalid');
     }

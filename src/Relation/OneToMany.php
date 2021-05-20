@@ -17,6 +17,8 @@ use ORM\Relation;
  */
 class OneToMany extends Relation
 {
+    use HasOpponent;
+
     /**
      * Owner constructor.
      *
@@ -97,7 +99,7 @@ class OneToMany extends Relation
      */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $owner = $this->getOpponent();
+        $owner = $this->getOpponent(Owner::class);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $owner->apply($fetcher, $self);
@@ -111,30 +113,9 @@ class OneToMany extends Relation
     /** {@inheritdoc} */
     public function addJoin(EntityFetcher $fetcher, $join, $alias)
     {
-        $owner = $this->getOpponent();
+        $owner = $this->getOpponent(Owner::class);
         $parenthesis = call_user_func([$fetcher, $join], $this->class, false, $this->name);
         $owner->applyJoin($parenthesis, $alias, $this);
         $parenthesis->close();
-    }
-
-    /**
-     * @return Owner
-     * @throws InvalidConfiguration
-     */
-    protected function getOpponent()
-    {
-        $opponent = call_user_func([ $this->class, 'getRelation' ], $this->opponent);
-
-        if (!$opponent instanceof Owner) {
-            throw new InvalidConfiguration(sprintf(
-                "The opponent of a non-owner relation has to be the owner of the relation. Relation of type %s " .
-                "returned for relation %s of entity %s",
-                get_class($opponent),
-                $this->name,
-                $this->parent
-            ));
-        }
-
-        return $opponent;
     }
 }

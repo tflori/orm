@@ -89,7 +89,7 @@ class ManyToManyTest extends TestCase
         $relation = new ManyToMany(Article::class, ['id' => 'article_id'], 'writer', 'related_articles');
 
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('The opponent of a many to many relation has to be a many to many relation');
+        self::expectExceptionMessage('The opponent of a ManyToMany relation has to be a ManyToMany relation');
 
         $relation->fetch(new Article(), $this->em);
     }

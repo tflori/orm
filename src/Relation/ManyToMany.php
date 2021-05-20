@@ -19,6 +19,8 @@ use ORM\Relation;
  */
 class ManyToMany extends Relation
 {
+    use HasOpponent;
+
     /** The table that holds the foreign keys
      * @var string */
     protected $table;
@@ -89,7 +91,7 @@ class ManyToMany extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $opponent = $this->getOpponent();
+        $opponent = $this->getOpponent(ManyToMany::class);
         $foreignKey = $this->getForeignKey($self, $this->reference);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
@@ -149,7 +151,7 @@ class ManyToMany extends Relation
             }
 
             $association = $baseAssociation;
-            foreach ($this->getOpponent()->reference as $hisVar => $fkCol) {
+            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
                 if (empty($associations)) {
                     $cols[] = $entityManager->escapeIdentifier($fkCol);
                 }
@@ -204,7 +206,7 @@ class ManyToMany extends Relation
             }
 
             $condition = [];
-            foreach ($this->getOpponent()->reference as $hisVar => $fkCol) {
+            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
                 $value = $entity->__get($hisVar);
 
                 if ($value === null) {
@@ -236,31 +238,11 @@ class ManyToMany extends Relation
         call_user_func([ $fetcher, $join ], $table, implode(' AND ', $expression), null, [], true);
 
         $expression = [];
-        foreach ($this->getOpponent()->reference as $hisVar => $col) {
+        foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $col) {
             $expression[] = $table . '.' . $fetcher->getEntityManager()->escapeIdentifier($col) .
                             ' = ' . $this->name . '.' . $hisVar;
         }
 
         call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
-    }
-
-    /**
-     * @return ManyToMany
-     * @throws InvalidConfiguration
-     */
-    protected function getOpponent()
-    {
-        $opponent = call_user_func([ $this->class, 'getRelation' ], $this->opponent);
-
-        if (!$opponent instanceof ManyToMany) {
-            throw new InvalidConfiguration(sprintf(
-                'The opponent of a many to many relation has to be a many to many relation. Relation of type %s ' .
-                'returned for relation %s of entity %s',
-                get_class($opponent),
-                $this->name,
-                $this->parent
-            ));
-        }
-        return $opponent;
     }
 }
