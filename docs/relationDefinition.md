@@ -388,8 +388,9 @@ single play:
 
 ##### Morph Definition
 
-The morph definition can be either a class or instance name that the referenced classes have to extend/implement or an
-array that maps the values in the morph column to entity classes.
+The morph definition can be either a class name of a super class that the referenced classes have to extend, an 
+interface name that the referenced classes have to implement, or an array that maps the values in the morph column to
+entity classes.
 
 ###### Superclass or interface
 
@@ -403,7 +404,7 @@ to create a valid definition.
 $relation['morph'] = ORM\Entity::class;
 ```
 
-###### Morph Map
+###### Morph map
 
 Instead of having the application specific class name in the database you might want to have an abstract name of the
 referenced entity in the morph column. This is possible by defining a map that defines which value stands for which
@@ -460,8 +461,8 @@ $relation['reference'] = [
 
 > In this example that doesn't make sense but see drawbacks #1 for an example where it makes sense.
 
-If you are not using a morph map use class names as keys. Please **note** that this implicit generates a morph map that
-restricts the usage of other classes.
+If you are not using a morph map use class names as keys. Please **note** that this implicitly generates a morph map
+that restricts the usage of other classes.
 
 ```php
 $relation['reference'] = [
@@ -488,7 +489,7 @@ $relation['reference'] = [
 
 > This only makes sense if the referenced key is different for each type.
 
-Again: if you are not using a morph map use class names as keys (this implicit generates a morph map).
+Again: if you are not using a morph map use class names as keys (this implicitly generates a morph map).
 
 ##### Short Form
 
