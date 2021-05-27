@@ -364,26 +364,26 @@ Imagine a theater ticket system where you can buy tickets for the whole season, 
 single play:
 
 ```
-+-------------+              +-----------+
-| Ticket      | n-----+----1 | Season    +
-+-------------+       |      +-----------+
-| id          |       |      | id        |
-| eventType   |       |      | year      |
-| eventId     |       |      +-----------+
++-------------+              +-------------+
+| Ticket      | n-----+----1 | Season      |
++-------------+       |      +-------------+
+| id          |       |      | id          |
+| entityType  |       |      | year        |
+| entityId    |       |      +-------------+
 +-------------+       |
-                      |      +-----------+
-                      +----1 | Event     |
-                      |      +-----------|
-                      |      | id        |
-                      |      | name      |
-                      |      +-----------+
+                      |      +-------------+
+                      +----1 | Event       |
+                      |      +-------------|
+                      |      | id          |
+                      |      | name        |
+                      |      +-------------+
                       |
-                      |      +-----------+
-                      +----1 | Play      |
-                             +-----------+
-                             | id        |
-                             | name      |
-                             +-----------+
+                      |      +-------------+
+                      +----1 | Play        |
+                             +-------------+
+                             | id          |
+                             | name        |
+                             +-------------+
 ```
 
 ##### Morph Definition
@@ -431,7 +431,7 @@ the foreign key where the primary key will be used from the referenced entity.
 When you define just a single foreign key, the primary key of the referenced object will be used.
 
 ```php
-$relation['reference'] = ['eventId'];
+$relation['reference'] = ['entityId'];
 ```
 
 > To get the primary key of the same entity one million times takes about 0.2 seconds in php 5.6 and 0.07 seconds
@@ -443,7 +443,7 @@ When the primary key is always the same (for example id) then it is a bit faster
 define the key used, like we do in other references.
 
 ```php
-$relation['reference'] = ['eventId' => 'id'];
+$relation['reference'] = ['entityId' => 'id'];
 ```
 
 ###### Reference definition per type
@@ -453,9 +453,9 @@ as array, like for other references.
 
 ```php
 $relation['reference'] = [
-    'season' => ['eventId' => 'id'],
-    'event' => ['eventId' => 'id'],
-    'play' => ['eventId' => 'id'],
+    'season' => ['entityId' => 'id'],
+    'event' => ['entityId' => 'id'],
+    'play' => ['entityId' => 'id'],
 ];
 ```
 
@@ -466,9 +466,9 @@ that restricts the usage of other classes.
 
 ```php
 $relation['reference'] = [
-    Season::class => ['eventId' => 'id'],
-    Event::class => ['eventId' => 'id'],
-    Play::class => ['eventId' => 'id'],
+    Season::class => ['entityId' => 'id'],
+    Event::class => ['entityId' => 'id'],
+    Play::class => ['entityId' => 'id'],
 ];
 ```
 
@@ -479,7 +479,7 @@ the primary key.
 
 ```php
 $relation['reference'] = [
-    'eventId' => [
+    'entityId' => [
         'season' => 'id',
         'event' => 'id',
         'play' => 'id',
@@ -531,7 +531,7 @@ type.
 ```php
 class Ticket extends ORM\Entity {
     protected static $relations = [
-        'event' => ['eventType' => [
+        'event' => ['entityType' => [
             'season' => Season::class, 
             'event' => Event::class,
             'play' => Play::class,
@@ -561,7 +561,7 @@ FROM tickets
       SELECT 'season' AS type, id, "common_column_1", "common_column_2" FROM seasons UNION
       SELECT 'event' AS type, id, "common_column_1", "common_column_2" FROM events UNION
       SELECT 'play' AS type, id, "common_column_1", "common_column_2" FROM plays
-  ) stmt ON stmt.type = eventType AND stmt.id = eventId
+  ) stmt ON stmt.type = entityType AND stmt.id = entityId
 ```
 
 > You can write this query manually or extend the morphed relation if you want. If you find a good solution we would
@@ -576,11 +576,11 @@ very slow for larger lists:
 class TicketEvent extends ORM\Entity {
     protected static $relations = [
         'ticket' => [Ticket::class, ['ticketId' => 'id']],
-        'event' => ['eventType' => [
+        'event' => ['entityType' => [
             'season' => Season::class, 
             'event' => Event::class,
             'play' => Play::class,
-         ], ['eventId']],
+         ], ['entityId']],
     ];
 }
 
