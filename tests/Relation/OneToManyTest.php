@@ -47,12 +47,12 @@ class OneToManyTest extends TestCase
     }
 
     /** @test */
-    public function fetchThrowsWhenReferenceInOpponentIsNotDefined()
+    public function fetchThrowsWhenOpponentIsNotAnOwner()
     {
         $entity = new Snake_Ucfirst([], $this->em);
 
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('No owner defined for relation');
+        self::expectExceptionMessage('The opponent of a OneToMany relation has to be a Owner relation');
 
         $entity->fetch('invalid');
     }

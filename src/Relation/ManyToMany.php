@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityFetcher\FilterInterface;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
+use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
 use ORM\Relation;
 
@@ -18,6 +19,8 @@ use ORM\Relation;
  */
 class ManyToMany extends Relation
 {
+    use HasOpponent;
+
     /** The table that holds the foreign keys
      * @var string */
     protected $table;
@@ -25,16 +28,14 @@ class ManyToMany extends Relation
     /**
      * ManyToMany constructor.
      *
-     * @param string $name
      * @param string $class
      * @param array $reference
      * @param string $opponent
      * @param string $table
      * @param FilterInterface[]|callable[] $filters
      */
-    public function __construct($name, $class, array $reference, $opponent, $table, array $filters = [])
+    public function __construct($class, array $reference, $opponent, $table, array $filters = [])
     {
-        $this->name = $name;
         $this->class = $class;
         $this->opponent = $opponent;
         $this->reference = $reference;
@@ -43,7 +44,7 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         // remove cardinality if given
         if ($short[0] === self::CARDINALITY_MANY) {
@@ -59,7 +60,22 @@ class ManyToMany extends Relation
         if (count($short) === 4 &&
             is_string($short[0]) && is_array($short[1]) && is_string($short[2]) && is_string($short[3])
         ) {
-            return new self($name, $short[0], $short[1], $short[2], $short[3], $filters);
+            return new self($short[0], $short[1], $short[2], $short[3], $filters);
+        }
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;
+        $table       = isset($relDef[self::OPT_TABLE]) ? $relDef[self::OPT_TABLE] : null;
+        $opponent    = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $filters     = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
+
+        if ($class && $reference && $opponent && $table) {
+            return new ManyToMany($class, $reference, $opponent, $table, $filters);
         }
         return null;
     }
@@ -75,14 +91,14 @@ class ManyToMany extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-
+        $opponent = $this->getOpponent(ManyToMany::class);
         $foreignKey = $this->getForeignKey($self, $this->reference);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $table   = $entityManager->escapeIdentifier($this->table);
 
         $expression = [];
-        foreach ($this->getOpponent()->getReference() as $t0Var => $fkCol) {
+        foreach ($opponent->reference as $t0Var => $fkCol) {
             $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
         }
 
@@ -127,11 +143,15 @@ class ManyToMany extends Relation
         $associations = [];
         foreach ($entities as $entity) {
             if (!$entity instanceof $this->class) {
-                throw new InvalidRelation('Invalid entity for relation ' . $this->name);
+                throw new InvalidRelation(sprintf(
+                    "Invalid entity for relation %s of entity %s",
+                    $this->name,
+                    $this->parent
+                ));
             }
 
             $association = $baseAssociation;
-            foreach ($this->getOpponent()->getReference() as $hisVar => $fkCol) {
+            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
                 if (empty($associations)) {
                     $cols[] = $entityManager->escapeIdentifier($fkCol);
                 }
@@ -178,11 +198,15 @@ class ManyToMany extends Relation
 
         foreach ($entities as $entity) {
             if (!$entity instanceof $this->class) {
-                throw new InvalidRelation('Invalid entity for relation ' . $this->name);
+                throw new InvalidRelation(sprintf(
+                    "Invalid entity for relation %s of entity %s",
+                    $this->name,
+                    $this->parent
+                ));
             }
 
             $condition = [];
-            foreach ($this->getOpponent()->getReference() as $hisVar => $fkCol) {
+            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
                 $value = $entity->__get($hisVar);
 
                 if ($value === null) {
@@ -214,7 +238,7 @@ class ManyToMany extends Relation
         call_user_func([ $fetcher, $join ], $table, implode(' AND ', $expression), null, [], true);
 
         $expression = [];
-        foreach ($this->getOpponent()->getReference() as $hisVar => $col) {
+        foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $col) {
             $expression[] = $table . '.' . $fetcher->getEntityManager()->escapeIdentifier($col) .
                             ' = ' . $this->name . '.' . $hisVar;
         }

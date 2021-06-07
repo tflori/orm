@@ -46,15 +46,4 @@ class OneToOneTest extends TestCase
 
         $entity->fetch('undefined1t1');
     }
-
-    /** @test */
-    public function fetchThrowsWhenReferenceInOpponentIsNotDefined()
-    {
-        $entity = new Snake_Ucfirst([], $this->em);
-
-        self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('No owner defined for relation');
-
-        $entity->fetch('relation');
-    }
 }

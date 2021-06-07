@@ -17,24 +17,24 @@ use ORM\Relation;
  */
 class OneToMany extends Relation
 {
+    use HasOpponent;
+
     /**
      * Owner constructor.
      *
-     * @param string $name
      * @param string $class
      * @param string $opponent
      * @param FilterInterface[]|callable[] $filters
      */
-    public function __construct($name, $class, $opponent, array $filters = [])
+    public function __construct($class, $opponent, array $filters = [])
     {
-        $this->name = $name;
         $this->class = $class;
         $this->opponent = $opponent;
         $this->filters = $filters;
     }
 
     /** {@inheritDoc} */
-    public static function fromShort($name, array $short)
+    public static function fromShort(array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
             return null;
@@ -42,17 +42,26 @@ class OneToMany extends Relation
             array_shift($short);
         }
 
-        return static::createStaticFromShort($name, $short);
+        return static::createStaticFromShort($short);
+    }
+
+    /** {@inheritDoc} */
+    protected static function fromAssoc(array $relDef)
+    {
+        if (isset($relDef[self::OPT_CARDINALITY]) && $relDef[self::OPT_CARDINALITY] === self::CARDINALITY_ONE) {
+            return null;
+        }
+
+        return self::createStaticFromAssoc($relDef);
     }
 
     /**
      * Create static::class from $short
      *
-     * @param $name
      * @param array $short
      * @return static|null
      */
-    protected static function createStaticFromShort($name, array $short)
+    protected static function createStaticFromShort(array $short)
     {
         // get filters
         $filters = [];
@@ -61,7 +70,25 @@ class OneToMany extends Relation
         }
 
         if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {
-            return new static($name, $short[0], $short[1], $filters);
+            return new static($short[0], $short[1], $filters);
+        }
+        return null;
+    }
+
+    /**
+     * Create static::class from $relDef
+     *
+     * @param array $relDef
+     * @return static|null
+     */
+    protected static function createStaticFromAssoc(array $relDef)
+    {
+        $class = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
+        $opponent = isset($relDef[self::OPT_OPPONENT]) ? $relDef[self::OPT_OPPONENT] : null;
+        $filters = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
+
+        if ($class && $opponent && !isset($relDef['table'])) {
+            return new static($class, $opponent, $filters);
         }
         return null;
     }
@@ -72,17 +99,7 @@ class OneToMany extends Relation
      */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $owner = $this->getOpponent();
-        if (!$owner instanceof Owner) {
-            throw new InvalidConfiguration(sprintf(
-                'No owner defined for relation %s:%s referencing %s:%s',
-                get_class($self),
-                $this->name,
-                $this->class,
-                $this->opponent
-            ));
-        }
-
+        $owner = $this->getOpponent(Owner::class);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);
         $owner->apply($fetcher, $self);
@@ -96,11 +113,9 @@ class OneToMany extends Relation
     /** {@inheritdoc} */
     public function addJoin(EntityFetcher $fetcher, $join, $alias)
     {
-        $expression = [];
-        foreach ($this->getOpponent()->getReference() as $hisVar => $myVar) {
-            $expression[] = $alias . '.' . $myVar . ' = ' . $this->name . '.' . $hisVar;
-        }
-
-        call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
+        $owner = $this->getOpponent(Owner::class);
+        $parenthesis = call_user_func([$fetcher, $join], $this->class, false, $this->name);
+        $owner->applyJoin($parenthesis, $alias, $this);
+        $parenthesis->close();
     }
 }

@@ -17,6 +17,7 @@ class RelationsFilterTest extends TestCase
     public function filtersCanBeDefinedForOneToOne()
     {
         $relation = Relation::createRelation(
+            static::class,
             'test',
             ['one', Article::class, 'writer', [NotDeletedFilter::class]]
         );
@@ -30,6 +31,7 @@ class RelationsFilterTest extends TestCase
     public function filtersAreAppliedToTheFetcherInOneToOneRelations()
     {
         $relation = Relation::createRelation(
+            static::class,
             'test',
             ['one', Article::class, 'writer', [NotDeletedFilter::class]]
         );
@@ -50,6 +52,7 @@ class RelationsFilterTest extends TestCase
     public function filtersCanBeDefinedForOneToMany()
     {
         $relation = Relation::createRelation(
+            static::class,
             'test',
             ['many', Article::class, 'writer', [NotDeletedFilter::class]]
         );
@@ -63,6 +66,7 @@ class RelationsFilterTest extends TestCase
     public function filtersAreAppliedToTheFetcherInOneToManyRelations()
     {
         $relation = Relation::createRelation(
+            static::class,
             'test',
             ['many', Article::class, 'writer', [NotDeletedFilter::class]]
         );
@@ -82,7 +86,7 @@ class RelationsFilterTest extends TestCase
     /** @test */
     public function filtersCanBeDefinedForManyToMany()
     {
-        $relation = Relation::createRelation('test', [
+        $relation = Relation::createRelation(static::class, 'test', [
             'many',
             Article::class,
             ['id' => 'category_id'],
@@ -99,7 +103,7 @@ class RelationsFilterTest extends TestCase
     /** @test */
     public function filtersAreAppliedToTheFetcherInManyToManyRelations()
     {
-        $relation = Relation::createRelation('test', [
+        $relation = Relation::createRelation(static::class, 'test', [
             'many',
             Article::class,
             ['id' => 'category_id'],
@@ -124,7 +128,7 @@ class RelationsFilterTest extends TestCase
     public static function filtersCanBeProvidedByObjects()
     {
         $filter = new NotDeletedFilter();
-        $relation = Relation::createRelation('test', [
+        $relation = Relation::createRelation(static::class, 'test', [
             'many',
             Article::class,
             ['id' => 'category_id'],

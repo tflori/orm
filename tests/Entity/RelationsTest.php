@@ -5,6 +5,7 @@ namespace ORM\Test\Entity;
 use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Exception;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
@@ -129,7 +130,7 @@ class RelationsTest extends TestCase
         $relationDefinition = $class::getRelation($relation);
 
         self::assertInstanceOf($type, $relationDefinition);
-        self::assertSame($related, $relationDefinition->getClass());
+        self::assertSame($related, self::getProtectedProperty($relationDefinition, 'class'));
     }
 
     /** @dataProvider provideRelationDefinitions
@@ -166,7 +167,7 @@ class RelationsTest extends TestCase
         self::expectException(InvalidConfiguration::class);
         self::expectExceptionMessage('Invalid short form for relation test');
 
-        Relation::createRelation('test', [
+        Relation::createRelation(static::class, 'test', [
             Article::class,
             ['id' => 'category_id'],
             'categories',
@@ -178,9 +179,9 @@ class RelationsTest extends TestCase
     public function throwsWhenClassIsMissing()
     {
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Invalid short form for relation test');
+        self::expectExceptionMessage('Invalid relation test for entity ');
 
-        Relation::createRelation('test', [
+        Relation::createRelation(static::class, 'test', [
             Relation::OPT_OPPONENT => 'something',
         ]);
     }
@@ -189,11 +190,21 @@ class RelationsTest extends TestCase
     public function throwsWhenOpponentAndReferenceIsMissing()
     {
         self::expectException(InvalidConfiguration::class);
-        self::expectExceptionMessage('Invalid short form for relation test');
+        self::expectExceptionMessage('Invalid relation test for entity ');
 
-        Relation::createRelation('test', [
+        Relation::createRelation(static::class, 'test', [
             Relation::OPT_CLASS => Article::class,
         ]);
+    }
+
+    /** @test */
+    public function throwsWhenBindIsCalledManually()
+    {
+        $relation = Article::getRelation('writer');
+
+        self::expectException(Exception::class);
+
+        $relation->bind(Category::class, 'writer');
     }
 
     public function provideRelationDefinitionsWithReference()
@@ -209,7 +220,7 @@ class RelationsTest extends TestCase
     {
         $relationDefinition = $class::getRelation($relation);
 
-        self::assertSame($reference, $relationDefinition->getReference());
+        self::assertSame($reference, self::getProtectedProperty($relationDefinition, 'reference'));
     }
 
     public function provideRelationDefinitionsWithOpponent()
@@ -227,13 +238,11 @@ class RelationsTest extends TestCase
         $cardinality,
         $related,
         $reference,
-        $opponent = null
+        $opponent
     ) {
-        $opponentRelation = $related::getRelation($opponent);
-
         $relationDefinition = $class::getRelation($relation);
 
-        self::assertSame($opponentRelation, $relationDefinition->getOpponent());
+        self::assertSame($opponent, self::getProtectedProperty($relationDefinition, 'opponent'));
     }
 
     public function provideRelationDefinitionsWithTable()

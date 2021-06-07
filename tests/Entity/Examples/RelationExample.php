@@ -34,6 +34,6 @@ class RelationExample extends Entity
 
     protected static function anotherSnakeRelation()
     {
-        return new Relation\OneToOne('anotherSnake', Snake_Ucfirst::class, 'relation');
+        return new Relation\OneToOne(Snake_Ucfirst::class, 'relation');
     }
 }
