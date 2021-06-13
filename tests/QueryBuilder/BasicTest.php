@@ -300,4 +300,19 @@ class BasicTest extends TestCase
 
         $query->setFetchMode(\PDO::FETCH_ASSOC, null);
     }
+
+    /** @test */
+    public function passesColumnNumber0()
+    {
+        if (!extension_loaded('pdo_sqlite')) {
+            $this->markTestSkipped('pdo_sqlite extension required for this test');
+        }
+
+        $em = new EntityManager([
+            EntityManager::OPT_CONNECTION => new DbConfig('sqlite', '/tmp/test.sqlite')
+        ]);
+        $query = $em->query('sqlite_master');
+
+        $query->setFetchMode(\PDO::FETCH_COLUMN, 0);
+    }
 }

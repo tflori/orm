@@ -44,7 +44,9 @@ trait ExecutesQueries
             return $this;
         }
 
-        $statement->setFetchMode(...array_filter([$mode, $classNameObject, $constructorArgs]));
+        $statement->setFetchMode(...array_filter([$mode, $classNameObject, $constructorArgs], function ($p) {
+            return $p !== null;
+        }));
         return $this;
     }
 
