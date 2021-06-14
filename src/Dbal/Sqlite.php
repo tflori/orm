@@ -50,14 +50,15 @@ class Sqlite extends Dbal
         $pdo = $this->entityManager->getConnection();
         $table = $this->escapeIdentifier($entity::getTableName());
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
-        $pdo->beginTransaction();
+        $inTransaction = $pdo->inTransaction();
+        $inTransaction ?: $pdo->beginTransaction();
         $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
             return $entity->getData();
         }, $entities)));
         $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
                             ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
             ->fetchAll(PDO::FETCH_ASSOC);
-        $pdo->commit();
+        $inTransaction ?: $pdo->commit();
 
         /** @var Entity $entity */
         foreach (array_reverse($entities) as $key => $entity) {
