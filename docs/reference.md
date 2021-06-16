@@ -1310,6 +1310,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$transactionCounter` | **integer** | Number of opened transactions |
 | **protected static** | `$typeMapping` | **array** |  |
 
 
@@ -1318,10 +1319,12 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbaldbal__construct) Dbal constructor.
 * [assertSameType](#ormdbaldbalassertsametype) 
+* [beginTransaction](#ormdbaldbalbegintransaction) Begin a transaction or create a savepoint
 * [buildDeleteStatement](#ormdbaldbalbuilddeletestatement) 
 * [buildInsert](#ormdbaldbalbuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbaldbalbuildsetclause) 
 * [buildUpdateStatement](#ormdbaldbalbuildupdatestatement) 
+* [commit](#ormdbaldbalcommit) Commit the current transaction or decrease the savepoint counter
 * [delete](#ormdbaldbaldelete) Delete rows from $table using $where conditions
 * [deleteEntity](#ormdbaldbaldeleteentity) Delete $entity from database
 * [describe](#ormdbaldbaldescribe) Describe a table
@@ -1339,6 +1342,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [insertAndSyncWithAutoInc](#ormdbaldbalinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [insertEntities](#ormdbaldbalinsertentities) Insert $entities into database
 * [normalizeType](#ormdbaldbalnormalizetype) Normalize $type
+* [rollback](#ormdbaldbalrollback) Rollback the current transaction or save point
 * [setOption](#ormdbaldbalsetoption) Set $option to $value
 * [syncInserted](#ormdbaldbalsyncinserted) Sync the $entities after insert
 * [update](#ormdbaldbalupdate) Update $table using $where to set $updates
@@ -1391,6 +1395,23 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Dbal::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -1481,6 +1502,45 @@ protected function buildUpdateStatement( $table, array $where, array $updates )
 | `$table` |   |  |
 | `$where` | **array**  |  |
 | `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Dbal::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -1878,6 +1938,23 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Dbal::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -6373,8 +6450,10 @@ public function withoutFilter( string $filterClass ): $this
 #### Methods
 
 * [__construct](#ormentitymanager__construct) Constructor
+* [beginTransaction](#ormentitymanagerbegintransaction) Begin a transaction or create a savepoint
 * [buildChecksum](#ormentitymanagerbuildchecksum) Build a checksum from $primaryKey
 * [buildPrimaryKey](#ormentitymanagerbuildprimarykey) Builds the primary key with column names as keys
+* [commit](#ormentitymanagercommit) Commit the current transaction or decrease the savepoint counter
 * [defineForNamespace](#ormentitymanagerdefinefornamespace) Define $this EntityManager as the default EntityManager for $nameSpace
 * [defineForParent](#ormentitymanagerdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormentitymanagerdelete) Delete $entity from database
@@ -6397,6 +6476,7 @@ public function withoutFilter( string $filterClass ): $this
 * [observe](#ormentitymanagerobserve) Observe $class using $observer
 * [query](#ormentitymanagerquery) Get a query builder for $table
 * [raw](#ormentitymanagerraw) Create a raw expression from $expression to disable escaping
+* [rollback](#ormentitymanagerrollback) Rollback the current transaction or save point
 * [setConnection](#ormentitymanagersetconnection) Add connection after instantiation
 * [setOption](#ormentitymanagersetoption) Set $option to $value
 * [setResolver](#ormentitymanagersetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
@@ -6422,6 +6502,23 @@ public function __construct( array $options = array() )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$options` | **array**  | Options for the new EntityManager |
+
+
+
+#### ORM\EntityManager::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -6471,6 +6568,45 @@ protected static function buildPrimaryKey( $class, array $primaryKey ): array
 |-----------|------|-------------|
 | `$class` | **string &#124; Entity**  |  |
 | `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\EntityManager::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -7005,6 +7141,23 @@ public static function raw( string $expression ): ORM\Dbal\Expression
 
 
 
+#### ORM\EntityManager::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
 #### ORM\EntityManager::setConnection
 
 ```php
@@ -7166,8 +7319,10 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [__construct](#ormtestingentitymanagermock__construct) Constructor
 * [addEntity](#ormtestingentitymanagermockaddentity) Add an entity to be fetched by primary key
 * [addResult](#ormtestingentitymanagermockaddresult) Create and add a EntityFetcherMock\Result for $class
+* [beginTransaction](#ormtestingentitymanagermockbegintransaction) Begin a transaction or create a savepoint
 * [buildChecksum](#ormtestingentitymanagermockbuildchecksum) Build a checksum from $primaryKey
 * [buildPrimaryKey](#ormtestingentitymanagermockbuildprimarykey) Builds the primary key with column names as keys
+* [commit](#ormtestingentitymanagermockcommit) Commit the current transaction or decrease the savepoint counter
 * [defineForNamespace](#ormtestingentitymanagermockdefinefornamespace) Define $this EntityManager as the default EntityManager for $nameSpace
 * [defineForParent](#ormtestingentitymanagermockdefineforparent) Define $this EntityManager as the default EntityManager for subClasses of $class
 * [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
@@ -7192,6 +7347,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [query](#ormtestingentitymanagermockquery) Get a query builder for $table
 * [raw](#ormtestingentitymanagermockraw) Create a raw expression from $expression to disable escaping
 * [retrieve](#ormtestingentitymanagermockretrieve) Retrieve an entity by $primaryKey
+* [rollback](#ormtestingentitymanagermockrollback) Rollback the current transaction or save point
 * [setConnection](#ormtestingentitymanagermocksetconnection) Add connection after instantiation
 * [setOption](#ormtestingentitymanagermocksetoption) Set $option to $value
 * [setResolver](#ormtestingentitymanagermocksetresolver) Overwrite the functionality of ::getInstance($class) by $resolver($class)
@@ -7271,6 +7427,23 @@ As the results are mocked to come from the database they will also get a primary
 
 
 
+#### ORM\Testing\EntityManagerMock::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+
+
 #### ORM\Testing\EntityManagerMock::buildChecksum
 
 ```php
@@ -7317,6 +7490,45 @@ protected static function buildPrimaryKey( $class, array $primaryKey ): array
 |-----------|------|-------------|
 | `$class` | **string &#124; \ORM\Entity**  |  |
 | `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -7896,6 +8108,23 @@ public function retrieve( string $class, array $primaryKey ): ORM\Entity|null
 |-----------|------|-------------|
 | `$class` | **string**  |  |
 | `$primaryKey` | **array**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -8980,6 +9209,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationmanytomanyfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationmanytomanyfromshort) {@inheritDoc}
 * [getForeignKey](#ormrelationmanytomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationmanytomanygetopponent) 
@@ -9194,6 +9424,29 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\ManyToMany::fromAssoc
+
+```php
+protected static function fromAssoc( array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\ManyToMany::fromShort
 
 ```php
@@ -9244,7 +9497,9 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\ManyToMany::getOpponent
 
 ```php
-protected function getOpponent(): ORM\Relation\ManyToMany
+protected function getOpponent(
+    string $requiredType = null
+): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -9252,8 +9507,14 @@ protected function getOpponent(): ORM\Relation\ManyToMany
 
 **Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\ManyToMany**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$requiredType` | **string**  |  |
 
 
 
@@ -9341,6 +9602,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [deleteRelated](#ormrelationmorpheddeleterelated) Delete $entities from association table
 * [fetch](#ormrelationmorphedfetch) Fetch the relation
 * [fetchAll](#ormrelationmorphedfetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationmorphedfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationmorphedfromshort) {@inheritDoc}
 * [getForeignKey](#ormrelationmorphedgetforeignkey) Get the foreign key for the given reference
 * [getMorphedClass](#ormrelationmorphedgetmorphedclass) Get the class for $type
@@ -9631,6 +9893,29 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\Morphed::fromAssoc
+
+```php
+public static function fromAssoc( array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\Morphed::fromShort
 
 ```php
@@ -9814,6 +10099,7 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$transactionCounter` | **integer** | Number of opened transactions |
 | **protected static** | `$typeMapping` | **array** |  |
 
 
@@ -9822,6 +10108,7 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 
 * [__construct](#ormdbalmysql__construct) Dbal constructor.
 * [assertSameType](#ormdbalmysqlassertsametype) 
+* [beginTransaction](#ormdbalmysqlbegintransaction) Begin a transaction or create a savepoint
 * [buildCompositeInExpression](#ormdbalmysqlbuildcompositeinexpression) Build a where in expression for composite values
 * [buildDeleteStatement](#ormdbalmysqlbuilddeletestatement) 
 * [buildInsert](#ormdbalmysqlbuildinsert) Build an insert statement for $rows
@@ -9829,6 +10116,7 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 * [buildTuples](#ormdbalmysqlbuildtuples) 
 * [buildUpdateJoinStatement](#ormdbalmysqlbuildupdatejoinstatement) 
 * [buildUpdateStatement](#ormdbalmysqlbuildupdatestatement) 
+* [commit](#ormdbalmysqlcommit) Commit the current transaction or decrease the savepoint counter
 * [delete](#ormdbalmysqldelete) Delete rows from $table using $where conditions
 * [deleteEntity](#ormdbalmysqldeleteentity) Delete $entity from database
 * [describe](#ormdbalmysqldescribe) Describe a table
@@ -9847,6 +10135,7 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 * [insertEntities](#ormdbalmysqlinsertentities) Insert $entities into database
 * [normalizeColumnDefinition](#ormdbalmysqlnormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalmysqlnormalizetype) Normalize $type
+* [rollback](#ormdbalmysqlrollback) Rollback the current transaction or save point
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalmysqlsyncinserted) Sync the $entities after insert
 * [update](#ormdbalmysqlupdate) Update $table using $where to set $updates
@@ -9899,6 +10188,23 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Mysql::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -10063,6 +10369,45 @@ protected function buildUpdateStatement( $table, array $where, array $updates )
 | `$table` |   |  |
 | `$where` | **array**  |  |
 | `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Mysql::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -10484,6 +10829,23 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Mysql::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -11467,10 +11829,12 @@ Return false to stop event execution.
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
 * [checkBoundTo](#ormrelationonetomanycheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
+* [createStaticFromAssoc](#ormrelationonetomanycreatestaticfromassoc) Create static::class from $relDef
 * [createStaticFromShort](#ormrelationonetomanycreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationonetomanyfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationonetomanyfromshort) {@inheritDoc}
 * [getForeignKey](#ormrelationonetomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetomanygetopponent) 
@@ -11604,6 +11968,30 @@ public static function createRelation(
 
 
 
+#### ORM\Relation\OneToMany::createStaticFromAssoc
+
+```php
+protected static function createStaticFromAssoc( array $relDef ): static|null
+```
+
+##### Create static::class from $relDef
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToMany::createStaticFromShort
 
 ```php
@@ -11707,6 +12095,29 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\OneToMany::fromAssoc
+
+```php
+protected static function fromAssoc( array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToMany::fromShort
 
 ```php
@@ -11757,7 +12168,9 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToMany::getOpponent
 
 ```php
-protected function getOpponent(): ORM\Relation\Owner
+protected function getOpponent(
+    string $requiredType = null
+): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -11765,8 +12178,14 @@ protected function getOpponent(): ORM\Relation\Owner
 
 **Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\Owner**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$requiredType` | **string**  |  |
 
 
 
@@ -11829,10 +12248,12 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
 * [checkBoundTo](#ormrelationonetoonecheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
+* [createStaticFromAssoc](#ormrelationonetoonecreatestaticfromassoc) Create static::class from $relDef
 * [createStaticFromShort](#ormrelationonetoonecreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
 * [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationonetoonefromassoc) {@inheritDoc}
 * [fromShort](#ormrelationonetoonefromshort) {@inheritDoc}
 * [getForeignKey](#ormrelationonetoonegetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetoonegetopponent) 
@@ -11966,6 +12387,30 @@ public static function createRelation(
 
 
 
+#### ORM\Relation\OneToOne::createStaticFromAssoc
+
+```php
+protected static function createStaticFromAssoc( array $relDef ): static|null
+```
+
+##### Create static::class from $relDef
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToOne::createStaticFromShort
 
 ```php
@@ -12069,6 +12514,29 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 
 
 
+#### ORM\Relation\OneToOne::fromAssoc
+
+```php
+protected static function fromAssoc( array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
 #### ORM\Relation\OneToOne::fromShort
 
 ```php
@@ -12119,7 +12587,9 @@ protected function getForeignKey( ORM\Entity $self, array $reference ): array
 #### ORM\Relation\OneToOne::getOpponent
 
 ```php
-protected function getOpponent(): ORM\Relation\Owner
+protected function getOpponent(
+    string $requiredType = null
+): ORM\Relation\Owner|ORM\Relation\ManyToMany
 ```
 
 
@@ -12127,8 +12597,14 @@ protected function getOpponent(): ORM\Relation\Owner
 
 **Visibility:** this method is **protected**.
 <br />
- **Returns**: this method returns **\ORM\Relation\Owner**
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
 <br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$requiredType` | **string**  |  |
 
 
 
@@ -12180,6 +12656,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$transactionCounter` | **integer** | Number of opened transactions |
 | **protected static** | `$typeMapping` | **array** |  |
 
 
@@ -12224,6 +12701,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
 * [fetch](#ormrelationownerfetch) Fetch the relation
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationownerfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationownerfromshort) {@inheritDoc}
 * [getForeignKey](#ormrelationownergetforeignkey) Get the foreign key for the given reference
 * [setRelated](#ormrelationownersetrelated) Set the relation to $entity
@@ -12482,6 +12960,29 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 |-----------|------|-------------|
 | `$self` | **\ORM\Entity**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::fromAssoc
+
+```php
+protected static function fromAssoc( array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
 
 
 
@@ -13355,6 +13856,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$transactionCounter` | **integer** | Number of opened transactions |
 | **protected static** | `$typeMapping` | **array** |  |
 
 
@@ -13363,11 +13865,13 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 
 * [__construct](#ormdbalpgsql__construct) Dbal constructor.
 * [assertSameType](#ormdbalpgsqlassertsametype) 
+* [beginTransaction](#ormdbalpgsqlbegintransaction) Begin a transaction or create a savepoint
 * [buildDeleteStatement](#ormdbalpgsqlbuilddeletestatement) 
 * [buildInsert](#ormdbalpgsqlbuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbalpgsqlbuildsetclause) 
 * [buildUpdateFromStatement](#ormdbalpgsqlbuildupdatefromstatement) 
 * [buildUpdateStatement](#ormdbalpgsqlbuildupdatestatement) 
+* [commit](#ormdbalpgsqlcommit) Commit the current transaction or decrease the savepoint counter
 * [convertJoin](#ormdbalpgsqlconvertjoin) 
 * [delete](#ormdbalpgsqldelete) Delete rows from $table using $where conditions
 * [deleteEntity](#ormdbalpgsqldeleteentity) Delete $entity from database
@@ -13386,6 +13890,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 * [insertAndSyncWithAutoInc](#ormdbalpgsqlinsertandsyncwithautoinc) Insert $entities and sync with auto increment primary key
 * [insertEntities](#ormdbalpgsqlinsertentities) Insert $entities into database
 * [normalizeType](#ormdbalpgsqlnormalizetype) Normalize $type
+* [rollback](#ormdbalpgsqlrollback) Rollback the current transaction or save point
 * [setOption](#ormdbalpgsqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalpgsqlsyncinserted) Sync the $entities after insert
 * [update](#ormdbalpgsqlupdate) Update $table using $where to set $updates
@@ -13438,6 +13943,23 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -13554,6 +14076,45 @@ protected function buildUpdateStatement( $table, array $where, array $updates )
 | `$table` |   |  |
 | `$where` | **array**  |  |
 | `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -13972,6 +14533,23 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Pgsql::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -18014,6 +18592,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** |  |
 | **protected** | `$identifierDivider` | **string** |  |
 | **protected** | `$quotingCharacter` | **string** |  |
+| **protected** | `$transactionCounter` | **integer** | Number of opened transactions |
 | **protected static** | `$typeMapping` | **array** |  |
 
 
@@ -18022,11 +18601,13 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 
 * [__construct](#ormdbalsqlite__construct) Dbal constructor.
 * [assertSameType](#ormdbalsqliteassertsametype) 
+* [beginTransaction](#ormdbalsqlitebegintransaction) Begin a transaction or create a savepoint
 * [buildDeleteStatement](#ormdbalsqlitebuilddeletestatement) 
 * [buildInsert](#ormdbalsqlitebuildinsert) Build an insert statement for $rows
 * [buildSetClause](#ormdbalsqlitebuildsetclause) 
 * [buildUpdateFromStatement](#ormdbalsqlitebuildupdatefromstatement) 
 * [buildUpdateStatement](#ormdbalsqlitebuildupdatestatement) 
+* [commit](#ormdbalsqlitecommit) Commit the current transaction or decrease the savepoint counter
 * [convertJoin](#ormdbalsqliteconvertjoin) 
 * [delete](#ormdbalsqlitedelete) Delete rows from $table using $where conditions
 * [deleteEntity](#ormdbalsqlitedeleteentity) Delete $entity from database
@@ -18047,6 +18628,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [insertEntities](#ormdbalsqliteinsertentities) Insert $entities into database
 * [normalizeColumnDefinition](#ormdbalsqlitenormalizecolumndefinition) Normalize a column definition
 * [normalizeType](#ormdbalsqlitenormalizetype) Normalize $type
+* [rollback](#ormdbalsqliterollback) Rollback the current transaction or save point
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
 * [syncInserted](#ormdbalsqlitesyncinserted) Sync the $entities after insert
 * [update](#ormdbalsqliteupdate) Update $table using $where to set $updates
@@ -18099,6 +18681,23 @@ protected static function assertSameType(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::beginTransaction
+
+```php
+public function beginTransaction(): boolean
+```
+
+##### Begin a transaction or create a savepoint
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
@@ -18215,6 +18814,45 @@ protected function buildUpdateStatement( $table, array $where, array $updates )
 | `$table` |   |  |
 | `$where` | **array**  |  |
 | `$updates` | **array**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::commit
+
+```php
+public function commit( boolean $all = false ): boolean
+```
+
+##### Commit the current transaction or decrease the savepoint counter
+
+Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+the commited savepoint will still be rolled back when you call rollback afterwards.
+
+Hopefully that gives a hint why save points are no transactions and what the limitations are.
+```
+Begin transaction
+  updates / inserts for transaction1
+  Create savepoint transaction1
+    updates / inserts for transaction2
+    Create savepoint transaction2
+      updates / inserts for transaction3
+    <no commit here but you called commit for transaction3>
+    updates / inserts for transaction2
+  rollback of transaction2 to savepoint of transaction1
+  update / inserts for transaction1
+commit of transaction1
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$all` | **boolean**  | Commit all opened transactions and savepoints |
 
 
 
@@ -18683,6 +19321,23 @@ The type returned by mysql is for example VARCHAR(20) - this function converts i
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::rollback
+
+```php
+public function rollback(): boolean
+```
+
+##### Rollback the current transaction or save point
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
 
 
 
