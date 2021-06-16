@@ -34,6 +34,10 @@ abstract class Dbal
     /** @var EntityManager */
     protected $entityManager;
 
+    /** Number of opened transactions
+     * @var int */
+    protected $transactionCounter = 0;
+
     /**
      * Dbal constructor.
      *
@@ -76,6 +80,77 @@ abstract class Dbal
                 break;
         }
         return $this;
+    }
+
+    /**
+     * Begin a transaction or create a savepoint
+     *
+     * @return bool
+     */
+    public function beginTransaction()
+    {
+        $conn = $this->entityManager->getConnection();
+        if (!$this->transactionCounter) {
+            $started = $conn->beginTransaction();
+            !$started ?: $this->transactionCounter++;
+            return $started;
+        }
+        $created = $conn->exec('SAVEPOINT transaction' . ($this->transactionCounter + 1));
+        $created === false ?: $this->transactionCounter++;
+        return $created !== false;
+    }
+
+    /**
+     * Commit the current transaction or decrease the savepoint counter
+     *
+     * Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+     * the commited savepoint will still be rolled back when you call rollback afterwards.
+     *
+     * Hopefully that gives a hint why save points are no transactions and what the limitations are.
+     * ```
+     * Begin transaction
+     *   updates / inserts for transaction1
+     *   Create savepoint transaction1
+     *     updates / inserts for transaction2
+     *     Create savepoint transaction2
+     *       updates / inserts for transaction3
+     *     <no commit here but you called commit for transaction3>
+     *     updates / inserts for transaction2
+     *   rollback of transaction2 to savepoint of transaction1
+     *   update / inserts for transaction1
+     * commit of transaction1
+     * ```
+     *
+     * @param bool $all Commit all opened transactions and savepoints
+     * @return bool
+     */
+    public function commit($all = false)
+    {
+        $conn = $this->entityManager->getConnection();
+        if (!$conn->inTransaction() || $this->transactionCounter === 0) {
+            return true; // or false?
+        }
+        $committed = $this->transactionCounter > 1 && !$all || $conn->commit();
+        !$committed ?: ($all ? $this->transactionCounter = 0 : $this->transactionCounter--);
+        return $committed;
+    }
+
+    /**
+     * Rollback the current transaction or save point
+     *
+     * @return bool
+     */
+    public function rollback()
+    {
+        $conn = $this->entityManager->getConnection();
+        if (!$conn->inTransaction() || $this->transactionCounter === 0) {
+            return false; // or true?
+        }
+        $rolledBack = $this->transactionCounter > 1 ?
+            $conn->exec('ROLLBACK TO transaction' . $this->transactionCounter) !== false :
+            $conn->rollBack();
+        !$rolledBack ?: $this->transactionCounter--;
+        return $rolledBack;
     }
 
     /**

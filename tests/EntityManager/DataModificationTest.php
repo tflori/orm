@@ -4,6 +4,8 @@ namespace ORM\Test\EntityManager;
 
 use Mockery\Mock;
 use Mockery as m;
+use ORM\Dbal\Mysql;
+use ORM\Dbal\Sqlite;
 use ORM\Entity;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\UnsupportedDriver;
@@ -210,9 +212,9 @@ class DataModificationTest extends TestCase
     {
         $entity = new $class($data);
         $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
-        $this->pdo->shouldReceive('inTransaction')->with()->once()->andReturnFalse();
-        $this->pdo->shouldReceive('beginTransaction')->with()->once();
+        $this->dbal->shouldReceive('beginTransaction')->with()->once();
         $this->pdo->shouldReceive('query')->with($statement)->once()->andThrow(new \PDOException('Query failed'));
+        $this->dbal->shouldReceive('rollback')->with()->once();
 
         self::expectException(\PDOException::class);
 
@@ -276,10 +278,10 @@ class DataModificationTest extends TestCase
     public function insertUpdatesAutoIncrementSqlite()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
-        $this->em->shouldReceive('getDbal')->passthru();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Sqlite::class, [$this->em])->makePartial());
 
-        $this->pdo->shouldReceive('inTransaction')->with()->once()->andReturnTrue()->ordered();
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
             ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
         $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42')->ordered();
@@ -288,6 +290,7 @@ class DataModificationTest extends TestCase
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
             ->once()->andReturn([['id' => '42', 'foo' => 'bar']])->ordered();
+        $dbal->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
@@ -299,11 +302,10 @@ class DataModificationTest extends TestCase
     public function insertWithAutoIncrementUsesTransactionsSqlite()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
-        $this->em->shouldReceive('getDbal')->passthru();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('sqlite');
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Sqlite::class, [$this->em])->makePartial());
 
-        $this->pdo->shouldReceive('inTransaction')->with()->once()->andReturnFalse()->ordered();
-        $this->pdo->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
             ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
         $this->pdo->shouldReceive('lastInsertId')->once()->andReturn('42')->ordered();
@@ -312,7 +314,7 @@ class DataModificationTest extends TestCase
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
             ->once()->andReturn([['id' => '42', 'foo' => 'bar']])->ordered();
-        $this->pdo->shouldReceive('commit')->with()->once()->ordered();
+        $dbal->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
@@ -321,13 +323,30 @@ class DataModificationTest extends TestCase
     }
 
     /** @test */
+    public function insertWithAutoIncrementRollbackTransactionSqlite()
+    {
+        $entity = new StudlyCaps(['foo' => 'bar']);
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Sqlite::class, [$this->em])->makePartial());
+
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
+            ->once()->andThrow(new \PDOException('Query failed'))->ordered();
+        $dbal->shouldReceive('rollback')->with()->once()->ordered();
+
+        self::expectException(\PDOException::class);
+
+        $this->em->insert($entity);
+    }
+
+    /** @test */
     public function insertReturnsAutoIncrementMysql()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
-        $this->em->shouldReceive('getDbal')->passthru();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Mysql::class, [$this->em])->makePartial());
 
-        $this->pdo->shouldReceive('inTransaction')->with()->once()->andReturnTrue()->ordered();
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
             ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern(
@@ -335,6 +354,7 @@ class DataModificationTest extends TestCase
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
             ->once()->andReturn([['id' => 42, 'foo' => 'bar']])->ordered();
+        $dbal->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
@@ -346,11 +366,10 @@ class DataModificationTest extends TestCase
     public function insertWithAutoIncrementUsesTransactionsMysql()
     {
         $entity = new StudlyCaps(['foo' => 'bar']);
-        $this->em->shouldReceive('getDbal')->passthru();
-        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('mysql');
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Mysql::class, [$this->em])->makePartial());
 
-        $this->pdo->shouldReceive('inTransaction')->with()->once()->andReturnFalse()->ordered();
-        $this->pdo->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
             ->once()->andReturn(m::mock(\PDOStatement::class))->ordered();
         $this->pdo->shouldReceive('query')->with(m::pattern(
@@ -358,12 +377,29 @@ class DataModificationTest extends TestCase
         ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
         $statement->shouldReceive('fetchAll')->with(\PDO::FETCH_ASSOC)
             ->once()->andReturn([['id' => 42, 'foo' => 'bar']])->ordered();
-        $this->pdo->shouldReceive('commit')->with()->once()->ordered();
+        $dbal->shouldReceive('commit')->with()->once()->ordered();
 
         $result = $this->em->insert($entity);
 
         self::assertSame(true, $result);
         self::assertSame(42, $entity->id);
+    }
+
+    /** @test */
+    public function insertWithAutoIncrementRollbackTransactionMysql()
+    {
+        $entity = new StudlyCaps(['foo' => 'bar']);
+        $this->em->shouldReceive('getDbal')
+            ->andReturn($dbal = m::mock(Mysql::class, [$this->em])->makePartial());
+
+        $dbal->shouldReceive('beginTransaction')->with()->once()->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES/'))
+            ->once()->andThrow(new \PDOException('Query failed'))->ordered();
+        $dbal->shouldReceive('rollback')->with()->once()->ordered();
+
+        self::expectException(\PDOException::class);
+
+        $this->em->insert($entity);
     }
 
     /** @test */

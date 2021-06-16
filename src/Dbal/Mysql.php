@@ -59,14 +59,18 @@ class Mysql extends Dbal
         $table = $this->escapeIdentifier($entity::getTableName());
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
         $pdo = $this->entityManager->getConnection();
-        $inTransaction = $pdo->inTransaction();
-        $inTransaction ?: $pdo->beginTransaction();
-        $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
-            return $entity->getData();
-        }, $entities)));
-        $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
-            ->fetchAll(PDO::FETCH_ASSOC);
-        $inTransaction ?: $pdo->commit();
+        $this->beginTransaction();
+        try {
+            $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
+                return $entity->getData();
+            }, $entities)));
+            $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' >= LAST_INSERT_ID()')
+                ->fetchAll(PDO::FETCH_ASSOC);
+            $this->commit();
+        } catch (PDOException $exception) {
+            $this->rollback();
+            throw $exception;
+        }
 
         /** @var Entity $entity */
         foreach (array_values($entities) as $key => $entity) {
