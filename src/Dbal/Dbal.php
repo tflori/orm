@@ -127,7 +127,7 @@ abstract class Dbal
     public function commit($all = false)
     {
         $conn = $this->entityManager->getConnection();
-        if (!$conn->inTransaction() || $this->transactionCounter === 0) {
+        if ($this->transactionCounter === 0) {
             return true; // or false?
         }
         $committed = $this->transactionCounter > 1 && !$all || $conn->commit();
@@ -143,7 +143,7 @@ abstract class Dbal
     public function rollback()
     {
         $conn = $this->entityManager->getConnection();
-        if (!$conn->inTransaction() || $this->transactionCounter === 0) {
+        if ($this->transactionCounter === 0) {
             return false; // or true?
         }
         $rolledBack = $this->transactionCounter > 1 ?
