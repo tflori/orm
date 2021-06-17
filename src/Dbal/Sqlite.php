@@ -48,17 +48,39 @@ class Sqlite extends Dbal
 
         $entity = reset($entities);
         $pdo = $this->entityManager->getConnection();
+        $this->beginTransaction();
+        try {
+            $pdo->query($this->buildInsert($entity::getTableName(), array_map(function (Entity $entity) {
+                return $entity->getData();
+            }, $entities)));
+            $this->syncInsertedWithAutoInc(...$entities);
+            $this->commit();
+        } catch (\PDOException $exception) {
+            $this->rollback();
+            throw $exception;
+        }
+
+        return true;
+    }
+
+    /**
+     * Synchronize inserted $entities
+     *
+     * This method expects that the inserted $entities where the last inserted entities and using
+     * an auto incremented primary key.
+     *
+     * @param Entity ...$entities
+     */
+    protected function syncInsertedWithAutoInc(Entity ...$entities)
+    {
+        $entity = reset($entities);
         $table = $this->escapeIdentifier($entity::getTableName());
         $pKey = $this->escapeIdentifier($entity::getColumnName($entity::getPrimaryKeyVars()[0]));
-        $inTransaction = $pdo->inTransaction();
-        $inTransaction ?: $pdo->beginTransaction();
-        $pdo->query($this->buildInsert($entities[0]::getTableName(), array_map(function (Entity $entity) {
-            return $entity->getData();
-        }, $entities)));
-        $rows = $pdo->query('SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
-                            ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities))
-            ->fetchAll(PDO::FETCH_ASSOC);
-        $inTransaction ?: $pdo->commit();
+        $pdo = $this->entityManager->getConnection();
+        $rows = $pdo->query(
+            'SELECT * FROM ' . $table . ' WHERE ' . $pKey . ' <= ' . $pdo->lastInsertId() .
+            ' ORDER BY ' . $pKey . ' DESC LIMIT ' . count($entities)
+        )->fetchAll(PDO::FETCH_ASSOC);
 
         /** @var Entity $entity */
         foreach (array_reverse($entities) as $key => $entity) {
@@ -66,8 +88,6 @@ class Sqlite extends Dbal
             $entity->reset();
             $this->entityManager->map($entity, true);
         }
-
-        return true;
     }
 
     public function update($table, array $where, array $updates, array $joins = [])

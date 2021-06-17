@@ -367,6 +367,58 @@ class EntityManager
     }
 
     /**
+     * Begin a transaction or create a savepoint
+     *
+     * @return bool
+     * @codeCoverageIgnore trivial code
+     */
+    public function beginTransaction()
+    {
+        return $this->getDbal()->beginTransaction();
+    }
+
+    /**
+     * Commit the current transaction or decrease the savepoint counter
+     *
+     * Actually nothing will be committed if there are savepoints. Instead the counter will be decreased and
+     * the commited savepoint will still be rolled back when you call rollback afterwards.
+     *
+     * Hopefully that gives a hint why save points are no transactions and what the limitations are.
+     * ```
+     * Begin transaction
+     *   updates / inserts for transaction1
+     *   Create savepoint transaction1
+     *     updates / inserts for transaction2
+     *     Create savepoint transaction2
+     *       updates / inserts for transaction3
+     *     <no commit here but you called commit for transaction3>
+     *     updates / inserts for transaction2
+     *   rollback of transaction2 to savepoint of transaction1
+     *   update / inserts for transaction1
+     * commit of transaction1
+     * ```
+     *
+     * @param bool $all Commit all opened transactions and savepoints
+     * @return bool
+     * @codeCoverageIgnore trivial code
+     */
+    public function commit($all = false)
+    {
+        return $this->getDbal()->commit($all);
+    }
+
+    /**
+     * Rollback the current transaction or save point
+     *
+     * @return bool
+     * @codeCoverageIgnore trivial code
+     */
+    public function rollback()
+    {
+        return $this->getDbal()->rollback();
+    }
+
+    /**
      * Get a query builder for $table
      *
      * @param string $table
