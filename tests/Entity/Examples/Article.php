@@ -19,7 +19,7 @@ class Article extends Entity implements Taggable
     
     protected static $relations = [
         'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category'],
-        'writer' => [User::class, ['user_id' => 'id']],
+        'writer' => [User::class, ['userId' => 'id']],
         'tags' => [Tag::class, 'parent'],
         'tagsByClass' => [Tag::class, 'parentNoMap'],
         'tagsOverArticleId' => [Tag::class, 'parentDifferentPk'],

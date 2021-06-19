@@ -9,6 +9,7 @@ use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
+use ORM\Helper;
 use ORM\Relation;
 
 /**
@@ -91,19 +92,10 @@ class ManyToMany extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $opponent = $this->getOpponent(ManyToMany::class);
-        $foreignKey = $this->getForeignKey($self, $this->reference);
-        /** @var EntityFetcher $fetcher */
-        $fetcher = $entityManager->fetch($this->class);
-        $table   = $entityManager->escapeIdentifier($this->table);
+        $table = $entityManager->escapeIdentifier($this->table);
+        $fetcher = $this->createFetcher($entityManager);
 
-        $expression = [];
-        foreach ($opponent->reference as $t0Var => $fkCol) {
-            $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
-        }
-
-        $fetcher->join($table, implode(' AND ', $expression));
-
+        $foreignKey = Helper::getKey($this->reference, $self, false);
         foreach ($foreignKey as $col => $value) {
             $fetcher->where($table . '.' . $entityManager->escapeIdentifier($col), $value);
         }
@@ -112,6 +104,38 @@ class ManyToMany extends Relation
             $fetcher->filter($filter);
         }
         return $fetcher;
+    }
+
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        $opponent = $this->getOpponent(ManyToMany::class);
+
+        $attributes = array_keys($this->reference);
+        $fkColumns = array_values($this->reference);
+        $opFkColumns = array_values($opponent->reference);
+        $opAttributes = array_keys($opponent->reference);
+
+        $mappingData = $this->getMappingData($em, ...$entities);
+
+        $foreignObjects = $em->fetch($this->class)
+            ->whereIn($opAttributes, Helper::uniqueArrays(array_map(function ($mappingRow) use ($opFkColumns) {
+                return Helper::only($mappingRow, $opFkColumns);
+            }, $mappingData)))
+            ->all();
+
+        // assign foreign objects to $entities
+        $foreignObjects = Helper::keyBy($foreignObjects, $opAttributes);
+        $mapping = Helper::groupBy($mappingData, $fkColumns);
+        foreach (Helper::groupBy($entities, $attributes) as $key => $entities) {
+            foreach ($entities as $entity) {
+                $entity->setCurrentRelated(
+                    $this->name,
+                    isset($mapping[$key]) ?
+                        array_values(Helper::only($foreignObjects, Helper::pluck($mapping[$key], $opFkColumns))) :
+                        []
+                );
+            }
+        }
     }
 
     /** {@inheritdoc}
@@ -244,5 +268,39 @@ class ManyToMany extends Relation
         }
 
         call_user_func([ $fetcher, $join ], $this->class, implode(' AND ', $expression), $this->name, [], true);
+    }
+
+    /**
+     * @param EntityManager $entityManager
+     * @return EntityFetcher
+     */
+    protected function createFetcher(EntityManager $entityManager)
+    {
+        $table = $entityManager->escapeIdentifier($this->table);
+        $opponent = $this->getOpponent(ManyToMany::class);
+        /** @var EntityFetcher $fetcher */
+        $fetcher = $entityManager->fetch($this->class);
+
+        $expression = [];
+        foreach ($opponent->reference as $t0Var => $fkCol) {
+            $expression[] = $table . '.' . $entityManager->escapeIdentifier($fkCol) . ' = t0.' . $t0Var;
+        }
+
+        $fetcher->join($table, implode(' AND ', $expression));
+        return $fetcher;
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param Entity[] $entities
+     * @return array
+     */
+    protected function getMappingData(EntityManager $em, Entity ...$entities)
+    {
+        $query = $em->query($em->escapeIdentifier($this->table), 't0')
+            ->whereIn(array_map(function ($col) use ($em) {
+                return 't0.' . $em->escapeIdentifier($col);
+            }, array_values($this->reference)), Helper::getUniqueKeys($this->reference, ...$entities));
+        return $query->all();
     }
 }

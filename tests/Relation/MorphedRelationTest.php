@@ -2,6 +2,7 @@
 
 namespace ORM\Test\Relation;
 
+use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\Exception\IncompletePrimaryKey;
@@ -373,5 +374,86 @@ class MorphedRelationTest extends TestCase
         self::expectException(InvalidType::class);
 
         $relation->setRelated(new Tag(), new User(['id' => 23]));
+    }
+
+    /** @test */
+    public function eagerLoadFetchesForeignObjectsPerType()
+    {
+        $tags = [
+            new Tag(['id' => 1, 'name' => 'a', 'parent_type' => 'article', 'parent_id' => 5]),
+            new Tag(['id' => 2, 'name' => 'b', 'parent_type' => 'article', 'parent_id' => 5]),
+            new Tag(['id' => 3, 'name' => 'c', 'parent_type' => 'image', 'parent_id' => 6]),
+            new Tag(['id' => 4, 'name' => 'd', 'parent_type' => 'image', 'parent_id' => 7]),
+        ];
+
+        $this->em->shouldReceive('fetch')->with(Article::class)->once()
+            ->andReturn($fetcher = m::mock(EntityFetcher::class)->makePartial());
+        $fetcher->shouldReceive('whereIn')->with(['id'], [['id' => 5]])->once()
+            ->andReturnSelf();
+        $fetcher->shouldReceive('all')->with()->once()
+            ->andReturn([
+                new Article(['id' => 5, 'title' => 'a and b']),
+            ]);
+
+        $this->em->shouldReceive('fetch')->with(Image::class)->once()
+            ->andReturn($fetcher = m::mock(EntityFetcher::class)->makePartial());
+        $fetcher->shouldReceive('whereIn')->with(['id'], [['id' => 6],['id' => 7]])->once()
+            ->andReturnSelf();
+        $fetcher->shouldReceive('all')->with()->once()
+            ->andReturn([
+                new Image(['id' => 6, 'title' => 'c not d']),
+                new Image(['id' => 7, 'title' => 'd not c']),
+            ]);
+
+        $this->em->eagerLoad('parent', ...$tags);
+    }
+
+    /** @test */
+    public function eagerLoadAssignsForeignObjectsToEntities()
+    {
+        $tags = [
+            $tag1 = new Tag(['id' => 1, 'name' => 'a', 'parent_type' => 'article', 'parent_id' => 5]),
+            $tag2 = new Tag(['id' => 2, 'name' => 'b', 'parent_type' => 'article', 'parent_id' => 5]),
+            $tag3 = new Tag(['id' => 3, 'name' => 'c', 'parent_type' => 'image', 'parent_id' => 6]),
+            $tag4 = new Tag(['id' => 4, 'name' => 'd', 'parent_type' => 'image', 'parent_id' => 7]),
+        ];
+
+        $this->em->shouldReceive('fetch')->with(Article::class)
+            ->andReturn($fetcher = m::mock(EntityFetcher::class, [$this->em, Article::class])->makePartial());
+        $fetcher->shouldReceive('all')->with()
+            ->andReturn([
+                $article5 = new Article(['id' => 5, 'title' => 'a and b']),
+            ]);
+
+        $this->em->shouldReceive('fetch')->with(Image::class)
+            ->andReturn($fetcher = m::mock(EntityFetcher::class, [$this->em, Image::class])->makePartial());
+        $fetcher->shouldReceive('all')->with()
+            ->andReturn([
+                $image6 = new Image(['id' => 6, 'title' => 'c not d']),
+                $image7 = new Image(['id' => 7, 'title' => 'd not c']),
+            ]);
+
+        $this->em->eagerLoad('parent', ...$tags);
+
+        self::assertSame($article5, $tag1->parent);
+        self::assertSame($article5, $tag2->parent);
+        self::assertSame($image6, $tag3->parent);
+        self::assertSame($image7, $tag4->parent);
+    }
+
+    /** @test */
+    public function eagerLoadSetsNullForUndefinedRelations()
+    {
+        $tags = [
+            $tag1 = new Tag(['id' => 1, 'name' => 'a']),
+            $tag2 = new Tag(['id' => 2, 'name' => 'b']),
+        ];
+
+        $this->em->shouldNotReceive('fetch');
+
+        $this->em->eagerLoad('parent', ...$tags);
+
+        self::assertNull($tag1->parent);
+        self::assertNull($tag2->parent);
     }
 }

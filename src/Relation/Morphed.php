@@ -15,7 +15,7 @@ class Morphed extends Owner
 {
     /** Reference definition
      * @var array */
-    protected $reference;
+    protected $morphReference;
 
     /** Column where the type gets persisted
      * @var string */
@@ -38,7 +38,7 @@ class Morphed extends Owner
     public function __construct($morphColumn, $morph, array $reference)
     {
         $this->morphColumn = $morphColumn;
-        $this->reference = $reference;
+        $this->morphReference = $reference;
         $referenceKeys = array_keys($reference);
         $firstReference = Helper::first($reference);
         if (is_array($morph)) {
@@ -88,11 +88,8 @@ class Morphed extends Owner
         $type = $this->getType($entity);
         $fetcher->where($this->morphColumn, $type);
 
-        $reference = $this->getMorphedReference($type);
-        $foreignKey = $this->getForeignKey($entity, array_flip($reference));
-        foreach ($foreignKey as $col => $value) {
-            $fetcher->where($col, $value);
-        }
+        $this->reference = $this->getMorphedReference($type);
+        parent::apply($fetcher, $entity);
     }
 
     /** {@inheritDoc} */
@@ -101,25 +98,61 @@ class Morphed extends Owner
         $type = $this->getType($opponent->parent);
         $join->where(sprintf('%s.%s', $opponent->name, $this->morphColumn), '=', $type);
 
-        $reference = $this->getMorphedReference($type);
-        foreach ($reference as $myColumn => $yourColumn) {
-            $join->where(sprintf("%s.%s = %s.%s", $yourAlias, $yourColumn, $opponent->name, $myColumn));
-        }
+        $this->reference = $this->getMorphedReference($type);
+        parent::applyJoin($join, $yourAlias, $opponent);
     }
 
     /** {@inheritDoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
         $type = $self->getAttribute($this->morphColumn);
-        $class = $this->getMorphedClass($type);
-        $reference = $this->getMorphedReference($type);
-        $key = array_map([$self, 'getAttribute' ], array_keys($reference));
+        $this->class = $this->getMorphedClass($type);
+        $this->reference = $this->getMorphedReference($type);
+        return parent::fetch($self, $entityManager);
+    }
 
-        if (in_array(null, $key)) {
-            return null;
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        /** @var Entity[][] $entitiesByType */
+        $entitiesByType = Helper::groupBy($entities, $this->morphColumn);
+
+        foreach ($entitiesByType as $type => $entities) {
+            if ($type === "") {
+                foreach ($entities as $entity) {
+                    $entity->setCurrentRelated($this->name, null);
+                }
+                continue;
+            }
+
+            $this->class = $this->getMorphedClass($type);
+            $this->reference = $this->getMorphedReference($type);
+            parent::eagerLoad($em, ...$entities);
         }
+    }
 
-        return $entityManager->fetch($class, $key);
+    public function eagerLoadSelf(EntityManager $em, Entity ...$foreignObjects)
+    {
+        $foreignObjectsByType = Helper::groupBy($foreignObjects, function (Entity $parent) {
+            return $this->getType($parent);
+        });
+
+        $associations = [];
+        foreach ($foreignObjectsByType as $type => $foreignObjects) {
+            $reference = $this->getMorphedReference($type);
+
+            $fkAttributes = array_keys($reference);
+            $keyAttributes = array_values($reference);
+
+            $entities = $em->fetch($this->parent)
+                ->where($this->morphColumn, $type)
+                ->whereIn($fkAttributes, Helper::getUniqueKeys(array_flip($reference), ...$foreignObjects))
+                ->all();
+            $this->assignForeignObjects($fkAttributes, $keyAttributes, $entities, $foreignObjects);
+            $associations = array_merge(Helper::groupBy($entities, function (Entity $entity) {
+                return spl_object_hash($entity->getRelated($this->name));
+            }), $associations);
+        }
+        return $associations;
     }
 
     /** {@inheritDoc} */
@@ -181,24 +214,24 @@ class Morphed extends Owner
     protected function getMorphedReference($type)
     {
         // the reference defines only a foreign key
-        if (count($this->reference) === 1 && isset($this->reference[0])) {
+        if (count($this->morphReference) === 1 && isset($this->morphReference[0])) {
             // then the primary key is referenced
             $class = class_exists($type) ? $type : $this->getMorphedClass($type);
             /** @var Entity|string $class */
-            return [$this->reference[0] => $class::getPrimaryKeyVars()[0]];
+            return [$this->morphReference[0] => $class::getPrimaryKeyVars()[0]];
         }
 
-        if (!is_array(Helper::first($this->reference))) {
-            return $this->reference;
+        if (!is_array(Helper::first($this->morphReference))) {
+            return $this->morphReference;
         }
 
-        if ($this->morphMap && isset($this->reference[$type])) {
-            return $this->reference[$type];
+        if ($this->morphMap && isset($this->morphReference[$type])) {
+            return $this->morphReference[$type];
         }
 
         return array_map(function ($pkMap) use ($type) {
             return $pkMap[$type];
-        }, $this->reference);
+        }, $this->morphReference);
     }
 
     /**
@@ -259,20 +292,20 @@ class Morphed extends Owner
             return;
         }
 
-        $fkAttributes = array_keys($this->reference);
+        $fkAttributes = array_keys($this->morphReference);
         if ($fkByType) {
-            $fkAttributes = array_reduce($this->reference, function ($carry, $reference) {
+            $fkAttributes = array_reduce($this->morphReference, function ($carry, $reference) {
                 return array_merge($carry, array_keys($reference));
             }, []);
 
             if ($newType !== null) {
-                $fkAttributes = array_diff($fkAttributes, array_keys($this->reference[$newType]));
+                $fkAttributes = array_diff($fkAttributes, array_keys($this->morphReference[$newType]));
             }
         }
 
         // the reference defines only a foreign key
-        if (count($this->reference) === 1 && isset($this->reference[0])) {
-            $self->setAttribute($this->reference[0], null);
+        if (count($this->morphReference) === 1 && isset($this->morphReference[0])) {
+            $self->setAttribute($this->morphReference[0], null);
         }
 
         foreach ($fkAttributes as $column) {
@@ -301,7 +334,7 @@ class Morphed extends Owner
      */
     protected function hasForeignKeysByType()
     {
-        return $this->morphMap && is_array(Helper::first($this->reference)) &&
-            array_diff(array_keys($this->morphMap), array_keys($this->reference)) === [];
+        return $this->morphMap && is_array(Helper::first($this->morphReference)) &&
+            array_diff(array_keys($this->morphMap), array_keys($this->morphReference)) === [];
     }
 }

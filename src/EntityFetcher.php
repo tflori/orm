@@ -41,6 +41,10 @@ class EntityFetcher extends QueryBuilder
      * @var string|QueryBuilderInterface */
     protected $query;
 
+    /** An array or relations that should be loaded
+     * @var array */
+    protected $eagerLoad = [];
+
     /** @noinspection PhpMissingParentConstructorInspection */
     /**
      * Constructor
@@ -139,7 +143,25 @@ class EntityFetcher extends QueryBuilder
             }
         }
 
+        foreach ($this->eagerLoad as $relation) {
+            $this->entityManager->eagerLoad($relation, ...$result);
+        }
+
         return $result;
+    }
+
+    /**
+     * Load $relations after all objects are loaded
+     *
+     * The relations are only loaded after you execute ->all()
+     *
+     * @param string ...$relations
+     * @return $this
+     */
+    public function with(...$relations)
+    {
+        $this->eagerLoad = array_merge($this->eagerLoad, $relations);
+        return $this;
     }
 
     /**

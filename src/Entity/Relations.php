@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityManager as EM;
 use ORM\Exception;
 use ORM\Exception\UndefinedRelation;
+use ORM\Helper;
 use ORM\Relation;
 
 trait Relations
@@ -68,7 +69,7 @@ trait Relations
      */
     public function getRelated($relation, $refresh = false)
     {
-        if ($refresh || !isset($this->relatedObjects[$relation])) {
+        if ($refresh || !array_key_exists($relation, $this->relatedObjects)) {
             $this->relatedObjects[$relation] = $this->fetch($relation, true);
         }
 
@@ -163,6 +164,33 @@ trait Relations
 
         return $getAll ? $relation->fetchAll($this, $this->entityManager) :
             $relation->fetch($this, $this->entityManager);
+    }
+
+    /**
+     * Load the related objects of $relation
+     *
+     * Deeper relations can be loaded by separating them by "." for example load all articles with comments from
+     * a user ($this): `$user->load('articles.comments')`.
+     *
+     * @param string $relation
+     * @return $this
+     * @codeCoverageIgnore trivial
+     */
+    public function load($relation)
+    {
+        $this->entityManager->eagerLoad($relation, $this);
+        return $this;
+    }
+
+    /**
+     * Check if $relation got loaded already
+     *
+     * @param string $relation
+     * @return bool
+     */
+    public function hasLoaded($relation)
+    {
+        return array_key_exists($relation, $this->relatedObjects);
     }
 
     /**

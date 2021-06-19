@@ -577,6 +577,19 @@ abstract class Entity implements Serializable
     }
 
     /**
+     * Set currently related object
+     *
+     * @param string $relation
+     * @param array|Entity[]|?Entity $related
+     * @codeCoverageIgnore trivial code
+     * @internal
+     */
+    public function setCurrentRelated($relation, $related)
+    {
+        $this->relatedObjects[$relation] = $related;
+    }
+
+    /**
      * Get an array of the entity
      *
      * @param array $attributes

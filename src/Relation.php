@@ -192,29 +192,6 @@ abstract class Relation
     }
 
     /**
-     * Get the foreign key for the given reference
-     *
-     * @param Entity $self
-     * @param array $reference
-     * @return array
-     * @throws IncompletePrimaryKey
-     */
-    protected function getForeignKey(Entity $self, $reference)
-    {
-        $foreignKey = [];
-
-        foreach ($reference as $attribute => $fkAttribute) {
-            $foreignKey[$fkAttribute] = $self->getAttribute($attribute);
-
-            if ($foreignKey[$fkAttribute] === null) {
-                throw new IncompletePrimaryKey('Key incomplete for join');
-            }
-        }
-
-        return $foreignKey;
-    }
-
-    /**
      * Set the relation to $entity
      *
      * @param Entity $self
@@ -253,6 +230,17 @@ abstract class Relation
     }
 
     /**
+     * Load this relation for all $entities with one query
+     *
+     * @param Entity ...$entities
+     * @codeCoverageIgnore trivial
+     */
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        throw new InvalidRelation('Eager loading not supported for relation '. $this->name);
+    }
+
+    /**
      * Join this relation in $fetcher
      *
      * @param EntityFetcher $fetcher
@@ -262,4 +250,27 @@ abstract class Relation
      * @return mixed
      */
     abstract public function addJoin(EntityFetcher $fetcher, $join, $alias);
+
+    /**
+     * Assign $foreignObjects to $entities mapped by attributes
+     *
+     * @param array $fkAttributes
+     * @param array $keyAttributes
+     * @param array $entities
+     * @param array $foreignObjects
+     */
+    protected function assignForeignObjects(
+        array $fkAttributes,
+        array $keyAttributes,
+        array $entities,
+        array $foreignObjects
+    ) {
+        $foreignObjects = Helper::keyBy($foreignObjects, $keyAttributes);
+        $entityGroups = Helper::groupBy($entities, $fkAttributes);
+        foreach ($entityGroups as $key => $entities) {
+            foreach ($entities as $entity) {
+                $entity->setCurrentRelated($this->name, isset($foreignObjects[$key]) ? $foreignObjects[$key] : null);
+            }
+        }
+    }
 }

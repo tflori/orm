@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityManager;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidRelation;
+use ORM\Helper;
 use ORM\QueryBuilder\Parenthesis;
 use ORM\Relation;
 
@@ -62,13 +63,51 @@ class Owner extends Relation
     /** {@inheritdoc} */
     public function fetch(Entity $self, EntityManager $entityManager)
     {
-        $key = array_map([$self, 'getAttribute' ], array_keys($this->reference));
-
-        if (in_array(null, $key)) {
+        $key = Helper::getKey($this->reference, $self);
+        if ($key === null) {
             return null;
         }
 
-        return $entityManager->fetch($this->class, $key);
+        return $entityManager->fetch($this->class, array_values($key));
+    }
+
+    /**
+     * Load all foreign objects of all $entities with one query
+     *
+     * @param EntityManager $em
+     * @param Entity ...$entities
+     */
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        $fkAttributes = array_keys($this->reference);
+        $keyAttributes = array_values($this->reference);
+
+        $foreignObjects = $em->fetch($this->class)
+            ->whereIn($keyAttributes, Helper::getUniqueKeys($this->reference, ...$entities))
+            ->all();
+        $this->assignForeignObjects($fkAttributes, $keyAttributes, $entities, $foreignObjects);
+    }
+
+    /**
+     * Load all entities referencing one of the $foreignObjects
+     *
+     * @param EntityManager $em
+     * @param Entity ...$foreignObjects
+     * @return array
+     * @internal
+     */
+    public function eagerLoadSelf(EntityManager $em, Entity ...$foreignObjects)
+    {
+        $fkAttributes = array_keys($this->reference);
+        $keyAttributes = array_values($this->reference);
+
+        $entities = $em->fetch($this->parent)
+            ->whereIn($fkAttributes, Helper::getUniqueKeys(array_flip($this->reference), ...$foreignObjects))
+            ->all();
+        $this->assignForeignObjects($fkAttributes, $keyAttributes, $entities, $foreignObjects);
+        return Helper::groupBy($entities, function (Entity $entity) {
+            return spl_object_hash($entity->getRelated($this->name));
+        });
     }
 
     /**
@@ -84,9 +123,9 @@ class Owner extends Relation
      */
     public function apply(EntityFetcher $fetcher, Entity $entity)
     {
-        $foreignKey = $this->getForeignKey($entity, array_flip($this->reference));
-        foreach ($foreignKey as $col => $value) {
-            $fetcher->where($col, $value);
+        $foreignKey = Helper::getKey(array_flip($this->reference), $entity, false);
+        foreach ($foreignKey as $attribute => $value) {
+            $fetcher->where($attribute, $value);
         }
     }
 

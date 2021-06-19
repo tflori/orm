@@ -4,6 +4,7 @@ namespace ORM\Relation;
 
 use ORM\Entity;
 use ORM\EntityManager;
+use ORM\Helper;
 
 /**
  * OneToOne Relation
@@ -39,5 +40,18 @@ class OneToOne extends OneToMany
         }
 
         return self::createStaticFromAssoc($relDef);
+    }
+
+    /** {@inheritDoc} */
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        $foreignObjects = $this->getOpponent(Owner::class)->eagerLoadSelf($em, ...$entities);
+        foreach ($entities as $entity) {
+            $key = spl_object_hash($entity);
+            $entity->setCurrentRelated(
+                $this->name,
+                isset($foreignObjects[$key]) ? Helper::first($foreignObjects[$key]) : null
+            );
+        }
     }
 }

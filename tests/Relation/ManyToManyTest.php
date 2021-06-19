@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\UndefinedRelation;
+use ORM\QueryBuilder\QueryBuilder;
 use ORM\Relation\ManyToMany;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
@@ -145,5 +146,82 @@ class ManyToManyTest extends TestCase
             new Category(['id' => 1, 'name' => 'Foos'], null, true),
             new Category(['id' => 2, 'name' => 'Bars'], null, true),
         ], $result);
+    }
+
+    /** @test */
+    public function eagerLoadFetchesAllOpponentsWithTwoQueries()
+    {
+        $articles = [
+            new Article(['id' => 3, 'text' => 'Hello Jane!']),
+            new Article(['id' => 4, 'text' => 'Hello John!']),
+            new Article(['id' => 5, 'text' => 'Hello Carl!']),
+            new Article(['id' => 6, 'text' => 'Hello Carl!']),
+        ];
+
+        // query 1 to get the mapping data
+        $this->em->shouldReceive('query')->with('"article_category"', 't0')->once()
+            ->andReturn($query = m::mock(QueryBuilder::class, ['"article_category"', 't0', $this->em])->makePartial());
+        $query->shouldReceive('whereIn')->with(['t0."article_id"'], [
+            ['article_id' => 3], ['article_id' => 4], ['article_id' => 5], ['article_id' => 6]
+        ])->once()->andReturnSelf();
+        $query->shouldReceive('all')->with()->once()->andReturn([
+            ['article_id' => 3, 'category_id' => 1],
+            ['article_id' => 3, 'category_id' => 2],
+            ['article_id' => 4, 'category_id' => 2],
+            ['article_id' => 5, 'category_id' => 3],
+        ]);
+
+        // query 2 to get the entities
+        $this->em->shouldReceive('fetch')->with(Category::class)->once()
+            ->andReturn($fetcher = m::mock(EntityFetcher::class, [$this->em, Category::class])->makePartial());
+        $fetcher->shouldReceive('whereIn')->with(['id'], [
+            ['category_id' => 1],
+            ['category_id' => 2],
+            ['category_id' => 3]
+        ])->once()->andReturnSelf();
+        $fetcher->shouldReceive('all')->with()->once()
+            ->andReturn([
+                new Category(['id' => 1, 'name' => 'Science']),
+                new Category(['id' => 2, 'name' => 'Fiction']),
+                new Category(['id' => 3, 'name' => 'Misc']),
+            ]);
+
+        $this->em->eagerLoad('categories', ...$articles);
+    }
+
+    /** @test */
+    public function eagerLoadAssignsCategoriesToArticles()
+    {
+        $articles = [
+            $article3 = new Article(['id' => 3, 'text' => 'Hello Jane!']),
+            $article4 = new Article(['id' => 4, 'text' => 'Hello John!']),
+            $article5 = new Article(['id' => 5, 'text' => 'Hello Carl!']),
+            $article6 = new Article(['id' => 6, 'text' => 'Hello Carl!']),
+        ];
+
+        $this->em->shouldReceive('query')->with('"article_category"', 't0')
+            ->andReturn($query = m::mock(QueryBuilder::class, ['"article_category"', 't0', $this->em])->makePartial());
+        $query->shouldReceive('all')->with()->andReturn([
+            ['article_id' => 3, 'category_id' => 1],
+            ['article_id' => 3, 'category_id' => 2],
+            ['article_id' => 4, 'category_id' => 2],
+            ['article_id' => 5, 'category_id' => 3],
+        ]);
+
+        $this->em->shouldReceive('fetch')->with(Category::class)->once()
+            ->andReturn($fetcher = m::mock(EntityFetcher::class, [$this->em, Category::class])->makePartial());
+        $fetcher->shouldReceive('all')->with()
+            ->andReturn([
+                $category1 = new Category(['id' => 1, 'name' => 'Science']),
+                $category2 = new Category(['id' => 2, 'name' => 'Fiction']),
+                $category3 = new Category(['id' => 3, 'name' => 'Misc']),
+            ]);
+
+        $this->em->eagerLoad('categories', ...$articles);
+
+        self::assertSame([$category1, $category2], $article3->categories);
+        self::assertSame([$category2], $article4->categories);
+        self::assertSame([$category3], $article5->categories);
+        self::assertSame([], $article6->categories);
     }
 }
