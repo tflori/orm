@@ -581,9 +581,10 @@ abstract class Entity implements Serializable
      *
      * @param array $attributes
      * @param bool $includeRelations
+     * @param array $parents Prevent output containing toArray from parents
      * @return array
      */
-    public function toArray(array $attributes = [], $includeRelations = true)
+    public function toArray(array $attributes = [], $includeRelations = true, array $parents = [])
     {
         if (empty($attributes)) {
             $attributes = array_keys(static::$columnAliases);
@@ -599,18 +600,32 @@ abstract class Entity implements Serializable
         $result = (array)array_combine($attributes, $values);
 
         if ($includeRelations) {
+            array_push($parents, $this);
             foreach ($this->relatedObjects as $relation => $relatedObject) {
                 if (is_array($relatedObject)) {
-                    $result[$relation] = array_map(function (Entity $relatedObject) {
-                        return $relatedObject->toArray();
+                    $result[$relation] = array_map(function (Entity $relatedObject) use ($parents) {
+                        return static::toArrayPreventRecursion($relatedObject, $parents);
                     }, $relatedObject);
                 } elseif ($relatedObject instanceof Entity) {
-                    $result[$relation] = $relatedObject->toArray();
+                    $result[$relation] = static::toArrayPreventRecursion($relatedObject, $parents);
                 }
             }
         }
 
         return $result;
+    }
+
+    protected static function toArrayPreventRecursion(Entity $relatedObject, array $parents)
+    {
+        if (in_array($relatedObject, $parents)) {
+            try {
+                $key = implode('-', $relatedObject->getPrimaryKey());
+            } catch (IncompletePrimaryKey $e) {
+                $key = spl_object_hash($relatedObject);
+            }
+            return '[RECURSION] ' . get_class($relatedObject) . ':' . $key;
+        }
+        return $relatedObject->toArray([], true, $parents);
     }
 
     /**
