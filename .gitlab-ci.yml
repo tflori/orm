@@ -28,7 +28,7 @@ php71-unit-test:
   script:
     - php -dzend_extension=xdebug.so vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always;
   after_script:
-    - [ "$CI_JOB_STATUS" == "success" ] && TEST_RESULT=0 || else TEST_RESULT=1
+    - test "$CI_JOB_STATUS" == "success" && TEST_RESULT=0 || TEST_RESULT=1
     - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_RESULT;
 
 php72-unit-test:
