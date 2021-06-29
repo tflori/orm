@@ -21,6 +21,7 @@ php71-unit-test:
   extends: .php-unit-test
   image: iras/php7-composer:1
   before_script:
+    - apk add --no-cache openssl
     - wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -O ./cc-test-reporter
     - chmod +x ./cc-test-reporter
     - ./cc-test-reporter before-build
