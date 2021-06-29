@@ -15,21 +15,21 @@ php56-unit-test:
   extends: .php-unit-test
   image: iras/php5-composer:1
   script:
-    - vendor/bin/phpunit -c phpunit.xml --color=always --printer=PHPUnit_TextUI_ResultPrinter;
+    - vendor/bin/phpunit -c phpunit.xml --color=always --printer=PHPUnit_TextUI_ResultPrinter
 
 php71-unit-test:
   extends: .php-unit-test
   image: iras/php7-composer:1
   before_script:
-    - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter;
-    - chmod +x ./cc-test-reporter;
-    - ./cc-test-reporter before-build;
+    - wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -O ./cc-test-reporter
+    - chmod +x ./cc-test-reporter
+    - ./cc-test-reporter before-build
     - composer install --no-interaction
   script:
-    - php -dzend_extension=xdebug.so vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always;
+    - php -dzend_extension=xdebug.so vendor/bin/phpunit -c phpunit.xml --coverage-clover=clover.xml --coverage-text --color=always
   after_script:
     - test "$CI_JOB_STATUS" == "success" && TEST_RESULT=0 || TEST_RESULT=1
-    - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_RESULT;
+    - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TEST_RESULT
 
 php72-unit-test:
   extends: .php-unit-test

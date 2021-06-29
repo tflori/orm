@@ -172,9 +172,9 @@ class ToArrayTest extends TestCase
 
         $result = $entity->toArray();
 
-        self::assertIsArray($result['categories'][0]);
+        self::asserTrue(is_array($result['categories'][0]));
         self::assertArraySubset(['name' => 'Science'], $result['categories'][0]);
-        self::assertIsArray($result['writer']);
+        self::assertTrue(is_array($result['writer']));
         self::assertArraySubset(['name' => 'John Doe'], $result['writer']);
     }
 
