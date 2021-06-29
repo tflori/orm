@@ -5,9 +5,7 @@ namespace ORM\Entity;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager as EM;
-use ORM\Exception;
 use ORM\Exception\UndefinedRelation;
-use ORM\Helper;
 use ORM\Relation;
 
 trait Relations
@@ -169,7 +167,7 @@ trait Relations
     /**
      * Load the related objects of $relation
      *
-     * Deeper relations can be loaded by separating them by "." for example load all articles with comments from
+     * Nested relations can be loaded by separating them by "." for example load all articles with comments from
      * a user ($this): `$user->load('articles.comments')`.
      *
      * @param string $relation

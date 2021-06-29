@@ -2308,12 +2308,14 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [getRelation](#ormentitygetrelation) Get the definition for $relation
 * [getTableName](#ormentitygettablename) Get the table name
 * [getTableNameTemplate](#ormentitygettablenametemplate) 
+* [hasLoaded](#ormentityhasloaded) Check if $relation got loaded already
 * [hasPrimaryKey](#ormentityhasprimarykey) Check if the entity has has a complete primary key
 * [insertEntity](#ormentityinsertentity) Insert the row in the database
 * [isAutoIncremented](#ormentityisautoincremented) Check if the table has a auto increment column
 * [isDirty](#ormentityisdirty) Checks if entity or $attribute got changed
 * [isValid](#ormentityisvalid) Check if the current data is valid
 * [isValidatorEnabled](#ormentityisvalidatorenabled) Check if the validator is enabled
+* [load](#ormentityload) Load the related objects of $relation
 * [observeBy](#ormentityobserveby) Observe the class using $observer
 * [onChange](#ormentityonchange) Empty event handler
 * [onInit](#ormentityoninit) Empty event handler
@@ -2335,6 +2337,7 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [setRelated](#ormentitysetrelated) Set $relation to $entity
 * [setTableNameTemplate](#ormentitysettablenametemplate) 
 * [toArray](#ormentitytoarray) Get an array of the entity
+* [toArrayPreventRecursion](#ormentitytoarraypreventrecursion) 
 * [unserialize](#ormentityunserialize) Constructs the object
 * [updateEntity](#ormentityupdateentity) Update the row in the database
 * [validate](#ormentityvalidate) Validate $value for $attribute
@@ -2997,6 +3000,29 @@ public static function getTableNameTemplate(): string
 
 
 
+#### ORM\Entity::hasLoaded
+
+```php
+public function hasLoaded( string $relation ): boolean
+```
+
+##### Check if $relation got loaded already
+
+
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **boolean**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
+
+
+
 #### ORM\Entity::hasPrimaryKey
 
 ```php
@@ -3110,6 +3136,30 @@ public static function isValidatorEnabled(): boolean
 <br />
  **Returns**: this method returns **boolean**
 <br />
+
+
+
+#### ORM\Entity::load
+
+```php
+public function load( string $relation ): $this
+```
+
+##### Load the related objects of $relation
+
+Nested relations can be loaded by separating them by "." for example load all articles with comments from
+a user ($this): `$user->load('articles.comments')`.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` | **string**  |  |
 
 
 
@@ -3557,7 +3607,8 @@ public static function setTableNameTemplate( string $tableNameTemplate )
 
 ```php
 public function toArray(
-    array $attributes = array(), boolean $includeRelations = true
+    array $attributes = array(), boolean $includeRelations = true, 
+    array $parents = array()
 ): array
 ```
 
@@ -3576,6 +3627,32 @@ public function toArray(
 |-----------|------|-------------|
 | `$attributes` | **array**  |  |
 | `$includeRelations` | **boolean**  |  |
+| `$parents` | **array**  | Prevent output containing toArray from parents |
+
+
+
+#### ORM\Entity::toArrayPreventRecursion
+
+```php
+protected static function toArrayPreventRecursion(
+    ORM\Entity $relatedObject, array $parents
+)
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relatedObject` | **Entity**  |  |
+| `$parents` | **array**  |  |
 
 
 
@@ -3710,6 +3787,7 @@ Supported:
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
 | **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | **EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$eagerLoad` | **array** | An array or relations that should be loaded |
 | **protected** | `$entityManager` | **EntityManager** | EntityManager to use for quoting |
 | **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
 | **protected** | `$filters` | **array&lt;EntityFetcher \ FilterInterface>** | A list of filters to apply additionally |
@@ -3783,6 +3861,7 @@ Supported:
 * [whereIn](#ormentityfetcherwherein) Add a where in condition with AND.
 * [whereNotIn](#ormentityfetcherwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormentityfetcherwhereprefix) Get the prefix for a where condition or empty if not needed
+* [with](#ormentityfetcherwith) Load $relations after all objects are loaded
 * [withoutFilter](#ormentityfetcherwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\EntityFetcher::__construct
@@ -5013,6 +5092,29 @@ private function wherePrefix( string $bool ): string
 
 
 
+#### ORM\EntityFetcher::with
+
+```php
+public function with( string $relations ): $this
+```
+
+##### Load $relations after all objects are loaded
+
+The relations are only loaded after you execute ->all()
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relations` | **string**  |  |
+
+
+
 #### ORM\EntityFetcher::withoutFilter
 
 ```php
@@ -5074,6 +5176,7 @@ Supported:
 | **protected** | `$currentResult` | **array** |  |
 | **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$eagerLoad` | **array** | An array or relations that should be loaded |
 | **public** | `$entityManager` | **EntityManagerMock** |  |
 | **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
 | **protected** | `$filters` | **array&lt; \ ORM \ EntityFetcher \ FilterInterface>** | A list of filters to apply additionally |
@@ -5147,6 +5250,7 @@ Supported:
 * [whereIn](#ormtestingentityfetchermockwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormtestingentityfetchermockwhereprefix) Get the prefix for a where condition or empty if not needed
+* [with](#ormtestingentityfetchermockwith) Load $relations after all objects are loaded
 * [withoutFilter](#ormtestingentityfetchermockwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\Testing\EntityFetcherMock::__construct
@@ -6370,6 +6474,29 @@ private function wherePrefix( string $bool ): string
 
 
 
+#### ORM\Testing\EntityFetcherMock::with
+
+```php
+public function with( string $relations ): $this
+```
+
+##### Load $relations after all objects are loaded
+
+The relations are only loaded after you execute ->all()
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relations` | **string**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock::withoutFilter
 
 ```php
@@ -6459,6 +6586,7 @@ public function withoutFilter( string $filterClass ): $this
 * [delete](#ormentitymanagerdelete) Delete $entity from database
 * [describe](#ormentitymanagerdescribe) Returns an array of columns from $table.
 * [detach](#ormentitymanagerdetach) Detach $observer from all classes
+* [eagerLoad](#ormentitymanagereagerload) 
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
@@ -6728,6 +6856,28 @@ Returns whether or not an observer got detached.
 |-----------|------|-------------|
 | `$observer` | **ObserverInterface**  |  |
 | `$from` | **string &#124; null**  |  |
+
+
+
+#### ORM\EntityManager::eagerLoad
+
+```php
+public function eagerLoad( $relation, ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+| `$entities` | **Entity**  |  |
 
 
 
@@ -7328,6 +7478,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
 * [describe](#ormtestingentitymanagermockdescribe) Returns an array of columns from $table.
 * [detach](#ormtestingentitymanagermockdetach) Detach $observer from all classes
+* [eagerLoad](#ormtestingentitymanagermockeagerload) 
 * [escapeIdentifier](#ormtestingentitymanagermockescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
@@ -7650,6 +7801,28 @@ Returns whether or not an observer got detached.
 |-----------|------|-------------|
 | `$observer` | **\ORM\ObserverInterface**  |  |
 | `$from` | **string &#124; null**  |  |
+
+
+
+#### ORM\Testing\EntityManagerMock::eagerLoad
+
+```php
+public function eagerLoad( $relation, ORM\Entity $entities )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relation` |   |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -8805,8 +8978,17 @@ Describes a class that generates primary keys in the protected method generatePr
 #### Methods
 
 * [first](#ormhelperfirst) Get the first element of $array
+* [getData](#ormhelpergetdata) 
+* [getKey](#ormhelpergetkey) Get the key (defined by $referenced) from $entity
+* [getUniqueKeys](#ormhelpergetuniquekeys) Get a unique list of keys (defined by $reference) from $entities
+* [getValueRetriever](#ormhelpergetvalueretriever) 
+* [groupBy](#ormhelpergroupby) 
+* [keyBy](#ormhelperkeyby) Create an associative array where the key
+* [only](#ormhelperonly) 
+* [pluck](#ormhelperpluck) 
 * [shortName](#ormhelpershortname) Gets the short name of a class without creating a Reflection
 * [traitUsesRecursive](#ormhelpertraitusesrecursive) Get all traits used by the class and it&#039;s parents.
+* [uniqueArrays](#ormhelperuniquearrays) Make an array of arrays unique
 
 #### ORM\Helper::first
 
@@ -8830,6 +9012,206 @@ Returns $default if the array is empty.
 |-----------|------|-------------|
 | `$array` | **array**  |  |
 | `$default` | **mixed**  |  |
+
+
+
+#### ORM\Helper::getData
+
+```php
+private static function getData( $item, $key )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$item` |   |  |
+| `$key` |   |  |
+
+
+
+#### ORM\Helper::getKey
+
+```php
+public static function getKey(
+    array $reference, ORM\Entity $entity, boolean $allowEmpty = true
+): array|null
+```
+
+##### Get the key (defined by $referenced) from $entity
+
+Reference defines the mapping of attributes in $entity to attributes in the referenced object.
+
+Example: $entity is an Article and the 'userId' references the 'id' of the user. Then $reference should be
+`['userId' => 'id']` and the result will be `['id' => 23]`
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array|null**
+<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$reference` | **array**  |  |
+| `$entity` | **Entity**  |  |
+| `$allowEmpty` | **boolean**  |  |
+
+
+
+#### ORM\Helper::getUniqueKeys
+
+```php
+public static function getUniqueKeys(
+    array $reference, ORM\Entity $entities
+): array|false
+```
+
+##### Get a unique list of keys (defined by $reference) from $entities
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array|false**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$reference` | **array**  |  |
+| `$entities` | **Entity**  |  |
+
+
+
+**See Also:**
+
+* \ORM\Helper::getKey 
+#### ORM\Helper::getValueRetriever
+
+```php
+private static function getValueRetriever( $retriever )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **private**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$retriever` |   |  |
+
+
+
+#### ORM\Helper::groupBy
+
+```php
+public static function groupBy( array $array, $retriever )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$retriever` |   |  |
+
+
+
+#### ORM\Helper::keyBy
+
+```php
+public static function keyBy( array $array, $retriever ): array|false
+```
+
+##### Create an associative array where the key
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array|false**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$retriever` |   |  |
+
+
+
+#### ORM\Helper::only
+
+```php
+public static function only( array $array, array $keys )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$keys` | **array**  |  |
+
+
+
+#### ORM\Helper::pluck
+
+```php
+public static function pluck( array $array, $retriever )
+```
+
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array**  |  |
+| `$retriever` |   |  |
 
 
 
@@ -8881,6 +9263,30 @@ Iterates recursively through traits to get traits used by traits.
 |-----------|------|-------------|
 | `$class` | **string**  |  |
 | `$withParents` | **boolean**  |  |
+
+
+
+#### ORM\Helper::uniqueArrays
+
+```php
+public static function uniqueArrays( array<array> $array ): array
+```
+
+##### Make an array of arrays unique
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$array` | **array&lt;array>**  |  |
 
 
 
@@ -9204,14 +9610,17 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [__construct](#ormrelationmanytomany__construct) ManyToMany constructor.
 * [addJoin](#ormrelationmanytomanyaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationmanytomanyaddrelated) Add $entities to association table
+* [assignForeignObjects](#ormrelationmanytomanyassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationmanytomanycheckboundto) Check if the relation is bound to $parent and throw if not
+* [createFetcher](#ormrelationmanytomanycreatefetcher) 
 * [createRelation](#ormrelationmanytomanycreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmanytomanydeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationmanytomanyeagerload) Load this relation for all $entities with one query
 * [fetch](#ormrelationmanytomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationmanytomanyfetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationmanytomanyfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationmanytomanyfromshort) {@inheritDoc}
-* [getForeignKey](#ormrelationmanytomanygetforeignkey) Get the foreign key for the given reference
+* [getMappingData](#ormrelationmanytomanygetmappingdata) 
 * [getOpponent](#ormrelationmanytomanygetopponent) 
 * [getTable](#ormrelationmanytomanygettable) 
 * [setRelated](#ormrelationmanytomanysetrelated) Set the relation to $entity
@@ -9295,6 +9704,34 @@ public function addRelated(
 
 
 
+#### ORM\Relation\ManyToMany::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
+
+
+
 #### ORM\Relation\ManyToMany::checkBoundTo
 
 ```php
@@ -9315,6 +9752,30 @@ protected function checkBoundTo( $parent, $name )
 |-----------|------|-------------|
 | `$parent` |   |  |
 | `$name` |   |  |
+
+
+
+#### ORM\Relation\ManyToMany::createFetcher
+
+```php
+protected function createFetcher(
+    ORM\EntityManager $entityManager
+): ORM\EntityFetcher
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\ORM\EntityFetcher**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entityManager` | **\ORM\EntityManager**  |  |
 
 
 
@@ -9369,6 +9830,29 @@ public function deleteRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load this relation for all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -9470,27 +9954,28 @@ public static function fromShort( array $short )
 
 
 
-#### ORM\Relation\ManyToMany::getForeignKey
+#### ORM\Relation\ManyToMany::getMappingData
 
 ```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
+protected function getMappingData(
+    ORM\EntityManager $em, array<\ORM\Entity> $entities
+): array
 ```
 
-##### Get the foreign key for the given reference
 
 
 
 **Visibility:** this method is **protected**.
 <br />
  **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
+<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$self` | **\ORM\Entity**  |  |
-| `$reference` | **array**  |  |
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
 
 
 
@@ -9581,10 +10066,11 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$morphColumn` | **string** | Column where the type gets persisted |
 | **protected** | `$morphMap` | **array** | Array of value =&gt; class pairs |
+| **protected** | `$morphReference` | **array** | Reference definition |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
-| **protected** | `$reference` | **array** | Reference definition |
+| **protected** | `$reference` | **array** | Reference definition as key value pairs |
 | **protected** | `$super` | **string** | The parent class that all morphed elements have to extend |
 
 
@@ -9596,15 +10082,17 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [addRelated](#ormrelationmorphedaddrelated) Add $entities to association table
 * [apply](#ormrelationmorphedapply) Apply where conditions for $entity on $fetcher
 * [applyJoin](#ormrelationmorphedapplyjoin) Adds the join clause to the entity fetcher
+* [assignForeignObjects](#ormrelationmorphedassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationmorphedcheckboundto) Check if the relation is bound to $parent and throw if not
 * [cleanReferences](#ormrelationmorphedcleanreferences) Belongs to set related
 * [createRelation](#ormrelationmorphedcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationmorpheddeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationmorphedeagerload) Load all foreign objects of all $entities with one query
+* [eagerLoadSelf](#ormrelationmorphedeagerloadself) 
 * [fetch](#ormrelationmorphedfetch) Fetch the relation
 * [fetchAll](#ormrelationmorphedfetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationmorphedfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationmorphedfromshort) {@inheritDoc}
-* [getForeignKey](#ormrelationmorphedgetforeignkey) Get the foreign key for the given reference
 * [getMorphedClass](#ormrelationmorphedgetmorphedclass) Get the class for $type
 * [getMorphedReference](#ormrelationmorphedgetmorphedreference) Get the reference for $type
 * [getType](#ormrelationmorphedgettype) Get the type of an entity
@@ -9739,6 +10227,34 @@ public function applyJoin(
 
 
 
+#### ORM\Relation\Morphed::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
+
+
+
 #### ORM\Relation\Morphed::checkBoundTo
 
 ```php
@@ -9841,6 +10357,53 @@ public function deleteRelated(
 
 
 
+#### ORM\Relation\Morphed::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load all foreign objects of all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Relation\Morphed::eagerLoadSelf
+
+```php
+public function eagerLoadSelf(
+    ORM\EntityManager $em, ORM\Entity $foreignObjects
+)
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$foreignObjects` | **\ORM\Entity**  |  |
+
+
+
 #### ORM\Relation\Morphed::fetch
 
 ```php
@@ -9936,30 +10499,6 @@ public static function fromShort( array $short )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\Morphed::getForeignKey
-
-```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$self` | **\ORM\Entity**  |  |
-| `$reference` | **array**  |  |
 
 
 
@@ -10138,6 +10677,7 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 * [rollback](#ormdbalmysqlrollback) Rollback the current transaction or save point
 * [setOption](#ormdbalmysqlsetoption) Set $option to $value
 * [syncInserted](#ormdbalmysqlsyncinserted) Sync the $entities after insert
+* [syncInsertedWithAutoInc](#ormdbalmysqlsyncinsertedwithautoinc) Synchronize inserted $entities
 * [update](#ormdbalmysqlupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbalmysqlupdateautoincrement) Update the autoincrement value
 
@@ -10882,6 +11422,29 @@ protected function syncInserted( ORM\Entity $entities )
 ##### Sync the $entities after insert
 
 
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Mysql::syncInsertedWithAutoInc
+
+```php
+protected function syncInsertedWithAutoInc( ORM\Entity $entities )
+```
+
+##### Synchronize inserted $entities
+
+This method expects that the inserted $entities where the last inserted entities and using
+an auto incremented primary key.
 
 **Visibility:** this method is **protected**.
 <br />
@@ -11827,16 +12390,17 @@ Return false to stop event execution.
 * [__construct](#ormrelationonetomany__construct) Owner constructor.
 * [addJoin](#ormrelationonetomanyaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationonetomanyaddrelated) Add $entities to association table
+* [assignForeignObjects](#ormrelationonetomanyassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationonetomanycheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationonetomanycreaterelation) Factory for relation definition object
 * [createStaticFromAssoc](#ormrelationonetomanycreatestaticfromassoc) Create static::class from $relDef
 * [createStaticFromShort](#ormrelationonetomanycreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetomanydeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationonetomanyeagerload) Load this relation for all $entities with one query
 * [fetch](#ormrelationonetomanyfetch) Fetch the relation
 * [fetchAll](#ormrelationonetomanyfetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationonetomanyfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationonetomanyfromshort) {@inheritDoc}
-* [getForeignKey](#ormrelationonetomanygetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetomanygetopponent) 
 * [setRelated](#ormrelationonetomanysetrelated) Set the relation to $entity
 
@@ -11914,6 +12478,34 @@ public function addRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToMany::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
 
 
 
@@ -12043,6 +12635,29 @@ public function deleteRelated(
 
 
 
+#### ORM\Relation\OneToMany::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load this relation for all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
 #### ORM\Relation\OneToMany::fetch
 
 ```php
@@ -12141,30 +12756,6 @@ public static function fromShort( array $short )
 
 
 
-#### ORM\Relation\OneToMany::getForeignKey
-
-```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$self` | **\ORM\Entity**  |  |
-| `$reference` | **array**  |  |
-
-
-
 #### ORM\Relation\OneToMany::getOpponent
 
 ```php
@@ -12246,16 +12837,17 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [__construct](#ormrelationonetoone__construct) Owner constructor.
 * [addJoin](#ormrelationonetooneaddjoin) {@inheritdoc}
 * [addRelated](#ormrelationonetooneaddrelated) Add $entities to association table
+* [assignForeignObjects](#ormrelationonetooneassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationonetoonecheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationonetoonecreaterelation) Factory for relation definition object
 * [createStaticFromAssoc](#ormrelationonetoonecreatestaticfromassoc) Create static::class from $relDef
 * [createStaticFromShort](#ormrelationonetoonecreatestaticfromshort) Create static::class from $short
 * [deleteRelated](#ormrelationonetoonedeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationonetooneeagerload) Load this relation for all $entities with one query
 * [fetch](#ormrelationonetoonefetch) Fetch the relation
 * [fetchAll](#ormrelationonetoonefetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationonetoonefromassoc) {@inheritDoc}
 * [fromShort](#ormrelationonetoonefromshort) {@inheritDoc}
-* [getForeignKey](#ormrelationonetoonegetforeignkey) Get the foreign key for the given reference
 * [getOpponent](#ormrelationonetoonegetopponent) 
 * [setRelated](#ormrelationonetoonesetrelated) Set the relation to $entity
 
@@ -12333,6 +12925,34 @@ public function addRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\OneToOne::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
 
 
 
@@ -12462,6 +13082,29 @@ public function deleteRelated(
 
 
 
+#### ORM\Relation\OneToOne::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load this relation for all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
 #### ORM\Relation\OneToOne::fetch
 
 ```php
@@ -12557,30 +13200,6 @@ public static function fromShort( array $short )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\OneToOne::getForeignKey
-
-```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$self` | **\ORM\Entity**  |  |
-| `$reference` | **array**  |  |
 
 
 
@@ -12696,14 +13315,15 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [addRelated](#ormrelationowneraddrelated) Add $entities to association table
 * [apply](#ormrelationownerapply) Apply where conditions for $entity on $fetcher
 * [applyJoin](#ormrelationownerapplyjoin) Adds the join clause to the entity fetcher
+* [assignForeignObjects](#ormrelationownerassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationownercheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationownercreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationownerdeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationownereagerload) Load all foreign objects of all $entities with one query
 * [fetch](#ormrelationownerfetch) Fetch the relation
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationownerfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationownerfromshort) {@inheritDoc}
-* [getForeignKey](#ormrelationownergetforeignkey) Get the foreign key for the given reference
 * [setRelated](#ormrelationownersetrelated) Set the relation to $entity
 
 #### ORM\Relation\Owner::__construct
@@ -12833,6 +13453,34 @@ public function applyJoin(
 
 
 
+#### ORM\Relation\Owner::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
+
+
+
 #### ORM\Relation\Owner::checkBoundTo
 
 ```php
@@ -12908,6 +13556,29 @@ public function deleteRelated(
 | `$self` | **\ORM\Entity**  |  |
 | `$entities` | **array&lt;\ORM\Entity>**  |  |
 | `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\Owner::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load all foreign objects of all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
 
 
 
@@ -13006,30 +13677,6 @@ public static function fromShort( array $short )
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$short` | **array**  |  |
-
-
-
-#### ORM\Relation\Owner::getForeignKey
-
-```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$self` | **\ORM\Entity**  |  |
-| `$reference` | **array**  |  |
 
 
 
@@ -16418,12 +17065,13 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 #### Methods
 
 * [addRelated](#ormrelationaddrelated) Add $entities to association table
+* [assignForeignObjects](#ormrelationassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
 * [checkBoundTo](#ormrelationcheckboundto) Check if the relation is bound to $parent and throw if not
 * [createRelation](#ormrelationcreaterelation) Factory for relation definition object
 * [deleteRelated](#ormrelationdeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationeagerload) Load this relation for all $entities with one query
 * [fetch](#ormrelationfetch) Fetch the relation
 * [fetchAll](#ormrelationfetchall) Fetch all from the relation
-* [getForeignKey](#ormrelationgetforeignkey) Get the foreign key for the given reference
 * [setRelated](#ormrelationsetrelated) Set the relation to $entity
 
 #### ORM\Relation::addRelated
@@ -16450,6 +17098,34 @@ public function addRelated(
 | `$self` | **Entity**  |  |
 | `$entities` | **array&lt;Entity>**  |  |
 | `$entityManager` | **EntityManager**  |  |
+
+
+
+#### ORM\Relation::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
 
 
 
@@ -16531,6 +17207,29 @@ public function deleteRelated(
 
 
 
+#### ORM\Relation::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load this relation for all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **EntityManager**  |  |
+| `$entities` | **Entity**  |  |
+
+
+
 #### ORM\Relation::fetch
 
 ```php
@@ -16580,30 +17279,6 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 |-----------|------|-------------|
 | `$self` | **Entity**  |  |
 | `$entityManager` | **EntityManager**  |  |
-
-
-
-#### ORM\Relation::getForeignKey
-
-```php
-protected function getForeignKey( ORM\Entity $self, array $reference ): array
-```
-
-##### Get the foreign key for the given reference
-
-
-
-**Visibility:** this method is **protected**.
-<br />
- **Returns**: this method returns **array**
-<br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
-
-##### Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$self` | **Entity**  |  |
-| `$reference` | **array**  |  |
 
 
 
@@ -16667,6 +17342,7 @@ Supported:
 | **protected** | `$columns` | **array &#124; null** | Columns to fetch (null is equal to [&#039;*&#039;]) |
 | **protected** | `$cursor` | **integer** | The position of the cursor |
 | **public static** | `$defaultEntityManager` | ** \ ORM \ EntityManager** | The default EntityManager to use to for quoting |
+| **protected** | `$eagerLoad` | **array** | An array or relations that should be loaded |
 | **protected** | `$entities` | **array&lt; \ ORM \ Entity>** |  |
 | **protected** | `$entityManager` | ** \ ORM \ EntityManager** | EntityManager to use for quoting |
 | **protected** | `$excludedFilters` | **array&lt;string>** | A list of filters that should not be applied for this fetcher |
@@ -16746,6 +17422,7 @@ Supported:
 * [whereIn](#ormtestingentityfetchermockresultwherein) Add a where in condition with AND.
 * [whereNotIn](#ormtestingentityfetchermockresultwherenotin) Add a where not in condition with AND.
 * [wherePrefix](#ormtestingentityfetchermockresultwhereprefix) Get the prefix for a where condition or empty if not needed
+* [with](#ormtestingentityfetchermockresultwith) Load $relations after all objects are loaded
 * [withoutFilter](#ormtestingentityfetchermockresultwithoutfilter) Exclude $filterClass for this fetcher
 
 #### ORM\Testing\EntityFetcherMock\Result::__construct
@@ -18061,6 +18738,29 @@ private function wherePrefix( string $bool ): string
 
 
 
+#### ORM\Testing\EntityFetcherMock\Result::with
+
+```php
+public function with( string $relations ): $this
+```
+
+##### Load $relations after all objects are loaded
+
+The relations are only loaded after you execute ->all()
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relations` | **string**  |  |
+
+
+
 #### ORM\Testing\EntityFetcherMock\Result::withoutFilter
 
 ```php
@@ -18631,6 +19331,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [rollback](#ormdbalsqliterollback) Rollback the current transaction or save point
 * [setOption](#ormdbalsqlitesetoption) Set $option to $value
 * [syncInserted](#ormdbalsqlitesyncinserted) Sync the $entities after insert
+* [syncInsertedWithAutoInc](#ormdbalsqlitesyncinsertedwithautoinc) Synchronize inserted $entities
 * [update](#ormdbalsqliteupdate) Update $table using $where to set $updates
 * [updateAutoincrement](#ormdbalsqliteupdateautoincrement) Update the autoincrement value
 
@@ -19374,6 +20075,29 @@ protected function syncInserted( ORM\Entity $entities )
 ##### Sync the $entities after insert
 
 
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Dbal\Sqlite::syncInsertedWithAutoInc
+
+```php
+protected function syncInsertedWithAutoInc( ORM\Entity $entities )
+```
+
+##### Synchronize inserted $entities
+
+This method expects that the inserted $entities where the last inserted entities and using
+an auto incremented primary key.
 
 **Visibility:** this method is **protected**.
 <br />
