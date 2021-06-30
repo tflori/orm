@@ -1,6 +1,6 @@
 # tflori/orm
 
-[![Build Status](https://travis-ci.org/tflori/orm.svg?branch=master)](https://travis-ci.org/tflori/orm)
+[![Build Status](https://gitlab.com/thflori/orm/badges/master/pipeline.svg)](https://gitlab.com/thflori/orm/-/pipelines?ref=master)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/9434ba649634cb577b87/test_coverage)](https://codeclimate.com/github/tflori/orm/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/9434ba649634cb577b87/maintainability)](https://codeclimate.com/github/tflori/orm/maintainability)
 [![Latest Stable Version](https://poser.pugx.org/tflori/orm/v/stable.svg)](https://packagist.org/packages/tflori/orm) 
