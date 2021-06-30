@@ -7,6 +7,7 @@ use ORM\EntityFetcher;
 use ORM\EntityFetcher\FilterInterface;
 use ORM\EntityManager;
 use ORM\Exception\InvalidConfiguration;
+use ORM\Helper;
 use ORM\Relation;
 
 /**
@@ -108,6 +109,16 @@ class OneToMany extends Relation
             $fetcher->filter($filter);
         }
         return $fetcher;
+    }
+
+    /** {@inheritDoc} */
+    public function eagerLoad(EntityManager $em, Entity ...$entities)
+    {
+        $foreignObjects = $this->getOpponent(Owner::class)->eagerLoadSelf($em, ...$entities);
+        foreach ($entities as $entity) {
+            $key = spl_object_hash($entity);
+            $entity->setCurrentRelated($this->name, isset($foreignObjects[$key]) ? $foreignObjects[$key] : []);
+        }
     }
 
     /** {@inheritdoc} */

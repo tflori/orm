@@ -123,3 +123,56 @@ if ($article = $em->fetch(Article::class, 1)) {
     $em->getConnection()->commit();
 }
 ```
+
+### Eager loading of relations
+
+Loading relations in a loop is a pretty bad idea considering that each query requires at least 10/1000 of a second. To
+avoid this we implemented eager loading which means that we load a relation for all known objects with one query (or two
+in case of a many-to-many relation).
+
+All methods of eager loading support nested relations by dividing relations with a dot `.`. That also means that you
+should avoid dots inside the relation name. 
+
+##### Load relations with the EntityFetcher
+
+The most common way will be to define in the EntityFetcher that you want to load the relations. For that we created a
+method `EntityFetcher::with(...$relations)`. This method can be called multiple times and with multiple strings. It will
+return `$this` for chaining.
+
+For example load the latest articles with tags, writer and its company:
+```php
+$articles = $em->fetch(Article::class)->limit(10)->orderBy('created', 'DESC')
+    ->with('tags', 'writer.company')->all();
+```
+
+> **NOTE** that this will only be executed with `EntityFetcher::all()`
+
+##### Load relations from the Entity
+
+From an entity you can also fetch the related objects and all nested related objects of that related objects. Use
+`Entity::load($relation)` to load them. This method returns `$this` so that you can chain them if necessary.
+
+For example load all comments including the writers of each comment:
+```php
+$article = $em->fetch(Article::class, 1);
+$article->load('comments.writer');
+```
+
+This might become handy in an API:
+```php
+$article = $em->fetch(Article::class, 1);
+$response = json_encode($article->load('tags')->toArray());
+```
+
+##### Eager load a relation from an array of relations
+
+It is also possible to load the relations at any time, but you have to make sure that all entities have the same type.
+To do so use `EntityManager::eagerLoad($relation, ...$entities)`. Internally we also use this method to execute the
+eager loading.
+
+For example load the tags of all articles:
+```php
+$articles = $em->fetch(Article::class)->all();
+// maybe filter them by some application logic
+$em->eagerLoad('tags', ...$articles);
+```

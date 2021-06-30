@@ -337,20 +337,6 @@ class RelationsTest extends TestCase
         self::assertSame($related, $result);
     }
 
-    /** @dataProvider provideRelationsWithCardinalityOne
-     * @test */
-    public function getRelatedDoesNotStoreNullValues($class, $relation)
-    {
-        $entity = m::mock($class)->makePartial();
-        $related = new StudlyCaps();
-        $entity->shouldReceive('fetch')->with($relation, true)->twice()->andReturn(null, $related);
-        $entity->getRelated($relation);
-
-        $result = $entity->getRelated($relation);
-
-        self::assertSame($related, $result);
-    }
-
     /** @test */
     public function resetsAllLoadedRelations()
     {

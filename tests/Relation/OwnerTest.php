@@ -2,14 +2,17 @@
 
 namespace ORM\Test\Relation;
 
+use Mockery as m;
+use ORM\EntityFetcher;
 use ORM\Relation\Owner;
+use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\DamagedABBRVCase;
 use ORM\Test\Entity\Examples\RelationExample;
+use ORM\Test\Entity\Examples\User;
 use ORM\Test\TestCase;
 
 class OwnerTest extends TestCase
 {
-
     /** @test */
     public function getsReturnedByGetRelation()
     {
@@ -50,5 +53,50 @@ class OwnerTest extends TestCase
         $result = $entity->fetch('dmgd', true);
 
         self::assertSame($related, $result);
+    }
+
+    /** @test */
+    public function eagerLoadFetchesEntitiesByForeignKey()
+    {
+        $articles = [
+            new Article(['id' => 3, 'user_id' => 1, 'text' => 'Hello Jane!']),
+            new Article(['id' => 4, 'user_id' => 2, 'text' => 'Hello John!']),
+            new Article(['id' => 5, 'user_id' => 2, 'text' => 'Hello Carl!']),
+        ];
+
+        $this->em->shouldReceive('fetch')->with(User::class)->once()
+            ->andReturn($fetcher = m::mock(EntityFetcher::class)->makePartial());
+        $fetcher->shouldReceive('whereIn')->with(['id'], [['id' => 1],['id' => 2]])->once()
+            ->andReturnSelf();
+        $fetcher->shouldReceive('all')->with()->once()
+            ->andReturn([
+                new User(['id' => 1, 'name' => 'john']),
+                new User(['id' => 2, 'name' => 'jane']),
+            ]);
+
+        $this->em->eagerLoad('writer', ...$articles);
+    }
+
+    /** @test */
+    public function eagerLoadAssignsForeignObjects()
+    {
+        $articles = [
+            new Article(['id' => 3, 'user_id' => 1, 'text' => 'Hello Jane!']),
+            new Article(['id' => 4, 'user_id' => 2, 'text' => 'Hello John!']),
+            new Article(['id' => 5, 'user_id' => 2, 'text' => 'Hello Carl!']),
+        ];
+
+        $this->em->shouldReceive('fetch')->with(User::class)
+            ->andReturn($fetcher = m::mock(EntityFetcher::class, [$this->em, User::class])->makePartial());
+        $fetcher->shouldReceive('all')->with()->andReturn([
+            $user1 = new User(['id' => 1, 'name' => 'john']),
+            $user2 = new User(['id' => 2, 'name' => 'jane']),
+        ]);
+
+        $this->em->eagerLoad('writer', ...$articles);
+
+        self::assertSame($user1, $articles[0]->writer);
+        self::assertSame($user2, $articles[1]->writer);
+        self::assertSame($user2, $articles[2]->writer);
     }
 }

@@ -647,6 +647,32 @@ class EntityManager
         return $fetcher->one();
     }
 
+    public function eagerLoad($relation, Entity ...$entities)
+    {
+        $relations = explode('.', $relation); // split the relations by .
+        while (count($relations) > 0 && count($entities) > 0) {
+            $relation = array_shift($relations);
+            $loaded = array_reduce($entities, function ($loaded, Entity $entity) use ($relation) {
+                return $loaded && $entity->hasLoaded($relation);
+            }, true);
+
+            if (!$loaded) {
+                // we assume that every object has the same class and is an entity
+                /** @var Entity $first */
+                $first = Helper::first($entities);
+                $first::getRelation($relation)
+                    ->eagerLoad($this, ...$entities);
+            }
+
+            if (count($relations) > 0) {
+                // get all related objects of this relation
+                $entities = array_merge(...array_map(function ($relatedObject) use ($relation) {
+                    return (array)$relatedObject->getRelated($relation);
+                }, $entities));
+            }
+        }
+    }
+
     /**
      * Observe $class using $observer
      *
