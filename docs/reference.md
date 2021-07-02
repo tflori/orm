@@ -6586,7 +6586,7 @@ public function withoutFilter( string $filterClass ): $this
 * [delete](#ormentitymanagerdelete) Delete $entity from database
 * [describe](#ormentitymanagerdescribe) Returns an array of columns from $table.
 * [detach](#ormentitymanagerdetach) Detach $observer from all classes
-* [eagerLoad](#ormentitymanagereagerload) 
+* [eagerLoad](#ormentitymanagereagerload) Load the $relation on all $entities with the least amount of queries
 * [escapeIdentifier](#ormentitymanagerescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormentitymanagerescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormentitymanagerfetch) Fetch one or more entities
@@ -6862,21 +6862,22 @@ Returns whether or not an observer got detached.
 #### ORM\EntityManager::eagerLoad
 
 ```php
-public function eagerLoad( $relation, ORM\Entity $entities )
+public function eagerLoad( string $relation, ORM\Entity $entities )
 ```
 
+##### Load the $relation on all $entities with the least amount of queries
 
-
+$relation can be nested by dividing them with a dot.
 
 **Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exception\UndefinedRelation**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$relation` |   |  |
+| `$relation` | **string**  |  |
 | `$entities` | **Entity**  |  |
 
 
@@ -7478,7 +7479,7 @@ At the end you should call finish bulk insert otherwise you may loose data.
 * [delete](#ormtestingentitymanagermockdelete) Delete $entity from database
 * [describe](#ormtestingentitymanagermockdescribe) Returns an array of columns from $table.
 * [detach](#ormtestingentitymanagermockdetach) Detach $observer from all classes
-* [eagerLoad](#ormtestingentitymanagermockeagerload) 
+* [eagerLoad](#ormtestingentitymanagermockeagerload) Load the $relation on all $entities with the least amount of queries
 * [escapeIdentifier](#ormtestingentitymanagermockescapeidentifier) Returns $identifier quoted for use in a sql statement
 * [escapeValue](#ormtestingentitymanagermockescapevalue) Returns $value formatted to use in a sql statement.
 * [fetch](#ormtestingentitymanagermockfetch) Fetch one or more entities
@@ -7807,21 +7808,22 @@ Returns whether or not an observer got detached.
 #### ORM\Testing\EntityManagerMock::eagerLoad
 
 ```php
-public function eagerLoad( $relation, ORM\Entity $entities )
+public function eagerLoad( string $relation, ORM\Entity $entities )
 ```
 
+##### Load the $relation on all $entities with the least amount of queries
 
-
+$relation can be nested by dividing them with a dot.
 
 **Visibility:** this method is **public**.
 <br />
-
+**Throws:** this method may throw **\ORM\Exception\UndefinedRelation**<br />
 
 ##### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `$relation` |   |  |
+| `$relation` | **string**  |  |
 | `$entities` | **\ORM\Entity**  |  |
 
 

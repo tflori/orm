@@ -647,6 +647,15 @@ class EntityManager
         return $fetcher->one();
     }
 
+    /**
+     * Load the $relation on all $entities with the least amount of queries
+     *
+     * $relation can be nested by dividing them with a dot.
+     *
+     * @param string $relation
+     * @param Entity ...$entities
+     * @throws Exception\UndefinedRelation
+     */
     public function eagerLoad($relation, Entity ...$entities)
     {
         $relations = explode('.', $relation); // split the relations by .
@@ -667,7 +676,8 @@ class EntityManager
             if (count($relations) > 0) {
                 // get all related objects of this relation
                 $entities = array_merge(...array_map(function ($relatedObject) use ($relation) {
-                    return (array)$relatedObject->getRelated($relation);
+                    $related = $relatedObject->getRelated($relation);
+                    return !is_array($related) ? [$related] : $related;
                 }, $entities));
             }
         }
@@ -692,7 +702,7 @@ class EntityManager
      */
     public function observe($class, ObserverInterface $observer = null)
     {
-        $returnObserver = $observer ? false : true;
+        $returnObserver = !$observer;
         $observer || $observer = new CallbackObserver();
 
         if (!isset($this->observers[$class])) {
