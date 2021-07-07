@@ -43,14 +43,6 @@ abstract class Relation
      * @var string */
     protected $class;
 
-    /** The name of the relation in the related class
-     * @var string */
-    protected $opponent;
-
-    /** Reference definition as key value pairs
-     * @var array */
-    protected $reference;
-
     /** Filters applied to all fetchers
      * @var array */
     protected $filters = [];
@@ -116,7 +108,7 @@ abstract class Relation
      * @param array $relDef
      * @return ?Relation
      * @codeCoverageIgnore
-     *@see Relation::createRelation()
+     * @see Relation::createRelation()
      * @internal
      */
     protected static function fromAssoc($parent, array $relDef)

@@ -19,9 +19,7 @@ use ORM\Relation;
  */
 class Owner extends Relation
 {
-    /** Reference definition as key value pairs
-     * @var array */
-    protected $reference;
+    use HasReference;
 
     /**
      * Owner constructor.

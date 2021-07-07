@@ -264,6 +264,35 @@ echo get_class($comment), "\n";                               // ArticleComment
 echo $article === $comment->article ? 'true' : 'false', "\n"; // true
 ```
 
+##### The Parent Children Relation
+
+There is a special one-to-many relation that is called the parent-children relation. The relation is defined
+automatically when the entity that defines the relation is the entity referenced in the relation. The only additional
+feature this relation has at the moment is that you can fill up the children without particularly eager load them.
+
+For example, you could load all items and then build the tree from them:
+```php
+class Album extends ORM\Entity {
+    protected static $relations = [
+        'parent' => [self::class, ['parentId' => 'id']],
+        'children' => [self::class, 'parent'],
+    ];
+}
+
+$albums = Album::query()->orderBy('name')->all();
+$tree = Album::getRelation('children')->buildTree(...$albums);
+```
+
+> We might implement features like recursive queries to load all parents or all children. In the meantime we suggest to
+> use [materialized paths](https://dzone.com/articles/materialized-paths-tree-structures-relational-database) or other 
+> strategies to find your parents or children.
+
+Example, load a subtree using materialized path:
+```php
+$albums = Album::query()->where('path', 'LIKE', '3.5%')->all(); // album 3.5 and all its children
+$treeOf35 = Album::getRelation('children')->buildTree(...$albums);
+```
+
 #### One-To-One
 
 A *one-to-one* relationship is mostly used to store data, that is not required for every operation, in a separated

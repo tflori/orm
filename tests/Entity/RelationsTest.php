@@ -16,6 +16,7 @@ use ORM\Relation\ManyToMany;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
 use ORM\Relation\Owner;
+use ORM\Relation\ParentChildren;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
 use ORM\Test\Entity\Examples\ContactPhone;
@@ -119,6 +120,14 @@ class RelationsTest extends TestCase
                 ['id' => 'category_id'],
                 'categories',
                 'article_category'
+            ],
+            [
+                Category::class,
+                'children',
+                ParentChildren::class,
+                Category::class,
+                null,
+                'parent',
             ],
         ];
     }

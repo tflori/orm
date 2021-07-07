@@ -17,6 +17,8 @@ class Category extends Entity
             Relation::OPT_REFERENCE => ['id' => 'category_id'],
             Relation::OPT_OPPONENT => 'categories',
             Relation::OPT_TABLE => 'article_category',
-        ]
+        ],
+        'parent' => [self::class, ['parentId' => 'id']],
+        'children' => [self::class, 'parent'],
     ];
 }

@@ -21,6 +21,7 @@ use ORM\Relation;
 class ManyToMany extends Relation
 {
     use HasOpponent;
+    use HasReference;
 
     /** The table that holds the foreign keys
      * @var string */

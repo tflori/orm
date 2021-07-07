@@ -7,6 +7,10 @@ use ORM\Helper;
 
 trait HasOpponent
 {
+    /** The name of the relation in the related class
+     * @var string */
+    protected $opponent;
+
     /**
      * @param string $requiredType
      * @return Owner|ManyToMany
