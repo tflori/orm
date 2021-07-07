@@ -129,6 +129,7 @@ permalink: /reference.html
 * [OneToMany](#ormrelationonetomany)
 * [OneToOne](#ormrelationonetoone)
 * [Owner](#ormrelationowner)
+* [ParentChildren](#ormrelationparentchildren)
 
 
 ### ORM\Testing
@@ -9624,6 +9625,7 @@ public function validate( $value ): boolean|ORM\Dbal\Error
 * [fromShort](#ormrelationmanytomanyfromshort) {@inheritDoc}
 * [getMappingData](#ormrelationmanytomanygetmappingdata) 
 * [getOpponent](#ormrelationmanytomanygetopponent) 
+* [getReference](#ormrelationmanytomanygetreference) 
 * [getTable](#ormrelationmanytomanygettable) 
 * [setRelated](#ormrelationmanytomanysetrelated) Set the relation to $entity
 
@@ -9913,7 +9915,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\ManyToMany::fromAssoc
 
 ```php
-protected static function fromAssoc( array $relDef )
+protected static function fromAssoc( $parent, array $relDef )
 ```
 
 ##### {@inheritDoc}
@@ -9929,6 +9931,7 @@ protected static function fromAssoc( array $relDef )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$relDef` | **array**  |  |
 
 
@@ -9936,7 +9939,7 @@ protected static function fromAssoc( array $relDef )
 #### ORM\Relation\ManyToMany::fromShort
 
 ```php
-public static function fromShort( array $short )
+public static function fromShort( $parent, array $short )
 ```
 
 ##### {@inheritDoc}
@@ -9952,6 +9955,7 @@ public static function fromShort( array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -10002,6 +10006,21 @@ protected function getOpponent(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$requiredType` | **string**  |  |
+
+
+
+#### ORM\Relation\ManyToMany::getReference
+
+```php
+public function getReference()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -10070,7 +10089,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$morphMap` | **array** | Array of value =&gt; class pairs |
 | **protected** | `$morphReference` | **array** | Reference definition |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
-| **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 | **protected** | `$super` | **string** | The parent class that all morphed elements have to extend |
@@ -10097,6 +10115,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [fromShort](#ormrelationmorphedfromshort) {@inheritDoc}
 * [getMorphedClass](#ormrelationmorphedgetmorphedclass) Get the class for $type
 * [getMorphedReference](#ormrelationmorphedgetmorphedreference) Get the reference for $type
+* [getReference](#ormrelationmorphedgetreference) 
 * [getType](#ormrelationmorphedgettype) Get the type of an entity
 * [hasForeignKeysByType](#ormrelationmorphedhasforeignkeysbytype) Check if the foreign keys differ by type
 * [setRelated](#ormrelationmorphedsetrelated) Set the relation to $entity
@@ -10461,7 +10480,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\Morphed::fromAssoc
 
 ```php
-public static function fromAssoc( array $relDef )
+public static function fromAssoc( $parent, array $relDef )
 ```
 
 ##### {@inheritDoc}
@@ -10477,6 +10496,7 @@ public static function fromAssoc( array $relDef )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$relDef` | **array**  |  |
 
 
@@ -10484,7 +10504,7 @@ public static function fromAssoc( array $relDef )
 #### ORM\Relation\Morphed::fromShort
 
 ```php
-public static function fromShort( array $short )
+public static function fromShort( $parent, array $short )
 ```
 
 ##### {@inheritDoc}
@@ -10500,6 +10520,7 @@ public static function fromShort( array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -10547,6 +10568,21 @@ protected function getMorphedReference( string $type ): array
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$type` | **string**  |  |
+
+
+
+#### ORM\Relation\Morphed::getReference
+
+```php
+public function getReference()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -12383,7 +12419,6 @@ Return false to stop event execution.
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
-| **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
 
@@ -12715,7 +12750,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\OneToMany::fromAssoc
 
 ```php
-protected static function fromAssoc( array $relDef )
+protected static function fromAssoc( $parent, array $relDef )
 ```
 
 ##### {@inheritDoc}
@@ -12731,6 +12766,7 @@ protected static function fromAssoc( array $relDef )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$relDef` | **array**  |  |
 
 
@@ -12738,7 +12774,7 @@ protected static function fromAssoc( array $relDef )
 #### ORM\Relation\OneToMany::fromShort
 
 ```php
-public static function fromShort( array $short )
+public static function fromShort( $parent, array $short )
 ```
 
 ##### {@inheritDoc}
@@ -12754,6 +12790,7 @@ public static function fromShort( array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -12830,7 +12867,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$name` | **string** | The name of the relation for error messages |
 | **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
-| **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
 
@@ -13162,7 +13198,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\OneToOne::fromAssoc
 
 ```php
-protected static function fromAssoc( array $relDef )
+protected static function fromAssoc( $parent, array $relDef )
 ```
 
 ##### {@inheritDoc}
@@ -13178,6 +13214,7 @@ protected static function fromAssoc( array $relDef )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$relDef` | **array**  |  |
 
 
@@ -13185,7 +13222,7 @@ protected static function fromAssoc( array $relDef )
 #### ORM\Relation\OneToOne::fromShort
 
 ```php
-public static function fromShort( array $short )
+public static function fromShort( $parent, array $short )
 ```
 
 ##### {@inheritDoc}
@@ -13201,6 +13238,7 @@ public static function fromShort( array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$short` | **array**  |  |
 
 
@@ -13304,7 +13342,6 @@ public function setRelated( ORM\Entity $self, $entity = null )
 | **protected** | `$class` | **string** | The class that is related |
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
-| **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
 | **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
@@ -13326,6 +13363,7 @@ public function setRelated( ORM\Entity $self, $entity = null )
 * [fetchAll](#ormrelationownerfetchall) Fetch all from the relation
 * [fromAssoc](#ormrelationownerfromassoc) {@inheritDoc}
 * [fromShort](#ormrelationownerfromshort) {@inheritDoc}
+* [getReference](#ormrelationownergetreference) 
 * [setRelated](#ormrelationownersetrelated) Set the relation to $entity
 
 #### ORM\Relation\Owner::__construct
@@ -13639,7 +13677,7 @@ Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
 #### ORM\Relation\Owner::fromAssoc
 
 ```php
-protected static function fromAssoc( array $relDef )
+protected static function fromAssoc( $parent, array $relDef )
 ```
 
 ##### {@inheritDoc}
@@ -13655,6 +13693,7 @@ protected static function fromAssoc( array $relDef )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$relDef` | **array**  |  |
 
 
@@ -13662,7 +13701,7 @@ protected static function fromAssoc( array $relDef )
 #### ORM\Relation\Owner::fromShort
 
 ```php
-public static function fromShort( array $short )
+public static function fromShort( $parent, array $short )
 ```
 
 ##### {@inheritDoc}
@@ -13678,7 +13717,23 @@ public static function fromShort( array $short )
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
+| `$parent` |   |  |
 | `$short` | **array**  |  |
+
+
+
+#### ORM\Relation\Owner::getReference
+
+```php
+public function getReference()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
 
 
 
@@ -13702,6 +13757,496 @@ public function setRelated( ORM\Entity $self, ORM\Entity $entity = null )
 |-----------|------|-------------|
 | `$self` | **\ORM\Entity**  |  |
 | `$entity` | **\ORM\Entity**  |  |
+
+
+
+
+
+---
+
+### ORM\Relation\ParentChildren
+
+**Extends:** [ORM\Relation\OneToMany](#ormrelationonetomany)
+
+
+#### A parent to children (many)
+
+
+
+
+
+
+#### Properties
+
+| Visibility | Name | Type | Description                           |
+|------------|------|------|---------------------------------------|
+| **protected** | `$class` | **string** | The class that is related |
+| **protected** | `$filters` | **array** | Filters applied to all fetchers |
+| **protected** | `$name` | **string** | The name of the relation for error messages |
+| **protected** | `$opponent` | **string** | The name of the relation in the related class |
+| **protected** | `$parent` | **string** | The parent entity that defined this relation |
+
+
+
+#### Methods
+
+* [__construct](#ormrelationparentchildren__construct) Owner constructor.
+* [addJoin](#ormrelationparentchildrenaddjoin) {@inheritdoc}
+* [addRelated](#ormrelationparentchildrenaddrelated) Add $entities to association table
+* [assignForeignObjects](#ormrelationparentchildrenassignforeignobjects) Assign $foreignObjects to $entities mapped by attributes
+* [buildTree](#ormrelationparentchildrenbuildtree) Set all children and return an array containing the root elements
+* [checkBoundTo](#ormrelationparentchildrencheckboundto) Check if the relation is bound to $parent and throw if not
+* [createRelation](#ormrelationparentchildrencreaterelation) Factory for relation definition object
+* [createStaticFromAssoc](#ormrelationparentchildrencreatestaticfromassoc) Create static::class from $relDef
+* [createStaticFromShort](#ormrelationparentchildrencreatestaticfromshort) Create static::class from $short
+* [deleteRelated](#ormrelationparentchildrendeleterelated) Delete $entities from association table
+* [eagerLoad](#ormrelationparentchildreneagerload) Load this relation for all $entities with one query
+* [fetch](#ormrelationparentchildrenfetch) Fetch the relation
+* [fetchAll](#ormrelationparentchildrenfetchall) Fetch all from the relation
+* [fromAssoc](#ormrelationparentchildrenfromassoc) {@inheritDoc}
+* [fromShort](#ormrelationparentchildrenfromshort) {@inheritDoc}
+* [getOpponent](#ormrelationparentchildrengetopponent) 
+* [setRelated](#ormrelationparentchildrensetrelated) Set the relation to $entity
+
+#### ORM\Relation\ParentChildren::__construct
+
+```php
+public function __construct(
+    string $class, string $opponent, $filters = array()
+)
+```
+
+##### Owner constructor.
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$class` | **string**  |  |
+| `$opponent` | **string**  |  |
+| `$filters` | **array&lt;\ORM\EntityFetcher\FilterInterface> &#124; array&lt;callable>**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::addJoin
+
+```php
+public function addJoin( ORM\EntityFetcher $fetcher, $join, $alias )
+```
+
+##### {@inheritdoc}
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fetcher` | **\ORM\EntityFetcher**  |  |
+| `$join` |   |  |
+| `$alias` |   |  |
+
+
+
+#### ORM\Relation\ParentChildren::addRelated
+
+```php
+public function addRelated(
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
+)
+```
+
+##### Add $entities to association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::assignForeignObjects
+
+```php
+protected function assignForeignObjects(
+    array $fkAttributes, array $keyAttributes, array $entities, 
+    array $foreignObjects
+)
+```
+
+##### Assign $foreignObjects to $entities mapped by attributes
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$fkAttributes` | **array**  |  |
+| `$keyAttributes` | **array**  |  |
+| `$entities` | **array**  |  |
+| `$foreignObjects` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::buildTree
+
+```php
+public function buildTree( ORM\Entity $entities ): array<\ORM\Entity>
+```
+
+##### Set all children and return an array containing the root elements
+
+This method expects you to pass all elements of a branch. Keep in mind that that the array you
+are getting is not necessarily from the same parent if you are not passing all elements of a branch.
+
+Example of this issue:
+Elements passed `['1.', '1.2.', '1.3.', '3.5.', '4.']` (each element is represented by its materialized path).
+As '3.' is not passed, '3.5.' seems to be the root element resulting in the following tree:
+```php
+[
+  [path => '1.', children => [['path' => '1.2.'],['path' => '1.3.']]],
+  [path => '3.5.'],
+  [path => '4.'],
+]
+```
+
+Example usage when you are using materialized paths:
+```php
+$children = $em->fetch('Category::class')->where('path', 'LIKE', '3.5._%')->all();
+$treeOf35 = Category::getRelation('children')->buildTree(...$children);
+```
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::checkBoundTo
+
+```php
+protected function checkBoundTo( $parent, $name )
+```
+
+##### Check if the relation is bound to $parent and throw if not
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+**Throws:** this method may throw **\ORM\Exception**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$parent` |   |  |
+| `$name` |   |  |
+
+
+
+#### ORM\Relation\ParentChildren::createRelation
+
+```php
+public static function createRelation(
+    string $parent, string $name, array $relDef
+): ORM\Relation
+```
+
+##### Factory for relation definition object
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **\ORM\Relation**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$parent` | **string**  |  |
+| `$name` | **string**  |  |
+| `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::createStaticFromAssoc
+
+```php
+protected static function createStaticFromAssoc( array $relDef ): static|null
+```
+
+##### Create static::class from $relDef
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::createStaticFromShort
+
+```php
+protected static function createStaticFromShort( array $short ): static|null
+```
+
+##### Create static::class from $short
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **static|null**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$short` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::deleteRelated
+
+```php
+public function deleteRelated(
+    ORM\Entity $self, array<\ORM\Entity> $entities, 
+    ORM\EntityManager $entityManager
+)
+```
+
+##### Delete $entities from association table
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entities` | **array&lt;\ORM\Entity>**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::eagerLoad
+
+```php
+public function eagerLoad( ORM\EntityManager $em, ORM\Entity $entities )
+```
+
+##### Load this relation for all $entities with one query
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$em` | **\ORM\EntityManager**  |  |
+| `$entities` | **\ORM\Entity**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::fetch
+
+```php
+abstract public function fetch(
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): mixed
+```
+
+##### Fetch the relation
+
+Runs fetch on the EntityManager and returns its result.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **mixed**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::fetchAll
+
+```php
+public function fetchAll(
+    ORM\Entity $self, ORM\EntityManager $entityManager
+): array<\ORM\Entity>|ORM\Entity
+```
+
+##### Fetch all from the relation
+
+Runs fetch and returns EntityFetcher::all() if a Fetcher is returned.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **array&lt;mixed,\ORM\Entity&gt;|\ORM\Entity**
+<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entityManager` | **\ORM\EntityManager**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::fromAssoc
+
+```php
+protected static function fromAssoc( $parent, array $relDef )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **protected**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$parent` |   |  |
+| `$relDef` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::fromShort
+
+```php
+public static function fromShort( $parent, array $short )
+```
+
+##### {@inheritDoc}
+
+
+
+**Static:** this method is **static**.
+<br />**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$parent` |   |  |
+| `$short` | **array**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::getOpponent
+
+```php
+protected function getOpponent(
+    string $requiredType = null
+): ORM\Relation\Owner|ORM\Relation\ManyToMany
+```
+
+
+
+
+**Visibility:** this method is **protected**.
+<br />
+ **Returns**: this method returns **\ORM\Relation\Owner|\ORM\Relation\ManyToMany**
+<br />**Throws:** this method may throw **\ORM\Exception\InvalidConfiguration**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$requiredType` | **string**  |  |
+
+
+
+#### ORM\Relation\ParentChildren::setRelated
+
+```php
+public function setRelated( ORM\Entity $self, $entity = null )
+```
+
+##### Set the relation to $entity
+
+
+
+**Visibility:** this method is **public**.
+<br />
+**Throws:** this method may throw **\ORM\Exception\InvalidRelation**<br />
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$self` | **\ORM\Entity**  |  |
+| `$entity` | **\ORM\Entity &#124; null**  |  |
 
 
 
@@ -17058,9 +17603,7 @@ If $values is empty the expression will be `1 = 1` because an empty parenthesis 
 | **protected** | `$class` | **string** | The class that is related |
 | **protected** | `$filters` | **array** | Filters applied to all fetchers |
 | **protected** | `$name` | **string** | The name of the relation for error messages |
-| **protected** | `$opponent` | **string** | The name of the relation in the related class |
 | **protected** | `$parent` | **string** | The parent entity that defined this relation |
-| **protected** | `$reference` | **array** | Reference definition as key value pairs |
 
 
 

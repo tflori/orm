@@ -55,7 +55,7 @@ class Morphed extends Owner
     }
 
     /** {@inheritDoc} */
-    public static function fromShort(array $short)
+    public static function fromShort($parent, array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
             array_shift($short);
@@ -70,7 +70,7 @@ class Morphed extends Owner
     }
 
     /** {@inheritDoc} */
-    public static function fromAssoc(array $relDef)
+    public static function fromAssoc($parent, array $relDef)
     {
         $morphColumn = isset($relDef[self::OPT_MORPH_COLUMN]) ? $relDef[self::OPT_MORPH_COLUMN] : null;
         $morph       = isset($relDef[self::OPT_MORPH]) ? $relDef[self::OPT_MORPH] : null;

@@ -21,6 +21,7 @@ use ORM\Relation;
 class ManyToMany extends Relation
 {
     use HasOpponent;
+    use HasReference;
 
     /** The table that holds the foreign keys
      * @var string */
@@ -45,7 +46,7 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    public static function fromShort(array $short)
+    public static function fromShort($parent, array $short)
     {
         // remove cardinality if given
         if ($short[0] === self::CARDINALITY_MANY) {
@@ -67,7 +68,7 @@ class ManyToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    protected static function fromAssoc(array $relDef)
+    protected static function fromAssoc($parent, array $relDef)
     {
         $class       = isset($relDef[self::OPT_CLASS]) ? $relDef[self::OPT_CLASS] : null;
         $reference   = isset($relDef[self::OPT_REFERENCE]) ? $relDef[self::OPT_REFERENCE] : null;

@@ -21,7 +21,7 @@ class OneToOne extends OneToMany
     }
 
     /** {@inheritDoc} */
-    public static function fromShort(array $short)
+    public static function fromShort($parent, array $short)
     {
         // the cardinality is mandatory for one to one
         if ($short[0] !== self::CARDINALITY_ONE) {
@@ -33,7 +33,7 @@ class OneToOne extends OneToMany
     }
 
     /** {@inheritDoc} */
-    protected static function fromAssoc(array $relDef)
+    protected static function fromAssoc($parent, array $relDef)
     {
         if (!isset($relDef[self::OPT_CARDINALITY]) || $relDef[self::OPT_CARDINALITY] === self::CARDINALITY_MANY) {
             return null;

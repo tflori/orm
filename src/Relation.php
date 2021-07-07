@@ -10,6 +10,7 @@ use ORM\Relation\Morphed;
 use ORM\Relation\OneToMany;
 use ORM\Relation\OneToOne;
 use ORM\Relation\Owner;
+use ORM\Relation\ParentChildren;
 
 /**
  * Base Relation
@@ -42,14 +43,6 @@ abstract class Relation
      * @var string */
     protected $class;
 
-    /** The name of the relation in the related class
-     * @var string */
-    protected $opponent;
-
-    /** Reference definition as key value pairs
-     * @var array */
-    protected $reference;
-
     /** Filters applied to all fetchers
      * @var array */
     protected $filters = [];
@@ -69,6 +62,7 @@ abstract class Relation
         $relationClasses = [
             Owner::class,
             ManyToMany::class,
+            ParentChildren::class,
             OneToMany::class,
             OneToOne::class,
             Morphed::class,
@@ -76,7 +70,7 @@ abstract class Relation
 
         if (isset($relDef[0])) {
             foreach ($relationClasses as $relationClass) {
-                if ($relation = $relationClass::fromShort($relDef)) {
+                if ($relation = $relationClass::fromShort($parent, $relDef)) {
                     return $relation;
                 }
             }
@@ -84,7 +78,7 @@ abstract class Relation
         }
 
         foreach ($relationClasses as $relationClass) {
-            if ($relation = $relationClass::fromAssoc($relDef)) {
+            if ($relation = $relationClass::fromAssoc($parent, $relDef)) {
                 return $relation;
             }
         }
@@ -95,13 +89,14 @@ abstract class Relation
     /**
      * Creates a relation from short form
      *
+     * @param string $parent
      * @param array $short
-     * @internal
-     * @see Relation::createRelation()
      * @return ?Relation
      * @codeCoverageIgnore
+     *@see Relation::createRelation()
+     * @internal
      */
-    public static function fromShort(array $short)
+    public static function fromShort($parent, array $short)
     {
         return null;
     }
@@ -109,13 +104,14 @@ abstract class Relation
     /**
      * Create a relation by assoc definition
      *
+     * @param string $parent
      * @param array $relDef
-     * @internal
-     * @see Relation::createRelation()
      * @return ?Relation
      * @codeCoverageIgnore
+     * @see Relation::createRelation()
+     * @internal
      */
-    protected static function fromAssoc(array $relDef)
+    protected static function fromAssoc($parent, array $relDef)
     {
         return null;
     }

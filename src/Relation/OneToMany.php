@@ -35,7 +35,7 @@ class OneToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    public static function fromShort(array $short)
+    public static function fromShort($parent, array $short)
     {
         if ($short[0] === self::CARDINALITY_ONE) {
             return null;
@@ -47,7 +47,7 @@ class OneToMany extends Relation
     }
 
     /** {@inheritDoc} */
-    protected static function fromAssoc(array $relDef)
+    protected static function fromAssoc($parent, array $relDef)
     {
         if (isset($relDef[self::OPT_CARDINALITY]) && $relDef[self::OPT_CARDINALITY] === self::CARDINALITY_ONE) {
             return null;
