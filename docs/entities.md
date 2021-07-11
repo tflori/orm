@@ -62,8 +62,7 @@ entities from the query.
 In fact `EntityFetcher` extends the `QueryBuilder` and for more information about building queries please have a look at
 the [QueryBuilder](querybuilder.md) documentation.
 
-Please note that the `EntityFetcher` does not allow fetching other columns than the columns from the main table of
-the class, is always distinct and restricts to change the fetch mode. Example usages:
+Example usages:
 
 ```php
 // fetch a user by $email
@@ -71,6 +70,20 @@ $user = $entityManager->fetch(User::class)->where('email', $email)->one();
 // get all articles from last 7 days (mysql)
 $articles = $entityManager->fetch(Article::class)
     ->where('created', '>', $entityManager::raw('DATE_SUB(NOW(), INTERVAL 7 DAY)'))
+    ->all();
+```
+
+Please note that it is not possible to remove the predefined modifier `DISTINCT` and the column selection `t0.*` (the
+entity table is aliased `t0`). However it is possible to add additional columns (for example aggregates from joined
+tables) but keep in mind that you then maybe also need to group by the primary key of `t0`. Also it will not be possible
+to update the entity in the DB with these extra columns.
+
+Example with aggregate column:
+```php
+$albums = $entityManager->fetch(Album::class)
+    ->joinRelated('images')
+    ->groupBy('t0.id')
+    ->column('COUNT(images.id)', [], 'imageCount')
     ->all();
 ```
 

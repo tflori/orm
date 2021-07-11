@@ -374,9 +374,18 @@ class BasicTest extends TestCase
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
         $fetcher->columns(['a', 'b']);
-        $fetcher->column('c');
 
         self::assertSame('SELECT DISTINCT t0.* FROM "contact_phone" AS t0', $fetcher->getQuery());
+    }
+
+    /** @test */
+    public function columnsCanBeAdded()
+    {
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $fetcher->column('(a + b)', [], 'aPlusB');
+
+        self::assertSame('SELECT DISTINCT t0.*,("t0"."a" + "t0"."b") AS aPlusB ' .
+            'FROM "contact_phone" AS t0', $fetcher->getQuery());
     }
 
     /** @test */

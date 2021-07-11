@@ -216,13 +216,6 @@ class EntityFetcher extends QueryBuilder
 
     /** @return $this
      * @internal */
-    public function column($column, $args = [], $alias = '')
-    {
-        return $this;
-    }
-
-    /** @return $this
-     * @internal */
     public function setFetchMode($mode, $classNameObject = null, array $ctorargs = null)
     {
         return $this;
