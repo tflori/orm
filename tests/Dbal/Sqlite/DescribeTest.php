@@ -13,7 +13,7 @@ class DescribeTest extends TestCase
     /** @var Sqlite */
     protected $dbal;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

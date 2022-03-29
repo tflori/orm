@@ -12,7 +12,7 @@ class BasicTest extends TestCase
     /** @var Dbal\Dbal */
     protected $dbal;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

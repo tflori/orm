@@ -8,7 +8,7 @@ use ORM\Test\TestCase;
 
 class UpdateTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dbal = new Other($this->em);

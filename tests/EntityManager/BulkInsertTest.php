@@ -13,7 +13,7 @@ class BulkInsertTest extends TestCase
     /** @var BulkInsert|m\Mock */
     protected $bulkInsert;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

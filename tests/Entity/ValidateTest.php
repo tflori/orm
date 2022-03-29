@@ -16,7 +16,7 @@ use ORM\Test\TestCase;
 
 class ValidateTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

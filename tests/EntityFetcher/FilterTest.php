@@ -13,7 +13,7 @@ use ORM\Test\TestEntityFetcher;
 
 class FilterTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         TestEntityFetcher::resetGlobalFiltersForTest();
@@ -65,7 +65,7 @@ class FilterTest extends TestCase
 
         $fetcher->filter(NotDeletedFilter::class);
 
-        self::assertContains('"t0"."deleted" IS NULL', $fetcher->getQuery());
+        self::assertStringContainsString('"t0"."deleted" IS NULL', $fetcher->getQuery());
     }
 
     /** @test */

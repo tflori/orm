@@ -13,7 +13,7 @@ class PointTest extends TestCase
     /** @var Mysql */
     protected $dbal;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -31,7 +31,7 @@ class PointTest extends TestCase
         ], false);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
         CustomColumn::resetRegisteredTypes();
