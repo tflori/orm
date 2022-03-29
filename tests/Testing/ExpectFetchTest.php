@@ -17,12 +17,12 @@ class ExpectFetchTest extends MockeryTestCase
     /** @var EntityManager|MockInterface */
     protected $em;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->em = $this->ormInitMock();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
     }

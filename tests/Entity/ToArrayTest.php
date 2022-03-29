@@ -15,7 +15,7 @@ class ToArrayTest extends TestCase
 {
     use MocksEntityManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class ToArrayTest extends TestCase
 
         $result = $article->toArray();
 
-        self::assertInternalType('array', $result);
+        self::assertIsArray($result);
     }
 
     /** @test */

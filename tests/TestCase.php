@@ -8,6 +8,8 @@ use Mockery\Mock;
 use ORM\Dbal;
 use ORM\EntityManager;
 use ORM\QueryBuilder\QueryBuilder;
+use ORM\Test\Constraint\ArraySubset;
+use PHPUnit\Framework\InvalidArgumentException;
 use ReflectionClass;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
@@ -26,7 +28,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     /** @var Mock[] */
     protected $mocks = [];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->initMocks();
@@ -64,7 +66,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      * Performs assertions shared by all tests of a test case. This method is
      * called before execution of a test ends and before the tearDown method.
      */
-    protected function assertPostConditions()
+    protected function assertPostConditions(): void
     {
         $this->addMockeryExpectationsToAssertionCount();
         $this->closeMockery();
@@ -108,5 +110,34 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $propertyReflection->setAccessible(true);
         $propertyReflection->setValue($object, $value);
         $propertyReflection->setAccessible(false);
+    }
+
+    /**
+     * Asserts that an array has a specified subset.
+     *
+     * @param array|\ArrayAccess $subset
+     * @param array|\ArrayAccess $array
+     * @param bool $strict Check for object identity
+     * @param float|null $delta
+     * @param string $message
+     */
+    public static function assertArraySubset(
+        $subset,
+        $array,
+        bool $strict = false,
+        string $message = '',
+        float $delta = null
+    ): void {
+        if (!is_array($subset)) {
+            throw InvalidArgumentException::create(1, 'array or ArrayAccess');
+        }
+
+        if (!is_array($array)) {
+            throw InvalidArgumentException::create(2, 'array or ArrayAccess');
+        }
+
+        $constraint = new ArraySubset($subset, $strict, $delta);
+
+        static::assertThat($array, $constraint, $message);
     }
 }

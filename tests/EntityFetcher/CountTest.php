@@ -14,7 +14,7 @@ class CountTest extends TestCase
     /** @var Mock */
     protected $statement;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -33,7 +33,7 @@ class CountTest extends TestCase
 
         $result = $fetcher->count();
 
-        self::assertInternalType('integer', $result);
+        self::assertIsInt($result);
     }
 
     /** @test */

@@ -25,13 +25,13 @@ class DataTest extends TestCase
 {
     use MocksEntityManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mocks['em'] = $this->ormInitMock();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         StudlyCaps::disableValidator();
         parent::tearDown();

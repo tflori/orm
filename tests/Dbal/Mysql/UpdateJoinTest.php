@@ -12,7 +12,7 @@ class UpdateJoinTest extends TestCase
     /** @var Pgsql */
     protected $dbal;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->dbal = new Mysql($this->em);

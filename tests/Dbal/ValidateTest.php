@@ -19,7 +19,7 @@ class ValidateTest extends TestCase
     /** @var Column|Mock */
     protected $column;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

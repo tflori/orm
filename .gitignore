@@ -4,3 +4,4 @@
 /docs/.jekyll-cache
 /examples/*.sqlite
 /examples/*.sql
+/.phpunit.result.cache

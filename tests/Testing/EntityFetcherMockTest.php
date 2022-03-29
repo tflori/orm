@@ -16,7 +16,7 @@ class EntityFetcherMockTest extends TestCase
     /** @var EntityManagerMock|m\MockInterface */
     protected $em;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->em = $this->ormInitMock();
     }

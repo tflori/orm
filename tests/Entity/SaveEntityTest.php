@@ -13,7 +13,7 @@ use ORM\Test\TestCase;
 
 class SaveEntityTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

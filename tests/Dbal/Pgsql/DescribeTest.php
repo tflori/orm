@@ -13,7 +13,7 @@ class DescribeTest extends TestCase
     /** @var Pgsql */
     protected $dbal;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

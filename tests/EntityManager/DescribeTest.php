@@ -11,7 +11,7 @@ class DescribeTest extends TestCase
     /** @var Table */
     protected $table;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
