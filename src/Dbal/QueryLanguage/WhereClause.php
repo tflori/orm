@@ -13,7 +13,8 @@ trait WhereClause
                 $whereClause .= ' AND ';
             }
             $whereClause .= !is_numeric($column) ?
-                $this->escapeIdentifier($column) . ' = ' . $this->escapeValue($condition) : $condition;
+                $this->escapeIdentifier($column) . ' = ' . $this->escapeValue($condition) : 
+                ' ' . $condition;
             $i++;
         }
         return $whereClause;
