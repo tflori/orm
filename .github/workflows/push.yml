@@ -3,49 +3,48 @@ jobs:
   before:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Code-Climate
+        uses: amancevice/setup-code-climate@v1
+        with:
+          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+
       - name: Prepare CodeClimate
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -qO ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
+        run: cc-test-reporter before-build
 
   unit-tests:
     needs: [before]
     strategy:
       matrix:
-        include:
-          - image: 'iras/php7-composer:1'
-            php_version: 7.1
-          - image: 'iras/php7-composer:2'
-            php_version: 7.2
-          - image: 'iras/php7-composer:3'
-            php_version: 7.3
-          - image: 'iras/php7-composer:4'
-            php_version: 7.4
-          - image: 'iras/php8-composer:0'
-            php_version: 8.0
-    name: PHP Unit Tests on PHP ${{ matrix.php_version }}
+        php-version: ["7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
+    name: PHP Unit Tests on PHP ${{ matrix.php-version }}
     runs-on: ubuntu-latest
-    container: ${{ matrix.image }}
     steps:
-      - name: Container Setup
-        run: |
-          apk add --no-cache tar openssl
-          mkdir coverage
-          wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -qO /usr/bin/cc-test-reporter
-          chmod +x /usr/bin/cc-test-reporter
       - name: Checkout
-        run: |
-          git init && git remote add origin https://github.com/${{ github.repository }}.git
-          git fetch origin ${{ github.sha }} && git reset --hard ${{ github.sha }}
-      - uses: actions/cache@v2
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          path: /composer/cache
-          key: composer-cache-7.${{ matrix.MINOR_VERSION }}
+          php-version: ${{ matrix.php-version }}
+
+      - name: Setup Code-Climate
+        uses: amancevice/setup-code-climate@v1
+        with:
+          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-cache-${{ matrix.php-version }}
+
       - name: Install dependencies
         run: composer install --no-interaction --ansi
+
       - name: Execute tests
         run: |
           php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit \
@@ -53,9 +52,10 @@ jobs:
             --coverage-clover=coverage/clover.xml \
             --coverage-text \
             --color=always
+
       - name: Format Coverage
-        run: |
-          cc-test-reporter format-coverage -t clover -o coverage/cc-${{ matrix.php_version }}.json coverage/clover.xml
+        run: cc-test-reporter format-coverage -t clover -o coverage/cc-${{ matrix.php-version }}.json coverage/clover.xml
+
       - name: Store Coverage Result
         uses: actions/upload-artifact@v3
         with:
@@ -71,11 +71,13 @@ jobs:
         with:
           name: coverage-results
           path: coverage/
+
+      - name: Setup Code-Climate
+        uses: amancevice/setup-code-climate@v1
+        with:
+          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+
       - name: Report Coverage
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          wget https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -qO ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter sum-coverage coverage/cc-*.json -p 5 -o coverage/cc-total.json
-          ./cc-test-reporter upload-coverage -i coverage/cc-total.json
+          cc-test-reporter sum-coverage coverage/cc-*.json -p 6 -o coverage/cc-total.json
+          cc-test-reporter upload-coverage -i coverage/cc-total.json
