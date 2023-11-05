@@ -52,10 +52,10 @@ class ConnectionsTest extends TestCase
         $pdo = $em->getConnection();
 
         self::assertSame('sqlite', $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
-        self::assertSame(
-            ['0','main','/tmp/test.sqlite'],
-            $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM)
-        );
+        list($i, $name, $path) = $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM);
+        self::assertEquals('0', $i);
+        self::assertEquals('main', $name);
+        self::assertEquals('/tmp/test.sqlite', $path);
     }
 
     /** @test */
@@ -123,10 +123,10 @@ class ConnectionsTest extends TestCase
         $pdo = $em->getConnection();
 
         self::assertSame('sqlite', $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
-        self::assertSame(
-            ['0','main','/tmp/test.sqlite'],
-            $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM)
-        );
+        list($i, $name, $path) = $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM);
+        self::assertEquals('0', $i);
+        self::assertEquals('main', $name);
+        self::assertEquals('/tmp/test.sqlite', $path);
     }
 
     /** @test */
@@ -144,10 +144,10 @@ class ConnectionsTest extends TestCase
         $pdo = $em->getConnection();
 
         self::assertSame('sqlite', $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME));
-        self::assertSame(
-            ['0','main','/tmp/test.sqlite'],
-            $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM)
-        );
+        list($i, $name, $path) = $pdo->query('PRAGMA DATABASE_LIST')->fetch(\PDO::FETCH_NUM);
+        self::assertEquals('0', $i);
+        self::assertEquals('main', $name);
+        self::assertEquals('/tmp/test.sqlite', $path);
         self::assertSame(\PDO::CASE_LOWER, $pdo->getAttribute(\PDO::ATTR_CASE));
     }
 }

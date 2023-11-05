@@ -96,8 +96,12 @@ class CreateMockedEntityTest extends MockeryTestCase
     /** @test */
     public function allowsValidationInSetAttribute()
     {
+        // Category has enabled validation
         $entity = $this->ormCreateMockedEntity(Category::class, ['name' => 'Foo Bar']);
 
+        $this->em->getConnection()->shouldNotReceive('query');
+
+        // This would usually query the database to find the max length of name
         $entity->name = 'This could be limited to 20 chars but here it is not...';
     }
 }

@@ -23,7 +23,7 @@ class UpdateFromTest extends TestCase
     {
         $this->pdo->shouldReceive('query')->with(
             "UPDATE examples SET \"foo\" = names.foo FROM names WHERE exampleId = examples.id AND examples.id = 42"
-        )->once()->andReturn($statement = m::mock(PDOStatement::class));
+        )->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->em->query('examples')

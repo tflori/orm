@@ -23,7 +23,7 @@ class UpdateJoinTest extends TestCase
     {
         $this->pdo->shouldReceive('query')->with(
             "UPDATE examples JOIN names ON exampleId = examples.id SET \"foo\" = names.foo WHERE examples.id = 42"
-        )->once()->andReturn($statement = m::mock(PDOStatement::class));
+        )->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->em->query('examples')

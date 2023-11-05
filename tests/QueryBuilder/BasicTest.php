@@ -299,6 +299,7 @@ class BasicTest extends TestCase
         $query = $em->query('sqlite_master');
 
         $query->setFetchMode(\PDO::FETCH_ASSOC, null);
+        $this->assertTrue(true); // it would have thrown an exception
     }
 
     /** @test */
@@ -314,5 +315,6 @@ class BasicTest extends TestCase
         $query = $em->query('sqlite_master');
 
         $query->setFetchMode(\PDO::FETCH_COLUMN, 0);
+        $this->assertTrue(true); // it would have thrown an exception
     }
 }

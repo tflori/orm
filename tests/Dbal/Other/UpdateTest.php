@@ -19,7 +19,7 @@ class UpdateTest extends TestCase
     {
         $this->pdo->shouldReceive('query')->with(
             "UPDATE \"examples\" SET \"foo\" = 'bar' WHERE \"id\" = 42"
-        )->once()->andReturn($statement = m::mock(PDOStatement::class));
+        )->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->dbal->update('examples', ['id' => 42], ['foo' => 'bar']);
@@ -30,7 +30,7 @@ class UpdateTest extends TestCase
     {
         $this->pdo->shouldReceive('query')->with(
             "UPDATE \"examples\" SET \"col1\" = 'hempel\\'s sofa',\"col2\" = 23 WHERE \"id\" = 42"
-        )->once()->andReturn($statement = m::mock(PDOStatement::class));
+        )->once()->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->dbal->update('examples', ['id' => 42], ['col1' => 'hempel\'s sofa', 'col2' => 23]);
