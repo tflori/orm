@@ -4,6 +4,7 @@ namespace ORM\Test\Dbal\Other;
 
 use Mockery as m;
 use ORM\Dbal\Other;
+use ORM\QueryBuilder\QueryBuilder;
 use ORM\Test\TestCase;
 
 class UpdateTest extends TestCase
@@ -34,5 +35,15 @@ class UpdateTest extends TestCase
         $statement->shouldReceive('rowCount')->andReturn(1);
 
         $this->dbal->update('examples', ['id' => 42], ['col1' => 'hempel\'s sofa', 'col2' => 23]);
+    }
+
+    /** @test */
+    public function doesNotNeedWhereConditions()
+    {
+        $this->pdo->shouldReceive('query')->with('UPDATE "questions" SET "answer" = 42')
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
+
+        $this->dbal->update('questions', [], ['answer' => 42]);
     }
 }
