@@ -22,6 +22,19 @@ class ExecutesQueriesTest extends TestCase
     }
 
     /** @test */
+    public function updateUsesAllWhereConditions()
+    {
+        $fetcher = $this->em->fetch(Article::class)->where('col1', 42)->where('col2', 23);
+
+        $this->pdo->shouldReceive('query')
+            ->with('UPDATE "article" AS t0 SET "col3" = \'foo bar\' WHERE "t0"."col1" = 42 AND "t0"."col2" = 23')
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->once()->andReturn(3);
+
+        $fetcher->update(['col3' => 'foo bar']);
+    }
+
+    /** @test */
     public function insertTranslatesColumnNames()
     {
         $fetcher = $this->em->fetch(Article::class);

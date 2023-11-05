@@ -4,19 +4,25 @@ namespace ORM\Dbal\QueryLanguage;
 
 trait WhereClause
 {
-    protected function buildWhereClause(array $where)
+    protected function buildWhereClause(array $whereConditions)
     {
-        $whereClause = !empty($where) ? ' WHERE ' : '';
-        $i = 0;
-        foreach ($where as $column => $condition) {
-            if ($i > 0 && (!is_numeric($column) || !preg_match('/^\s*(AND|OR)/i', $condition))) {
-                $whereClause .= ' AND ';
-            }
-            $whereClause .= !is_numeric($column) ?
-                $this->escapeIdentifier($column) . ' = ' . $this->escapeValue($condition) : 
-                ' ' . trim($condition);
-            $i++;
+        if (empty($whereConditions)) {
+            return '';
         }
-        return $whereClause;
+
+        $normalized = [];
+        foreach ($whereConditions as $column => $condition) {
+            if (!is_numeric($column)) {
+                $condition = $this->escapeIdentifier($column) . ' = ' . $this->escapeValue($condition);
+            }
+
+            if (!empty($normalized) && !preg_match('/^\s*(AND|OR)/i', $condition)) {
+                $condition = 'AND ' . $condition;
+            }
+
+            $normalized[] = trim($condition);
+        }
+
+        return ' WHERE ' . implode(' ', $normalized);
     }
 }
