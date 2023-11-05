@@ -14,7 +14,7 @@ trait WhereClause
             }
             $whereClause .= !is_numeric($column) ?
                 $this->escapeIdentifier($column) . ' = ' . $this->escapeValue($condition) : 
-                ' ' . $condition;
+                ' ' . trim($condition);
             $i++;
         }
         return $whereClause;
