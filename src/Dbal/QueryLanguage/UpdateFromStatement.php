@@ -10,6 +10,7 @@ trait UpdateFromStatement
 
     protected function buildUpdateFromStatement($table, array $where, array $updates, array $joins)
     {
+        $fromClause = '';
         if (!empty($joins)) {
             list($fromTable, $condition) = $this->convertJoin(array_shift($joins));
             $fromClause = ' FROM ' . $fromTable .

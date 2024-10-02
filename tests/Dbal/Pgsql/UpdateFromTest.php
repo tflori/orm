@@ -39,10 +39,22 @@ class UpdateFromTest extends TestCase
         self::expectException(Exception::class);
         self::expectExceptionMessage('Only inner joins with on clause are allowed in update from statements');
 
-
         $this->em->query('examples')
             ->leftJoin('names', 'exampleId = examples.id')
             ->where('examples.id', 42)
             ->update(['foo' => EM::raw('names.foo')]);
+    }
+
+    /** @test */
+    public function updateFromWorksAlsoWithoutJoins()
+    {
+        $this->pdo->shouldReceive('query')->with(
+            "UPDATE examples SET \"foo\" = 'bar' WHERE id = 23"
+        )->once()->andReturn($statement = m::mock(\PDOStatement::class));
+        $statement->shouldReceive('rowCount')->andReturn(1);
+
+        $this->em->query('examples')
+            ->where('id', 23)
+            ->update(['foo' => 'bar']);
     }
 }
