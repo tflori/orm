@@ -377,7 +377,7 @@ class BasicTest extends TestCase
     public function columnsCantBeChanged()
     {
         $fetcher = $this->em->fetch(ContactPhone::class);
-        $fetcher->columns(['a', 'b']);
+        $fetcher->columns(['a', 'b']); // @phpstan-ignore-line
 
         self::assertSame('SELECT DISTINCT t0.* FROM "contact_phone" AS t0', $fetcher->getQuery());
     }
@@ -539,7 +539,7 @@ class BasicTest extends TestCase
 
         $fetcher->joinRelated($relation);
 
-        self::assertRegExp(
+        self::assertMatchesRegularExpression(
             '/SELECT DISTINCT t0\.\* FROM "[A-Za-z0-9_."]+" AS t0 JOIN ' . $statement . '/',
             $fetcher->getQuery()
         );
@@ -553,7 +553,7 @@ class BasicTest extends TestCase
 
         $fetcher->leftJoinRelated($relation);
 
-        self::assertRegExp(
+        self::assertMatchesRegularExpression(
             '/SELECT DISTINCT t0\.\* FROM "[A-Za-z0-9_."]+" AS t0 LEFT JOIN ' . $statement . '/',
             $fetcher->getQuery()
         );
@@ -576,7 +576,7 @@ class BasicTest extends TestCase
 
         $fetcher->joinRelated('relation')->joinRelated('relation.contactPhones');
 
-        self::assertRegExp(
+        self::assertMatchesRegularExpression(
             '/SELECT DISTINCT t0\.\* .* JOIN "contact_phone" AS contactPhones ON ' .
             '\("relation"."id" = "contactPhones"."relation_id"\)/',
             $fetcher->getQuery()
