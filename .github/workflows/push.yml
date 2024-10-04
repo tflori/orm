@@ -79,5 +79,5 @@ jobs:
 
       - name: Report Coverage
         run: |
-          cc-test-reporter sum-coverage coverage/cc-*.json -p 7 -o coverage/cc-total.json
+          cc-test-reporter sum-coverage coverage/cc-*.json -p 5 -o coverage/cc-total.json
           cc-test-reporter upload-coverage -i coverage/cc-total.json
