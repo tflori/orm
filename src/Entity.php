@@ -649,7 +649,16 @@ abstract class Entity implements Serializable
      */
     public function serialize()
     {
-        return serialize([ $this->data, $this->relatedObjects, $this->exists ]);
+        return serialize($this->__serialize());
+    }
+
+    public function __serialize(): array
+    {
+        return [
+            $this->data,
+            $this->relatedObjects,
+            $this->exists,
+        ];
     }
 
     /**
@@ -661,7 +670,14 @@ abstract class Entity implements Serializable
     public function unserialize($serialized)
     {
         static::bootIfNotBooted();
-        list($this->data, $this->relatedObjects, $this->exists) = unserialize($serialized);
+        $data = unserialize($serialized);
+        $this->__unserialize($data);
+    }
+
+    public function __unserialize(array $data): void
+    {
+        static::bootIfNotBooted();
+        list($this->data, $this->relatedObjects, $this->exists) = $data;
         $this->entityManager = EM::getInstance(static::class);
         $this->onInit(false);
     }
