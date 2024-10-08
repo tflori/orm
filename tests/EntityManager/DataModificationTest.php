@@ -504,7 +504,7 @@ class DataModificationTest extends TestCase
 
         self::expectException(\PDOException::class);
 
-        $this->em->delete($entity);
+        $entity->delete();
     }
 
     /** @dataProvider provideDeleteStatements
