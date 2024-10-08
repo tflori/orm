@@ -2282,11 +2282,14 @@ in the manual under [https://tflori.github.io/orm/entityDefinition.html](Entity 
 * [__construct](#ormentity__construct) Constructor
 * [__get](#ormentity__get) 
 * [__isset](#ormentity__isset) Check if a column is defined
+* [__serialize](#ormentity__serialize) 
 * [__set](#ormentity__set) 
+* [__unserialize](#ormentity__unserialize) 
 * [addRelated](#ormentityaddrelated) Add relations for $relation to $entities
 * [boot](#ormentityboot) Boot the class
 * [bootIfNotBooted](#ormentitybootifnotbooted) Boot the class if it not already booted
 * [bootTraits](#ormentityboottraits) Boot the traits of the class
+* [delete](#ormentitydelete) Delete the entity
 * [deleteRelated](#ormentitydeleterelated) Delete relations for $relation to $entities
 * [describe](#ormentitydescribe) Get a description for this table.
 * [detachObserver](#ormentitydetachobserver) Stop observing the class by $observer
@@ -2419,6 +2422,21 @@ public function __isset( $attribute ): boolean
 
 
 
+#### ORM\Entity::__serialize
+
+```php
+public function __serialize()
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+
+
 #### ORM\Entity::__set
 
 ```php
@@ -2444,6 +2462,27 @@ public function __set( string $attribute, $value )
 **See Also:**
 
 * self::getAttribute 
+#### ORM\Entity::__unserialize
+
+```php
+public function __unserialize( array $data )
+```
+
+
+
+
+**Visibility:** this method is **public**.
+<br />
+
+
+##### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$data` | **array**  |  |
+
+
+
 #### ORM\Entity::addRelated
 
 ```php
@@ -2519,6 +2558,23 @@ protected static function bootTraits()
 <br />**Visibility:** this method is **protected**.
 <br />
 
+
+
+
+#### ORM\Entity::delete
+
+```php
+public function delete(): $this
+```
+
+##### Delete the entity
+
+> You might want to implement soft deletes by overriding this method.
+
+**Visibility:** this method is **public**.
+<br />
+ **Returns**: this method returns **$this**
+<br />
 
 
 
@@ -3398,7 +3454,7 @@ Helpful to reduce the size of serializations of the object (for caching, or toAr
 #### ORM\Entity::save
 
 ```php
-public function save(): ORM\Entity
+public function save(): $this
 ```
 
 ##### Save the entity to EntityManager
@@ -3407,7 +3463,7 @@ public function save(): ORM\Entity
 
 **Visibility:** this method is **public**.
 <br />
- **Returns**: this method returns **\ORM\Entity**
+ **Returns**: this method returns **$this**
 <br />**Throws:** this method may throw **\ORM\Exception\IncompletePrimaryKey**<br />
 
 

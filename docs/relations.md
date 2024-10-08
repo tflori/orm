@@ -94,7 +94,7 @@ if ($article = $em->fetch(Article::class, 1)) {
 // Example - create an article
 /** @var User $user */
 if ($user = @$_SESSION['user']) {
-    $em->getConnection()->beginTransaction();
+    $em->beginTransaction();
     
     $article = new Article();
     $article->title = 'An amazing title that points out nothing';
@@ -107,7 +107,7 @@ if ($user = @$_SESSION['user']) {
     $additional->setRelated('article', $article);
     $additional->save();
     
-    $em->getConnection()->commit();
+    $em->commit();
 }
 
 // Example - update categories
@@ -117,10 +117,10 @@ if ($article = $em->fetch(Article::class, 1)) {
     $categoryKeys = $_POST['categories'];
     $newCategories = $em->fetch(Category::class)->where('key', $categoryKeys)->all();
     
-    $em->getConnection()->beginTransaction();
+    $em->beginTransaction();
     $article->deleteRelated(array_diff($currentCategories, $newCategories));
     $article->addRelated(array_diff($newCategories, $currentCategories));
-    $em->getConnection()->commit();
+    $em->commit();
 }
 ```
 

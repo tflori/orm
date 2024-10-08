@@ -138,3 +138,29 @@ class User extends ORM\Entity
 
 **\*** The methods have to follow `OPT_NAMING_SCHEME_METHODS`. So if you use `set_some_var` you should set the naming
 scheme to `snake_lower`.
+
+### Creating entities and working in transactions
+
+To create a new entity you can use the `new` keyword. This will create a new entity with the default values from the
+entity definition. You can then modify the entity and save it to the database.
+
+```php
+$user = new User();
+$user->email = 'john.doe@example.com';
+$user->save();
+```
+
+To work in a transaction you can use the `EntityManager::beginTransaction()` method. This will start a transaction or 
+create a savepoint if a transaction is already started. You can then commit or rollback the transaction.
+
+```php
+$entityManager->beginTransaction();
+$user = new User();
+$user->email = 'john.doe@example.com';
+$user->save();
+$activation = new UserActivation();
+$activation->setRelated('user', $user);
+$activation->code($code = bin2hex(random_bytes(8)));
+$activation->save();
+$entityManager->commit();
+```
