@@ -533,8 +533,9 @@ class DataModificationTest extends TestCase
             ->andReturn($statement = m::mock(\PDOStatement::class));
         $statement->shouldReceive('rowCount')->andReturn(1);
 
-        $this->em->delete($entity);
+        $entity->delete();
 
         self::assertTrue($entity->isDirty());
+        self::assertFalse($entity->exists());
     }
 }

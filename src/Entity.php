@@ -581,12 +581,11 @@ abstract class Entity implements Serializable
     /**
      * Set new original data
      *
-     * @param array $data
      * @internal
      */
-    public function setOriginalData(array $data)
+    public function setOriginalData(array $data, bool $exists = true)
     {
-        $this->exists = true;
+        $this->exists = $exists;
         $this->originalData = $data;
     }
 

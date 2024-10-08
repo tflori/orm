@@ -551,7 +551,7 @@ class EntityManager
             return false;
         }
         $this->getDbal()->deleteEntity($entity);
-        $entity->setOriginalData([]);
+        $entity->setOriginalData([], false);
         $this->fire(new Deleted($entity));
         return true;
     }
