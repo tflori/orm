@@ -378,7 +378,7 @@ abstract class Entity implements Serializable
     /**
      * Save the entity to EntityManager
      *
-     * @return Entity
+     * @return $this
      * @throws IncompletePrimaryKey
      */
     public function save()
@@ -395,6 +395,20 @@ abstract class Entity implements Serializable
                 $this->entityManager->fire(new Saved($event));
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Delete the entity
+     *
+     * > You might want to implement soft deletes by overriding this method.
+     *
+     * @return $this
+     */
+    public function delete()
+    {
+        $this->entityManager->delete($this);
 
         return $this;
     }
