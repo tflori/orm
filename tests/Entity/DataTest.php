@@ -348,13 +348,29 @@ class DataTest extends TestCase
 
         $serialized = $entity->serialize();
 
-        self::assertSame(serialize([['foo' => 'bar'], [], true]), $serialized);
+        self::assertSame(serialize([
+            'data' => ['foo' => 'bar'],
+            'related' => [],
+            'exists' => true
+        ]), $serialized);
     }
 
     /** @test */
     public function deserialization()
     {
         $serialized = serialize(new StudlyCaps(['foo' => 'bar']));
+
+        $entity = unserialize($serialized);
+
+        self::assertInstanceOf(StudlyCaps::class, $entity);
+        self::assertSame('bar', $entity->foo);
+    }
+
+    /** @test */
+    public function deserializationWithOldFormat()
+    {
+        $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":54:' .
+            '{a:3:{i:0;a:1:{s:3:"foo";s:3:"bar";}i:1;a:0:{}i:2;b:0;}}';
 
         $entity = unserialize($serialized);
 
