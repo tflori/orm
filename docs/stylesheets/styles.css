@@ -214,9 +214,9 @@ small {
 
 hr {
   border:0;
-  background:#e5e5e5;
-  height:3px;
-  margin:0 0 5em;
+  background: #444;
+  height: 2px;
+  margin: 0 -1em 5em;
 }
 
 footer {

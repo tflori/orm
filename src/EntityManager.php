@@ -118,7 +118,8 @@ class EntityManager
      * EntityManager is found it returns the last created EntityManager (null if no EntityManager got created).
      *
      * @param string $class
-     * @return EntityManager
+     * @return EntityManager The entity manager instance to use for $class
+     * @throws Exception When no entity manager got initialized
      */
     public static function getInstance($class = null)
     {
@@ -515,7 +516,7 @@ class EntityManager
      *
      * Returns an array of entities added.
      *
-     * @param $class
+     * @param string $class
      * @return Entity[]
      */
     public function finishBulkInserts($class)
@@ -617,8 +618,8 @@ class EntityManager
      * @param string $class The entity class you want to fetch
      * @param mixed $primaryKey The primary key of the entity you want to fetch
      * @return Entity|EntityFetcher
-     * @throws IncompletePrimaryKey
-     * @throws NoEntity
+     * @throws IncompletePrimaryKey If a combined primary key is incomplete
+     * @throws NoEntity If $class is not a subclass of Entity
      */
     public function fetch($class, $primaryKey = null)
     {

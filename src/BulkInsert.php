@@ -102,8 +102,12 @@ class BulkInsert
         }
     }
 
-    /** @return int
-     * @codeCoverageIgnore trivial */
+    /**
+     * Get the current limit of entities inserted at once.
+     *
+     * @return int
+     * @codeCoverageIgnore trivial
+     */
     public function getLimit()
     {
         return $this->limit;

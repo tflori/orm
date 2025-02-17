@@ -1,0 +1,76 @@
+{% macro generateSignature(method, maxLength) %}{#
+    #}{% set signature = 'function ' ~ method.name ~ '(' %}{#
+
+    #}{% set args = [] %}{#
+
+    #}{% for argument in method.arguments %}{#
+        #}{% set arg = '$' ~ argument.name %}{#
+        #}{% if argument.byReference %}{#
+            #}{% set arg = '&' ~ arg %}{#
+        #}{% endif %}{#
+        #}{% if argument.getType() is not same as('mixed') %}{#
+        #}{% set arg = argument.getType() ~ ' ' ~ arg %}{#
+        #}{% endif %}{#
+        #}{% if argument.default %}{#
+        #}{% set arg = arg ~ ' = ' ~ argument.default %}{#
+        #}{% endif %}{#
+        #}{% set args = args|merge([arg]) %}{#
+    #}{% endfor %}{#
+
+    #}{% set signature = signature ~ args|join(', ') ~ ')' %}{#
+
+    #}{% if method.static %}{#
+    #}{% set signature = 'static ' ~ signature %}{#
+    #}{% endif %}{#
+
+    #}{% set signature = method.visibility ~ ' ' ~ signature %}{#
+
+    #}{% if method.abstract %}{#
+    #}{% set signature = 'abstract ' ~ signature %}{#
+    #}{% endif %}{#
+
+    #}{% if method.final %}{#
+    #}{% set signature = 'final ' ~ signature %}{#
+    #}{% endif %}{#
+
+    #}{% if method.response and method.name != '__construct' %}{#
+        #}{% set type = method.response.type %}{#
+        #}{% if type == 'self' %}{#
+            #}{% set signature = signature ~ ': ' ~ method.parent.name %}{#
+        #}{% else %}{#
+            #}{% set signature = signature ~ ': ' ~ type %}{#
+        #}{% endif %}{#
+    #}{% endif %}{#
+
+    #}{% if maxLength and maxLength < signature|length %}{#
+        #}{% if signature matches '/^(.*)\((.*)\)($|:.*$)/' %}{#
+            #}{% set match = signature|split('(', 2) %}{#
+            #}{% set lines = [match[0] ~ '('] %}{#
+            #}{% set match = match[1]|split(')', 2) %}{#
+            #}{% for arg in match[0]|split(', ') %}{#
+                #}{% set line = '    ' ~ arg ~ ', ' %}{#
+                #}{% set lines = lines|merge([line]) %}{#
+            #}{% endfor %}{#
+            #}{% set lines = lines|merge([')' ~ match[1]]) %}{#
+            #}{% set signature = lines|join('\n') %}{#
+        #}{% endif %}{#
+    #}{% endif %}{#
+
+    #}{{ signature|raw }}{#
+#}{% endmacro %}
+
+{% macro linkTypes(value, this) %}{#
+    #}{% set types = value|split('|') %}{#
+    #}{% for type in types %}{#
+        #}{% set type = type|trim('\\') %}{#
+        #}{% set cleanType = type|split('[]', 2)[0] %}{#
+        #}{% set brackets = type|slice(cleanType|length) %}{#
+        #}{% if cleanType starts with 'ORM\\' %}{#
+            #}[{{ cleanType }}](/orm/reference/{{ cleanType|replace({'\\': '/'}) }}){#
+        #}{% elseif cleanType == '$this' %}{#
+            #}[{{ cleanType }}](#{{ this }}){#
+        #}{% else %}{{ cleanType }}{% endif %}{#
+        #}{{ brackets }}{#
+        #}{% if not loop.last %}|{% endif %}{#
+    #}{% endfor %}{#
+#}{% endmacro %}

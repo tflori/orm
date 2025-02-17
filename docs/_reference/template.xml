@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <template>
+  <name>reference</name>
+  <version>1.0.0</version>
   <transformations>
-    <transformation writer="twig" source="templates/_reference/index.md.twig" artifact="reference.md" />
+    <transformation writer="twig" source="./index.md.twig" artifact="reference.md">
+    </transformation>
+    <transformation writer="twig" query="indexes.classes" source="class.md.twig"
+                    artifact="reference/{{FullyQualifiedStructuralElementName}}.md">
+    </transformation>
+    <transformation writer="twig" query="indexes.traits" source="class.md.twig"
+                    artifact="reference/{{FullyQualifiedStructuralElementName}}.md">
+    </transformation>
+    <transformation writer="twig" query="indexes.interfaces" source="class.md.twig"
+                    artifact="reference/{{FullyQualifiedStructuralElementName}}.md">
+    </transformation>
   </transformations>
+  <parameters>
+    <parameter key="twig-extension.1">MarkdownTwigExtension.php</parameter>
+  </parameters>
 </template>

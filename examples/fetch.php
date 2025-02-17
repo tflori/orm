@@ -17,7 +17,7 @@ $user = $em->fetch(User::class)
     ->setQuery("SELECT * FROM user WHERE username = ? AND password = ?", [$username, md5($password)])
     ->one();
 
-var_dump($user);
+var_dump('fetch with own query:', $user);
 
 
 /*******************************
@@ -28,7 +28,7 @@ $user = $em->fetch(User::class)
     ->andWhere('password', '=', md5($password))
     ->one();
 
-var_dump($user);
+var_dump('fetch with where conditions', $user);
 
 /*******************************************
  * Fetch with parenthesis, group and order *
@@ -49,10 +49,22 @@ try {
         );
     $users = $fetcher->all();
 
-    var_dump($users);
+    var_dump('fetch with parenthesis', $users);
 } catch (\PDOException $exception) {
     file_put_contents('php://stderr', $exception->getMessage() . "\nSQL:" . $fetcher->getQuery());
 }
+
+/***********************
+ * Fetch a single user *
+ ***********************/
+
+$id = 1; // imagine you get this from get
+$user = $em->fetch(User::class, $id); // this works because the $id is 1
+var_dump('fetch single user', $user);
+
+$id = null; // we should get no user now
+$user = $id ? $em->fetch(User::class, $id) : null; // carefull fetch($class, $id) would have returned the EntityFetcher
+var_dump('empty id', $user);
 
 /*******************
  * Cache an entity *
