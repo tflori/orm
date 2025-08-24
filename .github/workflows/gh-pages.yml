@@ -22,13 +22,7 @@ jobs:
         run: docker run -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility PUBLIC
 
       - name: Build Documentation Site
-        run: |
-          docker run \
-          -v $GITHUB_WORKSPACE:/data  \
-          -e JEKYLL_UID=$(id -u) \
-          -e JEKYLL_GID=$(id -g) \ 
-          jekyll/jekyll:4 \
-          jekyll build --source /data/docs --destination /data/_site
+        run: docker run -v $GITHUB_WORKSPACE:/data -e JEKYLL_UID=$(id -u) -e JEKYLL_GID=$(id -g) jekyll/jekyll:4 jekyll build --source /data/docs --destination /data/_site
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
