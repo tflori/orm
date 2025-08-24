@@ -18,20 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate PHP Documentation
-        run: docker run --rm -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility PUBLIC
+      - name: Generate Reference Documentation
+        run: docker run -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility PUBLIC
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-
-      - name: Install Jekyll dependencies
-        run: bundle install
-
-      - name: Build Jekyll site
-        run: bundle exec jekyll build --source ./docs --destination ./_site
+      - name: Build Documentation Site
+        run: docker run -v $GITHUB_WORKSPACE:/data --user $(id -u):$(id -g) jekyll/jekyll:4 jekyll build --source /data/docs --destination /data/_site
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
