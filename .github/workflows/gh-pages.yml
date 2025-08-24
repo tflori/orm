@@ -1,0 +1,45 @@
+name: Generate and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - master
+      - f/new-reference
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate PHP Documentation
+        run: docker run --rm -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility PUBLIC
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Install Jekyll dependencies
+        run: bundle install
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build --source ./docs --destination ./_site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './_site'
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
