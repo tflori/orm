@@ -1,16 +1,16 @@
-Introduction: /
-Configuration: /configuration.html
-Entity Definition: /entityDefinition.html
-Working With Entities: /entities.html
-Use Filters: /filters.html
-Relation Definition: /relationDefinition.html
-Working With Relations: /relations.html
-Events and Observers: /events.html
-Use QueryBuilder: /querybuilder.html
-Validate Data: /validate.html
-Bulk Inserts: /bulkInserts.html
-Testing: /testing.html
+Introduction: /orm/
+Configuration: /orm/configuration
+Entity Definition: /orm/entityDefinition
+Working With Entities: /orm/entities
+Use Filters: /orm/filters
+Relation Definition: /orm/relationDefinition
+Working With Relations: /orm/relations
+Events and Observers: /orm/events
+Use QueryBuilder: /orm/querybuilder
+Validate Data: /orm/validate
+Bulk Inserts: /orm/bulkInserts
+Testing: /orm/testing
 
-'&nbsp;': /placeholder.html
+'&nbsp;': /orm/placeholder
 
-API Reference: /reference.html
+API Reference: /orm/reference

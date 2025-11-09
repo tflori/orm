@@ -35,7 +35,7 @@ trait ExecutesQueries
      * @param int|string|object $classNameObject class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO)
      * @param array $constructorArgs arguments to pass to the constructor (FETCH_CLASS)
      * @return $this
-     * @see PDOStatement::setFetchMode()
+     * @see PDOStatement::setFetchMode() [php manual](https://php.net/manual/pdostatement.setfetchmode.php)
      */
     public function setFetchMode($mode, $classNameObject = null, array $constructorArgs = null)
     {
@@ -84,7 +84,7 @@ trait ExecutesQueries
      * If the query fails you should get an exception. Anyway if we couldn't get a result or there are no rows
      * it returns an empty array.
      *
-     * @return mixed|null
+     * @return array<int, mixed>
      */
     public function all()
     {

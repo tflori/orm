@@ -1,32 +1,52 @@
-### {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
+---
+layout: default
+title: API Reference - {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
+---
+<small>» [API Reference](/orm/reference) » {{ node.FullyQualifiedStructuralElementName|trim('\\') }}</small>
+
+
+## {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
+
+### Table of Contents
+
+* [Abstract](#abstract)
+{% if node.constants is not empty %}{#
+    #}* [Constants](#constants)
+{% endif %}{#
+#}{% if (node.inheritedProperties.merge(node.properties)) is not empty %}{#
+    #}* [Properties](#properties)
+{% endif %}{#
+#}{% if node.methods is not empty %}{#
+    #}* [Methods](#methods)
+{#  #}{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}{#
+        #}  * [{% if method.isStatic() %}{{ node.name }}::{% else %}${{ node.name|lcFirst }}->{% endif %}{{ method.name }}](#{{ node.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }}{{ method.name|lower }}) - {{ method.summary }}
+{#  #}{% endfor %}{#
+#}{% endif %}
+
+### Abstract
 
 {% if node.parent is not empty %}
-**Extends:** {% for parent in node.parent %}
-[{{ parent.FullyQualifiedStructuralElementName|trim('\\') }}](#{{ parent.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }})
-{% else %}[{{ node.parent.FullyQualifiedStructuralElementName|trim('\\') }}](#{{ node.parent.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }})
-{% endfor %}
+**Extends:** {{ node.parent|join|linkClasses }}
 {% endif %}
 
 {% if node.interfaces is not empty %}
-**Implements:** {% for interface in node.interfaces %}
-[{{ interface.FullyQualifiedStructuralElementName|trim('\\') }}](#{{ interface.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }})
-{% endfor %}
+**Implements:** {{ node.interfaces|join|linkClasses }}
 {% endif %}
 
 {% if node.summary is not empty and node.summary != 'Class '~node.name %}
-#### {{ node.summary|raw }}
+### {{ node.summary|raw }}
 {% endif %}
 
 {{ node.description|raw }}
 
-{% if node.deprecated %}* **Warning:** this class is **deprecated**. This means that this class will likely be removed in a future version.
+{% if node.deprecated %}**Warning:** this class is **deprecated**. This means that this class will likely be removed in a future version.
 {% endif %}
 
 {% if node.tags.see is not empty or node.tags.link is not empty %}
 **See Also:**
 
 {% for see in node.tags.see %}
-* {{ see.reference }} {% if see.description %}- {{ see.description|raw }}{% endif %}
+* {{ see.reference|linkClasses }} {% if see.description is not empty %} - {{ see.description|raw }}{% endif %}
 {% endfor %}
 {% for link in node.tags.link %}
 * [{{ link.description ?: link.link }}]({{ link.link }})
@@ -35,7 +55,7 @@
 {% endif %}{# node.tags.see || node.tags.link #}
 
 {% if node.constants is not empty %}
-#### Constants
+### Constants
 
 | Name | Value |
 |------|-------|
@@ -46,12 +66,12 @@
 {% endif %}
 
 {% if (node.inheritedProperties.merge(node.properties)) is not empty %}
-#### Properties
+### Properties
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-{% for property in node.inheritedProperties.merge(node.properties).sortBy('name') %}
-| **{{ property.visibility }}{{ property.isStatic ? ' static' }}** | `${{ property.name }}` | {% if property.types is not empty %}**{{ property.types ? property.types|join(' &#124; ')|replace({'<mixed,': '&lt;', (node.namespace.FullyQualifiedStructuralElementName~'\\'): '', '\\': ' \\ '})|raw }}**{% endif %} | {{ property.summary }} |
+{% for property in node.inheritedProperties.merge(node.properties) %}
+| **{{ property.visibility }}{{ property.isStatic ? ' static' }}** | `${{ property.name }}` | {% if property.type is not empty %}**{{ property.type|linkClasses|replace({'|': '\\|'}) }}**{% endif %} | {{ property.summary }} |
 {% endfor %}
 
 {% endif %}
@@ -61,14 +81,14 @@
 #### Methods
 
 {% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}
-* [{{ method.name }}](#{{ node.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }}{{ method.name|lower }}) {{ method.summary }}
-{% endfor %}
+#### {{ node.FullyQualifiedStructuralElementName|trim('\\') }}::{{ method.name }}
 
-{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}
-{% include 'method.md.twig' %}
+{% include './method.md.twig' %}
+
+<small style="color: #555;">{{ node.FullyQualifiedStructuralElementName|trim('\\') }}::{{ method.name }}</small>
+
+[↑ top](#)
+<hr />
 {% endfor %}
 
 {% endif %}
-
----
-

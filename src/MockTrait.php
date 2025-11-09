@@ -8,6 +8,7 @@ use ORM\Testing\MocksEntityManager;
  * Alias for new namespace
  *
  * @package ORM
+ * @see     MocksEntityManager
  */
 trait MockTrait
 {

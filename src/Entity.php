@@ -204,7 +204,7 @@ abstract class Entity implements Serializable
     /**
      * @param string $attribute
      * @return mixed|null
-     * @see self::getAttribute
+     * @see Entity::getAttribute
      * @codeCoverageIgnore Alias for getAttribute
      */
     public function __get($attribute)

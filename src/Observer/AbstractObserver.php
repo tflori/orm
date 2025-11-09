@@ -14,7 +14,11 @@ use ORM\ObserverInterface;
  */
 abstract class AbstractObserver implements ObserverInterface
 {
-    /** @inheritDoc */
+    /**
+     * {@inheritDoc}
+     *
+     * Return false to stop event execution.
+     */
     public function handle(Event $event)
     {
         if (is_callable([$this, $event::NAME])) {

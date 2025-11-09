@@ -1,7 +1,9 @@
 /vendor/
-/docs/_site
+_site/
 /composer.lock
 /docs/.jekyll-cache
 /examples/*.sqlite
 /examples/*.sql
 /.phpunit.result.cache
+/docs/reference.md
+/docs/reference/

@@ -1,7 +1,5 @@
-#### {{ node.FullyQualifiedStructuralElementName|trim('\\') }}::{{ method.name }}
-
 ```php
-{{ method.getSignature(80)|replace({'<mixed,': '<'})|raw }}
+{{ generateSignature(method, 80) }}
 ```
 
 {% if method.summary is not empty %}
@@ -10,19 +8,14 @@
 
 {{ method.description|raw }}
 
-{% if method.deprecated %}**Warning:** this method is **deprecated**. This means that this method will likely be removed in a future version.
-<br />{% endif %}
-{% if method.static %}**Static:** this method is **static**.
-<br />{% endif %}
-**Visibility:** this method is **{{ method.visibility }}**.
-<br />
-{%  if method.name != '__construct' and method.response %} **Returns**: this method returns **{{ method.response.types[0] == 'self' ? node.name : method.response.types|join('|') }}**
-<br />{% endif %}
-{% if method.response.description %}**Response description:** {{ method.response.description|raw }}
-<br />{% endif %}
-{% if method.tags.throws is not empty %}**Throws:** this method may throw {% for throws in method.tags.throws %}
-{{ not loop.first ? ' or ' }}**{{ throws.types|join('** or **')|raw }}**{% endfor %}
-<br />{% endif %}
+{% if method.deprecated %}**Warning:** this method is **deprecated**.{% endif %}
+
+{% if method.isStatic() %}| Static | | This method is **static**. |
+{% endif %}
+{% if method.name != '__construct' and method.response %}| Returns | **{{ method.response.type == 'self' ? node.name : method.response.type|linkClasses|replace({'|': '\\|'}) }}** | {{ method.response.description|raw }} |
+{% endif %}
+{% if method.tags.throws is not empty %}{% for throws in method.tags.throws %}| Throws | {{ throws.type|linkClasses }} | {{ throws.description}} |
+{% endfor %}{% endif %}
 
 
 {% if method.arguments is not empty %}
@@ -31,17 +24,16 @@
 | Parameter | Type | Description |
 |-----------|------|-------------|
 {% for argument in method.arguments %}
-| `{{ argument.name }}` | {% if argument.types is not empty %}**{{ argument.types ? argument.types|join(' &#124; ')|replace({'<mixed,': '&lt;', (node.namespace.FullyQualifiedStructuralElementName~'\\'): ''})|raw }}**{% endif %}  | {{ argument.description|replace({'|': '&#124;'})|raw }} |
+| `${{ argument.name }}` | {% if argument.getType() ~ ' ' != 'mixed' %}**{{ argument.type|linkClasses }}**{% endif %}  | {{ argument.description|replace({'|': '&#124;'})|raw }} |
 {% endfor %}
 
 {% endif %}
-
 
 {% if method.tags.see is not empty or method.tags.link is not empty %}
 **See Also:**
 
 {% for see in method.tags.see %}
-* {{ see.reference }} {% if see.description %}- {{ see.description|raw }}{% endif %}
+* {{ see.reference|linkClasses }} {% if see.description is not empty %}- {{ see.description|raw }}{% endif %}
 {% endfor %}
 {% for link in method.tags.link %}
 * [{{ link.description ?: link.link }}]({{ link.link }})
