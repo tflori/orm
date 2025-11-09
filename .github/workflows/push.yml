@@ -37,19 +37,20 @@ jobs:
             --color=always
 
       - name: Store Coverage Result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage-results
-          path: coverage/
+          name: coverage-report-${{ matrix.php-version }}
+          path: coverage/clover-${{ matrix.php-version }}.xml
 
   after:
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Restore Coverage Result
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage-results
+          pattern: coverage-report-*
+          merge-multiple: true
           path: coverage/
 
       - name: Report Coverage
