@@ -1,18 +1,6 @@
 on: [push, pull_request]
 jobs:
-  before:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Code-Climate
-        uses: amancevice/setup-code-climate@v1
-        with:
-          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
-
-      - name: Prepare CodeClimate
-        run: cc-test-reporter before-build
-
   unit-tests:
-    needs: [before]
     strategy:
       matrix:
         php-version: ["7.3", "7.4", "8.0", "8.1", "8.2"]
@@ -26,11 +14,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-
-      - name: Setup Code-Climate
-        uses: amancevice/setup-code-climate@v1
-        with:
-          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
 
       - name: Get composer cache directory
         id: composer-cache
@@ -49,12 +32,9 @@ jobs:
         run: |
           php -dzend_extension=xdebug.so -dxdebug.mode=coverage vendor/bin/phpunit \
             -c phpunit.xml \
-            --coverage-clover=coverage/clover.xml \
+            --coverage-clover=coverage/clover-${{ matrix.php-version }}.xml \
             --coverage-text \
             --color=always
-
-      - name: Format Coverage
-        run: cc-test-reporter format-coverage -t clover -o coverage/cc-${{ matrix.php-version }}.json coverage/clover.xml
 
       - name: Store Coverage Result
         uses: actions/upload-artifact@v3
@@ -72,12 +52,8 @@ jobs:
           name: coverage-results
           path: coverage/
 
-      - name: Setup Code-Climate
-        uses: amancevice/setup-code-climate@v1
-        with:
-          cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
-
       - name: Report Coverage
-        run: |
-          cc-test-reporter sum-coverage coverage/cc-*.json -p 5 -o coverage/cc-total.json
-          cc-test-reporter upload-coverage -i coverage/cc-total.json
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: coverage/clover-*.xml
