@@ -158,7 +158,7 @@ $em->defineForParent(NewEntity::class);
 $em = new EntityManager([
     EntityManager::OPT_CONNECTION => 'getPdoConnection',
     EntityManager::OPT_BOOLEAN_TRUE => '\'y\'',
-    EntityManager::OPT_BOOLEAN_TRUE => '\'n\'',
+    EntityManager::OPT_BOOLEAN_FALSE => '\'n\'',
 ]);
 $em->defineForParent(OldEntity::class);
 ```
@@ -169,30 +169,33 @@ You can also define an `EntityManager` to be responsible for a specific Namespac
 that is a part of your application. The check if the class is from this Namespace we check if the full class name
 begins with the namespace.
 
-The above example uses the last `EntityManager` for other classes. You might want to make this example more save by 
+The example below uses the last `EntityManager` for other classes. You might want to make this example more save by 
 defining the last `EntityManager` for the Namespace `App`. The parent matching has precedents so that the following
 example will achieve the same:
 
 ```php
-namespace App;
-
 use ORM\EntityManager;
-use ORM\Entity;
 
-abstract class OldEntity extends Entity {}
+namespace App\Legacy {
+    use ORM\Entity;
+    
+    class SomeThing extends Entity {}
+}
 
-class SomeThing extends OldEntity {}
-class Another extends Entity {}
-
-$em = new EntityManager([
-    EntityManager::OPT_CONNECTION => 'getPdoConnection'
-]);
-$em->defineForNamespace('App');
+namespace App\Entity {
+    use ORM\Entity;
+    
+    class Another extends Entity {}
+}
 
 $em = new EntityManager([
     EntityManager::OPT_CONNECTION => 'getPdoConnection',
     EntityManager::OPT_BOOLEAN_TRUE => '\'y\'',
-    EntityManager::OPT_BOOLEAN_TRUE => '\'n\'',
+    EntityManager::OPT_BOOLEAN_FALSE => '\'n\'',
 ]);
-$em->defineForParent(OldEntity::class);
+$em->defineForNamespace('App\Legacy');
+
+$em = new EntityManager([
+    EntityManager::OPT_CONNECTION => 'getPdoConnection'
+]);
 ```
