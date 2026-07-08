@@ -35,9 +35,9 @@ $texts = [
     'Vogel Quax zwickt Johnys Pferd Bim.',
 ];
 $authors = [
-    'iRaS',
-    'cat',
-    's1mple',
+    'john',
+    'jane',
+    'max',
 ];
 foreach ([$article, $image] as $parent) {
     $count = mt_rand(2, 5);
