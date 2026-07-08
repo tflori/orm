@@ -7,3 +7,5 @@ _site/
 /.phpunit.result.cache
 /docs/reference.md
 /docs/reference/
+/graphify-out/
+/.claude/
