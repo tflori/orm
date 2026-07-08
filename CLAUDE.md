@@ -84,24 +84,34 @@ $count = $em->fetch(Article::class)->where('published', true)->count();
 
 ### Relations
 
-Define relations as static methods returning a relation object:
+Relations are defined in `protected static $relations`. The array structure determines
+the type — there is no explicit type key except for OneToOne.
 
 ```php
-class Article extends ORM\Entity
-{
-    public static function comments()
-    {
-        return new ORM\Relation\OneToMany(Comment::class, 'article_id');
-    }
+// OneToMany  — FK 'articleId' is on the Comment side
+'comments' => [Comment::class, 'article']
 
-    public static function author()
-    {
-        return new ORM\Relation\Owner(User::class, 'user_id');
-    }
-}
+// Owner (belongs-to)  — FK 'userId' is on THIS entity
+'author' => [User::class, ['userId' => 'id']]
+
+// OneToOne  — non-owner side needs 'one' as first element
+'additionalData' => ['one', ArticleAdditionalData::class, 'article']
+
+// ManyToMany  — pivot table 'article_category', opposite relation 'articles'
+'categories' => [Category::class, ['id' => 'article_id'], 'articles', 'article_category']
+// Opposite relation
+'articles'  => [Article::class, ['article_id' => 'id'], 'categories', 'article_category']
+
+// Morphed  — 'parentType' map determines the actual class
+'parent' => [['parentType' => ['article' => Article::class, 'image' => Image::class]], ['parentId' => 'id']]
+
+// ParentChildren  — self-referential, detected automatically when class references itself
+'parent'   => [self::class, ['parentId' => 'id']]
+'children' => [self::class, 'parent']
 ```
 
-Relation types: `Owner` (belongs-to), `OneToMany`, `ManyToMany`, `Morphed`.
+Since 1.9: alternatively define a `<name>Relation()` static method or assign in `boot()`.
+All styles are equivalent.
 
 Access related entities:
 
@@ -119,8 +129,8 @@ $em->observe(Article::class)
 ```
 
 Built-in events: `fetched`, `inserted`, `updated`, `deleted`, `inserting`,
-`updating`, `deleting`. Return `false` from a `deleting`/`updating` handler to
-cancel the operation.
+`updating`, `deleting`. Return `false` from any pre-event handler (`inserting`,
+`updating`, `deleting`) to cancel the operation.
 
 For reusable observers extend `ORM\Observer\AbstractObserver`:
 
@@ -167,7 +177,8 @@ helpers to set expectations without a real database.
 
 - Do not call `$em->insert()` directly — call `$entity->save()`.
 - Do not instantiate EntityFetcher manually — use `$em->fetch(Class::class)`.
-- Relations must be `static` methods, not instance methods.
+- Relations are defined via `protected static $relations` (array), `<name>Relation()` static
+  method, or `boot()` — never as plain instance methods.
 - `$em->fetch(Class::class, $id)` returns `null` when not found, not an exception.
 - `EntityFetcher::one()` returns `null` on no result; `EntityFetcher::oneOrFail()`
   throws.

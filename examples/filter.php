@@ -84,3 +84,4 @@ $fetcher = $em->fetch(User::class)->filter(new FilterBySearchTerm(['username', '
 // creates a query similar to this:
 // SELECT * FROM table
 // WHERE (username LIKE '%john%' OR password LIKE '%john%') AND (username LIKE '%doe%' OR password LIKE '%doe%')
+var_dump($fetcher->getQuery());

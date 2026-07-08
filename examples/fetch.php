@@ -62,10 +62,6 @@ $id = 1; // imagine you get this from get
 $user = $em->fetch(User::class, $id); // this works because the $id is 1
 var_dump('fetch single user', $user);
 
-$id = null; // we should get no user now
-$user = $id ? $em->fetch(User::class, $id) : null; // carefull fetch($class, $id) would have returned the EntityFetcher
-var_dump('empty id', $user);
-
 /*******************
  * Cache an entity *
  *******************/
@@ -77,10 +73,10 @@ var_dump($cachedUser);
  ******************************/
 // lets say we cached user3 with password from user1 - so modify the $cachedUser
 $cachedUser = str_replace([
-    's:1:"1"',
+    's:2:"id";i:1',
     's:6:"user_a"'
 ], [
-    's:1:"3"',
+    's:2:"id";i:3',
     's:6:"user_c"'
 ], $cachedUser);
 /** @var User $user */
