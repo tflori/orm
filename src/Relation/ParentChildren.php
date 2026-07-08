@@ -39,7 +39,7 @@ class ParentChildren extends OneToMany
     /**
      * Set all children and return an array containing the root elements
      *
-     * This method expects you to pass all elements of a branch. Keep in mind that that the array you
+     * This method expects you to pass all elements of a branch. Keep in mind that the array you
      * are getting is not necessarily from the same parent if you are not passing all elements of a branch.
      *
      * Example of this issue:

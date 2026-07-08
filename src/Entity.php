@@ -643,7 +643,7 @@ abstract class Entity implements Serializable
 
     protected static function toArrayPreventRecursion(Entity $relatedObject, array $parents)
     {
-        if (in_array($relatedObject, $parents)) {
+        if (in_array($relatedObject, $parents, true)) {
             try {
                 $key = implode('-', $relatedObject->getPrimaryKey());
             } catch (IncompletePrimaryKey $e) {
