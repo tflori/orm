@@ -160,6 +160,30 @@ class ToArrayTest extends TestCase
     }
 
     /** @test */
+    public function recursionDetectionWorksAlsoWithMocksOnParentChildRelations()
+    {
+        $parent = $this->ormCreateMockedEntity(Category::class, ['id' => 1, 'name' => 'Science']);
+        $child = $this->ormCreateMockedEntity(Category::class, ['id' => 2, 'name' => 'Fiction', 'parentId' => 1]);
+        $this->ormAddResult(Category::class, $parent, $child);
+        
+        $categories = Category::query()->all();
+        self::assertCount(2, $categories);
+        
+        $tree = Category::getRelation('children')->buildTree(...$categories);
+        self::assertCount(1, $tree);
+        
+        self::assertSame([
+            'id' => 1,
+            'name' => 'Science',
+            'children' => [[
+                'id' => 2,
+                'name' => 'Fiction',
+                'parentId' => 1,
+            ]]
+        ], $tree[0]->toArray());
+    }
+
+    /** @test */
     public function returnsArraysOfRelatedObjects()
     {
         $entity = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'text' => 'Lorem ipsum dolor sit amet...']);
