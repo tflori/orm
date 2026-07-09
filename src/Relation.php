@@ -191,10 +191,10 @@ abstract class Relation
      * Set the relation to $entity
      *
      * @param Entity $self
-     * @param Entity|null $entity
+     * @param ?Entity $entity
      * @throws InvalidRelation
      */
-    public function setRelated(Entity $self, Entity $entity = null)
+    public function setRelated(Entity $self, ?Entity $entity = null)
     {
         throw new InvalidRelation('This is not the owner of the relation');
     }

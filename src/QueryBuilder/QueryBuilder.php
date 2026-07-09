@@ -76,11 +76,11 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
      *
      * It uses static::$defaultEntityManager if $entityManager is not given.
      *
-     * @param string        $tableName     The main table to use in FROM clause
-     * @param string        $alias         An alias for the table
-     * @param EntityManager $entityManager EntityManager for quoting
+     * @param string         $tableName     The main table to use in FROM clause
+     * @param string         $alias         An alias for the table
+     * @param ?EntityManager $entityManager EntityManager for quoting
      */
-    public function __construct($tableName, $alias = '', EntityManager $entityManager = null)
+    public function __construct($tableName, $alias = '', ?EntityManager $entityManager = null)
     {
         $this->tableName     = $tableName;
         $this->alias         = $alias;

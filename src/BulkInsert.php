@@ -34,7 +34,7 @@ class BulkInsert
     /**
      * BulkInsert constructor.
      *
-     * @param string $class
+     * @param class-string $class
      * @param Dbal $dbal
      * @param int $limit
      */
@@ -159,11 +159,11 @@ class BulkInsert
      *
      * Provides an array of the just inserted entities in first argument.
      *
-     * @param callable $callback
+     * @param ?callable $callback
      * @return $this
      * @codeCoverageIgnore trivial
      */
-    public function onSync(callable $callback = null)
+    public function onSync(?callable $callback = null)
     {
         $this->onSync = $callback;
         return $this;

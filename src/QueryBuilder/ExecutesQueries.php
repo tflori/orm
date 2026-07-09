@@ -33,11 +33,11 @@ trait ExecutesQueries
      *
      * @param int $mode one of the PDO::FETCH_ constants
      * @param int|string|object $classNameObject class (FETCH_CLASS), column number (FETCH_COLUMN), object (FETCH_INTO)
-     * @param array $constructorArgs arguments to pass to the constructor (FETCH_CLASS)
+     * @param ?array $constructorArgs arguments to pass to the constructor (FETCH_CLASS)
      * @return $this
      * @see PDOStatement::setFetchMode() [php manual](https://php.net/manual/pdostatement.setfetchmode.php)
      */
-    public function setFetchMode($mode, $classNameObject = null, array $constructorArgs = null)
+    public function setFetchMode($mode, $classNameObject = null, ?array $constructorArgs = null)
     {
         $statement = $this->getStatement();
         if (!$statement) {

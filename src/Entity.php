@@ -97,10 +97,10 @@ abstract class Entity implements Serializable
      * It calls ::onInit() after initializing $data and $originalData.
      *
      * @param mixed[] $data          The current data
-     * @param EM      $entityManager The EntityManager that created this entity
+     * @param ?EM     $entityManager The EntityManager that created this entity
      * @param bool    $fromDatabase  Whether or not the data comes from database
      */
-    final public function __construct(array $data = [], EM $entityManager = null, $fromDatabase = false)
+    final public function __construct(array $data = [], ?EM $entityManager = null, bool $fromDatabase = false)
     {
         static::bootIfNotBooted();
 
@@ -136,12 +136,12 @@ abstract class Entity implements Serializable
      *
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
-     * @param AbstractObserver|null $observer
-     * @return CallbackObserver|null
+     * @param ?AbstractObserver $observer
+     * @return ?CallbackObserver
      * @codeCoverageIgnore proxy for EntityManager::observe()
      *@see EntityManager::observe()
      */
-    public static function observeBy(AbstractObserver $observer = null)
+    public static function observeBy(?AbstractObserver $observer = null)
     {
         return EM::getInstance(static::class)->observe(static::class, $observer);
     }

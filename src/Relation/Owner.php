@@ -146,7 +146,7 @@ class Owner extends Relation
      * @throws InvalidRelation
      * @throws IncompletePrimaryKey
      */
-    public function setRelated(Entity $self, Entity $entity = null)
+    public function setRelated(Entity $self, ?Entity $entity = null)
     {
         if ($entity !== null && !$entity instanceof $this->class) {
             throw new InvalidRelation(sprintf(

@@ -37,6 +37,7 @@ class Morphed extends Owner
      */
     public function __construct($morphColumn, $morph, array $reference)
     {
+        parent::__construct(Entity::class, []);
         $this->morphColumn = $morphColumn;
         $this->morphReference = $reference;
         $referenceKeys = array_keys($reference);
@@ -156,7 +157,7 @@ class Morphed extends Owner
     }
 
     /** {@inheritDoc} */
-    public function setRelated(Entity $self, Entity $entity = null)
+    public function setRelated(Entity $self, ?Entity $entity = null)
     {
         if ($entity === null) {
             $self->setAttribute($this->morphColumn, null);

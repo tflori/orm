@@ -79,10 +79,10 @@ trait Relations
      *
      * This method is only for the owner of a relation.
      *
-     * @param string $relation
-     * @param Entity $entity
+     * @param string  $relation
+     * @param ?Entity $entity
      */
-    public function setRelated($relation, Entity $entity = null)
+    public function setRelated($relation, ?Entity $entity = null)
     {
         $this::getRelation($relation)->setRelated($this, $entity);
 

@@ -24,12 +24,12 @@ class Error extends Exception
     /**
      * Error constructor
      *
-     * @param array $params
-     * @param null  $code
-     * @param null  $message
-     * @param Error $previous
+     * @param array  $params
+     * @param null   $code
+     * @param null   $message
+     * @param ?Error $previous
      */
-    public function __construct(array $params = [], $code = null, $message = null, Error $previous = null)
+    public function __construct(array $params = [], $code = null, $message = null, ?Error $previous = null)
     {
         $this->message = $message ?: $this->message;
         $this->code    = $code ?: static::ERROR_CODE;

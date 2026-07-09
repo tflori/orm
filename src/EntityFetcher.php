@@ -209,14 +209,14 @@ class EntityFetcher extends QueryBuilder
 
     /** @return $this
      * @internal */
-    public function columns(array $columns = null)
+    public function columns(?array $columns = null)
     {
         return $this;
     }
 
     /** @return $this
      * @internal */
-    public function setFetchMode($mode, $classNameObject = null, array $ctorargs = null)
+    public function setFetchMode($mode, $classNameObject = null, ?array $ctorargs = null)
     {
         return $this;
     }

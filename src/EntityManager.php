@@ -697,11 +697,11 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ObserverInterface|null $observer
-     * @return CallbackObserver|null
+     * @param ?ObserverInterface $observer
+     * @return ?CallbackObserver
      * @throws InvalidArgument
      */
-    public function observe($class, ObserverInterface $observer = null)
+    public function observe($class, ?ObserverInterface $observer = null)
     {
         $returnObserver = !$observer;
         $observer || $observer = new CallbackObserver();
