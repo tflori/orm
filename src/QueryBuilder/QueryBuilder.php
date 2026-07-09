@@ -208,7 +208,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     }
 
     /** {@inheritdoc} */
-    public function columns(array $columns = null)
+    public function columns(?array $columns = null)
     {
         $this->columns = $columns;
 

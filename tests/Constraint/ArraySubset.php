@@ -14,7 +14,7 @@ class ArraySubset extends Constraint
 
     protected $delta = null;
 
-    public function __construct($subset, bool $strict = false, float $delta = null)
+    public function __construct($subset, bool $strict = false, ?float $delta = null)
     {
         $this->strict = $strict;
         $this->subset = $subset;

@@ -29,7 +29,7 @@ class AuditObserver extends AbstractObserver
         $this->writeLog($event);
     }
 
-    protected function writeLog(Event $event, array $data = null)
+    protected function writeLog(Event $event, ?array $data = null)
     {
         $class = get_class($event->entity);
 
