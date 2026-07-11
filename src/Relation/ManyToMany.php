@@ -293,7 +293,7 @@ class ManyToMany extends Relation
 
     /**
      * @param EntityManager $em
-     * @param Entity[] $entities
+     * @param Entity ...$entities
      * @return array
      */
     protected function getMappingData(EntityManager $em, Entity ...$entities)

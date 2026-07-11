@@ -18,7 +18,7 @@ class Number extends Type
      * Check if $value is valid for this type
      *
      * @param mixed $value
-     * @return boolean|Error
+     * @return bool|Error
      */
     public function validate($value)
     {

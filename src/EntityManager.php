@@ -52,19 +52,19 @@ class EntityManager
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
-    /** @var callable */
+    /** @var ?callable */
     protected static $resolver;
 
     /** Connection to database
-     * @var PDO|callable|DbConfig */
+     * @var PDO|callable|DbConfig|null */
     protected $connection;
 
     /** The Database Abstraction Layer
-     * @var Dbal */
+     * @var ?Dbal */
     protected $dbal;
 
     /** The Namer instance
-     * @var Namer */
+     * @var ?Namer */
     protected $namer;
 
     /** The Entity map
@@ -162,7 +162,7 @@ class EntityManager
      * Get the instance by NameSpace mapping
      *
      * @param $class
-     * @return EntityManager
+     * @return ?EntityManager
      */
     private static function getInstanceByNameSpace($class)
     {
@@ -179,7 +179,7 @@ class EntityManager
      * Get the instance by Parent class mapping
      *
      * @param $class
-     * @return EntityManager
+     * @return ?EntityManager
      */
     private static function getInstanceByParent($class)
     {
@@ -698,13 +698,17 @@ class EntityManager
      *
      * @param string $class
      * @param ?ObserverInterface $observer
-     * @return ?CallbackObserver
+     * @return ($observer is null ? CallbackObserver : null)
      * @throws InvalidArgument
      */
     public function observe($class, ?ObserverInterface $observer = null)
     {
-        $returnObserver = !$observer;
-        $observer || $observer = new CallbackObserver();
+        if (!$observer) {
+            $observer = new CallbackObserver();
+            $returnObserver = true;
+        } else {
+            $returnObserver = false;
+        }
 
         if (!isset($this->observers[$class])) {
             $this->observers[$class] = [];
@@ -739,7 +743,12 @@ class EntityManager
             $this->observers[$class] = array_filter(
                 $observers,
                 function (ObserverInterface $current) use ($observer, &$removed) {
-                    return $current === $observer ? !($removed = true) : true;
+                    if ($current === $observer) {
+                        $removed = true;
+                        return false;
+                    }
+                    
+                    return true;
                 }
             );
         }

@@ -140,7 +140,7 @@ class ResultRepository
             return [];
         }
 
-        arsort($results, SORT_DESC);
+        arsort($results);
         $objHash = array_keys($results)[0];
         return $this->results[$class][$objHash]->getEntities();
     }

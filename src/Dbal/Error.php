@@ -24,17 +24,21 @@ class Error extends Exception
     /**
      * Error constructor
      *
-     * @param array  $params
-     * @param null   $code
-     * @param null   $message
-     * @param ?Error $previous
+     * @param array   $params
+     * @param ?string    $code
+     * @param ?string $message
+     * @param ?Error  $previous
      */
-    public function __construct(array $params = [], $code = null, $message = null, ?Error $previous = null)
-    {
-        $this->message = $message ?: $this->message;
-        $this->code    = $code ?: static::ERROR_CODE;
+    public function __construct(
+        array $params = [],
+        ?string $code = null,
+        ?string $message = null,
+        ?Error $previous = null
+    ) {
+        $this->message   = $message ?: $this->message;
+        $this->errorCode = $code ?: static::ERROR_CODE;
 
-        $params['code'] = $this->code;
+        $params['code'] = $this->errorCode;
 
         $namer = EntityManager::getInstance()->getNamer();
 

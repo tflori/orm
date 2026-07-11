@@ -10,10 +10,10 @@ use ORM\Dbal\Error\NotValid;
  * @package ORM\Dbal
  * @author  Thomas Flori <thflori@gmail.com>
  *
- * @property string name
- * @property Type   type
- * @property mixed  default
- * @property bool   nullable
+ * @property string $name
+ * @property Type   $type
+ * @property mixed  $default
+ * @property bool   $nullable
  */
 class Column
 {
@@ -36,7 +36,7 @@ class Column
      * Get the registered type for $columnDefinition
      *
      * @param array $columnDefinition
-     * @return string
+     * @return ?string
      */
     protected static function getRegisteredType(array $columnDefinition)
     {
@@ -55,7 +55,7 @@ class Column
     /** @var Dbal */
     protected $dbal;
 
-    /** @var TypeInterface */
+    /** @var ?TypeInterface */
     protected $type;
 
     /** @var bool */

@@ -30,6 +30,7 @@ abstract class Type implements TypeInterface
      */
     public static function factory(Dbal $dbal, array $columnDefinition)
     {
+        // @phpstan-ignore new.static
         return new static();
     }
 }

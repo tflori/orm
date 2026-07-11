@@ -75,14 +75,13 @@ trait TranslatesClasses
     /**
      * Get the table name and alias for a class
      *
-     * @param string $class
+     * @param class-string<Entity> $class
      * @param string $alias
      * @return array [$table, $alias]
      */
     protected function getTableAndAlias($class, $alias = '')
     {
         if (class_exists($class)) {
-            /** @var Entity|string $class */
             $table = $this->entityManager->escapeIdentifier($class::getTableName());
             $alias = $alias ?: 't' . count($this->classMapping['byAlias']);
 

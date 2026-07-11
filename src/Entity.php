@@ -88,7 +88,7 @@ abstract class Entity implements Serializable
     protected $exists = false;
 
     /** The entity manager from which this entity got created
-     * @var EM */
+     * @var ?EM */
     protected $entityManager;
 
     /**
@@ -593,7 +593,7 @@ abstract class Entity implements Serializable
      * Set currently related object
      *
      * @param string $relation
-     * @param array|Entity[]|?Entity $related
+     * @param array|Entity[]|Entity|null $related
      * @codeCoverageIgnore trivial code
      * @internal
      */

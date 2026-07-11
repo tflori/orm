@@ -189,7 +189,7 @@ class Namer
         }
 
         if ($prefix !== null) {
-            $name = preg_replace('~^' . preg_quote($prefix) . '~', '', $name);
+            $name = preg_replace('~^' . preg_quote($prefix, '~') . '~', '', $name);
         }
 
         return $this->forceNamingScheme($name, $namingScheme);
@@ -294,7 +294,7 @@ class Namer
     protected function getValue($attribute, $values, $arrayGlue)
     {
         $placeholder = '%' . $attribute . '%';
-        if (preg_match('/\[(-?\d+\*?)\]$/', $attribute, $arrayAccessor)) {
+        if (preg_match('/\[(-?\d+\*?)]$/', $attribute, $arrayAccessor)) {
             $attribute     = substr($attribute, 0, strpos($attribute, '['));
             $arrayAccessor = $arrayAccessor[1];
         } else {

@@ -157,21 +157,21 @@ interface ParenthesisInterface
      * Alias for andParenthesis
      *
      * @see ParenthesisInterface::andWhere()
-     * @return $this
+     * @return ParenthesisInterface
      */
     public function parenthesis();
 
     /**
      * Add a parenthesis with AND
      *
-     * @return $this
+     * @return ParenthesisInterface
      */
     public function andParenthesis();
 
     /**
      * Add a parenthesis with OR
      *
-     * @return $this
+     * @return ParenthesisInterface
      */
     public function orParenthesis();
 
@@ -198,7 +198,7 @@ interface ParenthesisInterface
      *
      * @param string $column   Column or expression with placeholders
      * @param string $operator Operator, value or array of values
-     * @param string $value    Value (required when used with operator)
+     * @param mixed $value    Value (required when used with operator)
      * @return string
      * @internal
      */

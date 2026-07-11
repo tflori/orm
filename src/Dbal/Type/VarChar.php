@@ -36,6 +36,7 @@ class VarChar extends Type
 
     public static function factory(Dbal $dbal, array $columnDefinition)
     {
+        // @phpstan-ignore new.static
         return new static($columnDefinition['character_maximum_length']);
     }
 
@@ -43,7 +44,7 @@ class VarChar extends Type
      * Check if $value is valid for this type
      *
      * @param mixed $value
-     * @return boolean|Error
+     * @return bool|Error
      */
     public function validate($value)
     {

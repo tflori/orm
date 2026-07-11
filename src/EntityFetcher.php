@@ -99,7 +99,7 @@ class EntityFetcher extends QueryBuilder
      *
      * If there is no more entity in the result set it returns null.
      *
-     * @return Entity
+     * @return ?Entity
      */
     public function one()
     {

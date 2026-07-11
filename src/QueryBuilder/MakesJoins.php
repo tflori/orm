@@ -19,7 +19,6 @@ trait MakesJoins
      */
     protected function createJoin($joinClause, $expression = '', $args = [])
     {
-        /** @var QueryBuilder $this */
         $empty = is_bool($expression) ? $expression : false;
         $expression = is_string($expression) ? $expression : '';
 

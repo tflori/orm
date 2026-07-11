@@ -71,6 +71,7 @@ class OneToMany extends Relation
         }
 
         if (count($short) === 2 && is_string($short[0]) && is_string($short[1])) {
+            // @phpstan-ignore-next-line new.static
             return new static($short[0], $short[1], $filters);
         }
         return null;
@@ -89,6 +90,7 @@ class OneToMany extends Relation
         $filters = isset($relDef[self::OPT_FILTERS]) ? $relDef[self::OPT_FILTERS] : [];
 
         if ($class && $opponent && !isset($relDef['table'])) {
+            // @phpstan-ignore-next-line new.static
             return new static($class, $opponent, $filters);
         }
         return null;

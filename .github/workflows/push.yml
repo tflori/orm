@@ -27,6 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --ansi
+        
+      - name: Execute Static Analysis
+        run: vendor/bin/phpstan analyse -c phpstan.neon --no-progress
 
       - name: Execute tests
         run: |
