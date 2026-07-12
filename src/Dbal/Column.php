@@ -11,7 +11,7 @@ use ORM\Dbal\Error\NotValid;
  * @author  Thomas Flori <thflori@gmail.com>
  *
  * @property string $name
- * @property Type   $type
+ * @property ?Type $type
  * @property mixed  $default
  * @property bool   $nullable
  */

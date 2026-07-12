@@ -113,8 +113,9 @@ class ManyToMany extends Relation
 
         $attributes = array_keys($this->reference);
         $fkColumns = array_values($this->reference);
-        $opFkColumns = array_values($opponent->reference);
-        $opAttributes = array_keys($opponent->reference);
+        $reference = $opponent->getReference();
+        $opFkColumns = array_values($reference);
+        $opAttributes = array_keys($reference);
 
         $mappingData = $this->getMappingData($em, ...$entities);
 

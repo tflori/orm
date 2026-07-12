@@ -86,6 +86,7 @@ class DbConfig
                 $this->port = $port ?: '3306';
                 isset($this->attributes[PDO::ATTR_EMULATE_PREPARES])
                     || $this->attributes[PDO::ATTR_EMULATE_PREPARES] = false;
+                // @phpstan-ignore-next-line unknown.class
                 $attr = PHP_VERSION_ID >= 80400 ? PDO\Mysql::ATTR_INIT_COMMAND : PDO::MYSQL_ATTR_INIT_COMMAND;
                 isset($this->attributes[$attr])
                     || $this->attributes[$attr] = "SET sql_mode ='ANSI_QUOTES', NAMES utf8";

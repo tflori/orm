@@ -697,17 +697,16 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ?ObserverInterface $observer
-     * @return ($observer is null ? CallbackObserver : null)
+     * @param ?ObserverInterface $_observer
+     * @return ($_observer is null ? CallbackObserver : null)
      * @throws InvalidArgument
      */
-    public function observe($class, ?ObserverInterface $observer = null)
+    public function observe($class, ?ObserverInterface $_observer = null)
     {
-        if (!$observer) {
+        if (!$_observer) {
             $observer = new CallbackObserver();
-            $returnObserver = true;
         } else {
-            $returnObserver = false;
+            $observer = $_observer;
         }
 
         if (!isset($this->observers[$class])) {
@@ -717,7 +716,8 @@ class EntityManager
         }
 
         $this->observers[$class][] = $observer;
-        return $returnObserver ? $observer : null;
+        // @phpstan-ignore-next-line instanceof.alwaysTrue
+        return !$_observer && $observer instanceof CallbackObserver ? $observer : null;
     }
 
     /**
