@@ -44,4 +44,15 @@ class Error extends Exception
 
         parent::__construct($namer->substitute($this->message, $params), 0, $previous);
     }
+
+    public function getErrorCode(): string
+    {
+        return $this->errorCode;
+    }
+
+    public function getError(): ?Error
+    {
+        $prev = $this->getPrevious();
+        return $prev instanceof Error ? $prev : null;
+    }
 }

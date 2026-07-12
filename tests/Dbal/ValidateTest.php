@@ -153,6 +153,6 @@ class ValidateTest extends TestCase
         $result = $this->column->validate('y');
 
         self::assertInstanceOf(\ORM\Dbal\Error\NotValid::class, $result);
-        self::assertSame('UNKNOWN', $result->getPrevious()->getCode());
+        self::assertSame('UNKNOWN', $result->getError()->getErrorCode());
     }
 }
