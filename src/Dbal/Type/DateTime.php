@@ -41,6 +41,7 @@ class DateTime extends Type
 
     public static function factory(Dbal $dbal, array $columnDefinition)
     {
+        // @phpstan-ignore new.static
         return new static(
             $columnDefinition['datetime_precision'],
             strpos($columnDefinition['data_type'], 'time') === false
@@ -51,7 +52,7 @@ class DateTime extends Type
      * Check if $value is valid for this type
      *
      * @param mixed $value
-     * @return boolean|Error
+     * @return bool|Error
      */
     public function validate($value)
     {

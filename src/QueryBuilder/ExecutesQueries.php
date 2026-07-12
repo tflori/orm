@@ -10,7 +10,7 @@ use PDOStatement;
  *
  * Hold all methods required from the query builder to execute queries.
  *
- * @property EntityManager $entityManager
+ * @property ?EntityManager $entityManager
  */
 trait ExecutesQueries
 {

@@ -52,19 +52,19 @@ class EntityManager
     /** @deprecated */
     const OPT_PGSQL_BOOLEAN_FALSE = 'pgsqlFalse';
 
-    /** @var callable */
+    /** @var ?callable */
     protected static $resolver;
 
     /** Connection to database
-     * @var PDO|callable|DbConfig */
+     * @var PDO|callable|DbConfig|null */
     protected $connection;
 
     /** The Database Abstraction Layer
-     * @var Dbal */
+     * @var ?Dbal */
     protected $dbal;
 
     /** The Namer instance
-     * @var Namer */
+     * @var ?Namer */
     protected $namer;
 
     /** The Entity map
@@ -162,7 +162,7 @@ class EntityManager
      * Get the instance by NameSpace mapping
      *
      * @param $class
-     * @return EntityManager
+     * @return ?EntityManager
      */
     private static function getInstanceByNameSpace($class)
     {
@@ -179,7 +179,7 @@ class EntityManager
      * Get the instance by Parent class mapping
      *
      * @param $class
-     * @return EntityManager
+     * @return ?EntityManager
      */
     private static function getInstanceByParent($class)
     {
@@ -697,14 +697,17 @@ class EntityManager
      * For more information about model events please consult the [documentation](https://tflori.github.io/
      *
      * @param string $class
-     * @param ?ObserverInterface $observer
-     * @return ?CallbackObserver
+     * @param ?ObserverInterface $_observer
+     * @return ($_observer is null ? CallbackObserver : null)
      * @throws InvalidArgument
      */
-    public function observe($class, ?ObserverInterface $observer = null)
+    public function observe($class, ?ObserverInterface $_observer = null)
     {
-        $returnObserver = !$observer;
-        $observer || $observer = new CallbackObserver();
+        if (!$_observer) {
+            $observer = new CallbackObserver();
+        } else {
+            $observer = $_observer;
+        }
 
         if (!isset($this->observers[$class])) {
             $this->observers[$class] = [];
@@ -713,7 +716,8 @@ class EntityManager
         }
 
         $this->observers[$class][] = $observer;
-        return $returnObserver ? $observer : null;
+        // @phpstan-ignore-next-line instanceof.alwaysTrue
+        return !$_observer && $observer instanceof CallbackObserver ? $observer : null;
     }
 
     /**
@@ -739,7 +743,12 @@ class EntityManager
             $this->observers[$class] = array_filter(
                 $observers,
                 function (ObserverInterface $current) use ($observer, &$removed) {
-                    return $current === $observer ? !($removed = true) : true;
+                    if ($current === $observer) {
+                        $removed = true;
+                        return false;
+                    }
+                    
+                    return true;
                 }
             );
         }

@@ -274,6 +274,7 @@ trait MocksEntityManager
     {
         $expectation = $entity->shouldReceive('save');
 
+        // @phpstan-ignore-next-line instanceof.alwaysFalse
         if ($expectation instanceof m\CompositeExpectation) {
             $expectation->andReturnUsing(
                 function () use ($entity, $updatedData, $changingData) {

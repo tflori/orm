@@ -16,7 +16,7 @@ class BulkInsert
     /** @var int */
     protected $limit;
 
-    /** @var callable */
+    /** @var ?callable */
     protected $onSync;
 
     /** @var bool */

@@ -149,7 +149,9 @@ trait Relations
     public function fetch($relation, $getAll = false)
     {
         // @codeCoverageIgnoreStart
+        // @phpstan-ignore-next-line booleanAnd.alwaysFalse, instanceof.alwaysFalse, booleanOr.alwaysFalse
         if ($getAll instanceof EM || func_num_args() === 3 && $getAll === null) {
+            // @phpstan-ignore-next-line identical.alwaysTrue
             $getAll = func_num_args() === 3 ? func_get_arg(2) : false;
             trigger_error(
                 'Passing EntityManager to fetch is deprecated. Use ->setEntityManager() to overwrite',
@@ -186,7 +188,7 @@ trait Relations
      * @param string $relation
      * @return bool
      */
-    public function hasLoaded($relation)
+    public function hasLoaded(string $relation): bool
     {
         return array_key_exists($relation, $this->relatedObjects);
     }
@@ -196,9 +198,9 @@ trait Relations
      *
      * Helpful to reduce the size of serializations of the object (for caching, or toArray method etc.)
      *
-     * @param null $relation
+     * @param ?string $relation
      */
-    public function resetRelated($relation = null)
+    public function resetRelated(?string $relation = null): void
     {
         if ($relation === null) {
             $this->relatedObjects = [];

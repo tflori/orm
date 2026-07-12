@@ -20,7 +20,7 @@ trait Escaping
     /**
      * Returns $identifier quoted for use in a sql statement
      *
-     * @param string $identifier Identifier to quote
+     * @param string|Expression $identifier Identifier to quote
      * @return string
      */
     public function escapeIdentifier($identifier)

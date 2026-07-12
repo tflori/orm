@@ -30,6 +30,7 @@ class Boolean extends Type
 
     public static function factory(Dbal $dbal, array $columnDefinition)
     {
+        // @phpstan-ignore new.static
         return new static($dbal);
     }
 
@@ -37,7 +38,7 @@ class Boolean extends Type
      * Check if $value is valid for this type
      *
      * @param mixed $value
-     * @return boolean|Error
+     * @return bool|Error
      */
     public function validate($value)
     {

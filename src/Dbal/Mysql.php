@@ -91,7 +91,7 @@ class Mysql extends Dbal
         )->fetchAll(PDO::FETCH_ASSOC);
 
         /** @var Entity $entity */
-        foreach (array_values($entities) as $key => $entity) {
+        foreach ($entities as $key => $entity) {
             $entity->setOriginalData($rows[$key]);
             $entity->reset();
             $this->entityManager->map($entity, true);

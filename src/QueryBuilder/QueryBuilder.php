@@ -61,7 +61,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
     protected $modifier = [];
 
     /** EntityManager to use for quoting
-     * @var EntityManager */
+     * @var ?EntityManager */
     protected $entityManager;
 
     /** The default EntityManager to use to for quoting
@@ -147,7 +147,7 @@ class QueryBuilder extends Parenthesis implements QueryBuilderInterface
             $operator = $operator ?: $this->getDefaultOperator($value);
 
             if (in_array(strtoupper($operator), [ 'IN', 'NOT IN' ])) {
-                return $this->buildWhereInExpression($column, $value, strtoupper($operator) === 'NOT IN');
+                return $this->buildWhereInExpression($column, (array)$value, strtoupper($operator) === 'NOT IN');
             }
 
             $expression = $column . ' ' . $operator . ' ?';

@@ -10,7 +10,7 @@ use ORM\Testing\MocksEntityManager;
  * @package ORM
  * @see     MocksEntityManager
  */
-trait MockTrait
+trait MockTrait // @phpstan-ignore trait.unused
 {
     use MocksEntityManager;
 }

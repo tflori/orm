@@ -35,7 +35,8 @@ class Enum extends Type
         if (!empty($columnDefinition['enumeration_values'])) {
             $allowedValues = explode('\',\'', substr($columnDefinition['enumeration_values'], 1, -1));
         }
-
+        
+        // @phpstan-ignore new.static
         return new static($allowedValues);
     }
 
@@ -43,7 +44,7 @@ class Enum extends Type
      * Check if $value is valid for this type
      *
      * @param mixed $value
-     * @return boolean|Error
+     * @return bool|Error
      */
     public function validate($value)
     {

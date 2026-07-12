@@ -55,10 +55,10 @@ class Table extends ArrayObject
      * Get the Column object for $col
      *
      * @param string $col
-     * @return Column
+     * @return Column|null
      */
-    public function getColumn($col)
+    public function getColumn(string $col): ?Column
     {
-        return isset($this->columns[$col]) ? $this->columns[$col] : null;
+        return $this->columns[$col] ?? null;
     }
 }

@@ -433,7 +433,7 @@ abstract class Dbal
      * Extract content from parenthesis in $type
      *
      * @param string $type
-     * @return string
+     * @return ?string
      */
     protected function extractParenthesis($type)
     {

@@ -1,4 +1,5 @@
 /vendor/
+/.vendor-*
 _site/
 /composer.lock
 /docs/.jekyll-cache
