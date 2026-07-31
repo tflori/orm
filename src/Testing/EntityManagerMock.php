@@ -74,11 +74,25 @@ class EntityManagerMock extends EntityManager
      * @param string $class
      * @param EntityFetcher $fetcher
      * @return array
+     * @deprecated Use getMatchedResult() instead
      * @codeCoverageIgnore proxy method
      */
     public function getResults($class, EntityFetcher $fetcher)
     {
         return $this->resultRepository->getResults($class, $fetcher);
+    }
+
+    /**
+     * Get the matched Result for $class and $fetcher
+     *
+     * @param string $class
+     * @param EntityFetcher $fetcher
+     * @return EntityFetcherMock\Result|null
+     * @codeCoverageIgnore proxy method
+     */
+    public function getMatchedResult($class, EntityFetcher $fetcher)
+    {
+        return $this->resultRepository->getMatchedResult($class, $fetcher);
     }
 
     /** {@inheritDoc} */

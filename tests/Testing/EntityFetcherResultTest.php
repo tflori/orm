@@ -198,4 +198,99 @@ class EntityFetcherResultTest extends TestCase
 
         self::assertSame(2, $result->compare($query));
     }
+
+    /** @test */
+    public function oneReturnsFirstEntity()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+
+        self::assertSame($entities[0], $result->one());
+    }
+
+    /** @test */
+    public function oneIteratesThroughEntities()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+
+        $result->one();
+
+        self::assertSame($entities[1], $result->one());
+    }
+
+    /** @test */
+    public function oneReturnsNullWhenNoEntities()
+    {
+        $result = $this->ormAddResult(Article::class);
+
+        self::assertNull($result->one());
+    }
+
+    /** @test */
+    public function oneReturnsNullAfterAllEntities()
+    {
+        $entities = [new Article(['title' => 'Foo'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+        $result->one();
+
+        self::assertNull($result->one());
+    }
+
+    /** @test */
+    public function countReturnsEntityCount()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+
+        self::assertSame(2, $result->count());
+    }
+
+    /** @test */
+    public function countReturnsZeroWhenNoEntities()
+    {
+        $result = $this->ormAddResult(Article::class);
+
+        self::assertSame(0, $result->count());
+    }
+
+    /** @test */
+    public function countIsUnaffectedByOneCalls()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+        $result->one();
+
+        self::assertSame(2, $result->count());
+    }
+
+    /** @test */
+    public function deleteReturnsEntityCount()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+
+        self::assertSame(2, $result->delete());
+    }
+
+    /** @test */
+    public function updateReturnsEntityCount()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->ormAddResult(Article::class, ...$entities);
+
+        self::assertSame(2, $result->update(['title' => 'Updated']));
+    }
+
+    /** @test */
+    public function insertReturnsRowCount()
+    {
+        $result = $this->ormAddResult(Article::class);
+
+        self::assertSame(3, $result->insert(
+            ['title' => 'A'],
+            ['title' => 'B'],
+            ['title' => 'C']
+        ));
+    }
 }
