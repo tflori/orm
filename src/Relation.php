@@ -144,6 +144,18 @@ abstract class Relation
             $reflection = new \ReflectionClass($parent);
             if ($reflection->isSubclassOf($this->parent)) {
                 $parent = $this->parent;
+            } else {
+                // Resolve mock classes to their parent (e.g. Mockery_0_Image → Image)
+                $thisParent = get_parent_class($this->parent);
+                $thatParent = get_parent_class($parent);
+                if ($thisParent && $thatParent && $thisParent === $thatParent) {
+                    // Verify this is actually a mock (eval'd class), not a sibling entity
+                    $thatFile = (new \ReflectionClass($parent))->getFileName();
+                    if ($thatFile && strpos($thatFile, 'eval') !== false) {
+                        $this->parent = $thisParent;
+                        $parent = $thatParent;
+                    }
+                }
             }
         }
 

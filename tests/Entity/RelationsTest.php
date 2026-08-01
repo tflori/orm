@@ -216,6 +216,37 @@ class RelationsTest extends TestCase
         $relation->bind(Category::class, 'writer');
     }
 
+    /** @test */
+    public function bindResolvesMockClassToOriginal()
+    {
+        $mock = m::mock(Article::class);
+        $mockClass = get_class($mock);
+
+        $relation = Article::getRelation('writer');
+        $relation->bind($mockClass, 'writer');
+
+        // Binding again with the real class should not throw
+        $relation->bind(Article::class, 'writer');
+
+        // The parent should be resolved to the real class
+        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
+    }
+
+    /** @test */
+    public function bindResolvesBothDirections()
+    {
+        $relation = Article::getRelation('writer');
+
+        // First bind with the real class
+        $relation->bind(Article::class, 'writer');
+
+        // Then bind with a mock class - should not throw
+        $mock = m::mock(Article::class);
+        $relation->bind(get_class($mock), 'writer');
+
+        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
+    }
+
     public function provideRelationDefinitionsWithReference()
     {
         return array_filter($this->provideRelationDefinitions(), function ($definition) {
