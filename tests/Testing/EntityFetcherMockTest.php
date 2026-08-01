@@ -372,4 +372,19 @@ class EntityFetcherMockTest extends TestCase
 
         self::assertSame(2, $count);
     }
+
+    /** @test */
+    public function getMatchedResultResetsCursorBetweenCalls()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $this->em->addResult(Article::class, ...$entities);
+
+        $fetcher1 = new EntityFetcherMock($this->em, Article::class);
+        $fetcher1->all();
+
+        $fetcher2 = new EntityFetcherMock($this->em, Article::class);
+        $articles = $fetcher2->all();
+
+        self::assertSame($entities, $articles);
+    }
 }

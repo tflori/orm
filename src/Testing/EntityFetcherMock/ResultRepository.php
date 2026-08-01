@@ -163,6 +163,8 @@ class ResultRepository
 
         arsort($results);
         $objHash = array_keys($results)[0];
+        // we need to reset the cursor of the result
+        $this->results[$class][$objHash]->reset();
         return $this->results[$class][$objHash];
     }
 
