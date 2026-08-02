@@ -122,11 +122,32 @@ class ResultRepository
      * @param string $class
      * @param EntityFetcher $fetcher
      * @return array
+     * @deprecated Use getMatchedResult() instead
+     * @codeCoverageIgnore proxy method
      */
     public function getResults($class, EntityFetcher $fetcher)
     {
-        if (!isset($this->results[$class])) {
+        $result = $this->getMatchedResult($class, $fetcher);
+        if ($result === null) {
             return [];
+        }
+
+        return $result->getEntities();
+    }
+
+    /**
+     * Get the matched Result for $class and $fetcher
+     *
+     * Returns the Result with the highest match score, or null if no Result matches.
+     *
+     * @param string $class
+     * @param EntityFetcher $fetcher
+     * @return Result|null
+     */
+    public function getMatchedResult($class, EntityFetcher $fetcher)
+    {
+        if (!isset($this->results[$class])) {
+            return null;
         }
 
         $results = [];
@@ -137,12 +158,14 @@ class ResultRepository
         }
 
         if (empty($results)) {
-            return [];
+            return null;
         }
 
         arsort($results);
         $objHash = array_keys($results)[0];
-        return $this->results[$class][$objHash]->getEntities();
+        // we need to reset the cursor of the result
+        $this->results[$class][$objHash]->reset();
+        return $this->results[$class][$objHash];
     }
 
     /**

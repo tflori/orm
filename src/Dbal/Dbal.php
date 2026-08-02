@@ -92,11 +92,15 @@ abstract class Dbal
         $conn = $this->entityManager->getConnection();
         if (!$this->transactionCounter) {
             $started = $conn->beginTransaction();
-            !$started ?: $this->transactionCounter++;
+            if ($started) {
+                $this->transactionCounter++;
+            }
             return $started;
         }
         $created = $conn->exec('SAVEPOINT transaction' . ($this->transactionCounter + 1));
-        $created === false ?: $this->transactionCounter++;
+        if ($created !== false) {
+            $this->transactionCounter++;
+        }
         return $created !== false;
     }
 
@@ -149,7 +153,9 @@ abstract class Dbal
         $rolledBack = $this->transactionCounter > 1 ?
             $conn->exec('ROLLBACK TO transaction' . $this->transactionCounter) !== false :
             $conn->rollBack();
-        !$rolledBack ?: $this->transactionCounter--;
+        if ($rolledBack) {
+            $this->transactionCounter--;
+        }
         return $rolledBack;
     }
 

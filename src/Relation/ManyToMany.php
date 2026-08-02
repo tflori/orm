@@ -177,7 +177,9 @@ class ManyToMany extends Relation
             }
 
             $association = $baseAssociation;
-            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
+            /** @var self $opponent */
+            $opponent = $this->getOpponent(ManyToMany::class);
+            foreach ($opponent->reference as $hisVar => $fkCol) {
                 if (empty($associations)) {
                     $cols[] = $entityManager->escapeIdentifier($fkCol);
                 }
@@ -232,7 +234,9 @@ class ManyToMany extends Relation
             }
 
             $condition = [];
-            foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $fkCol) {
+            /** @var self $opponent */
+            $opponent = $this->getOpponent(ManyToMany::class);
+            foreach ($opponent->reference as $hisVar => $fkCol) {
                 $value = $entity->__get($hisVar);
 
                 if ($value === null) {
@@ -264,7 +268,9 @@ class ManyToMany extends Relation
         call_user_func([ $fetcher, $join ], $table, implode(' AND ', $expression), null, [], true);
 
         $expression = [];
-        foreach ($this->getOpponent(ManyToMany::class)->reference as $hisVar => $col) {
+        /** @var self $opponent */
+        $opponent = $this->getOpponent(ManyToMany::class);
+        foreach ($opponent->reference as $hisVar => $col) {
             $expression[] = $table . '.' . $fetcher->getEntityManager()->escapeIdentifier($col) .
                             ' = ' . $this->name . '.' . $hisVar;
         }
@@ -279,6 +285,7 @@ class ManyToMany extends Relation
     protected function createFetcher(EntityManager $entityManager)
     {
         $table = $entityManager->escapeIdentifier($this->table);
+        /** @var self $opponent */
         $opponent = $this->getOpponent(ManyToMany::class);
         /** @var EntityFetcher $fetcher */
         $fetcher = $entityManager->fetch($this->class);

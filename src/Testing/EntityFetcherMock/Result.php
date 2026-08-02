@@ -2,6 +2,7 @@
 
 namespace ORM\Testing\EntityFetcherMock;
 
+use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 
@@ -108,5 +109,144 @@ class Result extends EntityFetcher
     public function getEntities()
     {
         return $this->entities;
+    }
+
+    /**
+     * Get the next entity from the result
+     *
+     * @return ?Entity
+     */
+    public function one()
+    {
+        if (!isset($this->entities[$this->cursor])) {
+            return null;
+        }
+        return $this->entities[$this->cursor++];
+    }
+
+    /**
+     * Get the count of entities in this result
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->entities);
+    }
+
+    /**
+     * Execute a delete statement — returns the count of matched entities
+     *
+     * @return int
+     */
+    public function delete()
+    {
+        return count($this->entities);
+    }
+
+    /**
+     * Execute an update statement — returns the count of matched entities
+     *
+     * @param array $updates
+     * @return int
+     */
+    public function update(array $updates)
+    {
+        return count($this->entities);
+    }
+
+    /**
+     * Execute an insert statement — returns the number of rows
+     *
+     * @param array ...$rows
+     * @return int
+     */
+    public function insert(array ...$rows)
+    {
+        return count($rows);
+    }
+
+    /**
+     * Expect one() to be called on the matching fetcher
+     *
+     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     *
+     * @return m\Expectation
+     */
+    public function expectOne()
+    {
+        return $this->shouldReceive('one')->passthru();
+    }
+
+    /**
+     * Expect all() to be called on the matching fetcher
+     *
+     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     *
+     * @return m\Expectation
+     */
+    public function expectAll()
+    {
+        return $this->shouldReceive('all')->passthru();
+    }
+
+    /**
+     * Expect count() to be called on the matching fetcher
+     *
+     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     *
+     * @return m\Expectation
+     */
+    public function expectCount()
+    {
+        return $this->shouldReceive('count')->passthru();
+    }
+
+    /**
+     * Expect delete() to be called on the matching fetcher
+     *
+     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     *
+     * @return m\Expectation
+     */
+    public function expectDelete()
+    {
+        return $this->shouldReceive('delete')->passthru();
+    }
+
+    /**
+     * Expect update() to be called on the matching fetcher
+     *
+     * Optionally validate the update data by passing the expected array.
+     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     *
+     * @param array|null $updates
+     * @return m\Expectation
+     */
+    public function expectUpdate(?array $updates = null)
+    {
+        $expectation = $this->shouldReceive('update')->passthru();
+        if ($updates !== null) {
+            $expectation->with($updates);
+        }
+        return $expectation;
+    }
+
+    /**
+     * Expect insert() to be called on the matching fetcher
+     *
+     * Optionally validate the insert data by passing the expected rows.
+     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     *
+     * @param array ...$rows
+     * @return m\Expectation
+     */
+    public function expectInsert(array ...$rows)
+    {
+        $expectation = $this->shouldReceive('insert')->passthru();
+        if (!empty($rows)) {
+            $expectation->with(...$rows);
+        }
+        return $expectation;
     }
 }
