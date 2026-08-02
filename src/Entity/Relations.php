@@ -11,7 +11,7 @@ use ORM\Relation;
 trait Relations
 {
     /** Relation definitions
-     * @var array|Relation[] */
+     * @var array<string, array|Relation> */
     protected static $relations = [];
 
     /** The entity manager from which this entity got created
