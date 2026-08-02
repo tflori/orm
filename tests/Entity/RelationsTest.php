@@ -207,43 +207,42 @@ class RelationsTest extends TestCase
     }
 
     /** @test */
-    public function throwsWhenBindIsCalledManually()
+    public function bindSetsParentAndName()
     {
         $relation = Article::getRelation('writer');
-
-        self::expectException(Exception::class);
-
         $relation->bind(Category::class, 'writer');
+
+        self::assertSame(Category::class, self::getProtectedProperty($relation, 'parent'));
+        self::assertSame('writer', self::getProtectedProperty($relation, 'name'));
     }
 
     /** @test */
-    public function bindResolvesMockClassToOriginal()
+    public function bindAllowsDifferentParentClasses()
+    {
+        $relation = Article::getRelation('writer');
+
+        $relation->bind(Article::class, 'writer');
+        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
+
+        // Binding with a different class should not throw
+        $relation->bind(Category::class, 'writer');
+        self::assertSame(Category::class, self::getProtectedProperty($relation, 'parent'));
+    }
+
+    /** @test */
+    public function bindAllowsMockClasses()
     {
         $mock = m::mock(Article::class);
         $mockClass = get_class($mock);
 
         $relation = Article::getRelation('writer');
+
+        // Mock class should work
         $relation->bind($mockClass, 'writer');
+        self::assertSame($mockClass, self::getProtectedProperty($relation, 'parent'));
 
-        // Binding again with the real class should not throw
+        // Real class should also work
         $relation->bind(Article::class, 'writer');
-
-        // The parent should be resolved to the real class
-        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
-    }
-
-    /** @test */
-    public function bindResolvesBothDirections()
-    {
-        $relation = Article::getRelation('writer');
-
-        // First bind with the real class
-        $relation->bind(Article::class, 'writer');
-
-        // Then bind with a mock class - should not throw
-        $mock = m::mock(Article::class);
-        $relation->bind(get_class($mock), 'writer');
-
         self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
     }
 

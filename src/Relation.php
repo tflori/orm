@@ -125,47 +125,8 @@ abstract class Relation
      */
     public function bind($parent, $name)
     {
-        if ($this->name || $this->parent) {
-            $this->checkBoundTo($parent, $name);
-            return;
-        }
         $this->name = $name;
         $this->parent = $parent;
-    }
-
-    /**
-     * Check if the relation is bound to $parent and throw if not
-     *
-     * @throws Exception
-     */
-    protected function checkBoundTo($parent, $name)
-    {
-        if ($this->parent !== $parent) {
-            $reflection = new \ReflectionClass($parent);
-            if ($reflection->isSubclassOf($this->parent)) {
-                $parent = $this->parent;
-            } else {
-                // Resolve mock classes to their parent (e.g. Mockery_0_Image → Image)
-                $thisParent = get_parent_class($this->parent);
-                $thatParent = get_parent_class($parent);
-                if ($thisParent && $thatParent && $thisParent === $thatParent) {
-                    // Verify this is actually a mock (eval'd class), not a sibling entity
-                    $thatFile = (new \ReflectionClass($parent))->getFileName();
-                    if ($thatFile && strpos($thatFile, 'eval') !== false) {
-                        $this->parent = $thisParent;
-                        $parent = $thatParent;
-                    }
-                }
-            }
-        }
-
-        if ($this->parent !== $parent || $this->name !== $name) {
-            throw new Exception(sprintf(
-                'Relation already used for %s on entity %s',
-                $this->name,
-                $this->parent
-            ));
-        }
     }
 
     /**
