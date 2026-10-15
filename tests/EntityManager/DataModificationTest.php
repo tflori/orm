@@ -427,6 +427,31 @@ class DataModificationTest extends TestCase
     }
 
     /** @test */
+    public function insertSetsAutoIncrementOfAllEntitiesPgsql()
+    {
+        $entities = [new StudlyCaps(['foo' => 'bar']), new StudlyCaps(['foo' => 'baz'])];
+        $this->em->shouldReceive('getDbal')->passthru();
+        $this->pdo->shouldReceive('getAttribute')->with(\PDO::ATTR_DRIVER_NAME)->andReturn('pgsql');
+
+        $this->pdo->shouldReceive('query')->with(m::pattern('/^INSERT INTO .* VALUES .* RETURNING id$/'))
+            ->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('fetchColumn')->with()
+            ->times(3)->andReturn(42, 43, false)->ordered();
+        $this->pdo->shouldReceive('query')->with(m::pattern(
+            '/SELECT \* FROM .* WHERE "id" IN \(42,43\)/'
+        ))->once()->andReturn($statement = m::mock(\PDOStatement::class))->ordered();
+        $statement->shouldReceive('setFetchMode')->once()->with(\PDO::FETCH_ASSOC)->andReturnTrue();
+        $statement->shouldReceive('fetch')->with()
+            ->times(3)->andReturn(['id' => 42, 'foo' => 'bar'], ['id' => 43, 'foo' => 'baz'], false)->ordered();
+
+        $result = $this->em->getDbal()->insertAndSyncWithAutoInc(...$entities);
+
+        self::assertSame(true, $result);
+        self::assertSame(42, $entities[0]->id);
+        self::assertSame(43, $entities[1]->id);
+    }
+
+    /** @test */
     public function throwsForUnsupportedDriverWithAutoincrement()
     {
         $this->em->shouldReceive('getDbal')->passthru();

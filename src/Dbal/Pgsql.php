@@ -60,7 +60,7 @@ class Pgsql extends Dbal
         }, $entities)) . ' RETURNING ' . $col);
         while ($id = $result->fetchColumn()) {
             $this->updateAutoincrement($entity, $id);
-            $entity = next($entity);
+            $entity = next($entities);
         }
         $this->syncInserted(...$entities);
         return true;
