@@ -26,14 +26,20 @@ class EntityFetcherMock extends EntityFetcher
     public function one()
     {
         $result = $this->match();
-        return $result ? $result->one() : null;
+        return $result ? $result->one($this) : null;
     }
 
     /** {@inheritDoc} */
     public function all($limit = 0)
     {
         $result = $this->match();
-        return $result ? $result->all($limit) : [];
+        $entities = $result ? $result->all($limit, $this) : [];
+
+        foreach ($this->eagerLoad as $relation) {
+            $this->entityManager->eagerLoad($relation, ...$entities);
+        }
+
+        return $entities;
     }
 
     /** {@inheritDoc} */
@@ -43,24 +49,36 @@ class EntityFetcherMock extends EntityFetcher
         return $result ? $result->count() : 0;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * Executes the statement on the (mocked) connection unless the matched result expects delete().
+     */
     public function delete()
     {
         $result = $this->match();
-        return $result ? $result->delete() : 0;
+        return $result && $result->isExpected('delete') ? $result->delete() : parent::delete();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * Executes the statement on the (mocked) connection unless the matched result expects update().
+     */
     public function update(array $updates)
     {
         $result = $this->match();
-        return $result ? $result->update($updates) : 0;
+        return $result && $result->isExpected('update') ? $result->update($updates) : parent::update($updates);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     *
+     * Executes the statement on the (mocked) connection unless the matched result expects insert().
+     */
     public function insert(array ...$rows)
     {
         $result = $this->match();
-        return $result ? $result->insert(...$rows) : 0;
+        return $result && $result->isExpected('insert') ? $result->insert(...$rows) : parent::insert(...$rows);
     }
 }

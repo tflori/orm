@@ -14,6 +14,10 @@ class Result extends EntityFetcher
     /** @var string[] */
     protected $regularExpressions = [];
 
+    /** Methods with expectations (delete, update and insert are only handled by this result when expected)
+     * @var bool[] */
+    protected $expectedMethods = [];
+
     /**
      * Check if $fetcher matches the current query
      *
@@ -112,16 +116,52 @@ class Result extends EntityFetcher
     }
 
     /**
-     * Get the next entity from the result
+     * Get the next entity for $fetcher
      *
+     * Every fetcher has its own cursor - without $fetcher the cursor of this result is used.
+     *
+     * @param EntityFetcher|null $fetcher
      * @return ?Entity
      */
-    public function one()
+    public function one(?EntityFetcher $fetcher = null)
     {
-        if (!isset($this->entities[$this->cursor])) {
+        return $this->next($fetcher ?: $this);
+    }
+
+    /**
+     * Get the remaining entities for $fetcher
+     *
+     * Every fetcher has its own cursor - without $fetcher the cursor of this result is used.
+     *
+     * @param int $limit
+     * @param EntityFetcher|null $fetcher
+     * @return Entity[]
+     */
+    public function all($limit = 0, ?EntityFetcher $fetcher = null)
+    {
+        $fetcher = $fetcher ?: $this;
+        $entities = [];
+        while ($entity = $this->next($fetcher)) {
+            $entities[] = $entity;
+            if ($limit && count($entities) >= $limit) {
+                break;
+            }
+        }
+        return $entities;
+    }
+
+    /**
+     * Get the entity at the cursor of $fetcher and move the cursor
+     *
+     * @param EntityFetcher $fetcher
+     * @return ?Entity
+     */
+    private function next(EntityFetcher $fetcher)
+    {
+        if (!isset($this->entities[$fetcher->cursor])) {
             return null;
         }
-        return $this->entities[$this->cursor++];
+        return $this->entities[$fetcher->cursor++];
     }
 
     /**
@@ -167,6 +207,18 @@ class Result extends EntityFetcher
     }
 
     /**
+     * Check if an expectation for $method was defined
+     *
+     * @param string $method
+     * @return bool
+     * @internal
+     */
+    public function isExpected($method)
+    {
+        return isset($this->expectedMethods[$method]);
+    }
+
+    /**
      * Expect one() to be called on the matching fetcher
      *
      * Returns a Mockery expectation for further modifiers like ->once() or ->never().
@@ -175,6 +227,7 @@ class Result extends EntityFetcher
      */
     public function expectOne()
     {
+        $this->expectedMethods['one'] = true;
         return $this->shouldReceive('one')->passthru();
     }
 
@@ -187,6 +240,7 @@ class Result extends EntityFetcher
      */
     public function expectAll()
     {
+        $this->expectedMethods['all'] = true;
         return $this->shouldReceive('all')->passthru();
     }
 
@@ -199,6 +253,7 @@ class Result extends EntityFetcher
      */
     public function expectCount()
     {
+        $this->expectedMethods['count'] = true;
         return $this->shouldReceive('count')->passthru();
     }
 
@@ -211,6 +266,7 @@ class Result extends EntityFetcher
      */
     public function expectDelete()
     {
+        $this->expectedMethods['delete'] = true;
         return $this->shouldReceive('delete')->passthru();
     }
 
@@ -225,6 +281,7 @@ class Result extends EntityFetcher
      */
     public function expectUpdate(?array $updates = null)
     {
+        $this->expectedMethods['update'] = true;
         $expectation = $this->shouldReceive('update')->passthru();
         if ($updates !== null) {
             $expectation->with($updates);
@@ -243,6 +300,7 @@ class Result extends EntityFetcher
      */
     public function expectInsert(array ...$rows)
     {
+        $this->expectedMethods['insert'] = true;
         $expectation = $this->shouldReceive('insert')->passthru();
         if (!empty($rows)) {
             $expectation->with(...$rows);

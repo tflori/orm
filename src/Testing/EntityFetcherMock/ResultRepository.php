@@ -147,22 +147,18 @@ class ResultRepository
             return null;
         }
 
-        $results = [];
-        foreach ($this->results[$class] as $objHash => $result) {
-            if ($quality = $result->compare($fetcher)) {
-                $results[$objHash] = $quality;
+        // on equal quality the first added result wins
+        $matched = null;
+        $bestQuality = 0;
+        foreach ($this->results[$class] as $result) {
+            $quality = $result->compare($fetcher);
+            if ($quality > $bestQuality) {
+                $matched = $result;
+                $bestQuality = $quality;
             }
         }
 
-        if (empty($results)) {
-            return null;
-        }
-
-        arsort($results);
-        $objHash = array_keys($results)[0];
-        // we need to reset the cursor of the result
-        $this->results[$class][$objHash]->reset();
-        return $this->results[$class][$objHash];
+        return $matched;
     }
 
     /**
