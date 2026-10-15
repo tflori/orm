@@ -3,10 +3,12 @@
 namespace ORM\Test\Testing;
 
 use Mockery as m;
+use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\User;
 use ORM\Test\TestCase;
 use ORM\Testing\EntityFetcherMock;
+use ORM\Testing\EntityFetcherMock\Result;
 use ORM\Testing\EntityManagerMock;
 use ORM\Testing\MocksEntityManager;
 
@@ -317,6 +319,141 @@ class EntityFetcherMockTest extends TestCase
         $article = $fetcher->one();
 
         self::assertInstanceOf(Article::class, $article);
+    }
+
+    /** @test */
+    public function expectationsDefaultToOnce()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->expectDelete();
+
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function theDefaultCountCanBeChanged()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->em->addResult(Article::class, ...$entities);
+        $result->expectOne()->twice();
+        $result->expectCount()->atLeast()->once();
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+        $articles = [$fetcher->one(), $fetcher->one()];
+        $counts = [$fetcher->count(), $fetcher->count()];
+
+        self::assertSame($entities, $articles);
+        self::assertSame([2, 2], $counts);
+    }
+
+    /** @test */
+    public function expectUpdateAcceptsMockeryMatchers()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->expectUpdate(m::subset(['status' => 'deleted']));
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(1, $fetcher->update(['status' => 'deleted', 'deletedAt' => '2026-10-15']));
+    }
+
+    /** @test */
+    public function expectInsertAcceptsMockeryMatchers()
+    {
+        $this->em->addResult(Article::class)
+            ->expectInsert(m::hasKey('title'), m::hasKey('title'));
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(2, $fetcher->insert(['title' => 'Bar'], ['title' => 'Baz']));
+    }
+
+    /** @test */
+    public function expectationsCallTheRealMethodByDefault()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $result = $this->em->addResult(Article::class, ...$entities);
+        $result->expectDelete();
+        $result->expectInsert();
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(2, $fetcher->delete());
+        self::assertSame(3, $fetcher->insert(['title' => 'A'], ['title' => 'B'], ['title' => 'C']));
+    }
+
+    public function provideWriteMethods()
+    {
+        return [
+            'delete' => ['expectDelete', 'delete', []],
+            'update' => ['expectUpdate', 'update', [['title' => 'Updated']]],
+            'insert' => ['expectInsert', 'insert', [['title' => 'A'], ['title' => 'B']]],
+        ];
+    }
+
+    /** @dataProvider provideWriteMethods
+     * @test */
+    public function andReturnOverridesTheDefault($expectMethod, $method, $args)
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->$expectMethod()->andReturn(0);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(0, $fetcher->$method(...$args));
+    }
+
+    /** @dataProvider provideWriteMethods
+     * @test */
+    public function andReturnUsingOverridesTheDefault($expectMethod, $method, $args)
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->$expectMethod()->andReturnUsing(function () {
+                return 42;
+            });
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(42, $fetcher->$method(...$args));
+    }
+
+    /** @dataProvider provideWriteMethods
+     * @test */
+    public function andThrowOverridesTheDefault($expectMethod, $method, $args)
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->$expectMethod()->andThrow(new \PDOException('Deadlock'));
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::expectException(\PDOException::class);
+        self::expectExceptionMessage('Deadlock');
+
+        $fetcher->$method(...$args);
+    }
+
+    /** @test */
+    public function andReturnOverridesTheEntitiesOfOne()
+    {
+        $article = new Article(['title' => 'Bar']);
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->expectOne()->andReturn($article);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame($article, $fetcher->one());
+    }
+
+    /** @test */
+    public function expectationsRequireAMockedResult()
+    {
+        $result = new Result($this->em, Article::class);
+
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('Expectations require a mocked result');
+
+        $result->expectOne();
     }
 
     /** @test */

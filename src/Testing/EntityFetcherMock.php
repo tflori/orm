@@ -14,12 +14,24 @@ class EntityFetcherMock extends EntityFetcher
     public $entityManager;
 
     /** @return Result|null */
-    private function match()
+    protected function match()
     {
         if ($this->matchedResult === null) {
             $this->matchedResult = $this->entityManager->getMatchedResult($this->class, $this);
         }
         return $this->matchedResult;
+    }
+
+    /**
+     * Get the matched result if it expects $method
+     *
+     * @param string $method
+     * @return Result|null
+     */
+    protected function matchExpecting($method)
+    {
+        $result = $this->match();
+        return $result && $result->isExpected($method) ? $result : null;
     }
 
     /** {@inheritDoc} */
@@ -56,8 +68,8 @@ class EntityFetcherMock extends EntityFetcher
      */
     public function delete()
     {
-        $result = $this->match();
-        return $result && $result->isExpected('delete') ? $result->delete() : parent::delete();
+        $result = $this->matchExpecting('delete');
+        return $result ? $result->delete() : parent::delete();
     }
 
     /**
@@ -67,8 +79,8 @@ class EntityFetcherMock extends EntityFetcher
      */
     public function update(array $updates)
     {
-        $result = $this->match();
-        return $result && $result->isExpected('update') ? $result->update($updates) : parent::update($updates);
+        $result = $this->matchExpecting('update');
+        return $result ? $result->update($updates) : parent::update($updates);
     }
 
     /**
@@ -78,7 +90,7 @@ class EntityFetcherMock extends EntityFetcher
      */
     public function insert(array ...$rows)
     {
-        $result = $this->match();
-        return $result && $result->isExpected('insert') ? $result->insert(...$rows) : parent::insert(...$rows);
+        $result = $this->matchExpecting('insert');
+        return $result ? $result->insert(...$rows) : parent::insert(...$rows);
     }
 }

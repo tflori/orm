@@ -3,8 +3,10 @@
 namespace ORM\Testing\EntityFetcherMock;
 
 use Mockery as m;
+use Mockery\ExpectationDirector;
 use ORM\Entity;
 use ORM\EntityFetcher;
+use ORM\Exception;
 
 class Result extends EntityFetcher
 {
@@ -221,68 +223,68 @@ class Result extends EntityFetcher
     /**
      * Expect one() to be called on the matching fetcher
      *
-     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @return m\Expectation
+     * @return ResultExpectation
      */
     public function expectOne()
     {
-        $this->expectedMethods['one'] = true;
-        return $this->shouldReceive('one')->passthru();
+        return $this->expect('one');
     }
 
     /**
      * Expect all() to be called on the matching fetcher
      *
-     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @return m\Expectation
+     * @return ResultExpectation
      */
     public function expectAll()
     {
-        $this->expectedMethods['all'] = true;
-        return $this->shouldReceive('all')->passthru();
+        return $this->expect('all');
     }
 
     /**
      * Expect count() to be called on the matching fetcher
      *
-     * Returns a Mockery expectation for further modifiers like ->once() or ->never().
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @return m\Expectation
+     * @return ResultExpectation
      */
     public function expectCount()
     {
-        $this->expectedMethods['count'] = true;
-        return $this->shouldReceive('count')->passthru();
+        return $this->expect('count');
     }
 
     /**
      * Expect delete() to be called on the matching fetcher
      *
-     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @return m\Expectation
+     * @return ResultExpectation
      */
     public function expectDelete()
     {
-        $this->expectedMethods['delete'] = true;
-        return $this->shouldReceive('delete')->passthru();
+        return $this->expect('delete');
     }
 
     /**
      * Expect update() to be called on the matching fetcher
      *
-     * Optionally validate the update data by passing the expected array.
-     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     * Optionally validate the update data by passing the expected array (or a Mockery matcher).
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @param array|null $updates
-     * @return m\Expectation
+     * @param mixed $updates
+     * @return ResultExpectation
      */
-    public function expectUpdate(?array $updates = null)
+    public function expectUpdate($updates = null)
     {
-        $this->expectedMethods['update'] = true;
-        $expectation = $this->shouldReceive('update')->passthru();
+        $expectation = $this->expect('update');
         if ($updates !== null) {
             $expectation->with($updates);
         }
@@ -292,19 +294,50 @@ class Result extends EntityFetcher
     /**
      * Expect insert() to be called on the matching fetcher
      *
-     * Optionally validate the insert data by passing the expected rows.
-     * Chain ->once(), ->never(), ->times(n) etc. on the returned expectation.
+     * Optionally validate the insert data by passing the expected rows (or Mockery matchers).
+     * Expects exactly one call by default - chain ->times(n), ->never(), ->atLeast()->once() etc. to change it.
+     * Calls the real method unless a return value is defined with ->andReturn*() or ->andThrow().
      *
-     * @param array ...$rows
-     * @return m\Expectation
+     * @param mixed ...$rows
+     * @return ResultExpectation
      */
-    public function expectInsert(array ...$rows)
+    public function expectInsert(...$rows)
     {
-        $this->expectedMethods['insert'] = true;
-        $expectation = $this->shouldReceive('insert')->passthru();
+        $expectation = $this->expect('insert');
         if (!empty($rows)) {
             $expectation->with(...$rows);
         }
+        return $expectation;
+    }
+
+    /**
+     * Create the expectation for $method
+     *
+     * @param string $method
+     * @return ResultExpectation
+     * @throws Exception
+     */
+    private function expect($method)
+    {
+        if (!$this instanceof m\MockInterface) {
+            throw new Exception(
+                'Expectations require a mocked result - use EntityManagerMock::addResult() or ormAddResult()'
+            );
+        }
+
+        $this->expectedMethods[$method] = true;
+
+        // same as shouldReceive() but with a ResultExpectation
+        $director = $this->mockery_getExpectationsFor($method);
+        if (!$director) {
+            $director = new ExpectationDirector($method, $this);
+            $this->mockery_setExpectationsFor($method, $director);
+        }
+        $expectation = new ResultExpectation($this, $method);
+        $director->addExpectation($expectation);
+
+        $expectation->passthru()->once();
+
         return $expectation;
     }
 }

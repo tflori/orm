@@ -94,11 +94,11 @@ class ResultRepository
      *
      * @param $class
      * @param Entity ...$entities
-     * @return Result|m\MockInterface
+     * @return Result&m\MockInterface
      */
     public function addResult($class, Entity ...$entities)
     {
-        /** @var Result|m\MockInterface $result */
+        /** @var Result&m\MockInterface $result */
         $result = m::mock(Result::class, [$this->em, $class])->makePartial();
         $result->addEntities(...static::completePrimaryKeys(...$entities));
 
@@ -140,6 +140,7 @@ class ResultRepository
      * @param string $class
      * @param EntityFetcher $fetcher
      * @return Result|null
+     * @internal
      */
     public function getMatchedResult($class, EntityFetcher $fetcher)
     {
