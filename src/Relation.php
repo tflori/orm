@@ -119,6 +119,8 @@ abstract class Relation
     /**
      * Bind this relation to class $parent with $name
      *
+     * Entity::getRelation() resolves a separate instance per class, so this does not check previous bindings.
+     *
      * @param string $parent
      * @param string $name
      * @internal

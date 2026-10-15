@@ -34,6 +34,23 @@ class Helper
     }
 
     /**
+     * Get the entity class of $classOrEntity
+     *
+     * Mock classes (Mockery) are resolved to the first parent class that is not a mock.
+     *
+     * @param string|object $classOrEntity
+     * @return string
+     */
+    public static function entityClass($classOrEntity)
+    {
+        $class = is_object($classOrEntity) ? get_class($classOrEntity) : $classOrEntity;
+        while (is_subclass_of($class, \Mockery\MockInterface::class) && $parent = get_parent_class($class)) {
+            $class = $parent;
+        }
+        return $class;
+    }
+
+    /**
      * Gets the short name of a class without creating a Reflection
      *
      * @param string $class

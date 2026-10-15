@@ -215,6 +215,57 @@ class MorphedRelationTest extends TestCase
         );
     }
 
+    protected function createMockedArticle(array $data)
+    {
+        $article = m::mock(Article::class)->makePartial();
+        $article->setEntityManager($this->em);
+        $article->setOriginalData($data);
+        $article->reset();
+        return $article;
+    }
+
+    /** @test */
+    public function fetchingTheRelationOfAMockedEntityUsesTheMockedClass()
+    {
+        $article = $this->createMockedArticle(['id' => 23, 'title' => 'Foo Bar']);
+
+        $fetcher = $article->fetch('tags');
+
+        self::assertSame(
+            'SELECT DISTINCT t0.* FROM "tag" AS t0 ' .
+            'WHERE "t0"."parent_type" = \'article\' ' .
+            'AND "t0"."parent_id" = 23',
+            $fetcher->getQuery()
+        );
+    }
+
+    /** @test */
+    public function withoutMapFetchingTheRelationOfAMockedEntityFiltersByTheMockedClass()
+    {
+        $article = $this->createMockedArticle(['id' => 23, 'title' => 'Foo Bar']);
+
+        $fetcher = $article->fetch('tagsByClass');
+
+        self::assertSame(
+            'SELECT DISTINCT t0.* FROM "tag" AS t0 ' .
+            'WHERE "t0"."parent_type" = ' . $this->dbal->escapeValue(Article::class) . ' ' .
+            'AND "t0"."parent_id" = 23',
+            $fetcher->getQuery()
+        );
+    }
+
+    /** @test */
+    public function setRelatedWithAMockedEntityStoresTheTypeOfTheMockedClass()
+    {
+        $tag = new Tag(['name' => 'programming']);
+        $article = $this->createMockedArticle(['id' => 23, 'title' => 'Foo Bar']);
+
+        $tag->setRelated('parent', $article);
+
+        self::assertSame('article', $tag->parentType);
+        self::assertSame(23, $tag->parentId);
+    }
+
     /** @test */
     public function withoutMapJoiningTheRelationWillFilterTheJoinByTypeAndId()
     {

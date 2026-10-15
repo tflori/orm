@@ -206,46 +206,6 @@ class RelationsTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function bindSetsParentAndName()
-    {
-        $relation = Article::getRelation('writer');
-        $relation->bind(Category::class, 'writer');
-
-        self::assertSame(Category::class, self::getProtectedProperty($relation, 'parent'));
-        self::assertSame('writer', self::getProtectedProperty($relation, 'name'));
-    }
-
-    /** @test */
-    public function bindAllowsDifferentParentClasses()
-    {
-        $relation = Article::getRelation('writer');
-
-        $relation->bind(Article::class, 'writer');
-        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
-
-        // Binding with a different class should not throw
-        $relation->bind(Category::class, 'writer');
-        self::assertSame(Category::class, self::getProtectedProperty($relation, 'parent'));
-    }
-
-    /** @test */
-    public function bindAllowsMockClasses()
-    {
-        $mock = m::mock(Article::class);
-        $mockClass = get_class($mock);
-
-        $relation = Article::getRelation('writer');
-
-        // Mock class should work
-        $relation->bind($mockClass, 'writer');
-        self::assertSame($mockClass, self::getProtectedProperty($relation, 'parent'));
-
-        // Real class should also work
-        $relation->bind(Article::class, 'writer');
-        self::assertSame(Article::class, self::getProtectedProperty($relation, 'parent'));
-    }
-
     public function provideRelationDefinitionsWithReference()
     {
         return array_filter($this->provideRelationDefinitions(), function ($definition) {

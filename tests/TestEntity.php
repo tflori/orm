@@ -14,4 +14,14 @@ abstract class TestEntity extends Entity
         self::$tableNameTemplate = '%short%';
         self::$reflections = [];
     }
+
+    public static function resetRelationsForTest()
+    {
+        self::$booted = [];
+        foreach (['definedRelations', 'resolvedRelations'] as $property) {
+            $reflection = new \ReflectionProperty(Entity::class, $property);
+            $reflection->setAccessible(true);
+            $reflection->setValue(null, []);
+        }
+    }
 }

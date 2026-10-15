@@ -6,6 +6,7 @@ use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager as EM;
 use ORM\Exception\UndefinedRelation;
+use ORM\Helper;
 use ORM\Relation;
 
 trait Relations
@@ -13,6 +14,14 @@ trait Relations
     /** Relation definitions
      * @var array<string, array|Relation> */
     protected static $relations = [];
+
+    /** Relation definitions from boot() per class
+     * @var array<string, array<string, array|Relation>> */
+    private static $definedRelations = [];
+
+    /** Resolved relations per class
+     * @var array<string, array<string, Relation>> */
+    private static $resolvedRelations = [];
 
     /** The entity manager from which this entity got created
      * @var EM */
@@ -33,26 +42,147 @@ trait Relations
      */
     public static function getRelation($name)
     {
+        $class = Helper::entityClass(static::class);
+        if ($class !== static::class) {
+            // mocked entities share the relations of the mocked class
+            return $class::getRelation($name);
+        }
+
+        if (isset(self::$resolvedRelations[static::class][$name])) {
+            return self::$resolvedRelations[static::class][$name];
+        }
+
         static::bootIfNotBooted();
 
-        $em = EM::getInstance(static::class);
-        $method = $em->getNamer()->getMethodName($name . 'Relation', self::$namingSchemeMethods);
+        $definition = self::getRelationDefinition($name);
+        if ($definition instanceof Relation) {
+            // the definition might be shared with other classes
+            $relation = clone $definition;
+        } else {
+            $relation = Relation::createRelation(static::class, $name, $definition);
+        }
 
-        if (!isset(static::$relations[$name])) {
-            if (!method_exists(static::class, $method)) {
-                throw new UndefinedRelation('Relation ' . $name . ' is not defined');
+        $relation->bind(static::class, $name);
+        return self::$resolvedRelations[static::class][$name] = $relation;
+    }
+
+    /**
+     * Define $relation for this class
+     *
+     * Use this method in boot() instead of writing to static::$relations, which might be shared with other entities.
+     *
+     * @param string $name
+     * @param array|Relation $definition
+     */
+    protected static function defineRelation($name, $definition)
+    {
+        self::$definedRelations[static::class][$name] = $definition;
+    }
+
+    /**
+     * Check if $name is a defined relation
+     *
+     * @param string $name
+     * @return bool
+     */
+    public static function hasRelation($name)
+    {
+        $class = Helper::entityClass(static::class);
+        if ($class !== static::class) {
+            return $class::hasRelation($name);
+        }
+
+        if (isset(self::$resolvedRelations[static::class][$name])) {
+            return true;
+        }
+
+        static::bootIfNotBooted();
+
+        return self::getDefinedRelation($name) !== null ||
+            isset(static::$relations[$name]) ||
+            self::getRelationMethod($name) !== null;
+    }
+
+    /**
+     * Get the definition for $name
+     *
+     * Definitions from boot() (including the boot() of parent classes) take precedence over static::$relations,
+     * which take precedence over <name>Relation() methods.
+     *
+     * @param string $name
+     * @return array|Relation
+     * @throws UndefinedRelation
+     */
+    private static function getRelationDefinition($name)
+    {
+        if (($definition = self::getDefinedRelation($name)) !== null) {
+            return $definition;
+        }
+
+        if (isset(static::$relations[$name])) {
+            return static::$relations[$name];
+        }
+
+        if (!$method = self::getRelationMethod($name)) {
+            throw new UndefinedRelation('Relation ' . $name . ' is not defined');
+        }
+
+        return call_user_func([static::class, $method]);
+    }
+
+    /**
+     * Get the definition for $name from boot() of this class or its parents
+     *
+     * @param string $name
+     * @return array|Relation|null
+     */
+    private static function getDefinedRelation($name)
+    {
+        $class = static::class;
+        do {
+            $class::bootIfNotBooted();
+            if (isset(self::$definedRelations[$class][$name])) {
+                return self::$definedRelations[$class][$name];
             }
-            $relation = call_user_func([static::class, $method]);
-            static::$relations[$name] = $relation;
-        }
+        } while (($class = get_parent_class($class)) && $class !== Entity::class);
 
-        if (!static::$relations[$name] instanceof Relation) {
-            $relation = Relation::createRelation(static::class, $name, static::$relations[$name]);
-            static::$relations[$name] = $relation;
-        }
+        return null;
+    }
 
-        static::$relations[$name]->bind(static::class, $name);
-        return static::$relations[$name];
+    /**
+     * Get the name of the <name>Relation() method if it exists
+     *
+     * @param string $name
+     * @return string|null
+     */
+    private static function getRelationMethod($name)
+    {
+        $method = EM::getInstance(static::class)->getNamer()
+            ->getMethodName($name . 'Relation', self::$namingSchemeMethods);
+
+        return method_exists(static::class, $method) ? $method : null;
+    }
+
+    /**
+     * Move the relations defined in boot() to the definitions of this class
+     *
+     * static::$relations is shared with all entities that don't redeclare it - so we restore it after booting.
+     * Relations from defineRelation() take precedence (e.g. a subclass overriding a relation of its parent's boot()).
+     *
+     * @param array $relationsBeforeBoot
+     * @internal
+     */
+    protected static function storeRelationsFromBoot(array $relationsBeforeBoot)
+    {
+        foreach (static::$relations as $name => $definition) {
+            if (isset(self::$definedRelations[static::class][$name])) {
+                continue;
+            }
+            if (!array_key_exists($name, $relationsBeforeBoot) || $relationsBeforeBoot[$name] !== $definition) {
+                self::$definedRelations[static::class][$name] = $definition;
+            }
+        }
+        static::$relations = $relationsBeforeBoot;
     }
 
     /**

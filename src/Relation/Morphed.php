@@ -250,8 +250,8 @@ class Morphed extends Owner
     {
         if ($class instanceof Entity) {
             $entity = $class;
-            $class = get_class($class);
         }
+        $class = Helper::entityClass($class);
 
         if ($this->morphMap) {
             $type = array_search($class, $this->morphMap);
@@ -274,7 +274,7 @@ class Morphed extends Owner
             ));
         }
 
-        return $class; // what about mocks?
+        return $class;
     }
 
     /**
