@@ -97,9 +97,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         }
 
         $propertyReflection = $reflection->getProperty($property);
-        $propertyReflection->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $propertyReflection->setAccessible(true);
+        }
         $value = $propertyReflection->getValue($object);
-        $propertyReflection->setAccessible(false);
         return $value;
     }
 
@@ -107,9 +108,10 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     {
         $reflection = new ReflectionClass($object);
         $propertyReflection = $reflection->getProperty($property);
-        $propertyReflection->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $propertyReflection->setAccessible(true);
+        }
         $propertyReflection->setValue($object, $value);
-        $propertyReflection->setAccessible(false);
     }
 
     /**
@@ -126,7 +128,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         $array,
         bool $strict = false,
         string $message = '',
-        float $delta = null
+        ?float $delta = null
     ): void {
         if (!is_array($subset)) {
             throw InvalidArgumentException::create(1, 'array or ArrayAccess');

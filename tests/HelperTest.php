@@ -156,6 +156,19 @@ class HelperTest extends TestCase
     }
 
     /** @test */
+    public function groupByUsesAnEmptyStringForNull()
+    {
+        $array = [['foo' => null, 'bar' => 'b'], ['bar' => 'c', 'foo' => 'a']];
+
+        $result = Helper::groupBy($array, 'foo');
+
+        self::assertSame([
+            '' => [['foo' => null, 'bar' => 'b']],
+            'a' => [['bar' => 'c', 'foo' => 'a']],
+        ], $result);
+    }
+
+    /** @test */
     public function keyByPluckAndGroupByDontAllowOnlyStringCallableOrArray()
     {
         $array = [['a', 'b', 'c'], ['d', 'e', 'f']];

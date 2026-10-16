@@ -20,7 +20,9 @@ abstract class TestEntity extends Entity
         self::$booted = [];
         foreach (['definedRelations', 'resolvedRelations'] as $property) {
             $reflection = new \ReflectionProperty(Entity::class, $property);
-            $reflection->setAccessible(true);
+            if (PHP_VERSION_ID < 80100) {
+                $reflection->setAccessible(true);
+            }
             $reflection->setValue(null, []);
         }
     }

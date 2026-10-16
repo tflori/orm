@@ -156,6 +156,9 @@ class Helper
         $retriever = self::getValueRetriever($retriever);
         return array_reduce($array, function ($array, $item) use ($retriever) {
             $key = $retriever($item);
+            if ($key === null) {
+                $key = ''; // null as array offset is deprecated (PHP 8.5) - it was always converted to ''
+            }
             if (!isset($array[$key])) {
                 $array[$key] = [];
             }

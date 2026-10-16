@@ -30,7 +30,9 @@ class RelationResolvingTest extends TestCase
     protected static function getSharedRelations()
     {
         $reflection = new \ReflectionProperty(Entity::class, 'relations');
-        $reflection->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $reflection->setAccessible(true);
+        }
         return $reflection->getValue();
     }
 
@@ -65,7 +67,9 @@ class RelationResolvingTest extends TestCase
         $relation = BootMembership::getRelation('role');
 
         $definedRelations = new \ReflectionProperty(Entity::class, 'definedRelations');
-        $definedRelations->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $definedRelations->setAccessible(true);
+        }
         $definition = $definedRelations->getValue()[BootMembership::class]['role'];
 
         self::assertNotSame($definition, $relation);
