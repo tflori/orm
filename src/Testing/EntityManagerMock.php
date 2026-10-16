@@ -75,6 +75,7 @@ class EntityManagerMock extends EntityManager
      * @param EntityFetcher $fetcher
      * @return array
      * @deprecated Use getMatchedResult() instead
+     * @internal
      * @codeCoverageIgnore proxy method
      */
     public function getResults($class, EntityFetcher $fetcher)

@@ -120,7 +120,7 @@ class ResultRepository
      * @param EntityFetcher $fetcher
      * @return array
      * @deprecated Use getMatchedResult() instead
-     * @codeCoverageIgnore proxy method
+     * @internal
      */
     public function getResults($class, EntityFetcher $fetcher)
     {

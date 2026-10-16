@@ -573,6 +573,27 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
+    public function getResultsReturnsTheEntitiesOfTheMatchedResult()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $this->em->addResult(Article::class, ...$entities)->where('title', 'Foo');
+
+        $fetcher = (new EntityFetcherMock($this->em, Article::class))->where('title', 'Foo');
+
+        self::assertSame($entities, $this->em->getResults(Article::class, $fetcher));
+    }
+
+    /** @test */
+    public function getResultsReturnsAnEmptyArrayWithoutMatch()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))->where('title', 'Foo');
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame([], $this->em->getResults(Article::class, $fetcher));
+    }
+
+    /** @test */
     public function everyFetcherHasItsOwnCursor()
     {
         $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
