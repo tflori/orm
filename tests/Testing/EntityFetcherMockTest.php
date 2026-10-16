@@ -505,6 +505,29 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
+    public function andReturnArgOverridesTheDefault()
+    {
+        $this->em->addResult(Article::class)
+            ->expectUpdate()->andReturnArg(0);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame(['title' => 'Updated'], $fetcher->update(['title' => 'Updated']));
+    }
+
+    /** @test */
+    public function andYieldOverridesTheDefault()
+    {
+        $entities = [new Article(['title' => 'Foo']), new Article(['title' => 'Bar'])];
+        $this->em->addResult(Article::class)
+            ->expectAll()->andYield(...$entities);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame($entities, iterator_to_array($fetcher->all()));
+    }
+
+    /** @test */
     public function andReturnOverridesTheEntitiesOfOne()
     {
         $article = new Article(['title' => 'Bar']);
