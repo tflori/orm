@@ -300,7 +300,7 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
-    public function expectOneCountsCall()
+    public function expectOneFailsWhenNotCalled()
     {
         $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
             ->expectOne()->once();
@@ -310,15 +310,86 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
-    public function expectOnceRestrictsCallCount()
+    public function expectOneFailsWhenCalledTooOften()
     {
-        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']), new Article(['title' => 'Bar']))
             ->expectOne()->once();
 
         $fetcher = new EntityFetcherMock($this->em, Article::class);
-        $article = $fetcher->one();
+        $fetcher->one();
+        $fetcher->one();
 
-        self::assertInstanceOf(Article::class, $article);
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function expectDeleteFailsWhenCalledTooOften()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->expectDelete()->once();
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+        $fetcher->delete();
+        $fetcher->delete();
+
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function expectUpdateFailsWithDifferentData()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->expectUpdate(['status' => 'deleted']);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+        $fetcher->update(['status' => 'archived']);
+
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function expectInsertFailsWithDifferentRows()
+    {
+        $this->em->addResult(Article::class)
+            ->expectInsert(['title' => 'Bar'], ['title' => 'Baz']);
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+        $fetcher->insert(['title' => 'Bar']);
+
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function expectationsFailWhenTheQueryDoesNotMatch()
+    {
+        $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
+            ->where('title', 'Foo')
+            ->expectOne();
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertNull($fetcher->where('title', 'Bar')->one());
+        self::expectException(m\Exception\InvalidCountException::class);
+        $this->mockeryAssertPostConditions();
+    }
+
+    /** @test */
+    public function onlyTheBestMatchingResultReceivesTheCall()
+    {
+        $article = new Article(['title' => 'Foo']);
+        $this->em->addResult(Article::class, new Article(['title' => 'Bar']))
+            ->expectOne()->never();
+        $this->em->addResult(Article::class, $article)
+            ->where('title', 'Foo')
+            ->expectOne()->once();
+
+        $fetcher = new EntityFetcherMock($this->em, Article::class);
+
+        self::assertSame($article, $fetcher->where('title', 'Foo')->one());
     }
 
     /** @test */
