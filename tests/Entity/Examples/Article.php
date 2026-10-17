@@ -30,7 +30,7 @@ class Article extends Entity implements Taggable
     {
         return implode('', array_slice(preg_split(
             '/([\s,\.;\?\!]+)/',
-            $this->text,
+            (string) $this->text,
             61,
             PREG_SPLIT_DELIM_CAPTURE
         ), 0, 59));

@@ -232,7 +232,7 @@ abstract class Entity implements Serializable
             $col    = static::getColumnName($attribute);
             $result = isset($this->data[$col]) ? $this->data[$col] : null;
 
-            if (!$result && isset(static::$relations[$attribute]) && isset($this->entityManager)) {
+            if (!$result && isset($this->entityManager) && static::hasRelation($attribute)) {
                 return $this->getRelated($attribute);
             }
 
@@ -257,7 +257,7 @@ abstract class Entity implements Serializable
             $col = static::getColumnName($attribute);
             $isset = isset($this->data[$col]);
 
-            if (!$isset && isset(static::$relations[$attribute])) {
+            if (!$isset && static::hasRelation($attribute)) {
                 return !empty($this->getRelated($attribute));
             }
 

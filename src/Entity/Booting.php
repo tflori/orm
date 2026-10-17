@@ -20,7 +20,9 @@ trait Booting
         }
 
         static::$booted[static::class] = true;
+        $relations = static::$relations;
         static::boot();
+        static::storeRelationsFromBoot($relations);
     }
 
     /**

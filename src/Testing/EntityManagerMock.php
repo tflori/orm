@@ -58,7 +58,7 @@ class EntityManagerMock extends EntityManager
      *
      * @param $class
      * @param Entity ...$entities
-     * @return Result|m\MockInterface
+     * @return Result&m\MockInterface
      * @codeCoverageIgnore proxy method
      */
     public function addResult($class, Entity ...$entities)
@@ -74,11 +74,27 @@ class EntityManagerMock extends EntityManager
      * @param string $class
      * @param EntityFetcher $fetcher
      * @return array
+     * @deprecated Use getMatchedResult() instead
+     * @internal
      * @codeCoverageIgnore proxy method
      */
     public function getResults($class, EntityFetcher $fetcher)
     {
         return $this->resultRepository->getResults($class, $fetcher);
+    }
+
+    /**
+     * Get the matched Result for $class and $fetcher
+     *
+     * @param string $class
+     * @param EntityFetcher $fetcher
+     * @return EntityFetcherMock\Result|null
+     * @internal
+     * @codeCoverageIgnore proxy method
+     */
+    public function getMatchedResult($class, EntityFetcher $fetcher)
+    {
+        return $this->resultRepository->getMatchedResult($class, $fetcher);
     }
 
     /** {@inheritDoc} */

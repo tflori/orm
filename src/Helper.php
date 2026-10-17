@@ -34,6 +34,23 @@ class Helper
     }
 
     /**
+     * Get the entity class of $classOrEntity
+     *
+     * Mock classes (Mockery) are resolved to the first parent class that is not a mock.
+     *
+     * @param string|object $classOrEntity
+     * @return string
+     */
+    public static function entityClass($classOrEntity)
+    {
+        $class = is_object($classOrEntity) ? get_class($classOrEntity) : $classOrEntity;
+        while (is_subclass_of($class, \Mockery\MockInterface::class) && $parent = get_parent_class($class)) {
+            $class = $parent;
+        }
+        return $class;
+    }
+
+    /**
      * Gets the short name of a class without creating a Reflection
      *
      * @param string $class
@@ -139,6 +156,9 @@ class Helper
         $retriever = self::getValueRetriever($retriever);
         return array_reduce($array, function ($array, $item) use ($retriever) {
             $key = $retriever($item);
+            if ($key === null) {
+                $key = ''; // null as array offset is deprecated (PHP 8.5) - it was always converted to ''
+            }
             if (!isset($array[$key])) {
                 $array[$key] = [];
             }

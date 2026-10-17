@@ -5,7 +5,8 @@ permalink: /testing.html
 ---
 ## Testing
 
-For development of this library we using Mockery and we suggest to use it for your test environment too.
+For development of this library we are using Mockery and we suggest to use it for your test environment too. The testing
+helpers described here require `mockery/mockery` `^1.6`.
 
 What needs to be tested is up to you but we recommend to mock all the database access including quoting and querying
 table definitions.
@@ -51,7 +52,7 @@ abstract class TestCase extends MockeryTestCase
     /** @var \Mockery\Mock[] */
     protected $mocks;
     
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         
@@ -67,7 +68,7 @@ abstract class TestCase extends MockeryTestCase
         });
     }
     
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->closeMockery();
@@ -77,10 +78,46 @@ abstract class TestCase extends MockeryTestCase
 }
 ```
 
+`ormInitMock($options, $driver)` creates an `EntityManagerMock` with the given options (as for the `EntityManager`
+constructor) and a mocked `PDO` connection for the given driver (`mysql`, `pgsql`, `sqlite`, ...). Queries that are not
+handled by the helpers below go to this connection - you get it with `$em->getConnection()`. For example for
+`$em->fetch(Article::class)->where('created', '<', '2024-01-01')->delete()`:
+
+```php
+$this->mocks['em']->getConnection()->shouldReceive('query')
+    ->with('DELETE FROM "article" AS t0 WHERE "t0"."created" < \'2024-01-01\'')
+    ->once()->andReturn(\Mockery::mock(\PDOStatement::class, ['rowCount' => 3]));
+```
+
 **Note:** The following methods (defined in `MocksEntityManager` trait) rely on the `EntityManager::getInstance()` to
 retrieve the responsible `EntityManagerMock` for the given `$class`. If you have multiple database connections and 
 `EntityManager` instances and you use a different method to get the responsible `EntityManager` you have to adapt the
-`MocksEntityManager::ormGetInstance($class): EntityManagerMock` method.
+`MocksEntityManager::ormGetEntityManagerInstance($class): EntityManagerMock` method.
+
+### Overview
+
+Helper methods of the `ORM\Testing\MocksEntityManager` trait:
+
+| Method                                                   | Description                                                   |
+|----------------------------------------------------------|---------------------------------------------------------------|
+| `ormInitMock($options = [], $driver = 'mysql')`          | Create the `EntityManagerMock` with a mocked connection       |
+| `ormCreateMockedEntity($class, $data = [])`              | Create a partial mock of an entity (available through fetch)  |
+| `ormAddResult($class, Entity ...$entities)`              | Provide entities for fetchers of `$class` (returns a `Result`) |
+| `ormExpectInsert($class, $defaultValues = [])`           | Expect `save()` of a new entity of `$class`                   |
+| `ormExpectUpdate($entity, $changingData = [], $updatedData = [])` | Expect `save()` of an existing (mocked) entity       |
+| `ormExpectDelete($entity)`                               | Expect `delete()` of an entity (or class name)                |
+| `ormAllowInsert()`, `ormAllowUpdate()`, `ormAllowDelete()` | Same as `ormExpect*()` but without expecting a call         |
+| `ormGetEntityManagerInstance($class)`                    | The `EntityManagerMock` responsible for `$class`              |
+| `ormExpectFetch()`, `ormAllowFetch()`                    | **deprecated** - see [Migrating from `ormExpectFetch()`](#migrating-from-ormexpectfetch) |
+
+Methods of the `Result` returned by `ormAddResult()`:
+
+| Method                                                   | Description                                                   |
+|----------------------------------------------------------|---------------------------------------------------------------|
+| `where()`, `orWhere()`, `whereIn()`, `join()`, `groupBy()`, `orderBy()`, `limit()`, `offset()`, ... | Conditions the query has to match (same as `EntityFetcher`) |
+| `matches($regex)`                                        | The query has to match the regular expression                 |
+| `expectOne()`, `expectAll()`, `expectCount()`            | Expect that a matching fetcher returns entities / counts (since 1.11) |
+| `expectDelete()`, `expectUpdate($data = null)`, `expectInsert(...$rows)` | Expect a delete, update or insert statement of a matching fetcher (since 1.11) |
 
 ### Create a Partial Mock Entity
 
@@ -100,14 +137,14 @@ class ArticleControllerTest extends TestCase
         $entity = \Mockery::mock(Article::class)->makePartial();
         $entity->setEntityManager($this->mocks['em']);
         $entity->setOriginalData(['id' => 42, 'title' => 'Hello World!']);
-        $entity->reset;
+        $entity->reset();
         
         // now you can use the entity as usual and write expectations
     }
     
     public function testMockEntityUsingHelper()
     {
-        $entity = $this->ormCreateMockEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
+        $entity = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!']);
         // when onInit is required call it now: $entity->onInit(false);
         
         // now you can use the entity as usual and write expectations
@@ -127,7 +164,7 @@ this `Entity`. How ever this will result in a function that we create only for t
 
 The other way is that we mock the requests the `Entity` will cause when you call `->save()`. This is some bit tricky
 because save is also for updating and the entity calls more than just `EntityManager::insert(Entity)`. The save method
-makes two calls methods on `EntiyManager` for a new `Entiy`:
+makes two calls on `EntityManager` for a new `Entity`:
 
 1. `sync(Entity)` - the `Entity` does not exist but when the primary key is incomplete this throws anyway
 2. `insert(Entity, boolean)` - when the `Entity` has a primary key then it gets inserted without using auto increment
@@ -148,7 +185,7 @@ class ArticleControllerTest extends TestCase
 {    
     public function testSavesTheArticle()
     {
-        $this->ormExpectInsert(Article::class, ['created' => date('c')]);
+        $this->ormExpectInsert(Article::class, ['created' => '2024-01-01T12:00:00+00:00']);
         
         createArticle('Anything');
     }
@@ -156,7 +193,7 @@ class ArticleControllerTest extends TestCase
     // to proof that the result is correct you may need to overwrite the id too (otherwise it is random)
     public function testReturnsJsonEncodedArticle()
     {
-        $defaults = ['id' => 42, 'created' => date('c')];
+        $defaults = ['id' => 42, 'created' => '2024-01-01T12:00:00+00:00'];
         $this->ormExpectInsert(Article::class, $defaults);
         
         $article = createArticle('Anything');
@@ -166,16 +203,13 @@ class ArticleControllerTest extends TestCase
 }
 ```
 
-> If you use (for performance reason) `$em->insert($entity)` directly in your code you can of course write your own 
-> expectation for it: `$em->shouldReceive('insert')->with(anInstanceOf(Article::class))`.
-
 #### Reading Entities
 
 Reading entities should be much easier. Basically you expect that `EntityManager::fetch()` is called. If you expect a
 specific primary key you can just create the entity and provide it through `EntityManager::map(Entity)` or you just
 expect fetch to be called with `$class` and `$primaryKey` and return `$entity`. If you just want the EntityManager
 to return the corresponding entity you don't have to mock it at all. Every entity created with `ormCreateMockedEntity`
-will be available through `$entityManager->fetch($class, $primaryKey`. We think for fetching a specific entity by
+will be available through `$entityManager->fetch($class, $primaryKey)`. We think for fetching a specific entity by
 primary key you don't need a helper method.
 
 ```php
@@ -202,7 +236,7 @@ class ArticleControllerTest extends TestCase
         $article = $this->ormCreateMockedEntity(Article::class, [
             'id' => 42,
             'title' => 'Hello World!',
-            'created' => date('c')
+            'created' => '2024-01-01T12:00:00+00:00'
         ]);
          
         $result = getArticle(42);
@@ -212,10 +246,11 @@ class ArticleControllerTest extends TestCase
 }
 ```
 
-The EntityFetcher get's mocked with an empty result automatically. You can provide results for an fetcher of an entity
+The EntityFetcher gets mocked with an empty result automatically. You can provide results for a fetcher of an entity
 with `ormAddResult($class, Entity ...$entities)`. This returns an `ORM\Testing\EntityFetcherMock\Result` and
-can then be specified to met the expected where conditions, joins, grouping and ordering. Also the limit and offset
-can be specified and if necessary you can force the query to match your regular expressions. Basically the `Result` is
+can then be specified to meet the expected where conditions, joins, grouping and ordering. Also the limit and offset
+can be specified and if necessary you can force the query to match your regular expressions with
+`->matches('/regex/')`. Basically the `Result` is
 an `EntityFetcher`. So you can use it like an `EntityFetcher` to specify the conditions.
 
 Expecting something specific can be more hard overall we recommend to just provide a basic result in the `setUp` method
@@ -257,7 +292,7 @@ class ArticleControllerTest extends TestCase
     public function testReturnsEmptyResult()
     {
         $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
-        $this->ormAddResult(Article::class, ...$articles); // any non matching query
+        $this->ormAddResult(Article::class, ...$articles); // fallback for any other query
         $this->ormAddResult(Article::class)->where('title', 'LIKE', '%cambozola%');
         
         $result = getArticles('cambozola');
@@ -267,63 +302,113 @@ class ArticleControllerTest extends TestCase
 }
 ```
 
-##### Warning! The following content is outdated and should not be used
+##### Expecting Calls on Results
 
-*For mocking an `EntityFetcher` the procedure will be more complicated. Therefore we created a helper method that act
-like a real `EntityFetcher` by default. This method returns the mock from `EntityFetcher` this way you can expect
-specific calls.*
+The `Result` returned by `ormAddResult()` is a Mockery mock. Besides the conditions you can define expectations how a
+matching fetcher gets used: `expectOne()`, `expectAll()`, `expectCount()`, `expectDelete()`, `expectUpdate()` and
+`expectInsert()`. Define the conditions first - the `expect*()` methods return the Mockery expectation.
+
+An expectation expects exactly one call by default. Use `->times(n)`, `->twice()`, `->never()`, `->atLeast()->once()`
+etc. to change it. Without `->andReturn*()` the fetcher returns what the result contains (the entities or the count of
+them). With `->andReturn()`, `->andReturnUsing()` or `->andThrow()` you can overwrite it.
 
 ```php
-/*
-function getArticles($search = '')
+class ArticleControllerTest extends TestCase
 {
-    $fetcher = $GLOBALS['di']->get('entityManager')->fetch(Article::class);
-    if (!empty($search)) {
-        $fetcher->where('title', 'LIKE', '%' . $search . '%');
+    // expect that the articles are fetched once
+    public function testFetchesArticlesOnce()
+    {
+        $articles = [new Article(['title' => 'Hello World!']), new Article(['title' => 'Anything'])];
+        $this->ormAddResult(Article::class, ...$articles)
+            ->where('title', 'LIKE', '%cambozola%')
+            ->expectAll();
+
+        $result = getArticles('cambozola');
+
+        self::assertSame($articles, $result);
     }
-    return $fetcher->all();
+
+    // expect that the articles are never counted
+    public function testDoesNotCountArticles()
+    {
+        $this->ormAddResult(Article::class)->expectCount()->never();
+
+        getArticles();
+    }
+}
+```
+
+The same works for update, delete and insert statements executed through a fetcher (e.g.
+`$em->fetch(Article::class)->where('id', $ids)->delete()`). `expectUpdate()` and `expectInsert()` optionally check
+the passed data - you can also pass Mockery matchers like `\Mockery::subset()`. Delete and update return the number of
+entities in the result, insert returns the number of rows - unless you overwrite the return value.
+
+```php
+function archiveArticles(array $ids)
+{
+    return $GLOBALS['di']->get('entityManager')->fetch(Article::class)
+        ->where('id', $ids)
+        ->update(['status' => 'archived']);
 }
 
 class ArticleControllerTest extends TestCase
-{   
-    // expect fetch
-    public function testFetchesArticles()
+{
+    public function testArchivesTheArticles()
     {
-        $this->ormExpectFetch(Article::class);
-        
-        getArticles();
+        $this->ormAddResult(Article::class, new Article(['id' => 1]), new Article(['id' => 2]))
+            ->where('id', [1, 2])
+            ->expectUpdate(['status' => 'archived']);
+
+        $count = archiveArticles([1, 2]);
+
+        self::assertSame(2, $count);
     }
-    
-    // expect where condition
-    public function testSearchesForTitle()
+
+    public function testPassesTheErrorFromTheDatabase()
     {
-        $fetcher = $this->ormExpectFetch(Article::class);
-        $fetcher->shouldReceive('where')->with('title', 'LIKE', '%cambozola%');
-        
-        getArticles('cambozola');
-    }
-    
-    // expect result (attention: the search is ignored)
-    public function testReturnsArticles()
-    {
-        $articles = [new Article(), new Article()];
-        $articles[0]->title = 'Hello World!';
-        $articles[1]->title = 'Anything';
-        $this->ormExpectFetch(Article::class, $articles);
-        
-        $result = getArticles('cambozola');
-        
-        self::assertSame($articles, $result);
+        $this->ormAddResult(Article::class)
+            ->expectUpdate(\Mockery::subset(['status' => 'archived']))
+            ->andThrow(new \PDOException('Lock wait timeout exceeded'));
+
+        self::expectException(\PDOException::class);
+
+        archiveArticles([1, 2]);
     }
 }
-*/
+```
+
+Some things to keep in mind:
+
+- A fetcher uses only one result: the one with the most matching conditions (on equal scores the first added result).
+  A result with a condition that is not part of the query is skipped - so if your query does not match, the
+  fetcher uses another result (or none) and your expectation fails because it was never called.
+- A failing expectation (not called, called too often or called with different data) is reported when the test
+  finishes - not when the method is called.
+- Without an expectation `delete()`, `update()` and `insert()` are executed on the mocked connection, so you can
+  still expect the query on the PDO mock (`$em->getConnection()`, see [Setup](#setup)).
+- Every fetcher has its own cursor - two fetchers matching the same result return all entities. Relations defined with
+  `->with()` get eager loaded.
+
+##### Migrating from `ormExpectFetch()`
+
+`ormExpectFetch()` and `ormAllowFetch()` are deprecated. They mock the `EntityFetcher` itself and ignore the conditions
+of the query. Use `ormAddResult()` and the expectations above instead:
+
+```php
+// before
+$this->ormExpectFetch(Article::class, $articles);
+
+// now
+$this->ormAddResult(Article::class, ...$articles)->expectAll();
+// and if the call to fetch() itself has to be expected:
+$this->mocks['em']->shouldReceive('fetch')->with(Article::class)->once()->passthru();
 ```
 
 #### Updating an Entity
 
 There is no need for complicated stuff:
 
-1. [Create a mock](#createapartialmockentity)
+1. [Create a mock](#create-a-partial-mock-entity)
 2. Expect save method and maybe return the entity
 
 But it might be necessary that the entity is not dirty afterwards, to emulate the data has changed in the database
@@ -359,7 +444,7 @@ class ArticleControllerTest extends TestCase
             'title' => 'Hello World!',
             'changed' => date('c', strtotime('-1 Hour')) 
         ]);
-        $this->ormExpectUpdate($article, ['changed' => date('c')]);
+        $this->ormExpectUpdate($article, ['changed' => '2024-01-01T12:00:00+00:00']);
         
         updateArticle(42, 'Don`t Panic!');
     }
@@ -370,21 +455,21 @@ class ArticleControllerTest extends TestCase
 
 When you deleting an Entity you will have to know which entity will come or at least from which class. Then you just
 expect delete with `$em->shouldReceive('delete')->with($entity)->once()->andReturn(true)`. The helper for it just
-removes the the original data like the delete method generally does.
+removes the original data like the delete method generally does.
 
 ```php
 function deleteArticle($id)
 {
     $em = $GLOBALS['di']->get('entityManager');
     $article = $em->fetch(Article::class, $id);
-    $em->delete($article);
+    $article->delete();
 }
 
 class ArticleControllerTest extends TestCase
 {    
     public function testDeleteWithoutHelper()
     {
-        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
         
         $this->mocks['em']->shouldReceive('delete')->with($article)->once()->andReturn(true);
         
@@ -393,7 +478,7 @@ class ArticleControllerTest extends TestCase
     
     public function testDeleteWithHelper()
     {
-        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
         
         $this->ormExpectDelete($article);
         
@@ -413,14 +498,14 @@ with `ormAddResult($class, ...$entities)`.
 function getArticleCategories($articleId)
 {
     $em = $GLOBALS['di']->get('entityManager');
-    $article = $em->fetch(Article::class, $id);
+    $article = $em->fetch(Article::class, $articleId);
     return $article->categories;    
 }
 
 function getFirstArticleCategory($articleId)
 {
     $em = $GLOBALS['di']->get('entityManager');
-    $article = $em->fetch(Article::class, $id);
+    $article = $em->fetch(Article::class, $articleId);
     $fetcher = $article->fetch('categories');
     return $fetcher->one();
 }
@@ -430,8 +515,8 @@ class ArticleControllerTest extends TestCase
     public function testFetchWithGetAll()
     {
         $categories = [new Category(), new Category()];
-        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
-        $article->expect('fetch')->with('categories', true)->once()->andReturn($categories);
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
+        $article->shouldReceive('fetch')->with('categories', true)->once()->andReturn($categories);
         
         $result = getArticleCategories(42);
         
@@ -441,7 +526,7 @@ class ArticleControllerTest extends TestCase
     public function testFetchUsingFetcher()
     {
         $categories = [new Category(), new Category()];
-        $article = $this->omCreateMockedEntity(Article::class, ['id' => 42]);
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
         $this->ormAddResult(Category::class, ...$categories);
         
         $result = getFirstArticleCategory(42);
