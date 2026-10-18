@@ -11,6 +11,7 @@ use ORM\Test\Entity\Examples\BootArticleChild;
 use ORM\Test\Entity\Examples\BootArticleOverride;
 use ORM\Test\Entity\Examples\BootMembership;
 use ORM\Test\Entity\Examples\BootShare;
+use ORM\Test\Entity\Examples\BootWithoutParentBoot;
 use ORM\Test\Entity\Examples\Category;
 use ORM\Test\Entity\Examples\Membership;
 use ORM\Test\Entity\Examples\Share;
@@ -108,6 +109,38 @@ class RelationResolvingTest extends TestCase
 
         self::assertSame(BootArticleChild::class, self::getProtectedProperty($relation, 'parent'));
         self::assertSame(User::class, self::getProtectedProperty($relation, 'class'));
+    }
+
+    /** @test */
+    public function bootWithoutParentBootTriggersAWarning()
+    {
+        $errors = [];
+        set_error_handler(function ($level, $message) use (&$errors) {
+            $errors[] = [$level, $message];
+            return true;
+        });
+
+        try {
+            BootWithoutParentBoot::bootIfNotBooted();
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertCount(1, $errors);
+        self::assertSame(E_USER_WARNING, $errors[0][0]);
+        self::assertStringStartsWith(
+            BootWithoutParentBoot::class . '::boot() has to call parent::boot()',
+            $errors[0][1]
+        );
+    }
+
+    /** @test */
+    public function relationsOfTheParentBootAreNotInheritedWithoutParentBoot()
+    {
+        @BootWithoutParentBoot::bootIfNotBooted(); // suppress the warning tested above
+
+        self::assertTrue(BootWithoutParentBoot::hasRelation('source'));
+        self::assertFalse(BootWithoutParentBoot::hasRelation('writer'));
     }
 
     /** @test */

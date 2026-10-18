@@ -106,8 +106,8 @@ trait Relations
     /**
      * Get the definition for $name
      *
-     * Definitions from boot() (including the boot() of parent classes) take precedence over static::$relations,
-     * which take precedence over <name>Relation() methods.
+     * Definitions from boot() take precedence over static::$relations, which take precedence over <name>Relation()
+     * methods.
      *
      * @param string $name
      * @return array|Relation
@@ -131,22 +131,17 @@ trait Relations
     }
 
     /**
-     * Get the definition for $name from boot() of this class or its parents
+     * Get the definition for $name from boot()
+     *
+     * The definitions of parent classes are inherited through parent::boot().
      *
      * @param string $name
      * @return array|Relation|null
      */
     private static function getDefinedRelation($name)
     {
-        $class = static::class;
-        do {
-            $class::bootIfNotBooted();
-            if (isset(self::$definedRelations[$class][$name])) {
-                return self::$definedRelations[$class][$name];
-            }
-        } while (($class = get_parent_class($class)) && $class !== Entity::class);
-
-        return null;
+        return isset(self::$definedRelations[static::class][$name]) ?
+            self::$definedRelations[static::class][$name] : null;
     }
 
     /**
