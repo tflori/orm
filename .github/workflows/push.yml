@@ -1,35 +1,61 @@
 on: [push, pull_request]
 jobs:
-  unit-tests:
-    strategy:
-      matrix:
-        php-version: ["7.3", "7.4", "8.0", "8.1", "8.2"]
-    name: PHP Unit Tests on PHP ${{ matrix.php-version }}
+  static-analysis:
+    name: Static Analysis on PHP 8.5
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: "8.5"
 
       - name: Get composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-cache-${{ matrix.php-version }}
+          key: composer-cache-8.5-${{ hashFiles('composer.json') }}
 
       - name: Install dependencies
         run: composer install --no-interaction --ansi
-        
+
       - name: Execute Static Analysis
         run: vendor/bin/phpstan analyse -c phpstan.neon --no-progress
+
+  unit-tests:
+    strategy:
+      matrix:
+        php-version: ["7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"]
+    name: PHP Unit Tests on PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          ini-values: error_reporting=-1
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-cache-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --ansi
 
       - name: Execute tests
         run: |
@@ -50,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Restore Coverage Result
         uses: actions/download-artifact@v4

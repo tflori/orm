@@ -1,0 +1,26 @@
+# tflori/orm
+
+> A lightweight object relational mapper for PHP (7.3+): entities, relations, query builder, events and testing
+> helpers without a real database.
+
+A short usage guide is shipped with the package: `vendor/tflori/orm/USAGE.md`
+(https://github.com/tflori/orm/blob/master/USAGE.md).
+
+## Docs
+
+- [Configuration](https://tflori.github.io/orm/configuration.html): EntityManager options and connections
+- [Entity Definition](https://tflori.github.io/orm/entityDefinition.html): table names, columns, primary keys
+- [Working With Entities](https://tflori.github.io/orm/entities.html): create, fetch, save and delete entities
+- [Relation Definition](https://tflori.github.io/orm/relationDefinition.html): cheat sheet and all relation types
+- [Working With Relations](https://tflori.github.io/orm/relations.html): fetch, set and eager load relations
+- [Events and Observers](https://tflori.github.io/orm/events.html)
+- [Use QueryBuilder](https://tflori.github.io/orm/querybuilder.html)
+- [Testing](https://tflori.github.io/orm/testing.html): MocksEntityManager and expectations on results
+- [Upgrade Guide](https://tflori.github.io/orm/upgrade.html): what changed between versions
+
+## Optional
+
+- [Filters](https://tflori.github.io/orm/filters.html)
+- [Validate Data](https://tflori.github.io/orm/validate.html)
+- [Bulk Inserts](https://tflori.github.io/orm/bulkInserts.html)
+- [API Reference](https://tflori.github.io/orm/reference.html)

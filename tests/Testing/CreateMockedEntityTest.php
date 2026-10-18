@@ -9,6 +9,8 @@ use ORM\EntityManager;
 use ORM\Exception;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Test\Entity\Examples\Category;
+use ORM\Test\Entity\Examples\User;
+use ORM\Test\TestEntity;
 use ORM\Test\TestEntityManager;
 use ORM\Testing\MocksEntityManager;
 
@@ -91,6 +93,21 @@ class CreateMockedEntityTest extends MockeryTestCase
         $entity = $this->em->fetch($class, $id);
         $entity->fill($data);
         $entity->save();
+    }
+
+    /** @test */
+    public function eagerLoadFindsMockedEntitiesThatUsedTheRelation()
+    {
+        TestEntity::resetRelationsForTest();
+        $user = $this->ormCreateMockedEntity(User::class, ['id' => 23]);
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'userId' => 23]);
+        $article::getRelation('writer'); // the mock resolves the relation first
+        $this->ormAddResult(Article::class, $article);
+
+        $this->em->eagerLoad('articles', $user);
+
+        self::assertSame([$article], $user->getRelated('articles'));
+        self::assertSame($user, $article->getRelated('writer'));
     }
 
     /** @test */

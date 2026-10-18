@@ -7,35 +7,43 @@ use ORM\EntityManager as EM;
 trait Naming
 {
     /** The template to use to calculate the table name.
-     * @var string */
+     * @var string
+     * @api */
     protected static $tableNameTemplate;
 
     /** The naming scheme to use for table names.
-     * @var string */
+     * @var string
+     * @api */
     protected static $namingSchemeTable;
 
     /** The naming scheme to use for column names.
-     * @var string */
+     * @var string
+     * @api */
     protected static $namingSchemeColumn;
 
     /** The naming scheme to use for method names.
-     * @var string */
+     * @var string
+     * @api */
     protected static $namingSchemeMethods;
 
     /** Fixed table name (ignore other settings)
-     * @var string */
+     * @var string
+     * @api */
     protected static $tableName;
 
     /** The naming scheme to use for attributes.
-     * @var string */
+     * @var string
+     * @api */
     protected static $namingSchemeAttributes;
 
     /** Fixed column names (ignore other settings)
-     * @var string[] */
+     * @var string[]
+     * @api */
     protected static $columnAliases = [];
 
     /** A prefix for column names.
-     * @var string */
+     * @var string
+     * @api */
     protected static $columnPrefix;
 
     /**

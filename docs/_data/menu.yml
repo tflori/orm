@@ -10,6 +10,7 @@ Use QueryBuilder: /orm/querybuilder
 Validate Data: /orm/validate
 Bulk Inserts: /orm/bulkInserts
 Testing: /orm/testing
+Upgrade Guide: /orm/upgrade
 
 '&nbsp;': /orm/placeholder
 

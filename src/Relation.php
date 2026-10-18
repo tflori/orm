@@ -119,41 +119,16 @@ abstract class Relation
     /**
      * Bind this relation to class $parent with $name
      *
+     * Entity::getRelation() resolves a separate instance per class, so this does not check previous bindings.
+     *
      * @param string $parent
      * @param string $name
      * @internal
      */
     public function bind($parent, $name)
     {
-        if ($this->name || $this->parent) {
-            $this->checkBoundTo($parent, $name);
-            return;
-        }
         $this->name = $name;
         $this->parent = $parent;
-    }
-
-    /**
-     * Check if the relation is bound to $parent and throw if not
-     *
-     * @throws Exception
-     */
-    protected function checkBoundTo($parent, $name)
-    {
-        if ($this->parent !== $parent) {
-            $reflection = new \ReflectionClass($parent);
-            if ($reflection->isSubclassOf($this->parent)) {
-                $parent = $this->parent;
-            }
-        }
-
-        if ($this->parent !== $parent || $this->name !== $name) {
-            throw new Exception(sprintf(
-                'Relation already used for %s on entity %s',
-                $this->name,
-                $this->parent
-            ));
-        }
     }
 
     /**

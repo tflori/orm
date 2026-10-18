@@ -6,7 +6,7 @@ use Mockery as m;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
-use ReflectionClass;
+use ORM\Helper;
 
 class ResultRepository
 {
@@ -68,10 +68,7 @@ class ResultRepository
     public function addEntity(Entity $entity)
     {
         static::completePrimaryKeys($entity);
-        $class = get_class($entity);
-        if ($entity instanceof m\MockInterface) {
-            $class = (new ReflectionClass($entity))->getParentClass()->getName();
-        }
+        $class = Helper::entityClass($entity);
 
         $this->primaryKeyMap[$class][static::buildChecksum($entity->getPrimaryKey())] = $entity;
     }
@@ -97,11 +94,11 @@ class ResultRepository
      *
      * @param $class
      * @param Entity ...$entities
-     * @return Result|m\MockInterface
+     * @return Result&m\MockInterface
      */
     public function addResult($class, Entity ...$entities)
     {
-        /** @var Result|m\MockInterface $result */
+        /** @var Result&m\MockInterface $result */
         $result = m::mock(Result::class, [$this->em, $class])->makePartial();
         $result->addEntities(...static::completePrimaryKeys(...$entities));
 
@@ -122,27 +119,47 @@ class ResultRepository
      * @param string $class
      * @param EntityFetcher $fetcher
      * @return array
+     * @deprecated Use getMatchedResult() instead
+     * @internal
      */
     public function getResults($class, EntityFetcher $fetcher)
     {
-        if (!isset($this->results[$class])) {
+        $result = $this->getMatchedResult($class, $fetcher);
+        if ($result === null) {
             return [];
         }
 
-        $results = [];
-        foreach ($this->results[$class] as $objHash => $result) {
-            if ($quality = $result->compare($fetcher)) {
-                $results[$objHash] = $quality;
+        return $result->getEntities();
+    }
+
+    /**
+     * Get the matched Result for $class and $fetcher
+     *
+     * Returns the Result with the highest match score, or null if no Result matches.
+     *
+     * @param string $class
+     * @param EntityFetcher $fetcher
+     * @return Result|null
+     * @internal
+     */
+    public function getMatchedResult($class, EntityFetcher $fetcher)
+    {
+        if (!isset($this->results[$class])) {
+            return null;
+        }
+
+        // on equal quality the first added result wins
+        $matched = null;
+        $bestQuality = 0;
+        foreach ($this->results[$class] as $result) {
+            $quality = $result->compare($fetcher);
+            if ($quality > $bestQuality) {
+                $matched = $result;
+                $bestQuality = $quality;
             }
         }
 
-        if (empty($results)) {
-            return [];
-        }
-
-        arsort($results);
-        $objHash = array_keys($results)[0];
-        return $this->results[$class][$objHash]->getEntities();
+        return $matched;
     }
 
     /**

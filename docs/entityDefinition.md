@@ -138,7 +138,7 @@ You can also provide column aliases:
  * @property foo
  * @property gender
  */
-class User extends ORM\ENtity
+class User extends ORM\Entity
 {
     protected static $columnAliases = [
         'foo' => 'bar',

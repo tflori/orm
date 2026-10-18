@@ -337,6 +337,11 @@ menu li.selected:before {
   footer {
     display: none;
   }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
 }
 
 @media screen {

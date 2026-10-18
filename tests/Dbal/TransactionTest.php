@@ -102,4 +102,64 @@ class TransactionTest extends TestCase
         $this->dbal->rollback();
         $this->dbal->rollback();
     }
+
+    /** @test */
+    public function failedBeginTransactionDoesNotIncreaseTheCounter()
+    {
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->andReturnFalse();
+        $this->pdo->shouldNotReceive('commit');
+
+        self::assertFalse($this->dbal->beginTransaction());
+        self::assertTrue($this->dbal->commit()); // nothing to commit
+    }
+
+    /** @test */
+    public function failedSavepointDoesNotIncreaseTheCounter()
+    {
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->andReturnTrue()->ordered();
+        $this->pdo->shouldReceive('exec')->with(m::pattern('/^SAVEPOINT /'))->once()->andReturnFalse()->ordered();
+        $this->pdo->shouldReceive('commit')->with()->once()->andReturnTrue()->ordered();
+
+        $this->dbal->beginTransaction();
+        self::assertFalse($this->dbal->beginTransaction());
+        self::assertTrue($this->dbal->commit()); // commits the transaction as there is no savepoint
+    }
+
+    /** @test */
+    public function failedCommitDoesNotDecreaseTheCounter()
+    {
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->andReturnTrue()->ordered();
+        $this->pdo->shouldReceive('commit')->with()->once()->andReturnFalse()->ordered();
+        $this->pdo->shouldReceive('rollBack')->with()->once()->andReturnTrue()->ordered();
+
+        $this->dbal->beginTransaction();
+        self::assertFalse($this->dbal->commit());
+        self::assertTrue($this->dbal->rollback()); // the transaction is still open
+    }
+
+    /** @test */
+    public function failedRollbackToSavepointDoesNotDecreaseTheCounter()
+    {
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->andReturnTrue()->ordered();
+        $this->pdo->shouldReceive('exec')->with(m::pattern('/^SAVEPOINT /'))->once()->andReturnTrue()->ordered();
+        $this->pdo->shouldReceive('exec')->with('ROLLBACK TO transaction2')->twice()
+            ->andReturn(false, 0)->ordered();
+
+        $this->dbal->beginTransaction();
+        $this->dbal->beginTransaction();
+        self::assertFalse($this->dbal->rollback());
+        self::assertTrue($this->dbal->rollback()); // still rolls back to the savepoint
+    }
+
+    /** @test */
+    public function failedRollbackDoesNotDecreaseTheCounter()
+    {
+        $this->pdo->shouldReceive('beginTransaction')->with()->once()->andReturnTrue()->ordered();
+        $this->pdo->shouldReceive('rollBack')->with()->once()->andReturnFalse()->ordered();
+        $this->pdo->shouldReceive('commit')->with()->once()->andReturnTrue()->ordered();
+
+        $this->dbal->beginTransaction();
+        self::assertFalse($this->dbal->rollback());
+        self::assertTrue($this->dbal->commit()); // the transaction is still open
+    }
 }

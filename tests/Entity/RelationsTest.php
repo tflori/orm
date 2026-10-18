@@ -5,7 +5,6 @@ namespace ORM\Test\Entity;
 use Mockery as m;
 use ORM\Entity;
 use ORM\EntityManager;
-use ORM\Exception;
 use ORM\Exception\IncompletePrimaryKey;
 use ORM\Exception\InvalidConfiguration;
 use ORM\Exception\InvalidRelation;
@@ -204,16 +203,6 @@ class RelationsTest extends TestCase
         Relation::createRelation(static::class, 'test', [
             Relation::OPT_CLASS => Article::class,
         ]);
-    }
-
-    /** @test */
-    public function throwsWhenBindIsCalledManually()
-    {
-        $relation = Article::getRelation('writer');
-
-        self::expectException(Exception::class);
-
-        $relation->bind(Category::class, 'writer');
     }
 
     public function provideRelationDefinitionsWithReference()

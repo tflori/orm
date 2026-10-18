@@ -10,6 +10,10 @@ trait Booting
     /** @var bool[] */
     protected static $booted = [];
 
+    /** Classes where Entity::boot() got called (to detect a missing parent::boot())
+     * @var bool[] */
+    private static $entityBooted = [];
+
     /**
      * Boot the class if it not already booted
      */
@@ -20,14 +24,32 @@ trait Booting
         }
 
         static::$booted[static::class] = true;
-        static::boot();
+        $relations = static::$relations;
+        try {
+            static::boot();
+        } finally {
+            // even when boot fails the relations must not leak into other entities
+            static::storeRelationsFromBoot($relations);
+        }
+
+        if (!isset(self::$entityBooted[static::class])) {
+            trigger_error(sprintf(
+                '%s::boot() has to call parent::boot() - otherwise traits and parent classes are not booted',
+                (new \ReflectionMethod(static::class, 'boot'))->getDeclaringClass()->getName()
+            ), E_USER_WARNING);
+        }
     }
 
     /**
      * Boot the class
+     *
+     * Overwrite this method to define relations, observers etc. - always call parent::boot().
+     *
+     * @api
      */
     protected static function boot()
     {
+        self::$entityBooted[static::class] = true;
         static::bootTraits();
     }
 
