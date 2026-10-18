@@ -42,6 +42,11 @@ What changed between the versions and what you might have to adapt in your code.
   `$relations` (see [Relation Definition](relationDefinition.html)).
 - `ormExpectFetch()` / `ormAllowFetch()` - use `ormAddResult()` with expectations (see [Testing](testing.html)).
 
+#### AI assistants
+
+- The usage guide for AI assistants moved from `CLAUDE.md` to `USAGE.md`. If your project points its AI assistant to
+  `vendor/tflori/orm/CLAUDE.md`, point it to `vendor/tflori/orm/USAGE.md` instead.
+
 #### New
 
 - `Entity::defineRelation($name, $definition)` and `Entity::hasRelation($name)`.
