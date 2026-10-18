@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate Reference Documentation
-        run: docker run -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility PUBLIC
+        run: docker run -v $GITHUB_WORKSPACE:/data iras/phpdoc:3.7.1-twig.extensions --template docs/_reference -c phpdoc.xml --force --visibility public,protected
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1

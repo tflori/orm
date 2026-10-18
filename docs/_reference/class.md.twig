@@ -6,6 +6,17 @@ title: API Reference - {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
 
 
 ## {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
+{# only public elements and protected elements tagged with @api (meant to be used or overwritten by entities) #}
+{% set properties = [] %}{% for property in node.inheritedProperties.merge(node.properties) %}{#
+    #}{% if property.visibility ~ '' == 'public' or property.tags.api is not empty %}{#
+        #}{% set properties = properties|merge([property]) %}{#
+    #}{% endif %}{#
+#}{% endfor %}{#
+#}{% set methods = [] %}{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}{#
+    #}{% if method.visibility ~ '' == 'public' or method.tags.api is not empty %}{#
+        #}{% set methods = methods|merge([method]) %}{#
+    #}{% endif %}{#
+#}{% endfor %}
 
 ### Table of Contents
 
@@ -13,12 +24,12 @@ title: API Reference - {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
 {% if node.constants is not empty %}{#
     #}* [Constants](#constants)
 {% endif %}{#
-#}{% if (node.inheritedProperties.merge(node.properties)) is not empty %}{#
+#}{% if properties is not empty %}{#
     #}* [Properties](#properties)
 {% endif %}{#
-#}{% if node.methods is not empty %}{#
+#}{% if methods is not empty %}{#
     #}* [Methods](#methods)
-{#  #}{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}{#
+{#  #}{% for method in methods %}{#
         #}  * [{% if method.isStatic() %}{{ node.name }}::{% else %}${{ node.name|lcFirst }}->{% endif %}{{ method.name }}](#{{ node.FullyQualifiedStructuralElementName|replace({'\\': ''})|lower }}{{ method.name|lower }}) - {{ method.summary }}
 {#  #}{% endfor %}{#
 #}{% endif %}
@@ -65,22 +76,22 @@ title: API Reference - {{ node.FullyQualifiedStructuralElementName|trim('\\') }}
 
 {% endif %}
 
-{% if (node.inheritedProperties.merge(node.properties)) is not empty %}
+{% if properties is not empty %}
 ### Properties
 
 | Visibility | Name | Type | Description                           |
 |------------|------|------|---------------------------------------|
-{% for property in node.inheritedProperties.merge(node.properties) %}
-| **{{ property.visibility }}{{ property.isStatic ? ' static' }}** | `${{ property.name }}` | {% if property.type is not empty %}**{{ property.type|linkClasses|replace({'|': '\\|'}) }}**{% endif %} | {{ property.summary }} |
+{% for property in properties %}
+| **{{ property.visibility }}{{ property.isStatic ? '&nbsp;static' }}** | `${{ property.name }}` | {% if property.type is not empty %}**{{ property.type|linkClasses|replace({'|': '\\|'}) }}**{% endif %} | {{ property.summary }} |
 {% endfor %}
 
 {% endif %}
 
 
-{% if node.methods is not empty %}
+{% if methods is not empty %}
 #### Methods
 
-{% for method in node.inheritedMethods.merge(node.methods)|sort_asc %}
+{% for method in methods %}
 #### {{ node.FullyQualifiedStructuralElementName|trim('\\') }}::{{ method.name }}
 
 {% include './method.md.twig' %}

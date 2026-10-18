@@ -12,7 +12,8 @@ use ORM\Relation;
 trait Relations
 {
     /** Relation definitions
-     * @var array<string, array|Relation> */
+     * @var array<string, array|Relation>
+     * @api */
     protected static $relations = [];
 
     /** Relation definitions from boot() per class
@@ -73,6 +74,7 @@ trait Relations
      *
      * @param string $name
      * @param array|Relation $definition
+     * @api
      */
     protected static function defineRelation($name, $definition)
     {

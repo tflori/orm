@@ -55,19 +55,23 @@ abstract class Entity implements Serializable
     const OPT_RELATION_TABLE       = 'table';
 
     /** The variable(s) used for primary key.
-     * @var string[]|string */
+     * @var string[]|string
+     * @api */
     protected static $primaryKey = ['id'];
 
     /** Whether or not the primary key is auto incremented.
-     * @var bool */
+     * @var bool
+     * @api */
     protected static $autoIncrement = true;
 
     /** Additional attributes to show in toArray method
-     * @var array  */
+     * @var array
+     * @api */
     protected static $includedAttributes = [];
 
     /** Attributes to hide for toArray method (overruled by $attributes parameter)
-     * @var array  */
+     * @var array
+     * @api */
     protected static $excludedAttributes = [];
 
     /** The reflections of the classes.
@@ -75,8 +79,9 @@ abstract class Entity implements Serializable
      * @var ReflectionClass[] */
     protected static $reflections = [];
 
-    /** The current data of a row.
-     * @var mixed[] */
+    /** The current data of a row (use it in custom getters and setters).
+     * @var mixed[]
+     * @api */
     protected $data = [];
 
     /** The original data of the row.
@@ -475,8 +480,10 @@ abstract class Entity implements Serializable
     /**
      * Generates a primary key
      *
-     * This method should only be executed from save method.
+     * This method should only be executed from save method. Overwrite it for entities implementing
+     * GeneratesPrimaryKeys.
      * @codeCoverageIgnore no operations
+     * @api
      */
     protected function generatePrimaryKey()
     {

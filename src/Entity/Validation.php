@@ -10,12 +10,14 @@ use ORM\EntityManager as EM;
 trait Validation
 {
 
-    /** The current data of a row.
-     * @var mixed[] */
+    /** The current data of a row (use it in custom getters and setters).
+     * @var mixed[]
+     * @api */
     protected $data = [];
 
     /** Whether or not the validator for this class is enabled.
-     * @var bool */
+     * @var bool
+     * @api */
     protected static $enableValidator = false;
 
     /** Whether or not the validator for a class got enabled during runtime.

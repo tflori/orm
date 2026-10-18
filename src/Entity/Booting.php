@@ -40,6 +40,8 @@ trait Booting
      * Boot the class
      *
      * Overwrite this method to define relations, observers etc. - always call parent::boot().
+     *
+     * @api
      */
     protected static function boot()
     {
