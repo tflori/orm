@@ -370,7 +370,7 @@ class ArticleControllerTest extends TestCase
             ->expectUpdate(\Mockery::subset(['status' => 'archived']))
             ->andThrow(new \PDOException('Lock wait timeout exceeded'));
 
-        self::expectException(\PDOException::class);
+        $this->expectException(\PDOException::class);
 
         archiveArticles([1, 2]);
     }

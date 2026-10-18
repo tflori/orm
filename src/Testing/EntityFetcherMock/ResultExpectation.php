@@ -9,8 +9,6 @@ use Mockery\Expectation;
  *
  * Mockery ignores andReturn*() and andThrow() when passthru() is set - this expectation disables passthru() when a
  * return value is defined. All other and*() methods use andReturn() internally.
- *
- * @internal
  */
 class ResultExpectation extends Expectation
 {

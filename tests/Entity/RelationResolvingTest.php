@@ -11,6 +11,7 @@ use ORM\Test\Entity\Examples\BootArticleChild;
 use ORM\Test\Entity\Examples\BootArticleOverride;
 use ORM\Test\Entity\Examples\BootMembership;
 use ORM\Test\Entity\Examples\BootShare;
+use ORM\Test\Entity\Examples\BootThrows;
 use ORM\Test\Entity\Examples\BootWithoutParentBoot;
 use ORM\Test\Entity\Examples\Category;
 use ORM\Test\Entity\Examples\Membership;
@@ -18,15 +19,10 @@ use ORM\Test\Entity\Examples\Share;
 use ORM\Test\Entity\Examples\SpecialArticle;
 use ORM\Test\Entity\Examples\User;
 use ORM\Test\TestCase;
-use ORM\Test\TestEntity;
 
 class RelationResolvingTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        TestEntity::resetRelationsForTest();
-    }
+    // TestCase::setUp() resets the booted classes and resolved relations
 
     protected static function getSharedRelations()
     {
@@ -135,6 +131,20 @@ class RelationResolvingTest extends TestCase
     }
 
     /** @test */
+    public function relationsDoNotLeakWhenBootFails()
+    {
+        $sharedRelations = self::getSharedRelations();
+
+        try {
+            BootThrows::bootIfNotBooted();
+        } catch (\RuntimeException $e) {
+        }
+
+        self::assertSame($sharedRelations, self::getSharedRelations());
+        self::assertFalse(Share::hasRelation('leaked'));
+    }
+
+    /** @test */
     public function relationsOfTheParentBootAreNotInheritedWithoutParentBoot()
     {
         @BootWithoutParentBoot::bootIfNotBooted(); // suppress the warning tested above
@@ -200,7 +210,7 @@ class RelationResolvingTest extends TestCase
 
     /** @dataProvider provideRelationDefinitionStyles
      * @test */
-    public function magicAccessLoadsTheRelationWithoutResolvingItFirst($class, $relation, $relatedClass, $data)
+    public function magicAccessLoadsTheRelationForAllDefinitionStyles($class, $relation, $relatedClass, $data)
     {
         $entity = new $class($data, $this->em);
         $related = new $relatedClass(['id' => 1]);

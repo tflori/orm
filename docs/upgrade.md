@@ -23,6 +23,8 @@ What changed between the versions and what you might have to adapt in your code.
 - **Magic getter**: relations from `<relation>Relation()` methods and the boot method are available through
   `$entity->relation` (and `isset()`) without resolving them first.
 - Removed the protected method `Relation::checkBoundTo()` and the exception "Relation already used for …".
+- **New methods on `Entity`** that may conflict with methods of your entities: `hasRelation()`, `defineRelation()`
+  and `storeRelationsFromBoot()`.
 
 #### Testing
 
@@ -31,6 +33,8 @@ What changed between the versions and what you might have to adapt in your code.
   for it - otherwise they are executed on the mocked connection.
 - Every mocked fetcher has its own cursor, and `->with()` eager loads relations.
 - `EntityFetcherMock::$currentResult` was removed, `getResults()` is internal and deprecated.
+- `EntityFetcherMock\Result` works in memory: `one()`, `all()`, `count()`, `delete()`, `update()` and `insert()`
+  of a result don't execute queries anymore.
 
 #### Not recommended anymore
 

@@ -305,6 +305,7 @@ All styles work the same way - e.g. the magic getter (`$article->user`) works fo
 is defined. We recommend the static property `$relations` for most cases, `<relation>Relation()` methods when a
 definition depends on something else (e.g. filters depending on the configuration) and `defineRelation()` when the
 relations themselves are created at runtime (e.g. by a trait that adds relations to every entity using it).
+`defineRelation()` only works in the boot method - relations that are resolved already are not changed anymore.
 
 When a relation with the same name is defined in several ways, the definition from a boot method (also from the boot
 method of a parent class through `parent::boot()`) wins over `$relations`, which wins over the `<relation>Relation()`

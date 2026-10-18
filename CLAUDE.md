@@ -110,8 +110,9 @@ the type — there is no explicit type key except for OneToOne.
 'children' => [self::class, 'parent']
 ```
 
-Since 1.9: alternatively define a `<name>Relation()` static method or assign in `boot()`.
-All styles are equivalent.
+Alternatively define a `<name>Relation()` static method (since 1.9) or use
+`static::defineRelation($name, $definition)` in `boot()` (since 1.11). Don't assign to `static::$relations` in
+`boot()`, and always call `parent::boot()` in `boot()`. Prefer the static property.
 
 Access related entities:
 
@@ -178,7 +179,7 @@ helpers to set expectations without a real database.
 - Do not call `$em->insert()` directly — call `$entity->save()`.
 - Do not instantiate EntityFetcher manually — use `$em->fetch(Class::class)`.
 - Relations are defined via `protected static $relations` (array), `<name>Relation()` static
-  method, or `boot()` — never as plain instance methods.
+  method, or `defineRelation()` in `boot()` — never as plain instance methods.
 - `$em->fetch(Class::class, $id)` returns `null` when not found, not an exception.
 - `EntityFetcher::one()` returns `null` on no result; `EntityFetcher::oneOrFail()`
   throws.

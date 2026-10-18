@@ -25,8 +25,12 @@ trait Booting
 
         static::$booted[static::class] = true;
         $relations = static::$relations;
-        static::boot();
-        static::storeRelationsFromBoot($relations);
+        try {
+            static::boot();
+        } finally {
+            // even when boot fails the relations must not leak into other entities
+            static::storeRelationsFromBoot($relations);
+        }
 
         if (!isset(self::$entityBooted[static::class])) {
             trigger_error(sprintf(

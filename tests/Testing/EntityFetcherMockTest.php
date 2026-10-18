@@ -524,7 +524,37 @@ class EntityFetcherMockTest extends TestCase
 
         $fetcher = new EntityFetcherMock($this->em, Article::class);
 
-        self::assertSame($entities, iterator_to_array($fetcher->all()));
+        self::assertSame($entities, $fetcher->all());
+    }
+
+    /** @test */
+    public function andYieldWorksWithEagerLoading()
+    {
+        $user = new User(['id' => 23]);
+        $entities = [new Article(['id' => 1, 'user_id' => 23]), new Article(['id' => 2, 'user_id' => 23])];
+        $this->em->addResult(User::class, $user);
+        $this->em->addResult(Article::class)
+            ->expectAll()->andYield(...$entities);
+
+        $articles = $this->em->fetch(Article::class)->with('writer')->all();
+
+        self::assertSame($entities, $articles);
+        self::assertSame($user, $articles[1]->getRelated('writer'));
+    }
+
+    /** @test */
+    public function countDoesNotLockTheQuery()
+    {
+        $page = new Article(['title' => 'Foo']);
+        $this->em->addResult(Article::class, $page, new Article(['title' => 'Bar']), new Article(['title' => 'Baz']));
+        $this->em->addResult(Article::class, $page)->limit(1);
+
+        $fetcher = $this->em->fetch(Article::class);
+        $count = $fetcher->count();
+        $articles = $fetcher->limit(1)->all();
+
+        self::assertSame(3, $count);
+        self::assertSame([$page], $articles);
     }
 
     /** @test */
@@ -563,7 +593,7 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
-    public function expectUpdateValidatesUpdateData()
+    public function expectUpdateAcceptsMatchingData()
     {
         $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
             ->expectUpdate(['status' => 'deleted'])->once();
@@ -588,7 +618,7 @@ class EntityFetcherMockTest extends TestCase
     }
 
     /** @test */
-    public function expectInsertValidatesInsertData()
+    public function expectInsertAcceptsMatchingRows()
     {
         $this->em->addResult(Article::class, new Article(['title' => 'Foo']))
             ->expectInsert(['title' => 'Bar'], ['title' => 'Baz'])->once();

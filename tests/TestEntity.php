@@ -13,6 +13,7 @@ abstract class TestEntity extends Entity
         self::$namingSchemeMethods = 'camelCase';
         self::$tableNameTemplate = '%short%';
         self::$reflections = [];
+        self::resetRelationsForTest();
     }
 
     public static function resetRelationsForTest()

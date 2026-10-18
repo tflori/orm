@@ -71,6 +71,7 @@ trait Relations
      * Define $relation for this class
      *
      * Use this method in boot() instead of writing to static::$relations, which might be shared with other entities.
+     * It has no effect for relations that got resolved already - so use it in boot() only.
      *
      * @param string $name
      * @param array|Relation $definition
@@ -84,8 +85,11 @@ trait Relations
     /**
      * Check if $name is a defined relation
      *
+     * Boots the class if it is not booted yet.
+     *
      * @param string $name
      * @return bool
+     * @api
      */
     public static function hasRelation($name)
     {

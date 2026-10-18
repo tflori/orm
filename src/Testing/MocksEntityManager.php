@@ -153,7 +153,7 @@ trait MocksEntityManager
      * @param string        $class    The class that should be fetched
      * @param array         $entities The entities that get returned from fetcher
      * @return m\Mock|EntityFetcher
-     * @deprecated use $em->shouldReceive('fetch')->once()->passthru()
+     * @deprecated use ormAddResult($class, ...$entities)->expectAll() (see docs/testing.md)
      */
     public function ormExpectFetch($class, $entities = [])
     {
