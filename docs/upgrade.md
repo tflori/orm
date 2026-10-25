@@ -22,6 +22,10 @@ What changed between the versions and what you might have to adapt in your code.
   triggers an `E_USER_WARNING`.
 - **Magic getter**: relations from `<relation>Relation()` methods and the boot method are available through
   `$entity->relation` (and `isset()`) without resolving them first.
+- **Fetching an entity again and `EntityManager::sync()` merge the row from the database** into the entity: columns
+  that are not changed locally get the value from the database, local changes are kept. Before, only the original
+  data was replaced - columns that were not changed locally became dirty and `save()` wrote the old values back.
+  Columns that are not in the row (e.g. extra columns of a previous fetch) are kept.
 - Removed the protected method `Relation::checkBoundTo()` and the exception "Relation already used for …".
 - **New methods on `Entity`** that may conflict with methods of your entities: `hasRelation()`, `defineRelation()`
   and `storeRelationsFromBoot()`.

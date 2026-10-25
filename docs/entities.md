@@ -105,6 +105,26 @@ $user->reset('email');
 var_dump($user->isDirty()); // false
 ```
 
+### Fetching an entity again
+
+An entity that is already in the entity map is not created again - you get the same object. The row from the
+database is merged into it: columns that you did not change get the current value from the database, your changes
+are kept. The same happens with `$entityManager->sync($entity)`.
+
+```php
+$user = $entityManager->fetch(User::class, 1);
+$user->email = 'foobar@example.com';
+
+// meanwhile the name got changed in the database
+$user = $entityManager->fetch(User::class)->where('id', 1)->one();
+echo $user->name; // the new name from the database
+echo $user->email; // foobar@example.com
+var_dump(array_keys($user->getDirty())); // ['email']
+```
+
+> A column that you set back to exactly the value it had when the entity was loaded counts as not changed. When this
+> column got changed in the database meanwhile, the value from the database wins.
+
 ### Add custom getter and setter
 
 Imagine a datetime field in database. In your entity you will have a string. But to work with it it would be more nice
