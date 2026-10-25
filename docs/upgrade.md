@@ -61,6 +61,7 @@ What changed between the versions and what you might have to adapt in your code.
 - `Entity::defineRelation($name, $definition)` and `Entity::hasRelation($name)`.
 - Expectations on results of `ormAddResult()`: `expectOne()`, `expectAll()`, `expectCount()`, `expectDelete()`,
   `expectUpdate()` and `expectInsert()`.
+- Serialized entities contain the original data - after `unserialize()` only the changed columns are written.
 
 ### 1.9 → 1.10
 

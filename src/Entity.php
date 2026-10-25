@@ -752,6 +752,7 @@ abstract class Entity implements Serializable
     {
         return [
             'data' => $this->data,
+            'original' => $this->originalData,
             'related' => $this->relatedObjects,
             'exists' => $this->exists
         ];
@@ -765,6 +766,7 @@ abstract class Entity implements Serializable
             list($this->data, $this->relatedObjects, $this->exists) = $data;
         } else {
             $this->data = isset($data['data']) ? $data['data'] : [];
+            $this->originalData = isset($data['original']) ? $data['original'] : [];
             $this->relatedObjects = isset($data['related']) ? $data['related'] : [];
             $this->exists = isset($data['exists']) ? $data['exists'] : false;
         }

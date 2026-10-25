@@ -477,9 +477,33 @@ class DataTest extends TestCase
 
         self::assertSame(serialize([
             'data' => ['foo' => 'bar'],
+            'original' => ['foo' => 'bar'],
             'related' => [],
             'exists' => true
         ]), $serialized);
+    }
+
+    /** @test */
+    public function deserializationRestoresTheOriginalData()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar'], $this->em, true);
+        $entity->foo = 'baz';
+
+        $entity = unserialize(serialize($entity));
+
+        self::assertSame(['foo' => 'baz'], $entity->getDirtyColumns());
+    }
+
+    /** @test */
+    public function deserializationWithoutOriginalData()
+    {
+        $serialized = 'O:35:"ORM\Test\Entity\Examples\StudlyCaps":3:' .
+            '{s:4:"data";a:1:{s:3:"foo";s:3:"bar";}s:7:"related";a:0:{}s:6:"exists";b:1;}';
+
+        $entity = unserialize($serialized);
+
+        self::assertSame(['foo' => 'bar'], $entity->getDirtyColumns());
+        self::assertTrue($entity->exists());
     }
 
     /** @test */
