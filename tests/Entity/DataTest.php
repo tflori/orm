@@ -497,8 +497,9 @@ class DataTest extends TestCase
     /** @test */
     public function deserializationWithoutOriginalData()
     {
-        $serialized = 'O:35:"ORM\Test\Entity\Examples\StudlyCaps":3:' .
-            '{s:4:"data";a:1:{s:3:"foo";s:3:"bar";}s:7:"related";a:0:{}s:6:"exists";b:1;}';
+        // Serializable format - readable by every PHP version (__unserialize() requires PHP 7.4)
+        $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":80:' .
+            '{a:3:{s:4:"data";a:1:{s:3:"foo";s:3:"bar";}s:7:"related";a:0:{}s:6:"exists";b:1;}}';
 
         $entity = unserialize($serialized);
 
