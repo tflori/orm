@@ -7,6 +7,7 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 use ORM\EntityManager;
 use ORM\Test\Entity\Examples\Article;
 use ORM\Testing\MocksEntityManager;
+use ORM\Testing\SaveExpectation;
 
 class ExpectUpdateTest extends MockeryTestCase
 {
@@ -94,6 +95,118 @@ class ExpectUpdateTest extends MockeryTestCase
         $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
 
 //        self::assertSame($changingData['changed'], $article->changed);
+    }
+
+    /** @test */
+    public function returnsASaveExpectation()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42]);
+
+        $expectation = $this->ormExpectUpdate($article);
+
+        self::assertInstanceOf(SaveExpectation::class, $expectation);
+        $article->save();
+    }
+
+    /** @test */
+    public function withChangesVerifiesTheChanges()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article)->withChanges(['title' => 'Don`t Panic!']);
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
+    }
+
+    /** @test */
+    public function withChangesFailsForOtherChanges()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article)->withChanges(['title' => 'Don`t Panic!']);
+
+        self::expectException(m\Exception::class);
+        self::expectExceptionMessage('save() of ' . Article::class . ' was expected to write');
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!', 'text' => 'Bar']);
+    }
+
+    /** @test */
+    public function withChangesAcceptsMatchers()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article)->withChanges(m::subset(['title' => 'Don`t Panic!']));
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!', 'text' => 'Bar']);
+    }
+
+    /** @test */
+    public function withChangesFailsWhenTheMatcherDoesNotMatch()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article)->withChanges(m::subset(['title' => 'Don`t Panic!']));
+
+        self::expectException(m\Exception::class);
+        self::expectExceptionMessage('<Subset');
+
+        $this->updateEntity(Article::class, 42, ['text' => 'Bar']);
+    }
+
+    /** @test */
+    public function withChangesAcceptsAttributeNames()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'user_id' => 1]);
+        $this->ormExpectUpdate($article)->withChanges(['userId' => 2]);
+
+        $this->updateEntity(Article::class, 42, ['userId' => 2]);
+    }
+
+    /** @test */
+    public function withChangesMatchersGetAttributeNames()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'user_id' => 1]);
+        $this->ormExpectUpdate($article)->withChanges(m::subset(['userId' => 2]));
+
+        $this->updateEntity(Article::class, 42, ['userId' => 2]);
+    }
+
+    /** @test */
+    public function withChangesAcceptsColumnNames()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'user_id' => 1]);
+        $this->ormExpectUpdate($article)->withChanges(['user_id' => 2]);
+
+        $this->updateEntity(Article::class, 42, ['userId' => 2]);
+    }
+
+    /** @test */
+    public function withChangesVerifiesAfterPreUpdate()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $article->shouldReceive('preUpdate')->andReturnUsing(function () use ($article) {
+            $article->setAttribute('text', 'Changed in preUpdate');
+        });
+        $this->ormExpectUpdate($article)->withChanges(['title' => 'Don`t Panic!', 'text' => 'Changed in preUpdate']);
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
+    }
+
+    /** @test */
+    public function withChangesIgnoresChangesInTheDatabase()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article, [], ['text' => 'Bar'])->withChanges(['title' => 'Don`t Panic!']);
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
+    }
+
+    /** @test */
+    public function withChangesFailsWhenNothingChanged()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello']);
+        $this->ormExpectUpdate($article)->withChanges(['title' => 'Don`t Panic!']);
+
+        self::expectException(m\Exception::class);
+
+        $this->updateEntity(Article::class, 42);
     }
 
     /**

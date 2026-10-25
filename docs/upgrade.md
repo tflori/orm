@@ -44,6 +44,8 @@ What changed between the versions and what you might have to adapt in your code.
 - `EntityFetcherMock::$currentResult` was removed, `getResults()` is internal and deprecated.
 - `EntityFetcherMock\Result` works in memory: `one()`, `all()`, `count()`, `delete()`, `update()` and `insert()`
   of a result don't execute queries anymore.
+- `ormAllowUpdate()` returns a `ORM\Testing\SaveExpectation` (a `Mockery\Expectation`) instead of a
+  `Mockery\CompositeExpectation`.
 
 #### Not recommended anymore
 
@@ -61,6 +63,7 @@ What changed between the versions and what you might have to adapt in your code.
 - `Entity::defineRelation($name, $definition)` and `Entity::hasRelation($name)`.
 - Expectations on results of `ormAddResult()`: `expectOne()`, `expectAll()`, `expectCount()`, `expectDelete()`,
   `expectUpdate()` and `expectInsert()`.
+- `ormExpectUpdate()` returns the expectation, `->withChanges($changes)` verifies the changes written by `save()`.
 - Serialized entities contain the original data - after `unserialize()` only the changed columns are written.
 
 ### 1.9 → 1.10
