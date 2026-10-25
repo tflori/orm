@@ -68,6 +68,9 @@ Do not instantiate `EntityFetcher` manually - use `$em->fetch(Class::class)` or 
 Entities are stored in an entity map: fetching an entity again returns the same object. The row from the database is
 merged into it - unchanged columns get the database value, local changes are kept. `$em->sync($entity)` does the same.
 
+`save()` writes only changed columns (strict compare - keep database formats in `$data`). Extra columns from
+`->column()` are readable but never written.
+
 ## Relations
 
 Relations are defined in `protected static $relations`. The array structure determines the type.

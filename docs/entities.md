@@ -75,16 +75,17 @@ $articles = $entityManager->fetch(Article::class)
 
 Please note that it is not possible to remove the predefined modifier `DISTINCT` and the column selection `t0.*` (the
 entity table is aliased `t0`). However it is possible to add additional columns (for example aggregates from joined
-tables) but keep in mind that you then maybe also need to group by the primary key of `t0`. Also it will not be possible
-to update the entity in the DB with these extra columns.
+tables) but keep in mind that you then maybe also need to group by the primary key of `t0`. Extra columns are not
+written when you save the entity.
 
 Example with aggregate column:
 ```php
 $albums = $entityManager->fetch(Album::class)
     ->joinRelated('images')
     ->groupBy('t0.id')
-    ->column('COUNT(images.id)', [], 'imageCount')
+    ->column('COUNT(images.id)', [], 'image_count')
     ->all();
+echo $albums[0]->imageCount;
 ```
 
 ### Set and get columns
@@ -104,6 +105,10 @@ var_dump($user->isDirty('email')); // true
 $user->reset('email');
 var_dump($user->isDirty()); // false
 ```
+
+`save()` writes only the changed columns. Values are compared strictly - store the value as it comes from the
+database (e.g. `'2024-01-01 12:00:00'` instead of a `DateTime`, `'1'` instead of `true`), otherwise the column counts
+as changed and is written on every save.
 
 ### Fetching an entity again
 

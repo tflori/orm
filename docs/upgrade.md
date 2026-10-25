@@ -26,6 +26,11 @@ What changed between the versions and what you might have to adapt in your code.
   that are not changed locally get the value from the database, local changes are kept. Before, only the original
   data was replaced - columns that were not changed locally became dirty and `save()` wrote the old values back.
   Columns that are not in the row (e.g. extra columns of a previous fetch) are kept.
+- **`save()` writes only changed columns** - before, all columns were written. Extra columns from a fetch (e.g.
+  aggregates) are not written anymore, and without changes no `UPDATE` is executed. Database side effects can change:
+  MySQL `ON UPDATE CURRENT_TIMESTAMP` columns are updated now (they were set explicitly before), and triggers on
+  specific columns (`UPDATE OF`) only fire when these columns change. Tests that expect the exact `UPDATE` statement
+  have to be adapted.
 - Removed the protected method `Relation::checkBoundTo()` and the exception "Relation already used for …".
 - **New methods on `Entity`** that may conflict with methods of your entities: `hasRelation()`, `defineRelation()`
   and `storeRelationsFromBoot()`.
