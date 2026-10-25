@@ -391,6 +391,53 @@ class DataTest extends TestCase
     }
 
     /** @test */
+    public function getDirtyColumnsReturnsTheChangedColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'other' => 'a'], $this->mocks['em'], true);
+        $studlyCaps->someVar = 'bar';
+
+        self::assertSame(['some_var' => 'bar'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsReturnsAllColumnsOfNewEntities()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo']);
+
+        self::assertSame(['id' => 42, 'some_var' => 'foo'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsExcludesColumnsThatAreNotInTheTable()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'image_count' => 3], $this->mocks['em'], true);
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'foo'], true);
+        $studlyCaps->imageCount = 4;
+        $studlyCaps->someVar = 'bar';
+
+        self::assertSame(['some_var' => 'bar'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsIncludesExtraColumnsWithoutSync()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'image_count' => 3], $this->mocks['em'], true);
+        $studlyCaps->imageCount = 4;
+
+        self::assertSame(['image_count' => 4], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsIncludesUnknownColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'foo'], true);
+        $studlyCaps->tittle = 'typo';
+
+        self::assertSame(['tittle' => 'typo'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
     public function mergeMarksTheEntityAsExisting()
     {
         $studlyCaps = new StudlyCaps(['id' => 42]);

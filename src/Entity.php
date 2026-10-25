@@ -88,6 +88,10 @@ abstract class Entity implements Serializable
      * @var mixed[] */
     protected $originalData = [];
 
+    /** The columns of the table - known after a sync with the database
+     * @var ?string[] */
+    private $tableColumns = null;
+
     /** Whether the entity exists in database
      * @var bool */
     protected $exists = false;
@@ -546,6 +550,36 @@ abstract class Entity implements Serializable
     }
 
     /**
+     * Get the columns that changed with their new values
+     *
+     * Columns that are not in the table (e.g. extra columns from a fetch) are excluded when the columns of the table
+     * are known from a sync.
+     *
+     * @return array
+     * @internal
+     */
+    public function getDirtyColumns()
+    {
+        $dirty = [];
+        foreach ($this->data as $col => $value) {
+            if (!array_key_exists($col, $this->originalData)) {
+                $dirty[$col] = $value;
+                continue;
+            }
+
+            if ($value === $this->originalData[$col] ||
+                $this->tableColumns !== null && !in_array($col, $this->tableColumns, true)
+            ) {
+                continue;
+            }
+
+            $dirty[$col] = $value;
+        }
+
+        return $dirty;
+    }
+
+    /**
      * Check if the entity has has a complete primary key
      *
      * @return bool
@@ -604,10 +638,15 @@ abstract class Entity implements Serializable
      * previous fetch) are kept.
      *
      * @param array $row
+     * @param bool $complete The row contains exactly the columns of the table (e.g. from a sync)
      * @internal
      */
-    public function merge(array $row)
+    public function merge(array $row, bool $complete = false)
     {
+        if ($complete) {
+            $this->tableColumns = array_keys($row);
+        }
+
         foreach ($row as $col => $value) {
             $changedLocally = array_key_exists($col, $this->data) && (
                 !array_key_exists($col, $this->originalData) ||

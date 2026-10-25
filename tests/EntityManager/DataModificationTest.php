@@ -96,7 +96,7 @@ class DataModificationTest extends TestCase
         $statement->shouldReceive('fetch')->once()
                   ->andReturn($newData);
 
-        $entity->shouldReceive('merge')->once()->with($newData);
+        $entity->shouldReceive('merge')->once()->with($newData, true);
 
         $this->em->sync($entity);
     }
@@ -510,6 +510,50 @@ class DataModificationTest extends TestCase
         $result = $this->em->update($entity);
 
         self::assertTrue($result);
+    }
+
+    /** @test */
+    public function updateWritesOnlyChangedColumns()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar', 'baz' => 'qux'], $this->em, true);
+        $entity->foo = 'changed';
+        $statement = m::mock(\PDOStatement::class);
+        $statement->shouldReceive('rowCount')->andReturn(1);
+        $this->pdo->shouldReceive('query')
+            ->with('UPDATE "studly_caps" SET "foo" = \'changed\' WHERE "id" = 42')
+            ->once()->andReturn($statement);
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $this->em->update($entity);
+    }
+
+    /** @test */
+    public function updateWithoutChangesExecutesNoQuery()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar'], $this->em, true);
+        $this->pdo->shouldNotReceive('query');
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $result = $this->em->update($entity);
+
+        self::assertTrue($result);
+    }
+
+    /** @test */
+    public function updateDoesNotWriteExtraColumns()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar', 'image_count' => 3], $this->em, true);
+        $entity->merge(['id' => 42, 'foo' => 'bar'], true);
+        $entity->imageCount = 4;
+        $entity->foo = 'changed';
+        $statement = m::mock(\PDOStatement::class);
+        $statement->shouldReceive('rowCount')->andReturn(1);
+        $this->pdo->shouldReceive('query')
+            ->with('UPDATE "studly_caps" SET "foo" = \'changed\' WHERE "id" = 42')
+            ->once()->andReturn($statement);
+        $this->em->shouldReceive('sync')->with($entity, true)->once()->andReturn(true);
+
+        $this->em->update($entity);
     }
 
     public function provideDeleteStatements()

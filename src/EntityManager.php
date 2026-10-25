@@ -464,7 +464,7 @@ class EntityManager
 
         $result = $this->getConnection()->query($fetcher->getQuery());
         if ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-            $entity->merge($row);
+            $entity->merge($row, true);
             if ($reset) {
                 $entity->reset();
             }
