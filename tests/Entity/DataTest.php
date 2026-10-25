@@ -321,6 +321,86 @@ class DataTest extends TestCase
     }
 
     /** @test */
+    public function mergeTakesTheValuesOfUnchangedColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('bar', $studlyCaps->someVar);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function mergeKeepsLocalChanges()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'other' => 'a'], $this->mocks['em'], true);
+        $studlyCaps->someVar = 'local';
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar', 'other' => 'b']);
+
+        self::assertSame('local', $studlyCaps->someVar);
+        self::assertSame('b', $studlyCaps->other);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+        self::assertFalse($studlyCaps->isDirty('other'));
+    }
+
+    /** @test */
+    public function mergeKeepsLocalNull()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+        $studlyCaps->someVar = null;
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertNull($studlyCaps->someVar);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    /** @test */
+    public function mergeKeepsLocalValuesOfNewEntities()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo']);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('foo', $studlyCaps->someVar);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    /** @test */
+    public function mergeAddsNewColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('bar', $studlyCaps->someVar);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function mergeKeepsColumnsMissingInTheRow()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'image_count' => 3], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame(3, $studlyCaps->imageCount);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function mergeMarksTheEntityAsExisting()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42]);
+
+        $studlyCaps->merge(['id' => 42]);
+
+        self::assertTrue($studlyCaps->exists());
+    }
+
+    /** @test */
     public function onInitGetCalled()
     {
         $mock = m::mock(StudlyCaps::class)->makePartial();

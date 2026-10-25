@@ -59,6 +59,19 @@ class ExpectUpdateTest extends MockeryTestCase
     }
 
     /** @test */
+    public function keepsTheDataFromDatabaseForUnchangedColumns()
+    {
+        $article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello', 'text' => 'Foo']);
+        $this->ormExpectUpdate($article, [], ['text' => 'Bar']);
+
+        $this->updateEntity(Article::class, 42, ['title' => 'Don`t Panic!']);
+
+        self::assertSame('Don`t Panic!', $article->title);
+        self::assertSame('Bar', $article->text);
+        self::assertFalse($article->isDirty());
+    }
+
+    /** @test */
     public function emulatesUpdate()
     {
         $article = $this->ormCreateMockedEntity(Article::class, [

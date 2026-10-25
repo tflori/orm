@@ -83,7 +83,7 @@ class DataModificationTest extends TestCase
 
     /** @dataProvider provideChangedEntities
      * @test */
-    public function syncUpdatesOriginalData($class, $data, $newData)
+    public function syncMergesTheRow($class, $data, $newData)
     {
         /** @var Mock|Entity $entity */
         $entity = m::mock(new $class($data));
@@ -96,7 +96,7 @@ class DataModificationTest extends TestCase
         $statement->shouldReceive('fetch')->once()
                   ->andReturn($newData);
 
-        $entity->shouldReceive('setOriginalData')->once()->with($newData);
+        $entity->shouldReceive('merge')->once()->with($newData);
 
         $this->em->sync($entity);
     }

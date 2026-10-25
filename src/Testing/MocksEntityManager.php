@@ -281,13 +281,7 @@ trait MocksEntityManager
                     $class = get_class($entity);
                     // sync with database using $updatedData
                     if (!empty($updatedData)) {
-                        $newData = $entity->getData();
-                        $entity->reset();
-                        $entity->setOriginalData(array_merge(
-                            $entity->getData(),
-                            $this->ormAttributesToData($class, $updatedData)
-                        ));
-                        $entity->fill($newData);
+                        $entity->merge($this->ormAttributesToData($class, $updatedData));
                     }
 
                     if (!$entity->isDirty()) {

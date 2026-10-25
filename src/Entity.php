@@ -597,6 +597,32 @@ abstract class Entity implements Serializable
     }
 
     /**
+     * Merge a row from the database into the entity
+     *
+     * Columns that are not changed locally get the value from $row. Columns that are changed locally keep their
+     * value. The original data gets the values from $row, columns that are not in $row (e.g. extra columns from a
+     * previous fetch) are kept.
+     *
+     * @param array $row
+     * @internal
+     */
+    public function merge(array $row)
+    {
+        foreach ($row as $col => $value) {
+            $changedLocally = array_key_exists($col, $this->data) && (
+                !array_key_exists($col, $this->originalData) ||
+                $this->data[$col] !== $this->originalData[$col]
+            );
+            if (!$changedLocally) {
+                $this->data[$col] = $value;
+            }
+        }
+
+        $this->originalData = array_merge($this->originalData, $row);
+        $this->exists = true;
+    }
+
+    /**
      * Set currently related object
      *
      * @param string $relation
