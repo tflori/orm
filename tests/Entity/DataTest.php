@@ -321,6 +321,133 @@ class DataTest extends TestCase
     }
 
     /** @test */
+    public function mergeTakesTheValuesOfUnchangedColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('bar', $studlyCaps->someVar);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function mergeKeepsLocalChanges()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'other' => 'a'], $this->mocks['em'], true);
+        $studlyCaps->someVar = 'local';
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar', 'other' => 'b']);
+
+        self::assertSame('local', $studlyCaps->someVar);
+        self::assertSame('b', $studlyCaps->other);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+        self::assertFalse($studlyCaps->isDirty('other'));
+    }
+
+    /** @test */
+    public function mergeKeepsLocalNull()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+        $studlyCaps->someVar = null;
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertNull($studlyCaps->someVar);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    /** @test */
+    public function mergeKeepsLocalValuesOfNewEntities()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo']);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('foo', $studlyCaps->someVar);
+        self::assertTrue($studlyCaps->isDirty('someVar'));
+    }
+
+    /** @test */
+    public function mergeAddsNewColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame('bar', $studlyCaps->someVar);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function mergeKeepsColumnsMissingInTheRow()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'image_count' => 3], $this->mocks['em'], true);
+
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'bar']);
+
+        self::assertSame(3, $studlyCaps->imageCount);
+        self::assertFalse($studlyCaps->isDirty());
+    }
+
+    /** @test */
+    public function getDirtyColumnsReturnsTheChangedColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'other' => 'a'], $this->mocks['em'], true);
+        $studlyCaps->someVar = 'bar';
+
+        self::assertSame(['some_var' => 'bar'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsReturnsAllColumnsOfNewEntities()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo']);
+
+        self::assertSame(['id' => 42, 'some_var' => 'foo'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsExcludesColumnsThatAreNotInTheTable()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo', 'image_count' => 3], $this->mocks['em'], true);
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'foo'], true);
+        $studlyCaps->imageCount = 4;
+        $studlyCaps->someVar = 'bar';
+
+        self::assertSame(['some_var' => 'bar'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsIncludesExtraColumnsWithoutSync()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'image_count' => 3], $this->mocks['em'], true);
+        $studlyCaps->imageCount = 4;
+
+        self::assertSame(['image_count' => 4], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function getDirtyColumnsIncludesUnknownColumns()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42, 'some_var' => 'foo'], $this->mocks['em'], true);
+        $studlyCaps->merge(['id' => 42, 'some_var' => 'foo'], true);
+        $studlyCaps->tittle = 'typo';
+
+        self::assertSame(['tittle' => 'typo'], $studlyCaps->getDirtyColumns());
+    }
+
+    /** @test */
+    public function mergeMarksTheEntityAsExisting()
+    {
+        $studlyCaps = new StudlyCaps(['id' => 42]);
+
+        $studlyCaps->merge(['id' => 42]);
+
+        self::assertTrue($studlyCaps->exists());
+    }
+
+    /** @test */
     public function onInitGetCalled()
     {
         $mock = m::mock(StudlyCaps::class)->makePartial();
@@ -350,9 +477,34 @@ class DataTest extends TestCase
 
         self::assertSame(serialize([
             'data' => ['foo' => 'bar'],
+            'original' => ['foo' => 'bar'],
             'related' => [],
             'exists' => true
         ]), $serialized);
+    }
+
+    /** @test */
+    public function deserializationRestoresTheOriginalData()
+    {
+        $entity = new StudlyCaps(['id' => 42, 'foo' => 'bar'], $this->em, true);
+        $entity->foo = 'baz';
+
+        $entity = unserialize(serialize($entity));
+
+        self::assertSame(['foo' => 'baz'], $entity->getDirtyColumns());
+    }
+
+    /** @test */
+    public function deserializationWithoutOriginalData()
+    {
+        // Serializable format - readable by every PHP version (__unserialize() requires PHP 7.4)
+        $serialized = 'C:35:"ORM\Test\Entity\Examples\StudlyCaps":80:' .
+            '{a:3:{s:4:"data";a:1:{s:3:"foo";s:3:"bar";}s:7:"related";a:0:{}s:6:"exists";b:1;}}';
+
+        $entity = unserialize($serialized);
+
+        self::assertSame(['foo' => 'bar'], $entity->getDirtyColumns());
+        self::assertTrue($entity->exists());
     }
 
     /** @test */

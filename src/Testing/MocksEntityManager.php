@@ -3,6 +3,7 @@
 namespace ORM\Testing;
 
 use Mockery as m;
+use Mockery\ExpectationDirector;
 use ORM\Entity;
 use ORM\EntityFetcher;
 use ORM\EntityManager;
@@ -250,14 +251,18 @@ trait MocksEntityManager
      *
      * Entity has to be a mock use `emCreateMockedEntity()` to create it.
      *
+     * Chain `->withChanges($changes)` to verify the changes that get written.
+     *
      * @param Entity|m\MockInterface $entity
      * @param array  $changingData Emulate changing data during update statement (triggers etc)
      * @param array  $updatedData  Emulate data changes in database
+     * @return SaveExpectation
      */
     public function ormExpectUpdate(m\MockInterface $entity, $changingData = [], $updatedData = [])
     {
         $expectation = $this->ormAllowUpdate($entity, $changingData, $updatedData);
         $expectation->once();
+        return $expectation;
     }
 
     /**
@@ -268,45 +273,45 @@ trait MocksEntityManager
      * @param Entity|m\MockInterface $entity
      * @param array $changingData Emulate changing data during update statement (triggers etc)
      * @param array $updatedData Emulate data changes in database
-     * @return m\Expectation
+     * @return SaveExpectation
      */
     public function ormAllowUpdate(m\MockInterface $entity, $changingData = [], $updatedData = [])
     {
-        $expectation = $entity->shouldReceive('save');
+        // same as shouldReceive('save') but with a SaveExpectation
+        $director = $entity->mockery_getExpectationsFor('save');
+        if (!$director) {
+            $director = new ExpectationDirector('save', $entity);
+            $entity->mockery_setExpectationsFor('save', $director);
+        }
+        $expectation = new SaveExpectation($entity, 'save');
+        $director->addExpectation($expectation);
 
-        // @phpstan-ignore-next-line instanceof.alwaysFalse
-        if ($expectation instanceof m\CompositeExpectation) {
-            $expectation->andReturnUsing(
-                function () use ($entity, $updatedData, $changingData) {
-                    $class = get_class($entity);
-                    // sync with database using $updatedData
-                    if (!empty($updatedData)) {
-                        $newData = $entity->getData();
-                        $entity->reset();
-                        $entity->setOriginalData(array_merge(
-                            $entity->getData(),
-                            $this->ormAttributesToData($class, $updatedData)
-                        ));
-                        $entity->fill($newData);
-                    }
+        $expectation->andReturnUsing(
+            function () use ($entity, $updatedData, $changingData, $expectation) {
+                $class = get_class($entity);
+                // sync with database using $updatedData
+                if (!empty($updatedData)) {
+                    $entity->merge($this->ormAttributesToData($class, $updatedData));
+                }
 
-                    if (!$entity->isDirty()) {
-                        return $entity;
-                    }
-
-                    // update the entity using $changingData
-                    $entity->preUpdate();
-                    $entity->setOriginalData(array_merge(
-                        $entity->getData(),
-                        $this->ormAttributesToData($class, $changingData)
-                    ));
-                    $entity->reset();
-                    $entity->postUpdate();
-
+                if (!$entity->isDirty()) {
+                    $expectation->verifyChanges($entity);
                     return $entity;
                 }
-            );
-        }
+
+                // update the entity using $changingData
+                $entity->preUpdate();
+                $expectation->verifyChanges($entity);
+                $entity->setOriginalData(array_merge(
+                    $entity->getData(),
+                    $this->ormAttributesToData($class, $changingData)
+                ));
+                $entity->reset();
+                $entity->postUpdate();
+
+                return $entity;
+            }
+        );
 
         return $expectation;
     }

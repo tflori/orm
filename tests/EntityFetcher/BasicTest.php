@@ -243,6 +243,64 @@ class BasicTest extends TestCase
     }
 
     /** @test */
+    public function dirtyEntitiesGetTheUnchangedColumns()
+    {
+        $e1 = new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile',
+            'number' => '+41 160 21305919',
+            'relation_id' => 1,
+        ], $this->em, true);
+        $this->em->map($e1);
+        $e1->number = '+49 151 00000000';
+
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $statement = m::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->andReturn([
+            'id' => 42,
+            'name' => 'mobile',
+            'number' => '+41 160 21305919',
+            'relation_id' => 2,
+        ]);
+
+        $contactPhone = $fetcher->one();
+
+        self::assertSame(2, $contactPhone->relationId);
+        self::assertSame('+49 151 00000000', $contactPhone->number);
+        self::assertSame(['number'], array_keys($contactPhone->getDirty()));
+    }
+
+    /** @test */
+    public function dirtyEntitiesGetAdditionalColumns()
+    {
+        $e1 = new ContactPhone([
+            'id' => 42,
+            'name' => 'mobile',
+            'number' => '+41 160 21305919'
+        ], $this->em, true);
+        $this->em->map($e1);
+        $e1->number = '+49 151 00000000';
+
+        $fetcher = $this->em->fetch(ContactPhone::class);
+        $statement = m::mock(\PDOStatement::class);
+        $this->pdo->shouldReceive('query')->andReturn($statement);
+        $statement->shouldReceive('setFetchMode')->andReturnTrue();
+        $statement->shouldReceive('fetch')->andReturn([
+            'id' => 42,
+            'name' => 'mobile',
+            'number' => '+41 160 21305919',
+            'call_count' => 23
+        ]);
+
+        $contactPhone = $fetcher->one();
+
+        self::assertSame(23, $contactPhone->callCount);
+        self::assertFalse($contactPhone->isDirty('callCount'));
+    }
+
+    /** @test */
     public function allReturnsEmptyArray()
     {
         /** @var EntityFetcher|Mock $fetcher */

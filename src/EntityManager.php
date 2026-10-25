@@ -445,6 +445,7 @@ class EntityManager
     /**
      * Synchronizing $entity with database
      *
+     * Columns that are not changed locally get the value from the database, local changes are kept.
      * If $reset is true it also calls reset() on $entity.
      *
      * @param Entity $entity
@@ -462,8 +463,8 @@ class EntityManager
         }
 
         $result = $this->getConnection()->query($fetcher->getQuery());
-        if ($originalData = $result->fetch(PDO::FETCH_ASSOC)) {
-            $entity->setOriginalData($originalData);
+        if ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            $entity->merge($row, true);
             if ($reset) {
                 $entity->reset();
             }

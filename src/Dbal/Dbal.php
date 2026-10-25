@@ -275,7 +275,7 @@ abstract class Dbal
     }
 
     /**
-     * Update $entity in database and returns success
+     * Update the changed columns of $entity in database and returns success
      *
      * @param Entity $entity
      * @return bool
@@ -283,19 +283,15 @@ abstract class Dbal
      */
     public function updateEntity(Entity $entity)
     {
-        $data       = $entity->getData();
-        $primaryKey = $entity->getPrimaryKey();
-
         $where = [];
-        foreach ($primaryKey as $attribute => $value) {
-            $col = $entity::getColumnName($attribute);
-            $where[$col] = $value;
-            if (isset($data[$col])) {
-                unset($data[$col]);
-            }
+        foreach ($entity->getPrimaryKey() as $attribute => $value) {
+            $where[$entity::getColumnName($attribute)] = $value;
         }
 
-        $this->update($entity::getTableName(), $where, $data);
+        $updates = array_diff_key($entity->getDirtyColumns(), $where);
+        if (!empty($updates)) {
+            $this->update($entity::getTableName(), $where, $updates);
+        }
         return $this->entityManager->sync($entity, true);
     }
 

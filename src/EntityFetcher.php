@@ -114,11 +114,7 @@ class EntityFetcher extends QueryBuilder
         $entity = $this->entityManager->map($newEntity);
 
         if ($newEntity !== $entity) {
-            $dirty = $entity->isDirty();
-            $entity->setOriginalData($data);
-            if (!$dirty && $entity->isDirty()) {
-                $entity->reset();
-            }
+            $entity->merge($data);
         }
 
         return $entity;

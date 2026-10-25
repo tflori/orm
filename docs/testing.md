@@ -104,7 +104,7 @@ Helper methods of the `ORM\Testing\MocksEntityManager` trait:
 | `ormCreateMockedEntity($class, $data = [])`              | Create a partial mock of an entity (available through fetch)  |
 | `ormAddResult($class, Entity ...$entities)`              | Provide entities for fetchers of `$class` (returns a `Result`) |
 | `ormExpectInsert($class, $defaultValues = [])`           | Expect `save()` of a new entity of `$class`                   |
-| `ormExpectUpdate($entity, $changingData = [], $updatedData = [])` | Expect `save()` of an existing (mocked) entity       |
+| `ormExpectUpdate($entity, $changingData = [], $updatedData = [])` | Expect `save()` of an existing (mocked) entity - chain `->withChanges($changes)` to verify the written changes (since 1.11) |
 | `ormExpectDelete($entity)`                               | Expect `delete()` of an entity (or class name)                |
 | `ormAllowInsert()`, `ormAllowUpdate()`, `ormAllowDelete()` | Same as `ormExpect*()` but without expecting a call         |
 | `ormGetEntityManagerInstance($class)`                    | The `EntityManagerMock` responsible for `$class`              |
@@ -450,6 +450,24 @@ class ArticleControllerTest extends TestCase
     }
 }
 ```
+
+`save()` writes only the changed columns. To verify them, chain `withChanges()` to `ormExpectUpdate()` (since 1.11).
+An array expects exactly these changes, so a column that is not in the array must not be written. A Mockery matcher
+gets all changes as array of attribute => new value. The changes are compared after `preUpdate()`, so changes from
+`preUpdate()` are included.
+
+```php
+$article = $this->ormCreateMockedEntity(Article::class, ['id' => 42, 'title' => 'Hello World!', 'text' => '...']);
+
+// exactly these changes - text must not be written
+$this->ormExpectUpdate($article)->withChanges(['title' => 'Don`t Panic!']);
+// or: at least these changes
+// $this->ormExpectUpdate($article)->withChanges(\Mockery::subset(['title' => 'Don`t Panic!']));
+
+updateArticle(42, 'Don`t Panic!');
+```
+
+When the changes don't match, `save()` throws a `Mockery\Exception` that shows the expected and the actual changes.
 
 #### Deleting an Entity
 

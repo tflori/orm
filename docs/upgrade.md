@@ -22,6 +22,15 @@ What changed between the versions and what you might have to adapt in your code.
   triggers an `E_USER_WARNING`.
 - **Magic getter**: relations from `<relation>Relation()` methods and the boot method are available through
   `$entity->relation` (and `isset()`) without resolving them first.
+- **Fetching an entity again and `EntityManager::sync()` merge the row from the database** into the entity: columns
+  that are not changed locally get the value from the database, local changes are kept. Before, only the original
+  data was replaced - columns that were not changed locally became dirty and `save()` wrote the old values back.
+  Columns that are not in the row (e.g. extra columns of a previous fetch) are kept.
+- **`save()` writes only changed columns** - before, all columns were written. Extra columns from a fetch (e.g.
+  aggregates) are not written anymore, and without changes no `UPDATE` is executed. Database side effects can change:
+  MySQL `ON UPDATE CURRENT_TIMESTAMP` columns are updated now (they were set explicitly before), and triggers on
+  specific columns (`UPDATE OF`) only fire when these columns change. Tests that expect the exact `UPDATE` statement
+  have to be adapted.
 - Removed the protected method `Relation::checkBoundTo()` and the exception "Relation already used for …".
 - **New methods on `Entity`** that may conflict with methods of your entities: `hasRelation()`, `defineRelation()`
   and `storeRelationsFromBoot()`.
@@ -35,6 +44,8 @@ What changed between the versions and what you might have to adapt in your code.
 - `EntityFetcherMock::$currentResult` was removed, `getResults()` is internal and deprecated.
 - `EntityFetcherMock\Result` works in memory: `one()`, `all()`, `count()`, `delete()`, `update()` and `insert()`
   of a result don't execute queries anymore.
+- `ormAllowUpdate()` returns a `ORM\Testing\SaveExpectation` (a `Mockery\Expectation`) instead of a
+  `Mockery\CompositeExpectation`.
 
 #### Not recommended anymore
 
@@ -52,6 +63,8 @@ What changed between the versions and what you might have to adapt in your code.
 - `Entity::defineRelation($name, $definition)` and `Entity::hasRelation($name)`.
 - Expectations on results of `ormAddResult()`: `expectOne()`, `expectAll()`, `expectCount()`, `expectDelete()`,
   `expectUpdate()` and `expectInsert()`.
+- `ormExpectUpdate()` returns the expectation, `->withChanges($changes)` verifies the changes written by `save()`.
+- Serialized entities contain the original data - after `unserialize()` only the changed columns are written.
 
 ### 1.9 → 1.10
 

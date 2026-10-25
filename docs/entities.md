@@ -75,16 +75,17 @@ $articles = $entityManager->fetch(Article::class)
 
 Please note that it is not possible to remove the predefined modifier `DISTINCT` and the column selection `t0.*` (the
 entity table is aliased `t0`). However it is possible to add additional columns (for example aggregates from joined
-tables) but keep in mind that you then maybe also need to group by the primary key of `t0`. Also it will not be possible
-to update the entity in the DB with these extra columns.
+tables) but keep in mind that you then maybe also need to group by the primary key of `t0`. Extra columns are not
+written when you save the entity.
 
 Example with aggregate column:
 ```php
 $albums = $entityManager->fetch(Album::class)
     ->joinRelated('images')
     ->groupBy('t0.id')
-    ->column('COUNT(images.id)', [], 'imageCount')
+    ->column('COUNT(images.id)', [], 'image_count')
     ->all();
+echo $albums[0]->imageCount;
 ```
 
 ### Set and get columns
@@ -104,6 +105,30 @@ var_dump($user->isDirty('email')); // true
 $user->reset('email');
 var_dump($user->isDirty()); // false
 ```
+
+`save()` writes only the changed columns. Values are compared strictly - store the value as it comes from the
+database (e.g. `'2024-01-01 12:00:00'` instead of a `DateTime`, `'1'` instead of `true`), otherwise the column counts
+as changed and is written on every save.
+
+### Fetching an entity again
+
+An entity that is already in the entity map is not created again - you get the same object. The row from the
+database is merged into it: columns that you did not change get the current value from the database, your changes
+are kept. The same happens with `$entityManager->sync($entity)`.
+
+```php
+$user = $entityManager->fetch(User::class, 1);
+$user->email = 'foobar@example.com';
+
+// meanwhile the name got changed in the database
+$user = $entityManager->fetch(User::class)->where('id', 1)->one();
+echo $user->name; // the new name from the database
+echo $user->email; // foobar@example.com
+var_dump(array_keys($user->getDirty())); // ['email']
+```
+
+> A column that you set back to exactly the value it had when the entity was loaded counts as not changed. When this
+> column got changed in the database meanwhile, the value from the database wins.
 
 ### Add custom getter and setter
 
